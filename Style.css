@@ -1,0 +1,67 @@
+* {
+    font-family: Inter, serif;
+}
+
+body {
+    margin: 0;
+    background-color: #030012;
+    color: #03d3d3;
+}
+
+:where(button) {
+    appearance: none;
+    width: 4em;
+    height: 2em;
+    cursor: pointer;
+    transition: 1ms;
+    background-color: mediumblue; /* dimgray good color for stage 3 */
+    border: 2px solid darkcyan;
+    color: #e3e3e3;
+}
+
+:where(button):hover { background-color: #2626ff; }
+
+.insideTab {
+    margin-top: 1vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 15em;
+    padding: 1em 0.9em;
+    gap: 1.2em;
+    background-color: #12121c;
+    border: 2px solid cornflowerblue;
+}
+
+.bigButton {
+    width: 10em;
+}
+
+.buyBuilding {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.1em;
+    height: 2em;
+}
+
+.buyBuldingsAll { width: 30em }
+.buyBuilding button { margin-left: auto; }
+
+.footer {
+    position: fixed;
+    background-color: #0000b1; /*Change it for first stage, but maybe keep (brigher version) for stage 2*/
+    width: 100%;
+    bottom: 0;
+    padding: 0.5em;
+}
+
+.footerArea {
+    width: 50%;
+}

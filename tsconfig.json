@@ -1,0 +1,26 @@
+/* All of it from here: https://www.typescriptlang.org/tsconfig */
+{
+  "compilerOptions": {
+    "rootDirs": ["Source_TS"],
+    "outFile": "Converted.js", //Use npm build instead, but if for some reason need to use default one, then - "npx -p typescript tsc"
+    "target": "ES6",
+    "module": "system",
+    "lib": ["ESNext", "DOM"],
+    "removeComments": true,
+    //"noEmit": true,
+
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    //"noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    //"noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+  }
+}

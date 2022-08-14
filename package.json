@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "esbuild": "^0.15.5",
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "build": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Converted.js",
+    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Converted.js --watch"
+  }
+}
