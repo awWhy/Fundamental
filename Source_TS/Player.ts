@@ -1,23 +1,24 @@
-export const player = [{}/*Energy: {
-    current: 0,
-    total: 0
-},*/
-];
+export const player: any = {};
 
-class MainBuilding {
-    cost: number; //I don't like TS
-    producing: number;
-    amount: number;
-    constructor(cost: number, producing: number, amount = 0) {
-        this.cost = cost;
-        this.producing = producing;
-        this.amount = amount;
-    }
+function AddResource(name: string, current = 0, total = current) { //Not a class, because no
+    Object.assign(player, { [name]: { current, total } });
 }
-const Atoms = new MainBuilding(2, 1)
-player.push(Atoms, );
+
+function AddMainBuilding(name: string, cost: number, producing: number, amount = 0) {
+    Object.assign(player, { [name]: { cost, producing, amount } });
+}
+
+/* All player additions has to be done here */
+AddResource('quarks', 3);
+AddResource('energy');
+AddMainBuilding('atoms', 2, 0.1);
+AddMainBuilding('molecules', 3, 0.1);
+Object.preventExtensions(player);
+/* Don't know how to export them better */
+export const { energy, quarks, atoms, molecules } = player;
+
+quarks.current = 111 ** 2; //Just a test
 
 export const global = {
-    
-}
-console.log(player)
+    //
+};

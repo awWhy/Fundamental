@@ -4,16 +4,16 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="Style.css">
         <title>Test game</title>
-        <link rel="icon" href="Icon.ico">
+        <!-- Add later <link rel="icon" href="Icon.ico"> -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Just testing abbility to make anything">
-        <script src="/Code.ts" defer></script>
+        <script src="/Converted.js" defer></script>
     </head>
     <body>
         <div id="stageTab" class="insideTab">
             <div class="stage">
-                <a>Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true"> Current stage: Microworld</a>
+                <a>Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true"> Current stage: <span class="stageWord">Microworld</span></a>
                 <button id="stageReset" class="bigButton">Enter next stage</button>
             </div>
             <div class="buyBuldingsAll"> <!-- Add Particles (protons, neutrons, electrons), Quarks, Molecules should be starting for next Stage -->
@@ -22,14 +22,14 @@
                     <p aria-hidden="true">Atoms<span> owned:</span><span> producing:</span></p>
                     <button aria-label="Atoms, cost, can't afford, owned, producing" id="firstBuilding">Cost</button>
                 </div>
-                <div id="moleculesMain" class="buyBuilding" hidden>
+                <div id="moleculesMain" class="buyBuilding">
                     <img src="" alt="">
                     <p aria-hidden="true">Molecules<span> owned:</span><span> producing:</span></p>
                     <button aria-label="Molecules, cost, can't afford, owned, producing" id="firstBuilding">Cost</button>
                 </div>
             </div>
         </div>
-        <div id="settingsTab" class="insideTab" hidden>
+        <div id="settingsTab" class="insideTab">
         </div>
         <div class="footer">
             <div class="">

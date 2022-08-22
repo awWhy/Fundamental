@@ -8,6 +8,11 @@ body {
     color: #03d3d3;
 }
 
+.stageWord {
+    text-decoration: underline;
+    font-size: 1.1rem;
+}
+
 :where(button) {
     appearance: none;
     width: 4em;

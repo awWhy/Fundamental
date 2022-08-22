@@ -5,4 +5,4 @@ export const switchTab = (tab: string) => {
         case 'Settings':
             break;
     }
-}
+};

@@ -1,0 +1,68 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": "standard-with-typescript",
+    "overrides": [
+    ],
+    "parserOptions": {
+        "project": ["./tsconfig.json"],
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "rules": { /* https://eslint.org/docs/latest/rules/ */ /* https://typescript-eslint.io/rules/ */
+        /* To see all used rules type `npx eslint --print-config file.ts > eslintconifg.txt`, this will create a text file */
+        "semi": "off", //Already in @typescript
+        "space-before-function-paren": "off", //Already in @typescript
+        "spaced-comment": "off",
+        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "curly": ["error", "all"],
+        "object-shorthand": ["warn", "always"], //Can be turned off, if something
+        "comma-dangle": ["warn", "never"],
+        "max-statements-per-line": ["warn", { "max": 1 }], //Testing this one
+        "no-promise-executor-return": "error", //Test
+        "no-unsafe-optional-chaining": "error", //Test
+        "no-fallthrough": "error", // add `//falls through` if you need intentional one
+        "no-unused-private-class-members": "warn", //Test
+        "no-unsafe-negation": ["error", { "enforceForOrderingRelations": true }], //Use (!key) or !(a < b), if don't understand it
+        "no-empty": "warn", //Add comment inside empty if testing
+        "no-void": "off", //Test
+        "no-useless-concat": "warn",
+        "no-extra-label": "warn",
+        "switch-colon-spacing": "error",
+        "generator-star-spacing": "error",
+        //"capitalized-comments": "warn", //Buggy
+        //"no-var": "off", //If there is good reason
+        "multiline-ternary": "off", //I don't like it
+        //"no-case-declarations": "off", //Can be turned off
+        //"no-class-assign": "off", //Can be turned off
+        "no-sparse-arrays": "off",
+        "operator-assignment": "warn", //Test
+        "prefer-destructuring": "warn", //Test
+
+        "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
+        "@typescript-eslint/semi": ["error", "always"],
+        "@typescript-eslint/explicit-function-return-type": "off", //I don't like it
+        "@typescript-eslint/space-before-function-paren": ["error", "never"],
+        "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }], //Can be changed, also I don't understand "ignoreRestSiblings"
+        "@typescript-eslint/no-empty-function": "warn", //Add comment inside empty if testing
+        "@typescript-eslint/no-empty-interface": "warn", //Add comment inside empty if testing
+        "@typescript-eslint/no-invalid-this": "error", //Test
+        "@typescript-eslint/no-extra-semi": "error",
+        "@typescript-eslint/await-thenable": "error", //Test
+        "@typescript-eslint/consistent-type-definitions": "off", //Don't see a reason for it
+        "@typescript-eslint/unified-signatures": ["error", { "ignoreDifferentlyNamedParameters": true}], //Test
+        "@typescript-eslint/no-unnecessary-condition": "warn", //Test
+        "@typescript-eslint/no-unnecessary-type-constraint": "warn", //Test
+        "@typescript-eslint/no-unnecessary-type-arguments": "warn", //Test
+        "@typescript-eslint/no-require-imports": "warn", //I think it's better this way
+        //"@typescript-eslint/no-redeclare": "error, { "builtinGlobals": true }", //No real need, if var not allowed (?)
+        "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn", //Test
+        "@typescript-eslint/no-meaningless-void-operator": "warn", //Test
+        "@typescript-eslint/no-inferrable-types": "warn",
+        "@typescript-eslint/default-param-last": "error", //For QoL
+        "@typescript-eslint/prefer-namespace-keyword": "warn", //I dont know what this mean...
+        "@typescript-eslint/prefer-as-const": "error" //Test
+    }
+}

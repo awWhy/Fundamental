@@ -1,13 +1,16 @@
-import { switchTab } from './Update';
+//import { switchTab } from './Update';
+import { quarks, player } from './Player';
 
-const idCheck = (id: string) => { //To type less and check if ID exist
-    if (document.getElementById(id) && id !== null) {
-        return document.getElementById(id);
+export const getId = (id: string) => { //To type less and check if ID exist
+    const i = document.getElementById(id);
+    if (i !== null) {
+        return i;
     }
-    return console.error(`Id "${id}" not found`);
-}
+    throw new TypeError(`ID "${id}" not found.`); //New or not, wont change result
+};
 
-export const getId = (id: string) => idCheck(id) as HTMLElement; //Without this (or ?.), there will be errors
+//getId('atomsMain').addEventListener('click', () => switchTab('Stage'));
+//getId('notRealId').addEventListener('click', () => switchTab('Settings'));
 
-getId('atomsMain').addEventListener('click', () => switchTab('Stage'));
-getId('').addEventListener('click', () => switchTab('Settings'))
+console.log(player);
+console.log(quarks);
