@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Just testing abbility to make anything">
-        <script src="/Converted.js" defer></script>
+        <script src="/Code.js" defer></script>
     </head>
     <body>
         <div id="stageTab" class="insideTab">
@@ -16,37 +16,37 @@
                 <a class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true"> Current stage: <span class="stageWord">Microworld</span></a>
                 <button id="stageReset" class="bigButton">Enter next stage</button>
             </div>
-            <div class="buyBuldingsAll"> <!-- Add Particles (protons, neutrons, electrons), Quarks, Molecules should be starting for next Stage -->
+            <div class="buyBuldingsAll">
                 <div id="particlesMain" class="buyBuilding">
                     <img src="" alt="">
-                    <p aria-hidden="true">Particles<span class="whiteText"> cost: 3 quarks</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
-                    <button aria-label="Buy particles, cost, can't afford, owned, producing" id="building1">Cost</button>
+                    <p aria-hidden="true">Particles: <span class="whiteText">0</span><span> producing: <span class="whiteText">0</span></span></p>
+                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building1">Need: 3 Quarks</button>
                 </div>
                 <div id="atomsMain" class="buyBuilding">
                     <img src="" alt="">
-                    <p aria-hidden="true">Atoms<span class="whiteText"> cost: 2 particles</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
-                    <button aria-label="Buy atoms, cost, can't afford, owned, producing" id="building2">Cost</button>
+                    <p aria-hidden="true">Atoms: <span class="whiteText">0</span><span> producing: <span class="whiteText">0</span></span></p>
+                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building2">Need: 24 Particles</button>
                 </div>
                 <div id="moleculesMain" class="buyBuilding">
                     <img src="" alt="">
-                    <p aria-hidden="true">Molecules<span class="whiteText"> cost: 3 atoms</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
-                    <button aria-label="Buy molecules, cost, can't afford, owned, producing" id="building3">Cost</button>
+                    <p aria-hidden="true">Molecules: <span class="whiteText">0</span><span> producing: <span class="whiteText">0</span></span></p>
+                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building3">Need: 3 Atoms</button>
                 </div>
             </div>
         </div>
         <div id="settingsTab" class="insideTab">
         </div>
         <div class="footer">
-            <div class="">
+            <div class=""> <!-- Add option to hide it, add special buttons, like buy x here -->
             </div>
             <div class="footerArea">
                 <div>
                     <img src="" alt="">
-                    <a>Quarks: 3</a>
+                    <a class="stage1TextColor">Quarks: 3</a>
                 </div>
                 <div>
                     <img src="" alt="">
-                    <a>Energy: 0</a>
+                    <a class="orangeText">Energy: 0</a>
                 </div>
             </div>
             <div class="footerArea" aria-hidden="true">

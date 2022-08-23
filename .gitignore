@@ -1,5 +1,5 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 .vscode/
 node_modules/
-Converted.js
+Code.js
 eslintconifg.txt

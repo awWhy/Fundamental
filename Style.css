@@ -1,18 +1,19 @@
-* {
-    font-family: Inter, serif;
-}
+* { font-family: Inter, serif; }
 
 body {
     margin: 0;
     background-color: #030012;
     color: #03d3d3;
+    /* Add custom colors, when ready for stage 2*/
 }
 
-.whiteText { color: white}
+.stage1TextColor { color: #03d3d3; }
+.whiteText { color: white }
+.orangeText { color: darkorange }
 
 button {
     appearance: none;
-    width: 4.2em;
+    width: 25em;
     height: 2em;
     cursor: pointer;
     transition: 1ms;
@@ -20,8 +21,6 @@ button {
     border: 2px solid darkcyan;
     color: #e3e3e3;
 }
-
-:where(button):hover { background-color: #2626ff; } /*Instead of creating more :hover of same colors, add them here*/
 
 .bigButton {
     width: 10rem;
@@ -38,6 +37,8 @@ nav button {
 }
 
 nav button:hover { background-color: #181818; }
+:where(button):hover { background-color: #2626ff; }
+/*Instead of creating more :hover of same colors, add them here*/
 
 .insideTab {
     margin-top: 2vh;
@@ -79,14 +80,14 @@ nav button:hover { background-color: #181818; }
     height: 2em;
 }
 
-.buyBuilding > p {
-    display: flex;
-    justify-content: space-between;
-    margin-right: 2em;
-    width: 100%;
-}
-
 .buyBuldingsAll { width: 34em }
+.buyBuilding > p { width: 100%; }
+.buyBuilding > p span:first-of-type { margin-left: 0.5em; }
+
+.buyBuilding > p span:last-of-type {
+    float: right; /* I wish, I knew a better way*/
+    margin-right: 0.5em;
+}
 
 .footer {
     position: fixed;

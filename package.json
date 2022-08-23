@@ -1,12 +1,27 @@
 {
-  "dependencies": {
-    "esbuild": "^0.15.5"
+  "name": "test",
+  "description": "",
+  "version": "0.0.0",
+  "main": "Code.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awWhy/Test.git"
   },
+  "keywords": [],
+  "author": "awWhy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/awWhy/Test/issues"
+  },
+  "homepage": "https://github.com/awWhy/Test#readme",
   "scripts": {
     "lint": "npx eslint Source_TS/*.ts",
     "fix": "npx eslint Source_TS/*.ts --fix",
-    "build": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Converted.js",
-    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Converted.js --watch"
+    "build": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js",
+    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js --watch"
+  },
+  "dependencies": {
+    "esbuild": "^0.15.5"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.33.1",
