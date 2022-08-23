@@ -89,7 +89,7 @@ nav button:hover { background-color: #181818; }
     margin-right: 0.5em;
 }
 
-.footer {
+#footer {
     position: fixed;
     background-color: darkblue; /*Change it for first stage, but maybe keep (brigher version) for stage 2*/
     width: 100%;
@@ -107,3 +107,6 @@ nav button:hover { background-color: #181818; }
 .footerArea:not(:last-of-type) {
     margin-bottom: 0.8em;
 }
+
+/* This one has to be the last one */
+.notUnlocked { display: none; }
