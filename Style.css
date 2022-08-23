@@ -8,14 +8,11 @@ body {
     color: #03d3d3;
 }
 
-.stageWord {
-    text-decoration: underline;
-    font-size: 1.1rem;
-}
+.whiteText { color: white}
 
-:where(button) {
+button {
     appearance: none;
-    width: 4em;
+    width: 4.2em;
     height: 2em;
     cursor: pointer;
     transition: 1ms;
@@ -24,14 +21,39 @@ body {
     color: #e3e3e3;
 }
 
-:where(button):hover { background-color: #2626ff; }
+:where(button):hover { background-color: #2626ff; } /*Instead of creating more :hover of same colors, add them here*/
+
+.bigButton {
+    width: 10rem;
+    height: 2.25rem;
+    font-size: 1.05em;
+}
+
+nav button {
+    background-color: black;
+    border-radius: 10px;
+    width: 4.8em;
+    height: 2em;
+    font-size: 1.01rem;
+}
+
+nav button:hover { background-color: #181818; }
 
 .insideTab {
-    margin-top: 1vh;
+    margin-top: 2vh;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1em;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2.2em;
+}
+
+@media screen and (max-width: 55em) {
+    .insideTab {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2em;
+        margin-top: 1vh;
+    }
 }
 
 .stage {
@@ -39,14 +61,15 @@ body {
     flex-direction: column;
     align-items: center;
     width: 15em;
-    padding: 1em 0.9em;
+    padding: 1.2em 1.1em;
     gap: 1.2em;
     background-color: #12121c;
     border: 2px solid cornflowerblue;
 }
 
-.bigButton {
-    width: 10em;
+.stageWord {
+    font-size: 1.1rem;
+    color: #03d3d3
 }
 
 .buyBuilding {
@@ -56,17 +79,30 @@ body {
     height: 2em;
 }
 
-.buyBuldingsAll { width: 30em }
-.buyBuilding button { margin-left: auto; }
+.buyBuilding > p {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 2em;
+    width: 100%;
+}
+
+.buyBuldingsAll { width: 34em }
 
 .footer {
     position: fixed;
-    background-color: #0000b1; /*Change it for first stage, but maybe keep (brigher version) for stage 2*/
+    background-color: darkblue; /*Change it for first stage, but maybe keep (brigher version) for stage 2*/
     width: 100%;
     bottom: 0;
-    padding: 0.5em;
+    padding: 1vh 1vw;
 }
 
-.footerArea {
-    width: 50%;
+.footerArea, nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.5em 1em;
+}
+
+.footerArea:not(:last-of-type) {
+    margin-bottom: 0.8em;
 }

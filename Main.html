@@ -13,19 +13,24 @@
     <body>
         <div id="stageTab" class="insideTab">
             <div class="stage">
-                <a>Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true"> Current stage: <span class="stageWord">Microworld</span></a>
+                <a class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true"> Current stage: <span class="stageWord">Microworld</span></a>
                 <button id="stageReset" class="bigButton">Enter next stage</button>
             </div>
             <div class="buyBuldingsAll"> <!-- Add Particles (protons, neutrons, electrons), Quarks, Molecules should be starting for next Stage -->
+                <div id="particlesMain" class="buyBuilding">
+                    <img src="" alt="">
+                    <p aria-hidden="true">Particles<span class="whiteText"> cost: 3 quarks</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
+                    <button aria-label="Buy particles, cost, can't afford, owned, producing" id="building1">Cost</button>
+                </div>
                 <div id="atomsMain" class="buyBuilding">
                     <img src="" alt="">
-                    <p aria-hidden="true">Atoms<span> owned:</span><span> producing:</span></p>
-                    <button aria-label="Atoms, cost, can't afford, owned, producing" id="firstBuilding">Cost</button>
+                    <p aria-hidden="true">Atoms<span class="whiteText"> cost: 2 particles</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
+                    <button aria-label="Buy atoms, cost, can't afford, owned, producing" id="building2">Cost</button>
                 </div>
                 <div id="moleculesMain" class="buyBuilding">
                     <img src="" alt="">
-                    <p aria-hidden="true">Molecules<span> owned:</span><span> producing:</span></p>
-                    <button aria-label="Molecules, cost, can't afford, owned, producing" id="firstBuilding">Cost</button>
+                    <p aria-hidden="true">Molecules<span class="whiteText"> cost: 3 atoms</span><span class="whiteText"> owned: 0</span><span class="whiteText"> producing: 0</span></p>
+                    <button aria-label="Buy molecules, cost, can't afford, owned, producing" id="building3">Cost</button>
                 </div>
             </div>
         </div>
@@ -35,13 +40,19 @@
             <div class="">
             </div>
             <div class="footerArea">
-                <img src="" alt="">
-                <a>Quarks:<span> total</span></a>
+                <div>
+                    <img src="" alt="">
+                    <a>Quarks: 3</a>
+                </div>
+                <div>
+                    <img src="" alt="">
+                    <a>Energy: 0</a>
+                </div>
             </div>
             <div class="footerArea" aria-hidden="true">
                 <nav>
-                    <ul>
-                    </ul>
+                    <button id="stageTabBtn">Stage</button>
+                    <button id="settingsTabBtn">Settings</button>
                 </nav>
             </div>
         </div>
