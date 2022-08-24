@@ -65,6 +65,7 @@
         "@typescript-eslint/prefer-namespace-keyword": "warn", //I dont know what this mean...
         "@typescript-eslint/prefer-as-const": "error", //Test
         "@typescript-eslint/restrict-plus-operands": "off", //This is dumb
-        "@typescript-eslint/restrict-template-expressions": "off" //I hate it
+        "@typescript-eslint/restrict-template-expressions": "off", //I hate it
+        "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }]
     }
 }

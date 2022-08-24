@@ -14,8 +14,8 @@ getId('particlesBtn').addEventListener('click', () => buyBuilding(quarks, partic
 getId('atomsBtn').addEventListener('click', () => buyBuilding(particles, atoms));
 getId('moleculesBtn').addEventListener('click', () => buyBuilding(atoms, molecules));
 //getId('stageReset').addEventListener('click', () => stageRestCheck());
-getId('stageTabBtn').addEventListener('click', () => switchTab('Stage'));
-getId('settingsTabBtn').addEventListener('click', () => switchTab('Settings'));
+getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
+getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 setInterval(invisibleUpdate, intervals.main);
-setInterval(visualUpdate, intervals.visual);
+setInterval(visualUpdate, intervals.numbers);

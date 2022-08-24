@@ -1,15 +1,15 @@
-import { energy, player } from './Player';
-import { visualUpdate } from './Update';
+import { atoms, energy, particles } from './Player';
+import { earlyRound, visualUpdate } from './Update';
 
-export const buyBuilding = (spend: typeof player, buy: typeof player) => {
+export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
     if (spend.current >= buy.cost) {
-        spend.current -= Number(buy.cost);
+        spend.current -= buy.cost;
         buy.current++;
-        energy.current += 1;
-        energy.total += 1;
+        buy.total++;
+        buy.cost = earlyRound(buy.cost * 1.4);
+        const type = buy === particles ? 1 : buy === atoms ? 5 : 20;
+        energy.current += type;
+        energy.total += type;
         visualUpdate();
-        console.log('Success purchase');
-    } else { /* Just testing, for later, will figure out good numbers later */
-        console.log('Not enough');
     }
 };

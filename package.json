@@ -18,7 +18,9 @@
     "lint": "npx eslint Source_TS/*.ts",
     "fix": "npx eslint Source_TS/*.ts --fix",
     "build": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js",
-    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js --watch"
+    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js --watch",
+    "build:map": "npx esbuild Source_TS/Main(OnLoad).ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js",
+    "watch:map": "npx esbuild Source_TS/Main(OnLoad).ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari11,edge41,opera50 --outfile=Code.js --watch"
   },
   "dependencies": {
     "esbuild": "^0.15.5"
