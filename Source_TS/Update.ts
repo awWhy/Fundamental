@@ -1,5 +1,5 @@
 import { getId } from './Main(OnLoad)';
-import { atoms, energy, global, molecules, particles, quarks, stage, time } from './Player';
+import { atoms, energy, global, molecules, particles, quarks, stage, time, upgradesDescription } from './Player';
 
 export const switchTab = (tab: string) => {
     if (global.tab !== tab) { //First hide all tabs, then show requested one
@@ -19,6 +19,10 @@ export const switchTab = (tab: string) => {
     }
 };
 
+export const getUpgradeDescription = (upgradeNumber: number) => {
+    getId('upgradeText').textContent = upgradesDescription[upgradeNumber];
+};
+
 export const invisibleUpdate = () => {
     time.current = Date.now();
     const passedTime = (time.current - time.lastUpdate) / 1000;
@@ -26,7 +30,7 @@ export const invisibleUpdate = () => {
     particles.producing = earlyRound(0.5 * particles.current, 1); //1 for now, since its only max 1 number
     const beforeQuarks = quarks.current;
     quarks.current = earlyRound(quarks.current + particles.producing * passedTime);
-    quarks.total += quarks.current - beforeQuarks; //I think its fastest way (?)
+    quarks.total = earlyRound(quarks.total + quarks.current - beforeQuarks); //I think its fastest way (?)
 };
 
 export const visualUpdate = () => {
@@ -34,7 +38,8 @@ export const visualUpdate = () => {
         getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
         if (energy.total >= 9) {
             getId('energy').textContent = `Energy: ${energy.current}`;
-            getId('energyStat').style.display = 'block';
+            getId('energyStat').style.display = 'flex';
+            getId('upgrades').style.display = 'flex';
         }
     }
 

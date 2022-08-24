@@ -13,3 +13,7 @@ export const buyBuilding = (spend: Record<string, number>, buy: Record<string, n
         visualUpdate();
     }
 };
+
+export const stageResetCheck = () => {
+    //Later
+};
