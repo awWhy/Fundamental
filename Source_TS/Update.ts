@@ -1,5 +1,6 @@
 import { getId } from './Main(OnLoad)';
-import { atoms, energy, global, molecules, particles, quarks, stage, time, upgradesDescription } from './Player';
+import { atoms, energy, global, molecules, particles, player, quarks, stage, upgrades } from './Player';
+import { getPassedTime } from './Stage';
 
 export const switchTab = (tab: string) => {
     if (global.tab !== tab) { //First hide all tabs, then show requested one
@@ -20,13 +21,12 @@ export const switchTab = (tab: string) => {
 };
 
 export const getUpgradeDescription = (upgradeNumber: number) => {
-    getId('upgradeText').textContent = upgradesDescription[upgradeNumber];
+    getId('upgradeText').textContent = upgrades.description[upgradeNumber];
+    getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgrades.cost[upgradeNumber - 1] : 0} Energy`;
 };
 
 export const invisibleUpdate = () => {
-    time.current = Date.now();
-    const passedTime = (time.current - time.lastUpdate) / 1000;
-    time.lastUpdate = Date.now();
+    const passedTime = getPassedTime();
     particles.producing = earlyRound(0.5 * particles.current, 1); //1 for now, since its only max 1 number
     const beforeQuarks = quarks.current;
     quarks.current = earlyRound(quarks.current + particles.producing * passedTime);
@@ -87,5 +87,5 @@ const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0) => {
     }
 };
 
-/* Dont forget to change aria-label to stuff like "Buy (buidlingName), (cost Number and a Word), (if can afford), (how many owned), (how much being produced per/s of cost building)" */
-/* Same for stage button */
+/* Change aria-label for main buttons to "Buy (buidlingName), (cost Number and a Word), (if can afford), (how many owned), (how much being produced per/s of cost building)" */
+/* aria-disable for maxed upgrades */

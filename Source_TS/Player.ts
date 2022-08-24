@@ -12,12 +12,11 @@ function AddMainBuilding(name: string, cost: number, current = 0, producing = 0)
     Object.assign(player, { [name]: { cost, producing, current, total: current } });
 }
 
-function AddUpgradeArray(name: keyof playerType, amount: number, description: string[]) {
+function AddUpgradeArray(name: keyof playerType, amount: number, cost: number[], description: string[]) {
     Object.assign(player, { [name]: createArray(amount) });
     for (let i = 1; i <= amount; i++) {
-        const newName = (name + 'Description') as keyof globalType; //I hate TS
-        //@ts-expect-error //I'm not dealing with it, so either this or 'extends Record<string, any>'
-        global[newName][i] = description[i - 1]; //Object.assign overwrites
+        global.upgrades.description[i] = description[i - 1]; //Because Object.assign will overwrite
+        global.upgrades.cost = cost;
     }
 }
 
@@ -38,7 +37,10 @@ export const global: globalType = {
         numbers: 1000 //Don't forget to change to 30 as default
         //visual: 1000 //If extra will be needed
     },
-    upgradesDescription: {}
+    upgrades: {
+        description: {},
+        cost: []
+    }
 };
 
 /* All player additions has to be done here */
@@ -48,13 +50,13 @@ AddResource('time', Date.now());
 AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
-AddUpgradeArray('upgrades', 3, [ //Don't forget to add description inside function
+AddUpgradeArray('upgrades', 3, [9, 11, 99], [
     'Bigger electrons. Particles cost decreased.',
-    'Stronger protons. Particles cost decreased.',
-    'Cheaper neutrons. Particles cost decreased.'
+    'Stronger protons. Particles produce more.',
+    'More neutrons. Increased particle gain.'
 ]);
 Object.preventExtensions(player); //This way, because I want more freedom on when to add them in
 
 /* Don't know how to export them better */
 export const { energy, quarks, time, particles, atoms, molecules } = player;
-export const { intervals, stage, upgradesDescription } = global;
+export const { intervals, stage, upgrades } = global;

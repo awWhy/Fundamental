@@ -4,7 +4,7 @@
     "rootDirs": ["Source_TS"],
     "outFile": "Code.js", //Use npm build instead, but if you need to use default one, then - "npx -p typescript tsc", add "--noEmitOnError" to prevent file creation in case of error
     "target": "ES6",
-    "module": "system",
+    "module": "System", //Borked, AMD and System break everything
     "lib": ["ESNext", "DOM"],
     "removeComments": true,
     //"noEmit": true,
