@@ -16,12 +16,16 @@ export const switchTab = (tab: string) => {
                 getId('settingsTab').style.display = 'flex';
                 global.tab = 'settings';
                 break;
+            default:
+                getId('stageTab').style.display = 'flex';
+                global.tab = 'stage';
         }
     }
 };
 
 export const getUpgradeDescription = (upgradeNumber: number) => {
-    getId('upgradeText').textContent = upgrades.description[upgradeNumber];
+    getId('upgradeText').textContent = upgrades.description[upgradeNumber - 1];
+    getId('upgradeEffect').textContent = upgrades.effectText[upgradeNumber - 1];
     getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgrades.cost[upgradeNumber - 1] : 0} Energy`;
 };
 

@@ -1,6 +1,6 @@
 import { getId, reLoad } from './Main(OnLoad)';
 import { atoms, energy, global, particles, player, upgrades } from './Player';
-import { earlyRound, invisibleUpdate, numbersUpdate } from './Update';
+import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
     if (global.stage !== 1 && (buy === particles || buy === atoms)) {
@@ -28,6 +28,7 @@ export const buyUpgrades = (upgrade: number) => {
             particles.cost /= 10;
         }
     }
+    getUpgradeDescription(upgrade);
 };
 
 export const calculateGainedBuildings = (type: Record<string, number>, higherType: Record<string, number>, time = 0) => {

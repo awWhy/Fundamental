@@ -1,12 +1,12 @@
 * {
     font-family: Inter, serif;
     box-sizing: content-box;
+    margin: 0;
 }
 
 
 
 body {
-    margin: 0;
     background-color: #030012;
     color: #03d3d3;
     /* Add custom colors, when ready for stage 2*/
@@ -17,22 +17,27 @@ body {
 .cyanText { color: #03d3d3; }
 .whiteText { color: white }
 .orangeText { color: darkorange }
+.blueText { color: dodgerblue }
 .image { background-color: #030012; }
 
-button {
+#load, button {
     appearance: none;
-    width: 22em;
-    height: 1.8em;
+    height: 1.6em;
     cursor: pointer;
     transition: 1ms;
     background-color: mediumblue; /* dimgray good color for stage 3 */
     border: 2px solid darkcyan;
     color: #e3e3e3;
+    padding: 0.075em 0.45em;
 }
 
+.saveButtonGroup button, #load { font-size: 1em; }
+#save, #load { width: 4.5em; }
+.buyBuldingsAll button { width: 20em; }
+
 .bigButton {
-    width: 10rem;
-    height: 2.1rem;
+    width: 9.5em;
+    height: 2rem;
     font-size: 1.05em;
 }
 
@@ -40,13 +45,11 @@ nav button {
     background-color: black;
     border-radius: 10px;
     width: 4.8em;
-    height: 1.5em;
     font-size: 1.01rem;
 }
 
 nav button:hover { background-color: #181818; }
-:where(button):hover { background-color: #2626ff; }
-/* Instead of creating more :hover of same colors, add them here */
+button:hover, #load:hover { background-color: #2626ff; }
 
 .insideTab {
     margin-top: 2vh;
@@ -104,6 +107,46 @@ nav button:hover { background-color: #181818; }
 }
 
 #upgrades > a { margin-bottom: 0.25em; }
+
+.saveButtonGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3em;
+}
+
+.saveButtonGroup > div {
+    display: flex;
+    flex-direction: column;
+    width: min-content;
+    gap: 0.2em;
+}
+
+.saveButtonGroup > div > div {
+    display: flex;
+    gap: 0.2em;
+}
+
+#file {
+    position: absolute; /* Important for screen readers */
+    clip-path: circle(0); /* Since you can't click on label */
+}
+
+#load {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#export {
+    height: 1.8em;
+    font-size: 1.2em;
+}
+
+#delete {
+    height: 1.3em;
+    font-size: 0.9em;
+}
 
 #footer {
     position: fixed;

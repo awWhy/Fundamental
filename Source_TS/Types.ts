@@ -15,7 +15,9 @@ export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' wi
     footer: boolean
     intervals: Record<string, number>
     upgrades: {
-        description: Record<string, string>
+        description: string[]
+        effect: number[]
+        effectText: string[]
         cost: number[]
     }
 }

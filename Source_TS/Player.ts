@@ -2,6 +2,23 @@ import { globalType, playerType } from './Types';
 
 export const player = {} as playerType;
 
+export const global: globalType = {
+    tab: 'stage',
+    stage: 1,
+    footer: true,
+    intervals: {
+        main: 1000,
+        numbers: 1000,
+        visual: 1000 //Min 500 max 10000
+    },
+    upgrades: {
+        description: [],
+        effect: [],
+        effectText: [],
+        cost: []
+    }
+};
+
 function AddResource(name: string, current = 0) { //Not a class, because no
     name === 'time' ?
         Object.assign(player, { [name]: { current, lastUpdate: current, started: current } }) :
@@ -12,11 +29,14 @@ function AddMainBuilding(name: string, cost: number, current = 0, producing = 0)
     Object.assign(player, { [name]: { cost, producing, current, total: current } });
 }
 
-function AddUpgradeArray(name: keyof playerType, amount: number, cost: number[], description: string[]) {
+function AddUpgradeArray(name: keyof playerType, amount: number, cost: number[], effect: number[], description: string[], effectText: string[][]) {
     Object.assign(player, { [name]: createArray(amount) });
-    for (let i = 1; i <= amount; i++) {
-        global.upgrades.description[i] = description[i - 1]; //Because Object.assign will overwrite
-        global.upgrades.cost = cost;
+    Object.assign(global, { [name]: { description, cost, effect, effectText: [] } }); //Without effectText: [], effectText from global will turn into undefined...
+    for (let i = 0; i < player[name].length; i++) {
+        //@ts-expect-error, I give up, no idea how to give effect proper type of keyof keyof...
+        const text = effectText[i][0].concat(global[name as keyof globalType].effect[i], effectText[i][1]);
+        //@ts-expect-error
+        global[name as keyof globalType].effectText.push(text);
     }
 }
 
@@ -28,21 +48,6 @@ const createArray = (amount: number) => { //I hate TS
     return array;
 };
 
-export const global: globalType = {
-    tab: 'stage',
-    stage: 1,
-    footer: true,
-    intervals: {
-        main: 1000, //Don't forget to change to 50 as default (min 20 max 1000)
-        numbers: 1000,
-        visual: 1000 //Min 500 max 10000
-    },
-    upgrades: {
-        description: {},
-        cost: []
-    }
-};
-
 /* All player additions has to be done here */
 /* Maybe one day, I will convert it, into boring instant object */
 AddResource('quarks', 3);
@@ -51,11 +56,18 @@ AddResource('time', Date.now());
 AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
-AddUpgradeArray('upgrades', 3, [9, 12, 20], [
-    'Bigger electrons. Particles cost decreased.',
-    'Stronger protons. Particles produce more.',
-    'More neutrons. Increased particle gain.'
-]);
+AddUpgradeArray('upgrades', 3, //Will work for any upgrade type
+    [9, 12, 20], //Cost
+    [10, 10, 5], //Effect, for now only visual
+    [
+        'Bigger electrons. Particles cost decreased.',
+        'Stronger protons. Particles produce more.',
+        'More neutrons. Increased particle gain.'
+    ], [
+        ['Particle cost is ', ' times cheaper'],
+        ['Particles produce ', ' times quarks'],
+        ['Atoms produce ', ' times particles']
+    ]);
 Object.preventExtensions(player);
 Object.preventExtensions(global);
 

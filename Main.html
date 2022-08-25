@@ -13,7 +13,7 @@
     <body>
         <div id="stageTab" class="insideTab">
             <div class="stage">
-                <a class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="stageText">Microworld</span>.</a>
+                <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="stageText">Microworld</span>.</p>
                 <button id="stageReset" class="bigButton" aria-live="polite">You are not ready</button>
             </div>
             <div class="buyBuldingsAll">
@@ -34,17 +34,30 @@
                 </div>
             </div>
             <div id="upgrades">
-                <a>Upgrades</a>
+                <p>Upgrades</p>
                 <div>
                     <img src="/Used%20files%20(Image's)/Upgrade1.png" alt="Upgrade1" tabindex="10" id="upgrade1" class="image" aria-describedby="upgradeText">
                     <img src="/Used%20files%20(Image's)/Upgrade2.png" alt="Upgrade2" tabindex="10" id="upgrade2" class="image" aria-describedby="upgradeText">
                     <img src="/Used%20files%20(Image's)/Upgrade3.png" alt="Upgrade3" tabindex="10" id="upgrade3" class="image" aria-describedby="upgradeText">
                 </div>
                 <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
-                <a>Cost: <span id="upgradeCost" class="orangeText">Energy</span></a>
+                <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see</span></p>
+                <p>Cost: <span id="upgradeCost" class="orangeText">Energy</span></p>
             </div>
         </div>
         <div id="settingsTab" class="insideTab">
+            <div class="saveButtonGroup">
+                <p>Please export save file regularly</p>
+                <div>
+                    <div>
+                        <button id="save">Save</button>
+                        <label for="file" id="load">Load</label>
+                        <input type="file" id="file" accept=".txt" aria-label="Load from file">
+                    </div>
+                    <button id="export">Export save file</button>
+                    <button id="delete">Delete save file</button>
+                </div>
+            </div>
         </div>
         <div id="footer">
             <div class=""> <!-- Add option to hide it, add special buttons, like buy x here -->
@@ -52,11 +65,11 @@
             <div class="footerArea">
                 <div id="quarkStat" class="statFoot">
                     <img src="/Used%20files%20(Image's)/Quarks.png" alt="Quarks" class="image">
-                    <a id="quarks" class="cyanText">Quarks: 3</a>
+                    <p id="quarks" class="cyanText">Quarks: 3</p>
                 </div>
                 <div id="energyStat" class="statFoot">
                     <img src="/Used%20files%20(Image's)/Energy.png" alt="Energy" class="image">
-                    <a id="energy" class="orangeText">Energy: 0</a>
+                    <p id="energy" class="orangeText">Energy: 0</p>
                 </div>
             </div>
             <div class="footerArea" aria-hidden="true">
