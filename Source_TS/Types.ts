@@ -14,10 +14,10 @@ export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' wi
     stage: number
     footer: boolean
     intervals: Record<string, number>
-    upgrades: {
+    upgradesInfo: {
         description: string[]
         effect: number[]
-        effectText: string[]
+        effectText: string[][]
         cost: number[]
     }
 }

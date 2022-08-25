@@ -1,5 +1,5 @@
 import { getId } from './Main(OnLoad)';
-import { atoms, energy, global, molecules, particles, player, quarks, time, upgrades } from './Player';
+import { global, player } from './Player';
 import { calculateGainedBuildings } from './Stage';
 
 export const switchTab = (tab: string) => {
@@ -24,46 +24,53 @@ export const switchTab = (tab: string) => {
 };
 
 export const getUpgradeDescription = (upgradeNumber: number) => {
-    getId('upgradeText').textContent = upgrades.description[upgradeNumber - 1];
-    getId('upgradeEffect').textContent = upgrades.effectText[upgradeNumber - 1];
-    getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgrades.cost[upgradeNumber - 1] : 0} Energy`;
+    const { upgradesInfo } = global;
+
+    getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
+    getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber - 1][0]}${upgradesInfo.effect[upgradeNumber - 1]}${upgradesInfo.effectText[upgradeNumber - 1][1]}`;
+    getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgradesInfo.cost[upgradeNumber - 1] : 0} Energy`;
 };
 
-const s = global.stage;
 export const invisibleUpdate = () => { //This is only for important or time based info
+    const { time, quarks, particles, atoms, molecules, upgrades } = player;
+    const { stage } = global;
+
     time.current = Date.now();
     const passedTime = (time.current - time.lastUpdate) / 1000;
     time.lastUpdate = Date.now();
     /*if (auto) { }*/ //Add auto's in here
-    if (s === 1) {
-        particles.producing = earlyRound(0.5 * particles.current * (player.upgrades[1] === 1 ? 10 : 1), 1);
+    if (stage === 1) {
+        particles.producing = earlyRound(0.5 * particles.current * (upgrades[1] === 1 ? 10 : 1), 1);
         calculateGainedBuildings(quarks, particles, passedTime);
-        atoms.producing = earlyRound(0.4 * atoms.current * (player.upgrades[2] === 1 ? 5 : 1), 1);
+        atoms.producing = earlyRound(0.4 * atoms.current * (upgrades[2] === 1 ? 5 : 1), 1);
         calculateGainedBuildings(particles, atoms, passedTime);
     }
-    if (s <= 2) {
+    if (stage <= 2) {
         molecules.producing = earlyRound(0.3 * molecules.current, 1);
         calculateGainedBuildings(atoms, molecules, passedTime);
     }
-    if (s === 2) {
+    if (stage === 2) {
         //Placeholder for 2 more buildings for stage 2
     }
 };
 
 export const numbersUpdate = () => { //This is for relevant visual info
-    if (global.footer) {
-        if (s === 1) {
+    const { quarks, energy, particles, atoms, molecules } = player;
+    const { stage, tab, footer } = global;
+
+    if (footer) {
+        if (stage === 1) {
             getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
         }
-        if (s === 2) {
+        if (stage === 2) {
             //Atoms
         }
         if (energy.total >= 9) {
             getId('energy').textContent = `Energy: ${energy.current}`;
         }
     }
-    if (global.tab === 'stage') {
-        if (s === 1) {
+    if (tab === 'stage') {
+        if (stage === 1) {
             getId('particlesCur').textContent = finalFormat(particles.current);
             getId('particlesProd').textContent = String(particles.producing);
             getId('particlesBtn').textContent = `Need: ${finalFormat(particles.cost)} Quarks`;
@@ -76,26 +83,29 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 getId('stageReset').textContent = 'Enter next stage';
             }
         }
-        if (s <= 2) {
+        if (stage <= 2) {
             if (atoms.total >= 2) {
                 getId('moleculesCur').textContent = finalFormat(molecules.current);
                 getId('moleculesProd').textContent = String(molecules.producing);
                 getId('moleculesBtn').textContent = `Need: ${finalFormat(molecules.cost)} Atoms`;
             }
         }
-        if (s === 2) {
+        if (stage === 2) {
             //Placeholder for 2 more buildings for stage 2
         }
     }
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
+    const { energy, particles, atoms } = player;
+    const { stage } = global;
+
     getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
-    getId('atomsMain').style.display = particles.total >= 11 && s === 1 ? 'flex' : 'none';
-    getId('moleculesMain').style.display = atoms.total >= 2 && s <= 2 ? 'flex' : 'none';
-    getId('quarkStat').style.display = s === 1 ? 'flex' : 'none';
-    getId('particlesMain').style.display = s === 1 ? 'flex' : 'none';
+    getId('atomsMain').style.display = particles.total >= 11 && stage === 1 ? 'flex' : 'none';
+    getId('moleculesMain').style.display = atoms.total >= 2 && stage <= 2 ? 'flex' : 'none';
+    getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
+    getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
 };
 
 export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => {

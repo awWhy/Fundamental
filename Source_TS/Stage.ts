@@ -1,9 +1,12 @@
 import { getId, reLoad } from './Main(OnLoad)';
-import { atoms, energy, global, particles, player, upgrades } from './Player';
+import { global, player } from './Player';
 import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
-    if (global.stage !== 1 && (buy === particles || buy === atoms)) {
+    const { energy, particles, atoms } = player;
+    const { stage } = global;
+
+    if (stage !== 1 && (buy === particles || buy === atoms)) {
         return;
     }
     if (spend.current >= buy.cost) {
@@ -20,9 +23,12 @@ export const buyBuilding = (spend: Record<string, number>, buy: Record<string, n
 };
 
 export const buyUpgrades = (upgrade: number) => {
-    if (player.upgrades[upgrade - 1] === 0 && energy.current >= upgrades.cost[upgrade - 1]) {
-        player.upgrades[upgrade - 1] = 1;
-        energy.current -= upgrades.cost[upgrade - 1];
+    const { energy, particles, upgrades } = player;
+    const { upgradesInfo } = global;
+
+    if (upgrades[upgrade - 1] === 0 && energy.current >= upgradesInfo.cost[upgrade - 1]) {
+        upgrades[upgrade - 1] = 1;
+        energy.current -= upgradesInfo.cost[upgrade - 1];
         getId(`upgrade${upgrade}`).style.backgroundColor = 'forestgreen';
         if (upgrade - 1 === 0) {
             particles.cost /= 10;
@@ -41,7 +47,10 @@ export const calculateGainedBuildings = (type: Record<string, number>, higherTyp
 };
 
 export const stageResetCheck = () => {
-    if (energy.current >= 250 && global.stage === 1) {
+    const { energy } = player;
+    const { stage } = global;
+
+    if (energy.current >= 250 && stage === 1) {
         energy.current -= 250;
         global.stage = 2;
         reLoad();

@@ -9,10 +9,14 @@
 body {
     background-color: #030012;
     color: #03d3d3;
+    /* color for stage 2 is dodgerblue; color for stage 3 #8f8f8f */
     /* Add custom colors, when ready for stage 2*/
     /* Add "transition: ;" only for background-color, to prevent flashing */
 }
 
+/* .darkOrchidText { color: #bd24ef }*/
+/* .orchidText { color: #e14bdb } */
+/* .redText { color: #eb0000 } */
 .stageText { color: #03d3d3; } /* Not a duplicate, just need to add custom color later */
 .cyanText { color: #03d3d3; }
 .whiteText { color: white }

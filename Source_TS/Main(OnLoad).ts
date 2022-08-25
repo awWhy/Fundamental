@@ -1,4 +1,4 @@
-import { quarks, particles, atoms, molecules, intervals, player, global } from './Player';
+import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate } from './Update';
 import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
 
@@ -14,23 +14,51 @@ export const getId = (id: string) => { //To type less and check if ID exist
     throw new TypeError(`ID "${id}" not found.`); //New or not, wont change result
 };
 
-export const reLoad = () => {
+export const reLoad = (loadSave = false, deleteSave = false) => {
+    if (deleteSave) {
+        const deletePlayer = structuredClone(playerStart);
+        const deleteGlobal = structuredClone(globalStart);
+        Object.assign(player, deletePlayer);
+        Object.assign(global, deleteGlobal);
+    }
+    if (loadSave) {
+        const save = localStorage.getItem('save');
+        if (save !== null) {
+            const load = JSON.parse(save);
+            Object.assign(player, load.player);
+            global.intervals = load.global.intervals;
+            global.stage = load.global.stage;
+        } else {
+            console.warn('Save file wasn\'t detected');
+        }
+    }
     switchTab('first');
     visualUpdate();
+    numbersUpdate();
+    //switchTheme(theme, boolean for initial);
+    //Hide footer
+
+    const { stage } = global;
+    const { energy, upgrades } = player;
+
     getId('stageReset').textContent = 'You are not ready';
     const word = ['Microworld', 'Submerged'];
-    getId('stageWord').textContent = `${word[global.stage - 1]}`;
-    //switchTheme(theme, boolean for initial);
-    numbersUpdate();
-    //Hide footer
+    getId('stageWord').textContent = `${word[stage - 1]}`;
+    if (energy.total >= 9) {
+        for (let i = 0; i < upgrades.length; i++) {
+            if (upgrades[i] === 1) {
+                getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
+            }
+        }
+    }
 };
 
-reLoad();
+reLoad(true);
 
 /* Stage tab */
-getId('particlesBtn').addEventListener('click', () => buyBuilding(quarks, particles));
-getId('atomsBtn').addEventListener('click', () => buyBuilding(particles, atoms));
-getId('moleculesBtn').addEventListener('click', () => buyBuilding(atoms, molecules));
+getId('particlesBtn').addEventListener('click', () => buyBuilding(player.quarks, player.particles));
+getId('atomsBtn').addEventListener('click', () => buyBuilding(player.particles, player.atoms));
+getId('moleculesBtn').addEventListener('click', () => buyBuilding(player.atoms, player.molecules));
 for (let i = 1; i <= player.upgrades.length; i++) {
     getId(`upgrade${i}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i}`).addEventListener('click', () => buyUpgrades(i));
@@ -50,9 +78,10 @@ getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Intervals */
-setInterval(invisibleUpdate, intervals.main);
-setInterval(numbersUpdate, intervals.numbers);
-setInterval(visualUpdate, intervals.visual);
+setInterval(invisibleUpdate, global.intervals.main);
+setInterval(numbersUpdate, global.intervals.numbers);
+setInterval(visualUpdate, global.intervals.visual);
+//setInterval(saveLoad, global.intervals.autoSave, 'save'); //Easier to test when its off
 
 /*async */function saveLoad(type: string) {
     switch (type) {
@@ -63,13 +92,22 @@ setInterval(visualUpdate, intervals.visual);
                 return console.error('Loaded file was null');
             }
             const text = await saveFile[0].text();
+
+            //Should work, will test later
+            const load = JSON.parse(text);
             break;
         }*/
-        case 'save':
+        case 'save': {
+            /* Turn into 64 bit to save space and make it not easy to cheat */
+            const save = `{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)},"stage":${JSON.stringify(global.stage)}}}`;
+            localStorage.setItem('save', save);
             break;
+        }
         case 'export':
             break;
         case 'delete':
+            localStorage.clear();
+            reLoad(false, true);
             break;
     }
 }

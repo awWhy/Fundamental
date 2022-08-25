@@ -7,11 +7,12 @@ export const global: globalType = {
     stage: 1,
     footer: true,
     intervals: {
-        main: 1000,
+        main: 1000, //Min 20 max 1000, default 50
         numbers: 1000,
-        visual: 1000 //Min 500 max 10000
+        visual: 1000, //Min 500 max 10000
+        autoSave: 300000 //Min 120000 Max 1800000
     },
-    upgrades: {
+    upgradesInfo: {
         description: [],
         effect: [],
         effectText: [],
@@ -31,13 +32,7 @@ function AddMainBuilding(name: string, cost: number, current = 0, producing = 0)
 
 function AddUpgradeArray(name: keyof playerType, amount: number, cost: number[], effect: number[], description: string[], effectText: string[][]) {
     Object.assign(player, { [name]: createArray(amount) });
-    Object.assign(global, { [name]: { description, cost, effect, effectText: [] } }); //Without effectText: [], effectText from global will turn into undefined...
-    for (let i = 0; i < player[name].length; i++) {
-        //@ts-expect-error, I give up, no idea how to give effect proper type of keyof keyof...
-        const text = effectText[i][0].concat(global[name as keyof globalType].effect[i], effectText[i][1]);
-        //@ts-expect-error
-        global[name as keyof globalType].effectText.push(text);
-    }
+    Object.assign(global, { [name + 'Info']: { description, cost, effect, effectText } });
 }
 
 const createArray = (amount: number) => { //I hate TS
@@ -57,19 +52,16 @@ AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
 AddUpgradeArray('upgrades', 3, //Will work for any upgrade type
-    [9, 12, 20], //Cost
+    [9, 12, 16], //Cost
     [10, 10, 5], //Effect, for now only visual
     [
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
         'More neutrons. Increased particle gain.'
-    ], [
+    ], [ //For now this will be [0] + effect + [1]
         ['Particle cost is ', ' times cheaper'],
         ['Particles produce ', ' times quarks'],
         ['Atoms produce ', ' times particles']
     ]);
-Object.preventExtensions(player);
-Object.preventExtensions(global);
-
-export const { energy, quarks, time, particles, atoms, molecules } = player;
-export const { intervals, upgrades } = global;
+export const playerStart = structuredClone(player);
+export const globalStart = structuredClone(global);
