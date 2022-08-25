@@ -33,9 +33,9 @@ export const global: globalType = {
     stage: 1,
     footer: true,
     intervals: {
-        main: 1000, //Only for invisible important information
-        numbers: 1000 //Don't forget to change to 30 as default
-        //visual: 1000 //If extra will be needed
+        main: 1000, //Don't forget to change to 50 as default (min 20 max 1000)
+        numbers: 1000,
+        visual: 1000 //Min 500 max 10000
     },
     upgrades: {
         description: {},
@@ -44,19 +44,20 @@ export const global: globalType = {
 };
 
 /* All player additions has to be done here */
+/* Maybe one day, I will convert it, into boring instant object */
 AddResource('quarks', 3);
 AddResource('energy');
 AddResource('time', Date.now());
 AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
-AddUpgradeArray('upgrades', 3, [9, 11, 99], [
+AddUpgradeArray('upgrades', 3, [9, 12, 20], [
     'Bigger electrons. Particles cost decreased.',
     'Stronger protons. Particles produce more.',
     'More neutrons. Increased particle gain.'
 ]);
-Object.preventExtensions(player); //This way, because I want more freedom on when to add them in
+Object.preventExtensions(player);
+Object.preventExtensions(global);
 
-/* Don't know how to export them better */
 export const { energy, quarks, time, particles, atoms, molecules } = player;
-export const { intervals, stage, upgrades } = global;
+export const { intervals, upgrades } = global;

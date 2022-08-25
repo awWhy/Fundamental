@@ -1,6 +1,10 @@
-import { quarks, particles, atoms, molecules, intervals, player, energy } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, visualUpdate } from './Update';
-import { buyBuilding, buyUpgrades } from './Stage';
+import { quarks, particles, atoms, molecules, intervals, player, global } from './Player';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate } from './Update';
+import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
+
+/* There might be some problems with incorect build, imports being called in wrong order.
+    One way to solve errors wth arrow function being called before assigned, could be just turning it into function.
+    Only time when not to convert arrow function ( => ) into normal function if it using this. inside another function*/
 
 export const getId = (id: string) => { //To type less and check if ID exist
     const i = document.getElementById(id);
@@ -20,25 +24,27 @@ for (let i = 1; i <= player.upgrades.length; i++) {
     getId(`upgrade${i}`).addEventListener('focus', () => getUpgradeDescription(i)); //Atempt to give Screen Readers ability to buy upgrades
     getId(`upgrade${i}`).addEventListener('focus', () => buyUpgrades(i));
 }
-//getId('stageReset').addEventListener('click', () => stageResetCheck());
+getId('stageReset').addEventListener('click', () => stageResetCheck());
 
 /* Footer */
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 export const reLoad = () => {
-    if (energy.total < 9) {
-        getId('energyStat').style.display = 'none';
-        getId('upgrades').style.display = 'none';
+    visualUpdate();
+    getId('stageReset').textContent = 'You are not ready';
+    const s = global.stage;
+    if (s === 1) {
+        getId('stageWord').textContent = 'Microworld';
     }
-    if (particles.total < 11) {
-        getId('atomsMain').style.display = 'none';
+    if (s === 2) {
+        getId('stageWord').textContent = 'Submerged';
     }
-    if (atoms.total < 2) {
-        getId('moleculesMain').style.display = 'none';
-    }
+    //switchTheme(theme, boolean for initial)
+    numbersUpdate();
 };
 
 reLoad();
 setInterval(invisibleUpdate, intervals.main);
-setInterval(visualUpdate, intervals.numbers);
+setInterval(numbersUpdate, intervals.numbers);
+setInterval(visualUpdate, intervals.visual);

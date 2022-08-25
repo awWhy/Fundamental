@@ -1,17 +1,21 @@
-import { getId } from './Main(OnLoad)';
-import { atoms, energy, particles, player, time, upgrades } from './Player';
-import { earlyRound, visualUpdate } from './Update';
+import { getId, reLoad } from './Main(OnLoad)';
+import { atoms, energy, global, particles, player, upgrades } from './Player';
+import { earlyRound, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
+    if (global.stage !== 1 && (buy === particles || buy === atoms)) {
+        return;
+    }
     if (spend.current >= buy.cost) {
         spend.current -= buy.cost;
         buy.current++;
         buy.total++;
-        buy.cost = earlyRound(buy.cost * 1.4);
-        const type = buy === particles ? 1 : buy === atoms ? 5 : 20;
+        buy.cost = earlyRound(buy.cost * 1.4); //Turn this into proper formula for testing
+        const type = buy === particles ? 1 : buy === atoms ? 5 : 20; //If too many type's will be added, might need to have better way to do it
         energy.current += type;
         energy.total += type;
-        visualUpdate();
+        invisibleUpdate();
+        numbersUpdate();
     }
 };
 
@@ -26,13 +30,19 @@ export const buyUpgrades = (upgrade: number) => {
     }
 };
 
-export const getPassedTime = () => {
-    time.current = Date.now();
-    const passedTime = (time.current - time.lastUpdate) / 1000;
-    time.lastUpdate = Date.now();
-    return passedTime;
+export const calculateGainedBuildings = (type: Record<string, number>, higherType: Record<string, number>, time = 0) => {
+    const before = type.current; //I think its fastest way (?)
+    type.current = earlyRound(type.current + (higherType.producing * time));
+    type.total = earlyRound(type.total + type.current - before);
+    /* More can be added */
+    //No idea if to add higherType.producing into here though
+    //Same for type.cost
 };
 
 export const stageResetCheck = () => {
-    //Later
+    if (energy.current >= 250 && global.stage === 1) {
+        energy.current -= 250;
+        global.stage = 2;
+        reLoad();
+    }
 };

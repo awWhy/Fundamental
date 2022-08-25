@@ -1,9 +1,9 @@
 import { getId } from './Main(OnLoad)';
-import { atoms, energy, global, molecules, particles, player, quarks, stage, upgrades } from './Player';
-import { getPassedTime } from './Stage';
+import { atoms, energy, global, molecules, particles, player, quarks, time, upgrades } from './Player';
+import { calculateGainedBuildings } from './Stage';
 
 export const switchTab = (tab: string) => {
-    if (global.tab !== tab) { //First hide all tabs, then show requested one
+    if (global.tab !== tab) {
         getId('stageTab').style.display = 'none';
         getId('settingsTab').style.display = 'none';
 
@@ -25,44 +25,73 @@ export const getUpgradeDescription = (upgradeNumber: number) => {
     getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgrades.cost[upgradeNumber - 1] : 0} Energy`;
 };
 
-export const invisibleUpdate = () => {
-    const passedTime = getPassedTime();
-    particles.producing = earlyRound(0.5 * particles.current, 1); //1 for now, since its only max 1 number
-    const beforeQuarks = quarks.current;
-    quarks.current = earlyRound(quarks.current + particles.producing * passedTime);
-    quarks.total = earlyRound(quarks.total + quarks.current - beforeQuarks); //I think its fastest way (?)
+const s = global.stage;
+export const invisibleUpdate = () => { //This is only for important or time based info
+    time.current = Date.now();
+    const passedTime = (time.current - time.lastUpdate) / 1000;
+    time.lastUpdate = Date.now();
+    /*if (auto) { }*/ //Add auto's in here
+    if (s === 1) {
+        particles.producing = earlyRound(0.5 * particles.current * (player.upgrades[1] === 1 ? 10 : 1), 1);
+        calculateGainedBuildings(quarks, particles, passedTime);
+        atoms.producing = earlyRound(0.4 * atoms.current * (player.upgrades[2] === 1 ? 5 : 1), 1);
+        calculateGainedBuildings(particles, atoms, passedTime);
+    }
+    if (s <= 2) {
+        molecules.producing = earlyRound(0.3 * molecules.current, 1);
+        calculateGainedBuildings(atoms, molecules, passedTime);
+    }
+    if (s === 2) {
+        //Placeholder for 2 more buildings for stage 2
+    }
 };
 
-export const visualUpdate = () => {
+export const numbersUpdate = () => { //This is for relevant visual info
     if (global.footer) {
-        getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
+        if (s === 1) {
+            getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
+        }
+        if (s === 2) {
+            //Atoms
+        }
         if (energy.total >= 9) {
             getId('energy').textContent = `Energy: ${energy.current}`;
-            getId('energyStat').style.display = 'flex';
-            getId('upgrades').style.display = 'flex';
         }
     }
-
     if (global.tab === 'stage') {
-        getId('particlesCur').textContent = finalFormat(particles.current);
-        getId('particlesProd').textContent = String(particles.producing);
-        getId('particlesBtn').textContent = `Need: ${finalFormat(particles.cost)} Quarks`;
-        if (particles.total >= 11) {
-            getId('atomsMain').style.display = 'flex';
-            getId('atomsCur').textContent = finalFormat(atoms.current);
-            getId('atomsProd').textContent = String(atoms.producing);
-            getId('atomsBtn').textContent = `Need: ${finalFormat(atoms.cost)} Particles`;
+        if (s === 1) {
+            getId('particlesCur').textContent = finalFormat(particles.current);
+            getId('particlesProd').textContent = String(particles.producing);
+            getId('particlesBtn').textContent = `Need: ${finalFormat(particles.cost)} Quarks`;
+            if (particles.total >= 11) {
+                getId('atomsCur').textContent = finalFormat(atoms.current);
+                getId('atomsProd').textContent = String(atoms.producing);
+                getId('atomsBtn').textContent = `Need: ${finalFormat(atoms.cost)} Particles`;
+            }
+            if (energy.current >= 250) {
+                getId('stageReset').textContent = 'Enter next stage';
+            }
         }
-        if (atoms.total >= 2) {
-            getId('moleculesMain').style.display = 'flex';
-            getId('moleculesCur').textContent = finalFormat(molecules.current);
-            getId('moleculesProd').textContent = String(molecules.producing);
-            getId('moleculesBtn').textContent = `Need: ${finalFormat(molecules.cost)} Atoms`;
+        if (s <= 2) {
+            if (atoms.total >= 2) {
+                getId('moleculesCur').textContent = finalFormat(molecules.current);
+                getId('moleculesProd').textContent = String(molecules.producing);
+                getId('moleculesBtn').textContent = `Need: ${finalFormat(molecules.cost)} Atoms`;
+            }
         }
-        if (molecules.total >= 2 && stage === 1) {
-            getId('stageReset').textContent = 'Enter next stage';
+        if (s === 2) {
+            //Placeholder for 2 more buildings for stage 2
         }
     }
+};
+
+export const visualUpdate = () => { //This is everything that can be shown later
+    getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
+    getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
+    getId('atomsMain').style.display = particles.total >= 11 && s === 1 ? 'flex' : 'none';
+    getId('moleculesMain').style.display = atoms.total >= 2 && s <= 2 ? 'flex' : 'none';
+    getId('quarkStat').style.display = s === 1 ? 'flex' : 'none';
+    getId('particlesMain').style.display = s === 1 ? 'flex' : 'none';
 };
 
 export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => {
@@ -88,4 +117,5 @@ const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0) => {
 };
 
 /* Change aria-label for main buttons to "Buy (buidlingName), (cost Number and a Word), (if can afford), (how many owned), (how much being produced per/s of cost building)" */
+/* Add hotkeys for switching tabs; Inside each tab add aria-life */
 /* aria-disable for maxed upgrades */

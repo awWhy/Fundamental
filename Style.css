@@ -10,9 +10,11 @@ body {
     background-color: #030012;
     color: #03d3d3;
     /* Add custom colors, when ready for stage 2*/
+    /* Add "transition: ;" only for background-color, to prevent flashing */
 }
 
-.stage1TextColor { color: #03d3d3; }
+.stageText { color: #03d3d3; } /* Not a duplicate, just need to add custom color later */
+.cyanText { color: #03d3d3; }
 .whiteText { color: white }
 .orangeText { color: darkorange }
 .image { background-color: #030012; }
@@ -74,10 +76,7 @@ nav button:hover { background-color: #181818; }
     border: 2px solid cornflowerblue;
 }
 
-.stageWord {
-    font-size: 1.1rem;
-    color: #03d3d3
-}
+#stageWord { font-size: 1.1rem; }
 
 .buyBuilding {
     display: flex;
