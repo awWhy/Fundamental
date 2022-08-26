@@ -7,6 +7,7 @@ export interface playerType { //This is only way, I will do it
     atoms: Record<string, number>
     molecules: Record<string, number>
     upgrades: number[]
+    upgradesW: number[]
 }
 
 export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' without interface
@@ -14,7 +15,14 @@ export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' wi
     stage: number
     footer: boolean
     intervals: Record<string, number>
+    lastSave: number
     upgradesInfo: {
+        description: string[]
+        effect: number[]
+        effectText: string[][]
+        cost: number[]
+    }
+    upgradesWInfo: {
         description: string[]
         effect: number[]
         effectText: string[][]

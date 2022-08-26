@@ -22,19 +22,30 @@ export const buyBuilding = (spend: Record<string, number>, buy: Record<string, n
     }
 };
 
-export const buyUpgrades = (upgrade: number) => {
-    const { energy, particles, upgrades } = player;
-    const { upgradesInfo } = global;
+export const buyUpgrades = (upgrade: number, type = 'normal') => {
+    const { energy, particles, molecules, upgrades, upgradesW } = player;
+    const { upgradesInfo, upgradesWInfo } = global;
 
-    if (upgrades[upgrade - 1] === 0 && energy.current >= upgradesInfo.cost[upgrade - 1]) {
-        upgrades[upgrade - 1] = 1;
-        energy.current -= upgradesInfo.cost[upgrade - 1];
-        getId(`upgrade${upgrade}`).style.backgroundColor = 'forestgreen';
-        if (upgrade - 1 === 0) {
-            particles.cost /= 10;
-        }
+    switch (type) {
+        case 'normal':
+            if (upgrades[upgrade - 1] === 0 && energy.current >= upgradesInfo.cost[upgrade - 1]) {
+                upgrades[upgrade - 1] = 1;
+                energy.current -= upgradesInfo.cost[upgrade - 1];
+                getId(`upgrade${upgrade}`).style.backgroundColor = 'forestgreen';
+                if (upgrade - 1 === 0) {
+                    particles.cost /= 10;
+                }
+            }
+            break;
+        case 'water':
+            if (upgradesW[upgrade - 1] === 0 && molecules.current >= upgradesWInfo.cost[upgrade - 1]) {
+                upgradesW[upgrade - 1] = 1;
+                molecules.current -= upgradesWInfo.cost[upgrade - 1];
+                getId(`upgradeW${upgrade}`).style.backgroundColor = 'forestgreen';
+            }
+            break;
     }
-    getUpgradeDescription(upgrade);
+    getUpgradeDescription(upgrade, type);
 };
 
 export const calculateGainedBuildings = (type: Record<string, number>, higherType: Record<string, number>, time = 0) => {

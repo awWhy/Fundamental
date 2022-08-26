@@ -2,33 +2,50 @@ import { getId } from './Main(OnLoad)';
 import { global, player } from './Player';
 import { calculateGainedBuildings } from './Stage';
 
-export const switchTab = (tab: string) => {
+export const switchTab = (tab = 'none') => {
     if (global.tab !== tab) {
         getId('stageTab').style.display = 'none';
+        getId('stageTabBtn').style.borderColor = 'darkcyan';
         getId('settingsTab').style.display = 'none';
+        getId('settingsTabBtn').style.borderColor = 'darkcyan';
+        if (tab !== 'none') {
+            global.tab = tab;
+        }
+        visualUpdate();
+        numbersUpdate();
 
         switch (tab) {
-            case 'stage':
-                getId('stageTab').style.display = 'flex';
-                global.tab = 'stage';
-                break;
-            case 'settings':
-                getId('settingsTab').style.display = 'flex';
-                global.tab = 'settings';
+            case global.tab:
+                getId(`${global.tab}Tab`).style.display = 'flex';
+                getId(`${global.tab}TabBtn`).style.borderColor = 'white';
                 break;
             default:
-                getId('stageTab').style.display = 'flex';
                 global.tab = 'stage';
+                getId(`${global.tab}Tab`).style.display = 'flex';
+                getId(`${global.tab}TabBtn`).style.borderColor = 'white';
         }
     }
 };
 
-export const getUpgradeDescription = (upgradeNumber: number) => {
-    const { upgradesInfo } = global;
-
-    getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
-    getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber - 1][0]}${upgradesInfo.effect[upgradeNumber - 1]}${upgradesInfo.effectText[upgradeNumber - 1][1]}`;
-    getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgradesInfo.cost[upgradeNumber - 1] : 0} Energy`;
+export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') => {
+    const { upgradesInfo, upgradesWInfo } = global;
+    /* Move .style.color into custom color */
+    switch (type) {
+        case 'normal':
+            getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
+            getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber - 1][0]}${upgradesInfo.effect[upgradeNumber - 1]}${upgradesInfo.effectText[upgradeNumber - 1][1]}`;
+            getId('upgradeEffect').style.color = '';
+            getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgradesInfo.cost[upgradeNumber - 1] : 0} Energy`;
+            getId('upgradeCost').style.color = '';
+            break;
+        case 'water':
+            getId('upgradeText').textContent = upgradesWInfo.description[upgradeNumber - 1];
+            getId('upgradeEffect').textContent = `${upgradesWInfo.effectText[upgradeNumber - 1][0]}${upgradesWInfo.effect[upgradeNumber - 1]}${upgradesWInfo.effectText[upgradeNumber - 1][1]}`;
+            getId('upgradeEffect').style.color = '#82cb3b';
+            getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber - 1] === 0 ? upgradesWInfo.cost[upgradeNumber - 1] : 0} Molecules`;
+            getId('upgradeCost').style.color = '#03d3d3';
+            break;
+    }
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
@@ -38,6 +55,9 @@ export const invisibleUpdate = () => { //This is only for important or time base
     time.current = Date.now();
     const passedTime = (time.current - time.lastUpdate) / 1000;
     time.lastUpdate = Date.now();
+
+    global.lastSave += passedTime;
+
     /*if (auto) { }*/ //Add auto's in here
     if (stage === 1) {
         particles.producing = earlyRound(0.5 * particles.current * (upgrades[1] === 1 ? 10 : 1), 1);
@@ -56,9 +76,9 @@ export const invisibleUpdate = () => { //This is only for important or time base
 
 export const numbersUpdate = () => { //This is for relevant visual info
     const { quarks, energy, particles, atoms, molecules } = player;
-    const { stage, tab, footer } = global;
+    const { stage, tab } = global;
 
-    if (footer) {
+    if (global.footer) {
         if (stage === 1) {
             getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
         }
@@ -94,6 +114,9 @@ export const numbersUpdate = () => { //This is for relevant visual info
             //Placeholder for 2 more buildings for stage 2
         }
     }
+    if (tab === 'settings') {
+        getId('isSaved').textContent = `${finalFormat(global.lastSave, 0)} seconds ago`;
+    }
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
@@ -106,6 +129,8 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('moleculesMain').style.display = atoms.total >= 2 && stage <= 2 ? 'flex' : 'none';
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
+    getId('upgrade4').style.display = stage > 1 ? 'block' : 'none';
+    getId('upgradeW1').style.display = stage > 1 ? 'block' : 'none';
 };
 
 export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => {

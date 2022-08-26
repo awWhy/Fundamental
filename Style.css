@@ -14,14 +14,15 @@ body {
     /* Add "transition: ;" only for background-color, to prevent flashing */
 }
 
-/* .darkOrchidText { color: #bd24ef }*/
-/* .orchidText { color: #e14bdb } */
-/* .redText { color: #eb0000 } */
+/* .darkOrchidText { color: #bd24ef; }*/
+/* .orchidText { color: #e14bdb; } */
+/* .redText { color: #eb0000; } */
+/* .greenText { color: #82cb3b; }*/
 .stageText { color: #03d3d3; } /* Not a duplicate, just need to add custom color later */
 .cyanText { color: #03d3d3; }
-.whiteText { color: white }
-.orangeText { color: darkorange }
-.blueText { color: dodgerblue }
+.whiteText { color: white; }
+.orangeText { color: darkorange; }
+.blueText { color: dodgerblue; }
 .image { background-color: #030012; }
 
 #load, button {
@@ -92,7 +93,7 @@ button:hover, #load:hover { background-color: #2626ff; }
     height: 2.4em;
 }
 
-.buyBuldingsAll { width: 34em }
+.buyBuldingsAll { width: 34em; }
 
 .buyBuilding > p {
     width: 100%;
@@ -108,6 +109,12 @@ button:hover, #load:hover { background-color: #2626ff; }
     align-items: center;
     width: 100%;
     gap: 0.4em;
+}
+
+#upgrades > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
 }
 
 #upgrades > a { margin-bottom: 0.25em; }
@@ -148,6 +155,7 @@ button:hover, #load:hover { background-color: #2626ff; }
 }
 
 #delete {
+    background-color: firebrick;
     height: 1.3em;
     font-size: 0.9em;
 }
@@ -164,10 +172,10 @@ button:hover, #load:hover { background-color: #2626ff; }
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 0.5em 1em;
+    gap: 0.6em 1em;
 }
 
-.footerArea:not(:last-of-type) { margin-bottom: 0.8em; }
+.footerArea:not(:last-of-type) { margin-bottom: 0.6em; }
 
 .statFoot {
     display: flex;

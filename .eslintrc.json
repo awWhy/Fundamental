@@ -66,6 +66,7 @@
         "@typescript-eslint/prefer-as-const": "error", //Test
         "@typescript-eslint/restrict-plus-operands": "off", //This is dumb
         "@typescript-eslint/restrict-template-expressions": "off", //I hate it
-        "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }]
+        "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
+        "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }] //I dont know what it means...
     }
 }
