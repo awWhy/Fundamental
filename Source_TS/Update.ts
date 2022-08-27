@@ -133,7 +133,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('upgradeW1').style.display = stage > 1 ? 'block' : 'none';
 };
 
-export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => {
+export const earlyRound = (input: number, precision = input < 1e6 ? 7 : 0) => {
     if (precision > 0 && input < 1e6) {
         return Math.round(input * (10 ** precision)) / (10 ** precision);
     } else if (precision <= 0 && input < 1e6) {
@@ -143,15 +143,24 @@ export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => 
     }
 }; /* Cheap solution in order not to deal with floats, 7 because its max amount for 32 bit (15 max for 64 bit) */
 
-export const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0) => {
-    if (precision > 0 && input < 1e6) {
-        return String(Math.trunc(input * (10 ** precision)) / (10 ** precision)); //For fake numbers
-    } else if (precision <= 0 && input < 1e6) {
-        return String(Math.trunc(input));
-    } else { //Format instead if number is bigger than 1e6
-        /* Mostly from here https://www.codeproject.com/Tips/1096544/Get-First-N-Digits-of-a-Number */
-        const digits = Math.trunc(Math.log10(input));
-        return `${Math.trunc((input / 10 ** (digits)) * 100) / 100}e${digits}`;
+export const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0, type = 'number') => {
+    switch (type) {
+        case 'time':
+            if (input > 7200000) {
+                return `${Math.trunc(input / 3600000)} hours`;
+            } else {
+                return `${Math.trunc(input / 60000)} minutes`;
+            }
+        default:
+            if (precision > 0 && input < 1e6) {
+                return String(Math.trunc(input * (10 ** precision)) / (10 ** precision)); //For fake numbers
+            } else if (precision <= 0 && input < 1e6) {
+                return String(Math.trunc(input));
+            } else { //Format instead if number is bigger than 1e6
+                /* Mostly from here https://www.codeproject.com/Tips/1096544/Get-First-N-Digits-of-a-Number */
+                const digits = Math.trunc(Math.log10(input));
+                return `${Math.trunc((input / 10 ** (digits)) * 100) / 100}e${digits}`;
+            }
     }
 };
 

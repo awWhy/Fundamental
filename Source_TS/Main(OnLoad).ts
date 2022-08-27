@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
 import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
-import { alert } from './Special';
+import { Alert } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -14,17 +14,12 @@ export const getId = (id: string) => { //To type less and check if ID exist
 };
 
 const updatePlayer = (load: any) => {
-/*  if (player.upgrades.length > load.player.upgrades.length) {
-        for (let i = load.player.upgrades.length; i < player.upgrades.length; i++) {
-            load.player.upgrades[i] = 0;
-        }
-    } //I'm sad, I wrote it to auto add missing upgrades, but then instanly found better way to check for missing id... (by just using playerStart) */
     if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
         global.stage = load.global.stage;
     } else {
-        console.warn('Save coudn\'t be loaded as its missing important info');
+        Alert('Save file coudn\'t be loaded as its missing important info');
     }
 };
 
@@ -33,9 +28,8 @@ export const reLoad = (loadSave = false) => {
         const save = localStorage.getItem('save');
         if (save !== null) {
             const load = JSON.parse(atob(save));
-            /* No try... catch, because I don't think it's possible to get wrong item from localStorage */
             updatePlayer(load);
-            alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate) / 3600000)} hours`);
+            Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}`);
         } else {
             console.warn('Save file wasn\'t detected');
         }
@@ -43,7 +37,6 @@ export const reLoad = (loadSave = false) => {
     switchTab();
     //switchTheme(theme, boolean for initial);
     //Hide footer
-
     getId('stageReset').textContent = 'You are not ready';
     const word = ['Microworld', 'Submerged'];
     getId('stageWord').textContent = word[global.stage - 1];
@@ -105,7 +98,7 @@ async function saveLoad(type: string) {
             const id = getId('file') as HTMLInputElement;
             const saveFile = id.files;
             if (saveFile === null) {
-                return console.error('Loaded file wasn\'t found');
+                return Alert('Loaded file wasn\'t found');
             }
             const text = await saveFile[0].text();
 
@@ -114,7 +107,7 @@ async function saveLoad(type: string) {
                 updatePlayer(load);
                 reLoad();
             } catch {
-                console.warn('Incorrect save file format');
+                Alert('Incorrect save file format');
             } finally {
                 id.value = ''; //Remove inputed file
             }
@@ -131,7 +124,7 @@ async function saveLoad(type: string) {
             await saveLoad('save');
             const save = localStorage.getItem('save');
             if (save === null) {
-                return console.warn('Save file wasn\'t found. Even though game was saved just now...');
+                return Alert('Save file wasn\'t found. Even though game was saved just now...');
             }
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;

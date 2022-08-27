@@ -9,29 +9,95 @@ import { getId } from './Main(OnLoad)';
     }
 };*/
 
-export const alert = (text: string) => {
+export const Alert = (text: string) => {
+    const blocker = getId('blocker');
+    if (getId('blocker').style.display === 'block') {
+        return;
+    }
+
     getId('alertText').textContent = text;
-    getId('blocker').style.display = 'block';
+    const confirm = getId('confirmBtn');
+
+    blocker.style.display = 'block';
     const close = () => {
-        getId('blocker').style.display = 'none';
-        getId('confirmBtn').removeEventListener('click', close);
+        blocker.style.display = 'none';
+        confirm.removeEventListener('click', close);
     };
-    getId('confirmBtn').addEventListener('click', close);
+    confirm.addEventListener('click', close);
 };
 
-/*export const confirm = (text: string) => {
-    getId('alertText').textContent = text;
-    getId('blocker').style.display = 'block';
-    const close = () => {
-        getId('blocker').style.display = 'none';
-        getId('confirmBtn').removeEventListener('click', close);
-        return true;
-    };
-    getId('confirmBtn').addEventListener('click', close);
+/* I have no idea how it works... I just did what was in comments: https://dev.to/ramonak/javascript-how-to-access-the-return-value-of-a-promise-object-1bck */
+export const Confirm = async(text: string): Promise<boolean> => {
+    return await new Promise((resolve) => {
+        const blocker = getId('blocker');
+        if (blocker.style.display === 'block') {
+            resolve(false);
+        }
+
+        getId('alertText').textContent = text;
+        const cancel = getId('cancelBtn');
+        const confirm = getId('confirmBtn');
+
+        blocker.style.display = 'block';
+        cancel.style.display = 'block';
+        const yes = async() => {
+            blocker.style.display = 'none';
+            cancel.style.display = 'none';
+            confirm.removeEventListener('click', yes);
+            cancel.removeEventListener('click', no);
+            resolve(true);
+        };
+        const no = async() => {
+            blocker.style.display = 'none';
+            cancel.style.display = 'none';
+            confirm.removeEventListener('click', yes);
+            cancel.removeEventListener('click', no);
+            resolve(false);
+        };
+        confirm.addEventListener('click', yes);
+        cancel.addEventListener('click', no);
+    });
 };
 
-export const promt = (text: string, value = '') => {
-    getId('alertText').textContent = text;
-    getId('blocker').style.display = 'block';
-    return value;
-};*/
+export const Prompt = async(text: string): Promise<string | boolean> => {
+    return await new Promise((resolve) => {
+        const blocker = getId('blocker');
+        if (blocker.style.display === 'block') {
+            resolve(false);
+        }
+
+        getId('alertText').textContent = text;
+        const input = getId('inputArea') as HTMLInputElement;
+        let inputValue = '';
+        const cancel = getId('cancelBtn');
+        const confirm = getId('confirmBtn');
+
+        blocker.style.display = 'block';
+        cancel.style.display = 'block';
+        input.style.display = 'block';
+        const getValue = () => {
+            inputValue = input.value;
+        };
+        const yes = async() => {
+            blocker.style.display = 'none';
+            cancel.style.display = 'none';
+            input.style.display = 'none';
+            confirm.removeEventListener('click', yes);
+            cancel.removeEventListener('click', no);
+            input.removeEventListener('blur', getValue);
+            resolve(inputValue);
+        };
+        const no = async() => {
+            blocker.style.display = 'none';
+            cancel.style.display = 'none';
+            input.style.display = 'none';
+            confirm.removeEventListener('click', yes);
+            cancel.removeEventListener('click', no);
+            input.removeEventListener('blur', getValue);
+            resolve(false);
+        };
+        confirm.addEventListener('click', yes);
+        cancel.addEventListener('click', no);
+        input.addEventListener('blur', getValue);
+    });
+};
