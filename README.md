@@ -1,7 +1,7 @@
 # Test
 Attempt to make something
 ---
-## If you plan do anything with this, then you need to:
+#### If you plan do anything with this, then you need to:
 `npm install` - This will install everything that was used in here.
 Keep in mind it will install latest version of dependencies, so something might break.
 ---

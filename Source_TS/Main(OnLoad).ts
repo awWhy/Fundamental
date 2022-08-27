@@ -1,6 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate } from './Update';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
 import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
+import { alert } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -34,6 +35,7 @@ export const reLoad = (loadSave = false) => {
             const load = JSON.parse(atob(save));
             /* No try... catch, because I don't think it's possible to get wrong item from localStorage */
             updatePlayer(load);
+            alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate) / 3600000)} hours`);
         } else {
             console.warn('Save file wasn\'t detected');
         }
@@ -95,8 +97,8 @@ setInterval(numbersUpdate, global.intervals.numbers);
 setInterval(visualUpdate, global.intervals.visual);
 //setInterval(saveLoad, global.intervals.autoSave, 'save'); //Easier to test when its off
 
-/* Promise returned in function argument where a void return was expected */
-/* I have no idea what does that even mean... */
+/* Promise returned in function argument where a void return was expected. */
+/* I have no idea what does that even mean... I have to use async since 'await saveFile[0].text()' must have await in it.*/
 async function saveLoad(type: string) {
     switch (type) {
         case 'load': {

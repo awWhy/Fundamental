@@ -37,8 +37,8 @@ function AddMainBuilding(name: string, cost: number, current = 0, producing = 0)
     Object.assign(player, { [name]: { cost, producing, current, total: current } });
 }
 
-function AddUpgradeArray(name: keyof playerType, amount: number, cost: number[], effect: number[], description: string[], effectText: string[][]) {
-    Object.assign(player, { [name]: createArray(amount) });
+function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[], description: string[], effectText: string[][]) {
+    Object.assign(player, { [name]: createArray(cost.length) });
     Object.assign(global, { [name + 'Info']: { description, cost, effect, effectText } });
 }
 
@@ -58,7 +58,7 @@ AddResource('time', Date.now());
 AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
-AddUpgradeArray('upgrades', 4, //Will work for any upgrade type
+AddUpgradeArray('upgrades',
     [9, 12, 16, 999], //Cost
     [10, 10, 5, 2], //Effect, for now only visual
     [
@@ -72,7 +72,7 @@ AddUpgradeArray('upgrades', 4, //Will work for any upgrade type
         ['Atoms produce ', ' times particles.'],
         ['Each boost gives ', ' times production for all buildings.']
     ]);
-AddUpgradeArray('upgradesW', 1,
+AddUpgradeArray('upgradesW',
     [1e21],
     [4],
     [

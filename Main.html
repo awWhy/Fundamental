@@ -10,7 +10,17 @@
         <meta name="description" content="Just testing abbility to make anything">
         <script src="/Code.js" defer></script>
     </head>
-    <body>
+    <body class="customColors">
+        <div id="blocker">
+            <div id="alertPopUp">
+                <label id="alertText">Welcome back</label>
+                <div>
+                    <input type="text" id="inputArea">
+                    <button id="confirmBtn">Confirm</button>
+                    <button id="cancelBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
         <div id="stageTab" class="insideTab">
             <div class="stage">
                 <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="stageText">Microworld</span>.</p>

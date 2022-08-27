@@ -7,31 +7,104 @@
 
 
 body {
-    background-color: #030012;
-    color: #03d3d3;
+    color: var(--stage-text-color);
+    background-color: var(--background-color);
     /* color for stage 2 is dodgerblue; color for stage 3 #8f8f8f */
-    /* Add custom colors, when ready for stage 2*/
     /* Add "transition: ;" only for background-color, to prevent flashing */
 }
 
-/* .darkOrchidText { color: #bd24ef; }*/
+.customColors {
+    --background-color: #030012;
+    --window-color: #12121c;
+    --window-border: cornflowerblue;
+    --footer-color: darkblue;
+    --image-color: #030012;
+    --button-main-color: mediumblue;
+    --button-main-border: darkcyan;
+    --button-main-hover: #2626ff;
+    /* --button-all-text: #e3e3e3; */
+    /* --button-nav-color: black; */
+    /* --button-nav-hover: #181818; */
+    /* --button-nav-selected: #e3e3e3; */
+    /* --button-delete-color: firebrick */
+    --stage-text-color: #03d3d3;
+    --cyan-text-color: #03d3d3;
+    --white-text-color: white;
+    --orange-text-color: darkorange;
+    --blue-text-color: dodgerblue;
+}
+
+/* .darkOrchidText { color: #bd24ef; } */
 /* .orchidText { color: #e14bdb; } */
 /* .redText { color: #eb0000; } */
-/* .greenText { color: #82cb3b; }*/
-.stageText { color: #03d3d3; } /* Not a duplicate, just need to add custom color later */
-.cyanText { color: #03d3d3; }
-.whiteText { color: white; }
-.orangeText { color: darkorange; }
-.blueText { color: dodgerblue; }
-.image { background-color: #030012; }
+/* .greenText { color: #82cb3b; } */
+.stageText { color: var(--stage-text-color); }
+.cyanText { color: var(--cyan-text-color); }
+.whiteText { color: var(--white-text-color); }
+.orangeText { color: var(--orange-text-color); }
+.blueText { color: var(--blue-text-color); }
+.image { background-color: var(--image-color); }
+
+#blocker {
+    position: fixed;
+    display: none;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin-top: -2vh;
+    background-color: #00000050
+}
+
+#alertPopUp {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    top: calc(50% - min(max(8em, 7vh), 40vh));
+    height: clamp(14vh, 16em, 80vh);
+    left: calc(50% - min(max(10em, 12vw), 30vw));
+    width: clamp(24vw, 20em, 60vw);
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 10px;
+    text-align: center;
+    white-space: pre-line;
+    padding: 0.8em 0.8em 1.1em;
+    row-gap: 0.8em;
+}
+
+#alertPopUp > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: auto;
+    gap: 0.8em min(2em, 6vw);
+}
+
+#alertPopUp button {
+    width: 6em;
+    border-radius: 7px;
+}
+
+#cancelBtn { display: none; }
+
+#inputArea {
+    width: 14rem;
+    height: 1.6em;
+    background-color: black;
+    border: 2px solid #831aa5;
+    border-radius: 2px;
+    color: #e3e3e3;
+    display: none;
+}
 
 #load, button {
     appearance: none;
     height: 1.6em;
     cursor: pointer;
     transition: 1ms;
-    background-color: mediumblue; /* dimgray good color for stage 3 */
-    border: 2px solid darkcyan;
+    background-color: var(--button-main-color); /* dimgray good color for stage 3 */
+    border: 2px solid var(--button-main-border);
     color: #e3e3e3;
     padding: 0.075em 0.45em;
 }
@@ -54,7 +127,7 @@ nav button {
 }
 
 nav button:hover { background-color: #181818; }
-button:hover, #load:hover { background-color: #2626ff; }
+button:hover, #load:hover { background-color: var(--button-main-hover); }
 
 .insideTab {
     margin-top: 2vh;
@@ -80,8 +153,8 @@ button:hover, #load:hover { background-color: #2626ff; }
     width: 15em;
     padding: 1.2em 1.1em;
     gap: 1.2em;
-    background-color: #12121c;
-    border: 2px solid cornflowerblue;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
 }
 
 #stageWord { font-size: 1.1rem; }
@@ -162,7 +235,7 @@ button:hover, #load:hover { background-color: #2626ff; }
 
 #footer {
     position: fixed;
-    background-color: darkblue; /* Brigher version for stage 2 */
+    background-color: var(--footer-color); /* Brigher version for stage 2 */
     width: 100%;
     bottom: 0;
     padding: 1vh 1vw;

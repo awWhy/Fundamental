@@ -5,9 +5,9 @@ import { calculateGainedBuildings } from './Stage';
 export const switchTab = (tab = 'none') => {
     if (global.tab !== tab) {
         getId('stageTab').style.display = 'none';
-        getId('stageTabBtn').style.borderColor = 'darkcyan';
+        getId('stageTabBtn').style.borderColor = '';
         getId('settingsTab').style.display = 'none';
-        getId('settingsTabBtn').style.borderColor = 'darkcyan';
+        getId('settingsTabBtn').style.borderColor = '';
         if (tab !== 'none') {
             global.tab = tab;
         }
@@ -17,12 +17,12 @@ export const switchTab = (tab = 'none') => {
         switch (tab) {
             case global.tab:
                 getId(`${global.tab}Tab`).style.display = 'flex';
-                getId(`${global.tab}TabBtn`).style.borderColor = 'white';
+                getId(`${global.tab}TabBtn`).style.borderColor = '#e3e3e3';
                 break;
             default:
                 global.tab = 'stage';
                 getId(`${global.tab}Tab`).style.display = 'flex';
-                getId(`${global.tab}TabBtn`).style.borderColor = 'white';
+                getId(`${global.tab}TabBtn`).style.borderColor = '#e3e3e3';
         }
     }
 };
@@ -143,7 +143,7 @@ export const earlyRound = (input: number, precision = (input < 1e6 ? 7 : 0)) => 
     }
 }; /* Cheap solution in order not to deal with floats, 7 because its max amount for 32 bit (15 max for 64 bit) */
 
-const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0) => {
+export const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0) => {
     if (precision > 0 && input < 1e6) {
         return String(Math.trunc(input * (10 ** precision)) / (10 ** precision)); //For fake numbers
     } else if (precision <= 0 && input < 1e6) {
