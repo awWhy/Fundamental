@@ -1,5 +1,6 @@
 import { getId, reLoad } from './Main(OnLoad)';
 import { global, player } from './Player';
+import { Alert, Confirm } from './Special';
 import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
@@ -57,13 +58,20 @@ export const calculateGainedBuildings = (type: Record<string, number>, higherTyp
     //Same for type.cost
 };
 
-export const stageResetCheck = () => {
+export const stageResetCheck = async() => {
     const { energy } = player;
     const { stage } = global;
 
-    if (energy.current >= 250 && stage === 1) {
-        energy.current -= 250;
-        global.stage = 2;
-        reLoad();
-    }
+    if (stage === 1) {
+        if (energy.current >= 250) {
+            const ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
+            if (ok) {
+                energy.current -= 250;
+                global.stage = 2;
+                reLoad();
+            }
+        } else {
+            return Alert('You need more energy.');
+        }
+    } //else if (stage === 2) { }
 };

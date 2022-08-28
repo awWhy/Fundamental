@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
 import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
-import { Alert } from './Special';
+import { Alert, Prompt, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -19,27 +19,34 @@ const updatePlayer = (load: any) => {
         global.intervals = load.global.intervals;
         global.stage = load.global.stage;
     } else {
-        Alert('Save file coudn\'t be loaded as its missing important info');
+        Alert('Save file coudn\'t be loaded as its missing important info.');
     }
 };
 
 export const reLoad = (loadSave = false) => {
     if (loadSave) {
         const save = localStorage.getItem('save');
+        const theme = localStorage.getItem('theme');
         if (save !== null) {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
-            Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}`);
+            Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}.`);
         } else {
-            console.warn('Save file wasn\'t detected');
+            console.warn('Save file wasn\'t detected.');
+        }
+        if (theme !== null) {
+            global.theme.default = false;
+            global.theme.stage = Number(theme);
         }
     }
+    switchTheme();
     switchTab();
-    //switchTheme(theme, boolean for initial);
     //Hide footer
     getId('stageReset').textContent = 'You are not ready';
     const word = ['Microworld', 'Submerged'];
+    const wordColor = ['#03d3d3', 'dodgerblue'];
     getId('stageWord').textContent = word[global.stage - 1];
+    getId('stageWord').style.color = wordColor[global.stage - 1];
     if (player.energy.total >= 9) {
         for (let i = 0; i < player.upgrades.length; i++) {
             if (player.upgrades[i] === 1) {
@@ -72,7 +79,7 @@ for (let i = 1; i <= playerStart.upgradesW.length; i++) {
     getId(`upgradeW${i}`).addEventListener('click', () => buyUpgrades(i, 'water'));
     getId(`upgradeW${i}`).addEventListener('focus', () => buyUpgrades(i, 'water'));
 }
-getId('stageReset').addEventListener('click', () => stageResetCheck());
+getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 
 /* Settings tab */
 getId('save').addEventListener('click', async() => await saveLoad('save'));
@@ -98,7 +105,7 @@ async function saveLoad(type: string) {
             const id = getId('file') as HTMLInputElement;
             const saveFile = id.files;
             if (saveFile === null) {
-                return Alert('Loaded file wasn\'t found');
+                return Alert('Loaded file wasn\'t found.');
             }
             const text = await saveFile[0].text();
 
@@ -107,7 +114,7 @@ async function saveLoad(type: string) {
                 updatePlayer(load);
                 reLoad();
             } catch {
-                Alert('Incorrect save file format');
+                Alert('Incorrect save file format.');
             } finally {
                 id.value = ''; //Remove inputed file
             }
@@ -133,14 +140,19 @@ async function saveLoad(type: string) {
             break;
         }
         case 'delete': {
-            localStorage.clear();
-            const deletePlayer = structuredClone(playerStart);
-            const deleteGlobal = structuredClone(globalStart);
-            Object.assign(player, deletePlayer);
-            Object.assign(global, deleteGlobal);
-            player.time.started = Date.now();
-            player.time.lastUpdate = player.time.started;
-            reLoad();
+            const ok = await Prompt("This will truly delete your save file!\nType in 'delete' to confirm.");
+            if (ok === 'delete' || ok === 'Delete') {
+                localStorage.clear();
+                const deletePlayer = structuredClone(playerStart);
+                const deleteGlobal = structuredClone(globalStart);
+                Object.assign(player, deletePlayer);
+                Object.assign(global, deleteGlobal);
+                player.time.started = Date.now();
+                player.time.lastUpdate = player.time.started;
+                reLoad();
+            } else if (ok !== false) {
+                Alert('Save file wasn\'t deleted.');
+            }
             break;
         }
     }

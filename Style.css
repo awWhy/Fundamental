@@ -2,23 +2,15 @@
     font-family: Inter, serif;
     box-sizing: content-box;
     margin: 0;
+    transition: var(--transition);
 }
-
-
 
 body {
-    color: var(--stage-text-color);
-    background-color: var(--background-color);
-    /* color for stage 2 is dodgerblue; color for stage 3 #8f8f8f */
-    /* Add "transition: ;" only for background-color, to prevent flashing */
-}
-
-.customColors {
     --background-color: #030012;
     --window-color: #12121c;
     --window-border: cornflowerblue;
     --footer-color: darkblue;
-    --image-color: #030012;
+    /* --image-color: #030012; */
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
@@ -26,24 +18,33 @@ body {
     /* --button-nav-color: black; */
     /* --button-nav-hover: #181818; */
     /* --button-nav-selected: #e3e3e3; */
-    /* --button-delete-color: firebrick */
+    --button-delete-color: firebrick;
+    --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
     --cyan-text-color: #03d3d3;
     --white-text-color: white;
     --orange-text-color: darkorange;
     --blue-text-color: dodgerblue;
+    --transition: 0s;
 }
 
+.customColors {
+    color: var(--stage-text-color);
+    background-color: var(--background-color);
+    /* Color for stage 3 #8f8f8f */
+}
+
+#stageWord { color: #03d3d3; }
+.stageText { color: var(--stage-text-color); }
 /* .darkOrchidText { color: #bd24ef; } */
 /* .orchidText { color: #e14bdb; } */
 /* .redText { color: #eb0000; } */
 /* .greenText { color: #82cb3b; } */
-.stageText { color: var(--stage-text-color); }
 .cyanText { color: var(--cyan-text-color); }
 .whiteText { color: var(--white-text-color); }
 .orangeText { color: var(--orange-text-color); }
 .blueText { color: var(--blue-text-color); }
-.image { background-color: var(--image-color); }
+.image { background-color: var(--background-color); }
 
 #blocker {
     position: fixed;
@@ -78,7 +79,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     margin-top: auto;
-    gap: 0.8em min(2em, 6vw);
+    gap: 0.8em 10%;
 }
 
 #alertPopUp button {
@@ -89,7 +90,8 @@ body {
 #cancelBtn { display: none; }
 
 #inputArea {
-    width: 14rem;
+    width: 100%;
+    margin: 0 1em;
     height: 1.6em;
     background-color: black;
     border: 2px solid #831aa5;
@@ -102,7 +104,7 @@ body {
     appearance: none;
     height: 1.6em;
     cursor: pointer;
-    transition: 1ms;
+    transition: border, background-color 100ms;
     background-color: var(--button-main-color); /* dimgray good color for stage 3 */
     border: 2px solid var(--button-main-border);
     color: #e3e3e3;
@@ -128,6 +130,7 @@ nav button {
 
 nav button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
+#delete:hover { background-color: var(--button-delete-hover); }
 
 .insideTab {
     margin-top: 2vh;
@@ -180,6 +183,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     width: 100%;
     gap: 0.4em;
 }
@@ -228,7 +232,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 }
 
 #delete {
-    background-color: firebrick;
+    background-color: var(--button-delete-color);
     height: 1.3em;
     font-size: 0.9em;
 }

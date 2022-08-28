@@ -1,12 +1,17 @@
 import { globalType, playerType } from './Types';
 
-export const player = {} as playerType;
+export const player = {} as playerType; //Only for information that need to be saved
 
-export const global: globalType = {
+export const global: globalType = { //Only some information is saved across
     tab: 'stage',
-    stage: 1,
+    stage: 1, //Move into player (?)
+    theme: {
+        stage: 1,
+        default: true
+    },
     footer: true,
-    intervals: {
+    /* Add buildings cost into global, add true levels into player */
+    intervals: { //Move into player (?)
         main: 1000, //Min 20 max 1000, default 50
         numbers: 1000,
         visual: 1000, //Min 500 max 10000
@@ -34,7 +39,7 @@ function AddResource(name: string, current = 0) { //Not a class, because no
 }
 
 function AddMainBuilding(name: string, cost: number, current = 0, producing = 0) {
-    Object.assign(player, { [name]: { cost, producing, current, total: current } });
+    Object.assign(player, { [name]: { cost, producing, current, trueLvls: current, total: current } });
 }
 
 function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[], description: string[], effectText: string[][]) {
@@ -59,7 +64,7 @@ AddMainBuilding('particles', 3);
 AddMainBuilding('atoms', 24);
 AddMainBuilding('molecules', 3);
 AddUpgradeArray('upgrades',
-    [9, 12, 16, 999], //Cost
+    [9, 12, 16, 300], //Cost
     [10, 10, 5, 2], //Effect, for now only visual
     [
         'Bigger electrons. Particles cost decreased.',
@@ -68,8 +73,8 @@ AddUpgradeArray('upgrades',
         'Superposition. Allows to spend energy to boost.'
     ], [ //For now this will be [0] + effect + [1]
         ['Particle cost is ', ' times cheaper.'],
-        ['Particles produce ', ' times quarks.'],
-        ['Atoms produce ', ' times particles.'],
+        ['Particles produce ', ' times more quarks.'],
+        ['Atoms produce ', ' times more particles.'],
         ['Each boost gives ', ' times production for all buildings.']
     ]);
 AddUpgradeArray('upgradesW',

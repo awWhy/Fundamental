@@ -8,6 +8,8 @@ export const switchTab = (tab = 'none') => {
         getId('stageTabBtn').style.borderColor = '';
         getId('settingsTab').style.display = 'none';
         getId('settingsTabBtn').style.borderColor = '';
+        const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
+
         if (tab !== 'none') {
             global.tab = tab;
         }
@@ -17,12 +19,12 @@ export const switchTab = (tab = 'none') => {
         switch (tab) {
             case global.tab:
                 getId(`${global.tab}Tab`).style.display = 'flex';
-                getId(`${global.tab}TabBtn`).style.borderColor = '#e3e3e3';
+                getId(`${global.tab}TabBtn`).style.borderColor = color;
                 break;
             default:
                 global.tab = 'stage';
                 getId(`${global.tab}Tab`).style.display = 'flex';
-                getId(`${global.tab}TabBtn`).style.borderColor = '#e3e3e3';
+                getId(`${global.tab}TabBtn`).style.borderColor = color;
         }
     }
 };
@@ -34,14 +36,12 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
         case 'normal':
             getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
             getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber - 1][0]}${upgradesInfo.effect[upgradeNumber - 1]}${upgradesInfo.effectText[upgradeNumber - 1][1]}`;
-            getId('upgradeEffect').style.color = '';
             getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgradesInfo.cost[upgradeNumber - 1] : 0} Energy`;
             getId('upgradeCost').style.color = '';
             break;
         case 'water':
             getId('upgradeText').textContent = upgradesWInfo.description[upgradeNumber - 1];
             getId('upgradeEffect').textContent = `${upgradesWInfo.effectText[upgradeNumber - 1][0]}${upgradesWInfo.effect[upgradeNumber - 1]}${upgradesWInfo.effectText[upgradeNumber - 1][1]}`;
-            getId('upgradeEffect').style.color = '#82cb3b';
             getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber - 1] === 0 ? upgradesWInfo.cost[upgradeNumber - 1] : 0} Molecules`;
             getId('upgradeCost').style.color = '#03d3d3';
             break;
@@ -83,7 +83,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
             getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
         }
         if (stage === 2) {
-            //Atoms
+            getId('atoms').textContent = `Atoms: ${finalFormat(atoms.current)}`;
         }
         if (energy.total >= 9) {
             getId('energy').textContent = `Energy: ${energy.current}`;
@@ -92,11 +92,11 @@ export const numbersUpdate = () => { //This is for relevant visual info
     if (tab === 'stage') {
         if (stage === 1) {
             getId('particlesCur').textContent = finalFormat(particles.current);
-            getId('particlesProd').textContent = String(particles.producing);
+            getId('particlesProd').textContent = finalFormat(particles.producing);
             getId('particlesBtn').textContent = `Need: ${finalFormat(particles.cost)} Quarks`;
             if (particles.total >= 11) {
                 getId('atomsCur').textContent = finalFormat(atoms.current);
-                getId('atomsProd').textContent = String(atoms.producing);
+                getId('atomsProd').textContent = finalFormat(atoms.producing);
                 getId('atomsBtn').textContent = `Need: ${finalFormat(atoms.cost)} Particles`;
             }
             if (energy.current >= 250) {
@@ -106,7 +106,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
         if (stage <= 2) {
             if (atoms.total >= 2) {
                 getId('moleculesCur').textContent = finalFormat(molecules.current);
-                getId('moleculesProd').textContent = String(molecules.producing);
+                getId('moleculesProd').textContent = finalFormat(molecules.producing);
                 getId('moleculesBtn').textContent = `Need: ${finalFormat(molecules.cost)} Atoms`;
             }
         }
@@ -129,6 +129,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('moleculesMain').style.display = atoms.total >= 2 && stage <= 2 ? 'flex' : 'none';
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
+    getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';
     getId('upgrade4').style.display = stage > 1 ? 'block' : 'none';
     getId('upgradeW1').style.display = stage > 1 ? 'block' : 'none';
 };

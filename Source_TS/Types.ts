@@ -13,6 +13,10 @@ export interface playerType { //This is only way, I will do it
 export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' without interface
     tab: string
     stage: number
+    theme: {
+        stage: number
+        default: boolean
+    }
     footer: boolean
     intervals: Record<string, number>
     lastSave: number

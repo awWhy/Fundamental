@@ -1,13 +1,57 @@
 import { getId } from './Main(OnLoad)';
+import { global } from './Player';
 
-/*export const switchTheme = (theme = 1, initial = false) => {
-    switch (theme) {
+export const setTheme = (theme: number, initial = false) => {
+    if (initial) {
+        global.theme.default = true;
+        localStorage.removeItem('theme');
+    } else {
+        global.theme.default = false;
+        global.theme.stage = theme;
+        localStorage.setItem('theme', String(theme));
+    }
+    switchTheme();
+};
+
+export const switchTheme = () => {
+    const body = document.body.style;
+    body.setProperty('--transition', '1s'); //Every part of a button is ignored, but shouldn't be hard to add.
+    if (global.theme.default) {
+        global.theme.stage = global.stage;
+    }
+
+    switch (global.theme.stage) {
         case 1:
+            body.removeProperty('--background-color');
+            body.removeProperty('--window-color');
+            body.removeProperty('--window-border');
+            body.removeProperty('--footer-color');
+            body.removeProperty('--button-main-color');
+            body.removeProperty('--button-main-border');
+            body.removeProperty('--button-main-hover');
+            body.removeProperty('--button-delete-color');
+            body.removeProperty('--button-delete-hover');
+            body.removeProperty('--stage-text-color');
+            body.removeProperty('--cyan-text-color');
+            getId('upgradeEffect').style.color = '';
             break;
         case 2:
+            body.setProperty('--background-color', '#070026');
+            body.setProperty('--window-color', '#000052');
+            body.setProperty('--window-border', 'blue');
+            body.setProperty('--footer-color', '#0000db');
+            body.setProperty('--button-main-color', 'blue');
+            body.setProperty('--button-main-border', '#427be1');
+            body.setProperty('--button-main-hover', '#1515cf');
+            body.setProperty('--button-delete-color', '#ce0000');
+            body.setProperty('--button-delete-hover', 'firebrick');
+            body.setProperty('--stage-text-color', 'dodgerblue');
+            body.setProperty('--cyan-text-color', 'cyan');
+            getId('upgradeEffect').style.color = '#82cb3b';
             break;
     }
-};*/
+    setTimeout(() => { body.removeProperty('--transition'); }, 1000);
+};
 
 export const Alert = (text: string) => {
     const blocker = getId('blocker');
@@ -82,6 +126,7 @@ export const Prompt = async(text: string): Promise<string | boolean> => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
             input.style.display = 'none';
+            input.value = '';
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
             input.removeEventListener('blur', getValue);
@@ -91,6 +136,7 @@ export const Prompt = async(text: string): Promise<string | boolean> => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
             input.style.display = 'none';
+            input.value = '';
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
             input.removeEventListener('blur', getValue);

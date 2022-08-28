@@ -20,7 +20,7 @@
         "curly": ["error", "all"],
         "object-shorthand": ["warn", "always"], //Can be turned off, if something
         "comma-dangle": ["warn", "never"],
-        "max-statements-per-line": ["warn", { "max": 1 }], //Testing this one
+        "max-statements-per-line": ["error", { "max": 2 }],
         "no-promise-executor-return": "error", //Test
         "no-unsafe-optional-chaining": "error", //Test
         "no-fallthrough": "error", // add `//falls through` if you need intentional one
