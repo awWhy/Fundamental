@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
 import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
-import { Alert, Prompt, switchTheme } from './Special';
+import { Alert, Prompt, setTheme, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -17,13 +17,14 @@ const updatePlayer = (load: any) => {
     if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
-        global.stage = load.global.stage;
     } else {
         Alert('Save file coudn\'t be loaded as its missing important info.');
     }
 };
 
 export const reLoad = (loadSave = false) => {
+    const { stage } = player;
+
     if (loadSave) {
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
@@ -43,10 +44,8 @@ export const reLoad = (loadSave = false) => {
     switchTab();
     //Hide footer
     getId('stageReset').textContent = 'You are not ready';
-    const word = ['Microworld', 'Submerged'];
-    const wordColor = ['#03d3d3', 'dodgerblue'];
-    getId('stageWord').textContent = word[global.stage - 1];
-    getId('stageWord').style.color = wordColor[global.stage - 1];
+    getId('stageWord').textContent = global.stage.word[stage - 1];
+    getId('stageWord').style.color = global.stage.wordColor[stage - 1];
     if (player.energy.total >= 9) {
         for (let i = 0; i < player.upgrades.length; i++) {
             if (player.upgrades[i] === 1) {
@@ -54,7 +53,7 @@ export const reLoad = (loadSave = false) => {
             }
         }
     }
-    if (global.stage > 1) {
+    if (stage > 1) {
         for (let i = 0; i < player.upgradesW.length; i++) {
             if (player.upgradesW[i] === 1) {
                 getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'forestgreen';
@@ -86,6 +85,11 @@ getId('save').addEventListener('click', async() => await saveLoad('save'));
 getId('file').addEventListener('change', async() => await saveLoad('load'));
 getId('export').addEventListener('click', async() => await saveLoad('export'));
 getId('delete').addEventListener('click', async() => await saveLoad('delete'));
+
+getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
+for (let i = 1; i <= global.stage.word.length; i++) {
+    getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
+}
 
 /* Footer */
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
@@ -121,7 +125,7 @@ async function saveLoad(type: string) {
             break;
         }
         case 'save': {
-            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)},"stage":${JSON.stringify(global.stage)}}}`);
+            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)}}}`);
             localStorage.setItem('save', save);
             getId('isSaved').textContent = 'Saved';
             global.lastSave = 0;

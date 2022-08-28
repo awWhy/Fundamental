@@ -4,8 +4,7 @@ import { Alert, Confirm } from './Special';
 import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (spend: Record<string, number>, buy: Record<string, number>) => {
-    const { energy, particles, atoms } = player;
-    const { stage } = global;
+    const { stage, energy, particles, atoms } = player;
 
     if (stage !== 1 && (buy === particles || buy === atoms)) {
         return;
@@ -59,15 +58,14 @@ export const calculateGainedBuildings = (type: Record<string, number>, higherTyp
 };
 
 export const stageResetCheck = async() => {
-    const { energy } = player;
-    const { stage } = global;
+    const { stage, energy } = player;
 
     if (stage === 1) {
         if (energy.current >= 250) {
             const ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
             if (ok) {
                 energy.current -= 250;
-                global.stage = 2;
+                player.stage = 2;
                 reLoad();
             }
         } else {

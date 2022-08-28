@@ -49,8 +49,7 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { time, quarks, particles, atoms, molecules, upgrades } = player;
-    const { stage } = global;
+    const { stage, time, quarks, particles, atoms, molecules, upgrades } = player;
 
     time.current = Date.now();
     const passedTime = (time.current - time.lastUpdate) / 1000;
@@ -75,8 +74,8 @@ export const invisibleUpdate = () => { //This is only for important or time base
 };
 
 export const numbersUpdate = () => { //This is for relevant visual info
-    const { quarks, energy, particles, atoms, molecules } = player;
-    const { stage, tab } = global;
+    const { stage, quarks, energy, particles, atoms, molecules } = player;
+    const { tab } = global;
 
     if (global.footer) {
         if (stage === 1) {
@@ -120,8 +119,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
-    const { energy, particles, atoms } = player;
-    const { stage } = global;
+    const { stage, energy, particles, atoms } = player;
 
     getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';

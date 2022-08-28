@@ -1,5 +1,5 @@
 import { getId } from './Main(OnLoad)';
-import { global } from './Player';
+import { global, player } from './Player';
 
 export const setTheme = (theme: number, initial = false) => {
     if (initial) {
@@ -17,7 +17,10 @@ export const switchTheme = () => {
     const body = document.body.style;
     body.setProperty('--transition', '1s'); //Every part of a button is ignored, but shouldn't be hard to add.
     if (global.theme.default) {
-        global.theme.stage = global.stage;
+        global.theme.stage = player.stage;
+        getId('currentTheme').textContent = 'Default';
+    } else {
+        getId('currentTheme').textContent = global.stage.word[global.theme.stage - 1];
     }
 
     switch (global.theme.stage) {

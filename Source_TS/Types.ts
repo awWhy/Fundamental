@@ -1,5 +1,6 @@
 /* I hate, hate, hate TS horrible need for interface; every single function has proper type, but being ignored anyway */
 export interface playerType { //This is only way, I will do it
+    stage: number
     quarks: Record<string, number>
     energy: Record<string, number>
     time: Record<string, number>
@@ -12,7 +13,10 @@ export interface playerType { //This is only way, I will do it
 
 export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' without interface
     tab: string
-    stage: number
+    stage: {
+        word: string[]
+        wordColor: string[]
+    }
     theme: {
         stage: number
         default: boolean

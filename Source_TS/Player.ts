@@ -4,7 +4,10 @@ export const player = {} as playerType; //Only for information that need to be s
 
 export const global: globalType = { //Only some information is saved across
     tab: 'stage',
-    stage: 1, //Move into player (?)
+    stage: {
+        word: ['Microworld', 'Submerged'],
+        wordColor: ['#03d3d3', 'dodgerblue']
+    },
     theme: {
         stage: 1,
         default: true
@@ -57,6 +60,7 @@ const createArray = (amount: number) => { //I hate TS
 
 /* All player additions has to be done here */
 /* Maybe one day, I will convert it, into boring instant object */
+Object.assign(player, { stage: 1 });
 AddResource('quarks', 3);
 AddResource('energy');
 AddResource('time', Date.now());
