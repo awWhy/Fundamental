@@ -31,7 +31,7 @@ export const switchTab = (tab = 'none') => {
 
 export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') => {
     const { upgradesInfo, upgradesWInfo } = global;
-    /* Move .style.color into custom color */
+
     switch (type) {
         case 'normal':
             getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
@@ -49,13 +49,15 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { stage, time, quarks, particles, atoms, molecules, upgrades } = player;
+    const { stage, time, energy, quarks, particles, atoms, molecules, upgrades } = player;
 
     time.current = Date.now();
     const passedTime = (time.current - time.lastUpdate) / 1000;
     time.lastUpdate = Date.now();
 
     global.lastSave += passedTime;
+
+    /* Add calculate cost based on true building amount */
 
     /*if (auto) { }*/ //Add auto's in here
     if (stage === 1) {
@@ -69,7 +71,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
         calculateGainedBuildings(atoms, molecules, passedTime);
     }
     if (stage === 2) {
-        //Placeholder for 2 more buildings for stage 2
+        calculateGainedBuildings(energy, energy, passedTime);
     }
 };
 
@@ -85,7 +87,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
             getId('atoms').textContent = `Atoms: ${finalFormat(atoms.current)}`;
         }
         if (energy.total >= 9) {
-            getId('energy').textContent = `Energy: ${energy.current}`;
+            getId('energy').textContent = `Energy: ${finalFormat(energy.current, 0)}`;
         }
     }
     if (tab === 'stage') {
@@ -130,6 +132,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';
     getId('upgrade4').style.display = stage > 1 ? 'block' : 'none';
     getId('upgradeW1').style.display = stage > 1 ? 'block' : 'none';
+    getId('themeArea').style.display = stage > 1 ? 'block' : 'none';
 };
 
 export const earlyRound = (input: number, precision = input < 1e6 ? 7 : 0) => {

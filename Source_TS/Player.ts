@@ -20,6 +20,12 @@ export const global: globalType = { //Only some information is saved across
         visual: 1000, //Min 500 max 10000
         autoSave: 300000 //Min 120000 Max 1800000
     },
+    intervalsId: {
+        main: 0,
+        numbers: 0,
+        visual: 0,
+        autoSave: 0
+    },
     lastSave: 0,
     upgradesInfo: {
         description: [],
@@ -50,10 +56,14 @@ function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[
     Object.assign(global, { [name + 'Info']: { description, cost, effect, effectText } });
 }
 
-const createArray = (amount: number) => { //I hate TS
+const createArray = (amount: number, type = 'number') => {
     const array = [];
     for (let i = 1; i <= amount; i++) {
-        array.push(0);
+        if (type === 'number') {
+            array.push(0);
+        } else {
+            array.push(true);
+        }
     }
     return array;
 };
@@ -61,6 +71,8 @@ const createArray = (amount: number) => { //I hate TS
 /* All player additions has to be done here */
 /* Maybe one day, I will convert it, into boring instant object */
 Object.assign(player, { stage: 1 });
+const togglesL = document.getElementsByClassName('toggle').length;
+Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
 AddResource('quarks', 3);
 AddResource('energy');
 AddResource('time', Date.now());

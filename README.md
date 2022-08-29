@@ -1,6 +1,5 @@
 # Test
 Attempt to make something
-##### If you somehow will find this game, then current endgame: ...
 
 ---
 ### If you plan do anything with this, then you need to:

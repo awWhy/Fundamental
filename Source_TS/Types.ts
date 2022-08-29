@@ -1,5 +1,6 @@
 /* I hate, hate, hate TS horrible need for interface; every single function has proper type, but being ignored anyway */
 export interface playerType { //This is only way, I will do it
+    toggles: boolean[]
     stage: number
     quarks: Record<string, number>
     energy: Record<string, number>
@@ -23,6 +24,7 @@ export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' wi
     }
     footer: boolean
     intervals: Record<string, number>
+    intervalsId: Record<string, number>
     lastSave: number
     upgradesInfo: {
         description: string[]

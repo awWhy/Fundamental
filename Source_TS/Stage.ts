@@ -50,11 +50,26 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
 
 export const calculateGainedBuildings = (type: Record<string, number>, higherType: Record<string, number>, time = 0) => {
     const before = type.current; //I think its fastest way (?)
-    type.current = earlyRound(type.current + (higherType.producing * time));
-    type.total = earlyRound(type.total + type.current - before);
-    /* More can be added */
-    //No idea if to add higherType.producing into here though
-    //Same for type.cost
+    if (type !== higherType) {
+        type.current = earlyRound(type.current + higherType.producing * time);
+        type.total = earlyRound(type.total + type.current - before);
+    } else {
+        type.current = earlyRound(type.current + 1 * time);
+        type.total = earlyRound(type.total + type.current - before);
+    }
+};
+
+export const toggleSwap = (number: number, change = true) => {
+    if (change) {
+        player.toggles[number] = !player.toggles[number];
+    }
+    if (player.toggles[number]) {
+        getId(`toggle${number}`).textContent = 'ON';
+        getId(`toggle${number}`).style.borderColor = '';
+    } else {
+        getId(`toggle${number}`).textContent = 'OFF';
+        getId(`toggle${number}`).style.borderColor = 'crimson';
+    }
 };
 
 export const stageResetCheck = async() => {
@@ -66,7 +81,7 @@ export const stageResetCheck = async() => {
             if (ok) {
                 energy.current -= 250;
                 player.stage = 2;
-                reLoad();
+                void reLoad();
             }
         } else {
             return Alert('You need more energy.');

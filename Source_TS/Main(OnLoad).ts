@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
-import { buyBuilding, buyUpgrades, stageResetCheck } from './Stage';
-import { Alert, Prompt, setTheme, switchTheme } from './Special';
+import { buyBuilding, buyUpgrades, stageResetCheck, toggleSwap } from './Stage';
+import { Alert, Confirm, Prompt, setTheme, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -22,7 +22,7 @@ const updatePlayer = (load: any) => {
     }
 };
 
-export const reLoad = (loadSave = false) => {
+export const reLoad = async(loadSave = false) => {
     const { stage } = player;
 
     if (loadSave) {
@@ -31,7 +31,9 @@ export const reLoad = (loadSave = false) => {
         if (save !== null) {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
-            Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}.`);
+            if (player.toggles[0]) {
+                Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}.`);
+            }
         } else {
             console.warn('Save file wasn\'t detected.');
         }
@@ -42,10 +44,22 @@ export const reLoad = (loadSave = false) => {
     }
     switchTheme();
     switchTab();
+    if (loadSave) {
+        if (!player.toggles[0]) {
+            const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+            if (noOffline) {
+                player.time.lastUpdate = Date.now();
+            }
+        }
+    }
+    changeIntervals();
     //Hide footer
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = global.stage.word[stage - 1];
     getId('stageWord').style.color = global.stage.wordColor[stage - 1];
+    for (let i = 0; i < player.toggles.length; i++) {
+        toggleSwap(i, false);
+    }
     if (player.energy.total >= 9) {
         for (let i = 0; i < player.upgrades.length; i++) {
             if (player.upgrades[i] === 1) {
@@ -62,7 +76,12 @@ export const reLoad = (loadSave = false) => {
     }
 };
 
-reLoad(true);
+void reLoad(true);
+
+/* Global */
+for (let i = 0; i < playerStart.toggles.length; i++) {
+    getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
+}
 
 /* Stage tab */
 getId('particlesBtn').addEventListener('click', () => buyBuilding(player.quarks, player.particles));
@@ -85,21 +104,29 @@ getId('save').addEventListener('click', async() => await saveLoad('save'));
 getId('file').addEventListener('change', async() => await saveLoad('load'));
 getId('export').addEventListener('click', async() => await saveLoad('export'));
 getId('delete').addEventListener('click', async() => await saveLoad('delete'));
-
 getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
 for (let i = 1; i <= global.stage.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
+getId('pauseGame').addEventListener('click', async() => await pauseGame());
 
 /* Footer */
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Intervals */
-setInterval(invisibleUpdate, global.intervals.main);
-setInterval(numbersUpdate, global.intervals.numbers);
-setInterval(visualUpdate, global.intervals.visual);
-//setInterval(saveLoad, global.intervals.autoSave, 'save'); //Easier to test when its off
+function changeIntervals(pause = false) {
+    clearInterval(global.intervalsId.main);
+    clearInterval(global.intervalsId.numbers);
+    clearInterval(global.intervalsId.visual);
+    //clearInterval(global.intervalsId.autoSave);
+    if (!pause) {
+        global.intervalsId.main = setInterval(invisibleUpdate, global.intervals.main);
+        global.intervalsId.numbers = setInterval(numbersUpdate, global.intervals.numbers);
+        global.intervalsId.visual = setInterval(visualUpdate, global.intervals.visual);
+        //global.intervalsId.autoSave = setInterval(saveLoad, global.intervals.autoSave, 'save'); //Easier to test when its off
+    }
+}
 
 /* Promise returned in function argument where a void return was expected. */
 /* I have no idea what does that even mean... I have to use async since 'await saveFile[0].text()' must have await in it.*/
@@ -116,7 +143,7 @@ async function saveLoad(type: string) {
             try {
                 const load = JSON.parse(atob(text));
                 updatePlayer(load);
-                reLoad();
+                void reLoad();
             } catch {
                 Alert('Incorrect save file format.');
             } finally {
@@ -144,8 +171,8 @@ async function saveLoad(type: string) {
             break;
         }
         case 'delete': {
-            const ok = await Prompt("This will truly delete your save file!\nType in 'delete' to confirm.");
-            if (ok === 'delete' || ok === 'Delete') {
+            const ok = await Prompt("This will truly delete your save file!\nType 'delete' to confirm.");
+            if (ok !== false && ok.toLowerCase() === 'delete') {
                 localStorage.clear();
                 const deletePlayer = structuredClone(playerStart);
                 const deleteGlobal = structuredClone(globalStart);
@@ -153,7 +180,7 @@ async function saveLoad(type: string) {
                 Object.assign(global, deleteGlobal);
                 player.time.started = Date.now();
                 player.time.lastUpdate = player.time.started;
-                reLoad();
+                void reLoad();
             } else if (ok !== false) {
                 Alert('Save file wasn\'t deleted.');
             }
@@ -161,3 +188,14 @@ async function saveLoad(type: string) {
         }
     }
 }
+
+const pauseGame = async() => {
+    changeIntervals(true);
+    const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time.");
+    if (offline !== false && offline.toLowerCase() === 'nooffline') {
+        player.time.lastUpdate = Date.now();
+        changeIntervals();
+    } else {
+        changeIntervals();
+    }
+};

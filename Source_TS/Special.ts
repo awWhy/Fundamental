@@ -106,7 +106,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
     });
 };
 
-export const Prompt = async(text: string): Promise<string | boolean> => {
+export const Prompt = async(text: string): Promise<string | false> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display === 'block') {
