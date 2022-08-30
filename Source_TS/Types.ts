@@ -1,16 +1,19 @@
-/* I hate, hate, hate TS horrible need for interface; every single function has proper type, but being ignored anyway */
-export interface playerType { //This is only way, I will do it
-    toggles: boolean[]
+export interface playerType {
     stage: number
-    buildings: Array<Record<string, number>>
+    discharge: Record<string, number>
     energy: Record<string, number>
     time: Record<string, number>
+    buildings: Array<Record<string, number>>
     upgrades: number[]
     upgradesW: number[]
+    toggles: boolean[]
 }
 
-export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' without interface
+export interface globalType {
     tab: string
+    footer: boolean
+    lastSave: number
+    energyType: number[]
     stage: {
         word: string[]
         wordColor: string[]
@@ -19,10 +22,17 @@ export interface globalType { //I hate TS, can't do 'Object[dynamicProperty]' wi
         stage: number
         default: boolean
     }
-    footer: boolean
+    dischargeInfo: {
+        cost: number
+        increase: number
+    }
     intervals: Record<string, number>
     intervalsId: Record<string, number>
-    lastSave: number
+    buildingsCost: {
+        initial: number[]
+        current: number[]
+        increase: number[]
+    }
     upgradesInfo: {
         description: string[]
         effect: number[]

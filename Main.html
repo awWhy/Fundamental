@@ -22,9 +22,15 @@
             </div>
         </div>
         <div id="stageTab" class="insideTab">
-            <div class="stage">
-                <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord">Microworld</span>.</p>
-                <button id="stageReset" class="bigButton" aria-live="polite">You are not ready</button>
+            <div class="resets">
+                <div class="reset">
+                    <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="bigWord">Microworld</span>.</p>
+                    <button id="stageReset" class="bigButton" aria-live="polite">You are not ready</button>
+                </div>
+                <div id="discharge" class="reset">
+                    <p class="whiteText"><span id="dischargeWord" class="bigWord">Discharge</span>. Reset current buildings and energy, but boost production by <span class="orangeText">2</span>.</p>
+                    <button id="dischargeReset" class="mediumButton">Next goal is 1 energy</button>
+                </div>
             </div>
             <div class="buyBuldingsAll">
                 <div id="particlesMain" class="buyBuilding">

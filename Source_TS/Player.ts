@@ -1,9 +1,21 @@
 import { globalType, playerType } from './Types';
 
-export const player = {} as playerType; //Only for information that need to be saved
+export const player: playerType = { //Only for information that need to be saved
+    stage: 1,
+    discharge: {},
+    energy: {},
+    time: {},
+    buildings: [],
+    upgrades: [],
+    upgradesW: [],
+    toggles: []
+};
 
 export const global: globalType = { //Only some information is saved across
     tab: 'stage',
+    footer: true,
+    lastSave: 0,
+    energyType: [0, 1, 5, 20],
     stage: {
         word: ['Microworld', 'Submerged'],
         wordColor: ['#03d3d3', 'dodgerblue']
@@ -12,9 +24,11 @@ export const global: globalType = { //Only some information is saved across
         stage: 1,
         default: true
     },
-    footer: true,
-    /* Add buildings cost into global, add true levels into player */
-    intervals: { //Move into player (?)
+    dischargeInfo: {
+        cost: 1,
+        increase: 10 //Not used anywhere
+    },
+    intervals: {
         main: 1000, //Min 20 max 1000, default 50
         numbers: 1000,
         visual: 1000, //Min 500 max 10000
@@ -26,7 +40,11 @@ export const global: globalType = { //Only some information is saved across
         visual: 0,
         autoSave: 0
     },
-    lastSave: 0,
+    buildingsCost: {
+        initial: [],
+        current: [],
+        increase: []
+    },
     upgradesInfo: {
         description: [],
         effect: [],
@@ -41,17 +59,27 @@ export const global: globalType = { //Only some information is saved across
     }
 };
 
-function AddResource(name: string, current = 0) { //Not a class, because no
-    name === 'time' ?
-        Object.assign(player, { [name]: { current, lastUpdate: current, started: current } }) :
+function AddResource(name: string, type = 'normal', current = 0) {
+    if (type === 'time') {
+        Object.assign(player, { [name]: { current, lastUpdate: current, started: current } });
+    } else if (type === 'reset') {
+        Object.assign(player, { [name]: { current, max: current } });
+    } else {
         Object.assign(player, { [name]: { current, total: current } });
+    }
 }
 
-function AddMainBuilding(cost: number, type = 'building', current = 0) {
+function AddMainBuilding(cost: number, type = 'building', increase = 1.4) {
     if (type === 'building') {
-        player.buildings.push({ cost, current, true: current, total: current, producing: 0 });
+        player.buildings.push({ current: 0, true: 0, total: 0, producing: 0 });
+        global.buildingsCost.initial.push(cost);
+        global.buildingsCost.current.push(cost);
+        global.buildingsCost.increase.push(increase);
     } else {
         player.buildings.push({ current: cost, total: cost });
+        global.buildingsCost.initial.push(0); //To have same index
+        global.buildingsCost.current.push(0);
+        global.buildingsCost.increase.push(0);
     }
 }
 
@@ -72,29 +100,30 @@ const createArray = (amount: number, type = 'number') => {
     return array;
 };
 
-Object.assign(player, { stage: 1 });
 const togglesL = document.getElementsByClassName('toggle').length;
+/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2] */
 Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
 AddResource('energy');
-AddResource('time', Date.now());
-Object.assign(player, { buildings: [] });
-AddMainBuilding(3, 'Resource'); //Quarks
-AddMainBuilding(3); //Particles
-AddMainBuilding(24); //Atoms
-AddMainBuilding(3); //Molecules
+AddResource('discharge', 'reset');
+AddResource('time', 'time', Date.now());
+/* Main buildings, first number is cost; Don't forget to add energyType for new building */
+AddMainBuilding(3, 'Resource'); //Quarks[0]
+AddMainBuilding(3); //Particles[1]
+AddMainBuilding(24); //Atoms[2]
+AddMainBuilding(3); //Molecules[3]
 AddUpgradeArray('upgrades',
     [9, 12, 16, 500], //Cost
-    [10, 10, 5, 2], //Effect, for now only visual
-    [
+    [10, 10, 5, 2], //Effect, only used visually (since no need for dynamic right now)
+    [ //Description
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
         'More neutrons. Increased particle gain.',
-        'Superposition. Allows to spend energy to boost.'
-    ], [ //For now this will be [0] + effect + [1]
+        'Superposition. Unlocks new reset tier.'
+    ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Particle cost is ', ' times cheaper.'],
         ['Particles produce ', ' times more quarks.'],
         ['Atoms produce ', ' times more particles.'],
-        ['Each boost gives ', ' times production for all buildings.']
+        ['Each reset cost energy and gives ', ' times production for all buildings.']
     ]);
 AddUpgradeArray('upgradesW',
     [1e21],

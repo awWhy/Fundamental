@@ -35,6 +35,7 @@ body {
 }
 
 #stageWord { color: #03d3d3; }
+#dischargeWord { color: darkorange; }
 .stageText { color: var(--stage-text-color); }
 /* .darkOrchidText { color: #bd24ef; } */
 /* .orchidText { color: #e14bdb; } */
@@ -113,12 +114,18 @@ body {
 
 .saveButtonGroup button, #load { font-size: 1em; }
 #save, #load { width: 4.5em; }
-.buyBuldingsAll button { width: 20em; }
+.buyBuldingsAll button { width: 22em; }
 
 .bigButton {
     width: 9.5em;
     height: 2rem;
     font-size: 1.05em;
+}
+
+.mediumButton {
+    width: 13em;
+    height: 1.8em;
+    font-size: 0.85em;
 }
 
 nav button {
@@ -148,7 +155,9 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     gap: 2.2em;
 }
 
-.stage {
+.resets > div:not(:first-of-type) { margin-top: 1.2em;}
+
+.reset {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -159,7 +168,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     border: 2px solid var(--window-border);
 }
 
-#stageWord { font-size: 1.1rem; }
+.bigWord { font-size: 1.1rem; }
 
 .buyBuilding {
     display: flex;
@@ -168,7 +177,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     height: 2.4em;
 }
 
-.buyBuldingsAll { width: 34em; }
+.buyBuldingsAll { width: 35em; }
 
 .buyBuilding > p {
     width: 100%;
@@ -177,6 +186,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 
 .buyBuilding > p span:first-of-type { margin-left: 0.5em; }
 .buyBuilding > p span:last-of-type { float: right; } /* I wish, I knew a better way*/
+.availableBuilding { border-color: #a90000; }
 
 #upgrades {
     display: flex;

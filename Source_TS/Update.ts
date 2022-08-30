@@ -13,8 +13,6 @@ export const switchTab = (tab = 'none') => {
         if (tab !== 'none') {
             global.tab = tab;
         }
-        visualUpdate();
-        numbersUpdate();
 
         switch (tab) {
             case global.tab:
@@ -26,6 +24,8 @@ export const switchTab = (tab = 'none') => {
                 getId(`${global.tab}Tab`).style.display = 'flex';
                 getId(`${global.tab}TabBtn`).style.borderColor = color;
         }
+        visualUpdate();
+        numbersUpdate();
     }
 };
 
@@ -49,7 +49,7 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { stage, time, energy, upgrades, buildings } = player;
+    const { stage, time, energy, upgrades, buildings, discharge } = player;
 
     time.current = Date.now();
     let passedTime = (time.current - time.lastUpdate) / 1000;
@@ -65,14 +65,13 @@ export const invisibleUpdate = () => { //This is only for important or time base
         passedTime = 3600;
         console.log('Max offline progress is 1 hour (stage 2).');
     }
-    /* Add calculate cost based on true building amount */
 
     /*if (auto) { }*/ //Add auto's in here
     if (stage === 2) {
         calculateGainedBuildings(energy, passedTime);
     }
     if (stage <= 2) {
-        buildings[3].producing = earlyRound(0.3 * buildings[3].current, 1);
+        buildings[3].producing = earlyRound(0.3 * buildings[3].current * 2 ** discharge.current, 1);
         calculateGainedBuildings(2, passedTime);
     }
     if (stage === 1) {
@@ -85,7 +84,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
 
 export const numbersUpdate = () => { //This is for relevant visual info
     const { stage, energy, buildings } = player;
-    const { tab } = global;
+    const { tab, dischargeInfo, buildingsCost } = global;
 
     if (global.footer) {
         if (stage === 1) {
@@ -102,11 +101,23 @@ export const numbersUpdate = () => { //This is for relevant visual info
         if (stage === 1) {
             getId('building1Cur').textContent = finalFormat(buildings[1].current);
             getId('building1Prod').textContent = finalFormat(buildings[1].producing);
-            getId('building1Btn').textContent = `Need: ${finalFormat(buildings[1].cost)} Quarks`;
+            if (buildingsCost.current[1] <= buildings[0].current) {
+                getId('building1Btn').classList.add('availableBuilding');
+                getId('building1Btn').textContent = `Buy for: ${finalFormat(buildingsCost.current[1])} Quarks`;
+            } else {
+                getId('building1Btn').classList.remove('availableBuilding');
+                getId('building1Btn').textContent = `Need: ${finalFormat(buildingsCost.current[1])} Quarks`;
+            }
             if (buildings[1].total >= 11) {
                 getId('building2Cur').textContent = finalFormat(buildings[2].current);
                 getId('building2Prod').textContent = finalFormat(buildings[2].producing);
-                getId('building2Btn').textContent = `Need: ${finalFormat(buildings[2].cost)} Particles`;
+                if (buildingsCost.current[2] <= buildings[1].current) {
+                    getId('building2Btn').classList.add('availableBuilding');
+                    getId('building2Btn').textContent = `Buy for: ${finalFormat(buildingsCost.current[2])} Particles`;
+                } else {
+                    getId('building2Btn').classList.remove('availableBuilding');
+                    getId('building2Btn').textContent = `Need: ${finalFormat(buildingsCost.current[2])} Particles`;
+                }
             }
             if (energy.current >= 250) {
                 getId('stageReset').textContent = 'Enter next stage';
@@ -116,11 +127,17 @@ export const numbersUpdate = () => { //This is for relevant visual info
             if (buildings[2].total >= 2) {
                 getId('building3Cur').textContent = finalFormat(buildings[3].current);
                 getId('building3Prod').textContent = finalFormat(buildings[3].producing);
-                getId('building3Btn').textContent = `Need: ${finalFormat(buildings[3].cost)} Atoms`;
+                if (buildingsCost.current[3] <= buildings[2].current) {
+                    getId('building3Btn').classList.add('availableBuilding');
+                    getId('building3Btn').textContent = `Buy for: ${finalFormat(buildingsCost.current[3])} Atoms`;
+                } else {
+                    getId('building3Btn').classList.remove('availableBuilding');
+                    getId('building3Btn').textContent = `Need: ${finalFormat(buildingsCost.current[3])} Atoms`;
+                }
             }
         }
         if (stage === 2) {
-            //Placeholder for 2 more buildings for stage 2
+            getId('dischargeReset').textContent = `Next goal is ${finalFormat(dischargeInfo.cost, 0)} energy`;
         }
     }
     if (tab === 'settings') {
@@ -129,12 +146,13 @@ export const numbersUpdate = () => { //This is for relevant visual info
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
-    const { stage, energy, buildings } = player;
+    const { stage, energy, buildings, upgrades } = player;
 
     getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('atomsMain').style.display = buildings[1].total >= 11 && stage === 1 ? 'flex' : 'none';
     getId('moleculesMain').style.display = buildings[2].total >= 2 && stage <= 2 ? 'flex' : 'none';
+    getId('discharge').style.display = upgrades[3] > 0 ? 'flex' : 'none';
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
     getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';

@@ -1,6 +1,6 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
-import { buyBuilding, buyUpgrades, stageResetCheck, toggleSwap } from './Stage';
+import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleSwap } from './Stage';
 import { Alert, Confirm, Prompt, setTheme, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
@@ -10,7 +10,8 @@ export const getId = (id: string) => { //To type less and check if ID exist
     if (i !== null) {
         return i;
     }
-    throw new TypeError(`ID "${id}" not found.`); //New or not, wont change result
+    Alert('Some ID failed to load, game won\'t be working properly. Please refresh.');
+    throw new TypeError(`ID "${id}" not found.`);
 };
 
 const updatePlayer = (load: any) => {
@@ -40,30 +41,40 @@ export const reLoad = async(type = 'normal') => {
             global.theme.stage = Number(theme);
         }
     }
-    const { stage } = player;
+    const { stage, discharge, buildings, upgrades, upgradesW, toggles } = player;
+    const { dischargeInfo } = global;
+    for (let i = 1; i < buildings.length; i++) {
+        calculateBuildingsCost(i);
+    }
+    dischargeInfo.cost = 10 ** discharge.current;
     switchTheme();
-    switchTab();
+    if (type !== 'reset') {
+        switchTab();
+    } else {
+        visualUpdate();
+        numbersUpdate();
+    }
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = global.stage.word[stage - 1];
     getId('stageWord').style.color = global.stage.wordColor[stage - 1];
-    for (let i = 0; i < player.toggles.length; i++) {
+    for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false);
     }
-    for (let i = 0; i < player.upgrades.length; i++) {
-        if (player.upgrades[i] === 1) {
+    for (let i = 0; i < playerStart.upgrades.length; i++) {
+        if (upgrades[i] === 1) {
             getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
         } else {
             getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
         }
     }
-    for (let i = 0; i < player.upgradesW.length; i++) {
-        if (player.upgradesW[i] === 1) {
+    for (let i = 0; i < playerStart.upgradesW.length; i++) {
+        if (upgradesW[i] === 1) {
             getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'forestgreen';
         } else {
             getId(`upgradeW${[i + 1]}`).style.backgroundColor = '';
         }
     }
-    if (type === 'load' && !player.toggles[0]) {
+    if (type === 'load' && !toggles[0]) {
         const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
         if (noOffline) {
             player.time.lastUpdate = Date.now();
@@ -97,6 +108,7 @@ for (let i = 0; i < playerStart.upgradesW.length; i++) {
     getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i, 'water'));
 }
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
+getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 
 /* Settings tab */
 getId('save').addEventListener('click', async() => await saveLoad('save'));
