@@ -34,57 +34,65 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
 
     switch (type) {
         case 'normal':
-            getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber - 1];
-            getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber - 1][0]}${upgradesInfo.effect[upgradeNumber - 1]}${upgradesInfo.effectText[upgradeNumber - 1][1]}`;
-            getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber - 1] === 0 ? upgradesInfo.cost[upgradeNumber - 1] : 0} Energy`;
+            getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber];
+            getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber][0]}${upgradesInfo.effect[upgradeNumber]}${upgradesInfo.effectText[upgradeNumber][1]}`;
+            getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber] === 0 ? upgradesInfo.cost[upgradeNumber] : 0} Energy`;
             getId('upgradeCost').style.color = '';
             break;
         case 'water':
-            getId('upgradeText').textContent = upgradesWInfo.description[upgradeNumber - 1];
-            getId('upgradeEffect').textContent = `${upgradesWInfo.effectText[upgradeNumber - 1][0]}${upgradesWInfo.effect[upgradeNumber - 1]}${upgradesWInfo.effectText[upgradeNumber - 1][1]}`;
-            getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber - 1] === 0 ? upgradesWInfo.cost[upgradeNumber - 1] : 0} Molecules`;
+            getId('upgradeText').textContent = upgradesWInfo.description[upgradeNumber];
+            getId('upgradeEffect').textContent = `${upgradesWInfo.effectText[upgradeNumber][0]}${upgradesWInfo.effect[upgradeNumber]}${upgradesWInfo.effectText[upgradeNumber][1]}`;
+            getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber] === 0 ? upgradesWInfo.cost[upgradeNumber] : 0} Molecules`;
             getId('upgradeCost').style.color = '#03d3d3';
             break;
     }
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { stage, time, energy, quarks, particles, atoms, molecules, upgrades } = player;
+    const { stage, time, energy, upgrades, buildings } = player;
 
     time.current = Date.now();
-    const passedTime = (time.current - time.lastUpdate) / 1000;
+    let passedTime = (time.current - time.lastUpdate) / 1000;
     time.lastUpdate = Date.now();
-
+    if (passedTime < 0) {
+        return console.warn('Negative passed time detected.');
+    }
     global.lastSave += passedTime;
-
+    if (stage === 1 && passedTime > 600) {
+        passedTime = 600;
+        console.log('Max offline progress is 10 minutes (stage 1).');
+    } else if (stage === 2 && passedTime > 3600) {
+        passedTime = 3600;
+        console.log('Max offline progress is 1 hour (stage 2).');
+    }
     /* Add calculate cost based on true building amount */
 
     /*if (auto) { }*/ //Add auto's in here
-    if (stage === 1) {
-        particles.producing = earlyRound(0.5 * particles.current * (upgrades[1] === 1 ? 10 : 1), 1);
-        calculateGainedBuildings(quarks, particles, passedTime);
-        atoms.producing = earlyRound(0.4 * atoms.current * (upgrades[2] === 1 ? 5 : 1), 1);
-        calculateGainedBuildings(particles, atoms, passedTime);
+    if (stage === 2) {
+        calculateGainedBuildings(energy, passedTime);
     }
     if (stage <= 2) {
-        molecules.producing = earlyRound(0.3 * molecules.current, 1);
-        calculateGainedBuildings(atoms, molecules, passedTime);
+        buildings[3].producing = earlyRound(0.3 * buildings[3].current, 1);
+        calculateGainedBuildings(2, passedTime);
     }
-    if (stage === 2) {
-        calculateGainedBuildings(energy, energy, passedTime);
+    if (stage === 1) {
+        buildings[2].producing = earlyRound(0.4 * buildings[2].current * (upgrades[2] === 1 ? 5 : 1), 1);
+        calculateGainedBuildings(1, passedTime);
+        buildings[1].producing = earlyRound(0.5 * buildings[1].current * (upgrades[1] === 1 ? 10 : 1), 1);
+        calculateGainedBuildings(0, passedTime);
     }
 };
 
 export const numbersUpdate = () => { //This is for relevant visual info
-    const { stage, quarks, energy, particles, atoms, molecules } = player;
+    const { stage, energy, buildings } = player;
     const { tab } = global;
 
     if (global.footer) {
         if (stage === 1) {
-            getId('quarks').textContent = `Quarks: ${finalFormat(quarks.current)}`;
+            getId('quarks').textContent = `Quarks: ${finalFormat(buildings[0].current)}`;
         }
         if (stage === 2) {
-            getId('atoms').textContent = `Atoms: ${finalFormat(atoms.current)}`;
+            getId('atoms').textContent = `Atoms: ${finalFormat(buildings[2].current)}`;
         }
         if (energy.total >= 9) {
             getId('energy').textContent = `Energy: ${finalFormat(energy.current, 0)}`;
@@ -92,23 +100,23 @@ export const numbersUpdate = () => { //This is for relevant visual info
     }
     if (tab === 'stage') {
         if (stage === 1) {
-            getId('particlesCur').textContent = finalFormat(particles.current);
-            getId('particlesProd').textContent = finalFormat(particles.producing);
-            getId('particlesBtn').textContent = `Need: ${finalFormat(particles.cost)} Quarks`;
-            if (particles.total >= 11) {
-                getId('atomsCur').textContent = finalFormat(atoms.current);
-                getId('atomsProd').textContent = finalFormat(atoms.producing);
-                getId('atomsBtn').textContent = `Need: ${finalFormat(atoms.cost)} Particles`;
+            getId('building1Cur').textContent = finalFormat(buildings[1].current);
+            getId('building1Prod').textContent = finalFormat(buildings[1].producing);
+            getId('building1Btn').textContent = `Need: ${finalFormat(buildings[1].cost)} Quarks`;
+            if (buildings[1].total >= 11) {
+                getId('building2Cur').textContent = finalFormat(buildings[2].current);
+                getId('building2Prod').textContent = finalFormat(buildings[2].producing);
+                getId('building2Btn').textContent = `Need: ${finalFormat(buildings[2].cost)} Particles`;
             }
             if (energy.current >= 250) {
                 getId('stageReset').textContent = 'Enter next stage';
             }
         }
         if (stage <= 2) {
-            if (atoms.total >= 2) {
-                getId('moleculesCur').textContent = finalFormat(molecules.current);
-                getId('moleculesProd').textContent = finalFormat(molecules.producing);
-                getId('moleculesBtn').textContent = `Need: ${finalFormat(molecules.cost)} Atoms`;
+            if (buildings[2].total >= 2) {
+                getId('building3Cur').textContent = finalFormat(buildings[3].current);
+                getId('building3Prod').textContent = finalFormat(buildings[3].producing);
+                getId('building3Btn').textContent = `Need: ${finalFormat(buildings[3].cost)} Atoms`;
             }
         }
         if (stage === 2) {
@@ -121,12 +129,12 @@ export const numbersUpdate = () => { //This is for relevant visual info
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
-    const { stage, energy, particles, atoms } = player;
+    const { stage, energy, buildings } = player;
 
     getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
-    getId('atomsMain').style.display = particles.total >= 11 && stage === 1 ? 'flex' : 'none';
-    getId('moleculesMain').style.display = atoms.total >= 2 && stage <= 2 ? 'flex' : 'none';
+    getId('atomsMain').style.display = buildings[1].total >= 11 && stage === 1 ? 'flex' : 'none';
+    getId('moleculesMain').style.display = buildings[2].total >= 2 && stage <= 2 ? 'flex' : 'none';
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
     getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';

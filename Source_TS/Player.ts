@@ -47,8 +47,12 @@ function AddResource(name: string, current = 0) { //Not a class, because no
         Object.assign(player, { [name]: { current, total: current } });
 }
 
-function AddMainBuilding(name: string, cost: number, current = 0, producing = 0) {
-    Object.assign(player, { [name]: { cost, producing, current, trueLvls: current, total: current } });
+function AddMainBuilding(cost: number, type = 'building', current = 0) {
+    if (type === 'building') {
+        player.buildings.push({ cost, current, true: current, total: current, producing: 0 });
+    } else {
+        player.buildings.push({ current: cost, total: cost });
+    }
 }
 
 function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[], description: string[], effectText: string[][]) {
@@ -68,19 +72,18 @@ const createArray = (amount: number, type = 'number') => {
     return array;
 };
 
-/* All player additions has to be done here */
-/* Maybe one day, I will convert it, into boring instant object */
 Object.assign(player, { stage: 1 });
 const togglesL = document.getElementsByClassName('toggle').length;
 Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
-AddResource('quarks', 3);
 AddResource('energy');
 AddResource('time', Date.now());
-AddMainBuilding('particles', 3);
-AddMainBuilding('atoms', 24);
-AddMainBuilding('molecules', 3);
+Object.assign(player, { buildings: [] });
+AddMainBuilding(3, 'Resource'); //Quarks
+AddMainBuilding(3); //Particles
+AddMainBuilding(24); //Atoms
+AddMainBuilding(3); //Molecules
 AddUpgradeArray('upgrades',
-    [9, 12, 16, 300], //Cost
+    [9, 12, 16, 500], //Cost
     [10, 10, 5, 2], //Effect, for now only visual
     [
         'Bigger electrons. Particles cost decreased.',

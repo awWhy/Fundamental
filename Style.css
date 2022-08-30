@@ -148,15 +148,6 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     gap: 2.2em;
 }
 
-@media screen and (max-width: 55em) {
-    .insideTab {
-        flex-direction: column;
-        align-items: center;
-        gap: 1.2em;
-        margin-top: 1vh;
-    }
-}
-
 .stage {
     display: flex;
     flex-direction: column;
@@ -248,19 +239,20 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     font-size: 0.9em;
 }
 
+#themeArea > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #themeArea > div > div {
     position: absolute;
-    width: 8em; /* Changin this will allow for dropdown menu have more than 1 button in width. If that required */
-    margin-left: -7em;
+    width: min-content;
     display: none;
-    /* I added margin-left as -6em, in order for window to stay on top of original button */
-    /* I tryed to solve it instead by hiding button, but that loses focus... */
-    /* Because changing font size would cause button behind to clip, some extra was added */
-    background-color: var(--background-color);
 }
 
 #themeArea { text-align: center; }
-#themeArea > div:focus-within > div { display: inline-block; }
+#themeArea > div:focus-within > div { display: block; }
 #themeArea button { width: 6em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
 #switchTheme1 { border-color: darkcyan; }
@@ -282,7 +274,7 @@ ul button { margin-left: 0.4em; }
 
 #footer {
     position: fixed;
-    background-color: var(--footer-color); /* Brigher version for stage 2 */
+    background-color: var(--footer-color);
     width: 100%;
     bottom: 0;
     padding: 1vh 1vw;
@@ -301,4 +293,16 @@ ul button { margin-left: 0.4em; }
     display: flex;
     align-items: center;
     gap: 0.5em;
+}
+
+@media screen and (max-width: 55em) {
+    .insideTab {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2em;
+        margin-top: 1vh;
+    }
+    #themeArea > div > div {
+        width: max-content;
+    }
 }

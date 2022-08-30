@@ -22,10 +22,8 @@ const updatePlayer = (load: any) => {
     }
 };
 
-export const reLoad = async(loadSave = false) => {
-    const { stage } = player;
-
-    if (loadSave) {
+export const reLoad = async(type = 'normal') => {
+    if (type === 'load') {
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
         if (save !== null) {
@@ -42,41 +40,42 @@ export const reLoad = async(loadSave = false) => {
             global.theme.stage = Number(theme);
         }
     }
+    const { stage } = player;
     switchTheme();
     switchTab();
-    if (loadSave) {
-        if (!player.toggles[0]) {
-            const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
-            if (noOffline) {
-                player.time.lastUpdate = Date.now();
-            }
-        }
-    }
-    changeIntervals();
-    //Hide footer
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = global.stage.word[stage - 1];
     getId('stageWord').style.color = global.stage.wordColor[stage - 1];
     for (let i = 0; i < player.toggles.length; i++) {
         toggleSwap(i, false);
     }
-    if (player.energy.total >= 9) {
-        for (let i = 0; i < player.upgrades.length; i++) {
-            if (player.upgrades[i] === 1) {
-                getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
-            }
+    for (let i = 0; i < player.upgrades.length; i++) {
+        if (player.upgrades[i] === 1) {
+            getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
+        } else {
+            getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
         }
     }
-    if (stage > 1) {
-        for (let i = 0; i < player.upgradesW.length; i++) {
-            if (player.upgradesW[i] === 1) {
-                getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'forestgreen';
-            }
+    for (let i = 0; i < player.upgradesW.length; i++) {
+        if (player.upgradesW[i] === 1) {
+            getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'forestgreen';
+        } else {
+            getId(`upgradeW${[i + 1]}`).style.backgroundColor = '';
         }
+    }
+    if (type === 'load' && !player.toggles[0]) {
+        const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+        if (noOffline) {
+            player.time.lastUpdate = Date.now();
+        }
+    }
+    //Add function to hide footer here
+    if (type !== 'reset') {
+        changeIntervals();
     }
 };
 
-void reLoad(true);
+void reLoad('load');
 
 /* Global */
 for (let i = 0; i < playerStart.toggles.length; i++) {
@@ -84,18 +83,18 @@ for (let i = 0; i < playerStart.toggles.length; i++) {
 }
 
 /* Stage tab */
-getId('particlesBtn').addEventListener('click', () => buyBuilding(player.quarks, player.particles));
-getId('atomsBtn').addEventListener('click', () => buyBuilding(player.particles, player.atoms));
-getId('moleculesBtn').addEventListener('click', () => buyBuilding(player.atoms, player.molecules));
-for (let i = 1; i <= playerStart.upgrades.length; i++) {
-    getId(`upgrade${i}`).addEventListener('mouseover', () => getUpgradeDescription(i));
-    getId(`upgrade${i}`).addEventListener('click', () => buyUpgrades(i));
-    getId(`upgrade${i}`).addEventListener('focus', () => buyUpgrades(i)); //Atempt to give Screen Readers ability to buy upgrades
+for (let i = 1; i < playerStart.buildings.length; i++) {
+    getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(player.buildings, i));
 }
-for (let i = 1; i <= playerStart.upgradesW.length; i++) {
-    getId(`upgradeW${i}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'water'));
-    getId(`upgradeW${i}`).addEventListener('click', () => buyUpgrades(i, 'water'));
-    getId(`upgradeW${i}`).addEventListener('focus', () => buyUpgrades(i, 'water'));
+for (let i = 0; i < playerStart.upgrades.length; i++) {
+    getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
+    getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
+    getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //Atempt to give Screen Readers ability to buy upgrades
+}
+for (let i = 0; i < playerStart.upgradesW.length; i++) {
+    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'water'));
+    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'water'));
+    getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i, 'water'));
 }
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 
@@ -119,12 +118,12 @@ function changeIntervals(pause = false) {
     clearInterval(global.intervalsId.main);
     clearInterval(global.intervalsId.numbers);
     clearInterval(global.intervalsId.visual);
-    //clearInterval(global.intervalsId.autoSave);
+    clearInterval(global.intervalsId.autoSave);
     if (!pause) {
         global.intervalsId.main = setInterval(invisibleUpdate, global.intervals.main);
         global.intervalsId.numbers = setInterval(numbersUpdate, global.intervals.numbers);
         global.intervalsId.visual = setInterval(visualUpdate, global.intervals.visual);
-        //global.intervalsId.autoSave = setInterval(saveLoad, global.intervals.autoSave, 'save'); //Easier to test when its off
+        global.intervalsId.autoSave = setInterval(saveLoad, global.intervals.autoSave, 'save');
     }
 }
 
@@ -142,7 +141,12 @@ async function saveLoad(type: string) {
 
             try {
                 const load = JSON.parse(atob(text));
+                changeIntervals(true);
                 updatePlayer(load);
+                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}). Press confirm to NOT to gain offline time.`);
+                if (noOffline) {
+                    player.time.lastUpdate = Date.now();
+                }
                 void reLoad();
             } catch {
                 Alert('Incorrect save file format.');
@@ -173,6 +177,7 @@ async function saveLoad(type: string) {
         case 'delete': {
             const ok = await Prompt("This will truly delete your save file!\nType 'delete' to confirm.");
             if (ok !== false && ok.toLowerCase() === 'delete') {
+                changeIntervals(true);
                 localStorage.clear();
                 const deletePlayer = structuredClone(playerStart);
                 const deleteGlobal = structuredClone(globalStart);

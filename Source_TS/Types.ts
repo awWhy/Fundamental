@@ -2,12 +2,9 @@
 export interface playerType { //This is only way, I will do it
     toggles: boolean[]
     stage: number
-    quarks: Record<string, number>
+    buildings: Array<Record<string, number>>
     energy: Record<string, number>
     time: Record<string, number>
-    particles: Record<string, number>
-    atoms: Record<string, number>
-    molecules: Record<string, number>
     upgrades: number[]
     upgradesW: number[]
 }
