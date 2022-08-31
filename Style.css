@@ -14,9 +14,6 @@ body {
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
-    /* --button-all-text: #e3e3e3; */
-    /* --button-nav-color: black; */
-    /* --button-nav-hover: #181818; */
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
@@ -147,10 +144,10 @@ img {
 }
 
 nav button {
-    background-color: black;
     border-radius: 10px;
-    width: 4.8em;
+    min-width: 4.8em;
     font-size: 1.01rem;
+    background-color: black;
 }
 
 .toggle {
@@ -166,10 +163,11 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 
 .insideTab {
-    margin-top: 2vh;
+    margin-top: min(2vh, 1.2em);
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
+    margin-bottom: 6em;
     gap: 2.2em;
 }
 
@@ -320,7 +318,7 @@ ul button { margin-left: 0.4em; }
     background-color: var(--footer-color);
     width: 100%;
     bottom: 0;
-    padding: 1vh 1vw;
+    padding: min(1.3vh, 0.8em) 2vw;
 }
 
 .footerArea, nav {
@@ -330,21 +328,31 @@ ul button { margin-left: 0.4em; }
     gap: 0.6em 1em;
 }
 
-.footerArea:not(:last-of-type) { margin-bottom: 0.6em; }
-.statText { width: 8em; } /* Until I figure out how to deal with rapid text movement */
+.footerArea:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
-.statFoot {
+.statText {
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    justify-content: center;
+    width: 8.8em;
+    height: 28px;
+    border: 2px solid;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    background-color: black;
 }
+
+.statFoot { display: flex; }
+.statFoot > img { background-color: black; }
+#quarks, #atoms { border-color: #008b8b; }
+#energy { border-color: #f28100; }
 
 @media screen and (max-width: 55em) {
     .insideTab {
         flex-direction: column;
         align-items: center;
         gap: 1.2em;
-        margin-top: 1vh;
+        margin-top: min(1vh, 0.6em);
     }
     #themeArea > div > div {
         width: max-content;
