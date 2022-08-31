@@ -6,18 +6,17 @@
 }
 
 body {
+    /* Colors */
     --background-color: #030012;
     --window-color: #12121c;
     --window-border: cornflowerblue;
     --footer-color: darkblue;
-    /* --image-color: #030012; */
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
     /* --button-all-text: #e3e3e3; */
     /* --button-nav-color: black; */
     /* --button-nav-hover: #181818; */
-    /* --button-nav-selected: #e3e3e3; */
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
@@ -25,7 +24,10 @@ body {
     --white-text-color: white;
     --orange-text-color: darkorange;
     --blue-text-color: dodgerblue;
+
+    /* Special */
     --transition: 0s;
+    --border-image: url(Used%20files%20%28Image%27s%29/Stage1%20border.png);
 }
 
 .customColors {
@@ -45,7 +47,23 @@ body {
 .whiteText { color: var(--white-text-color); }
 .orangeText { color: var(--orange-text-color); }
 .blueText { color: var(--blue-text-color); }
-.image { background-color: var(--background-color); }
+
+img {
+    background-color: var(--background-color);
+    object-fit: none;
+}
+
+.stageBorder {
+    background-image: var(--border-image);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.invisible { /* Important for screen readers */
+    position: absolute;
+    bottom: 0;
+    clip-path: circle(0);
+}
 
 #blocker {
     position: fixed;
@@ -205,13 +223,28 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 
 #upgrades > a { margin-bottom: 0.25em; }
 
-/* To prevent text shakin, can be moved into individual div's if something */
-#settingsTab > div { width: 20em; }
+#resetToggles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    height: min-content;
+    gap: 0.3em 0.6em;
+}
+
+#resetToggles > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+#resetToggles > p { width: 100%; }
 
 .saveButtonGroup {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
     gap: 0.3em;
 }
 
@@ -228,8 +261,8 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 }
 
 #file {
-    position: absolute; /* Important for screen readers */
-    clip-path: circle(0); /* Since you can't click on label */
+    position: absolute;
+    clip-path: circle(0); /* Important for screen readers */
 }
 
 #load {
@@ -298,6 +331,7 @@ ul button { margin-left: 0.4em; }
 }
 
 .footerArea:not(:last-of-type) { margin-bottom: 0.6em; }
+.statText { width: 8em; } /* Until I figure out how to deal with rapid text movement */
 
 .statFoot {
     display: flex;

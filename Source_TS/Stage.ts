@@ -92,7 +92,10 @@ export const stageResetCheck = async() => {
 
     if (stage === 1) {
         if (energy.current >= 250) {
-            const ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
+            let ok = true;
+            if (player.toggles[1]) {
+                ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
+            }
             if (ok) {
                 energy.current -= 250;
                 player.stage = 2;
@@ -109,7 +112,10 @@ export const dischargeResetCheck = async() => {
     const { dischargeInfo } = global;
 
     if (upgrades[3] === 1 && energy.current >= dischargeInfo.cost) {
-        const ok = await Confirm('This will reset all of your current buildings and energy, but you will gain boost to production. Continue?');
+        let ok = true;
+        if (player.toggles[2]) {
+            ok = await Confirm('This will reset all of your current buildings and energy, but you will gain boost to production. Continue?');
+        }
         if (ok) {
             dischargeInfo.cost *= 10;
             discharge.current += 1;

@@ -34,36 +34,48 @@
             </div>
             <div class="buyBuldingsAll">
                 <div id="particlesMain" class="buyBuilding">
-                    <img src="/Used%20files%20(Image's)/Particle.png" alt="Particle" class="image">
-                    <p aria-hidden="true">Particles: <span id="building1Cur" class="whiteText">0</span><span> producing: <span id="building1Prod" class="whiteText">0</span></span></p>
-                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building1Btn">Need: 3 Quarks</button>
+                    <img src="/Used%20files%20(Image's)/Particle.png" alt="Particle">
+                    <p>Particles: <span id="building1Cur" class="whiteText">0</span><span> producing: <span id="building1Prod" class="whiteText">0</span></span></p>
+                    <button id="building1Btn">Need: 3 Quarks</button>
                 </div>
                 <div id="atomsMain" class="buyBuilding">
-                    <img src="/Used%20files%20(Image's)/Atom.png" alt="Atom" class="image">
-                    <p aria-hidden="true">Atoms: <span id="building2Cur" class="whiteText">0</span><span> producing: <span id="building2Prod" class="whiteText">0</span></span></p>
-                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building2Btn">Need: 24 Particles</button>
+                    <img src="/Used%20files%20(Image's)/Atom.png" alt="Atom">
+                    <p>Atoms: <span id="building2Cur" class="whiteText">0</span><span> producing: <span id="building2Prod" class="whiteText">0</span></span></p>
+                    <button id="building2Btn">Need: 24 Particles</button>
                 </div>
                 <div id="moleculesMain" class="buyBuilding">
-                    <img src="/Used%20files%20(Image's)/Molecule.png" alt="Molecule" class="image">
-                    <p aria-hidden="true">Molecules: <span id="building3Cur" class="whiteText">0</span><span> producing: <span id="building3Prod" class="whiteText">0</span></span></p>
-                    <button aria-label="If you are hearing this, then JavaScript didn't loaded properly, try to refresh" id="building3Btn">Need: 3 Atoms</button>
+                    <img src="/Used%20files%20(Image's)/Molecule.png" alt="Molecule">
+                    <p>Molecules: <span id="building3Cur" class="whiteText">0</span><span> producing: <span id="building3Prod" class="whiteText">0</span></span></p>
+                    <button id="building3Btn">Need: 3 Atoms</button>
                 </div>
             </div>
             <div id="upgrades">
                 <p>Upgrades</p>
                 <div>
-                    <img src="/Used%20files%20(Image's)/Upgrade1.png" alt="Upgrade1" tabindex="10" id="upgrade1" class="image" aria-describedby="upgradeText">
-                    <img src="/Used%20files%20(Image's)/Upgrade2.png" alt="Upgrade2" tabindex="10" id="upgrade2" class="image" aria-describedby="upgradeText">
-                    <img src="/Used%20files%20(Image's)/Upgrade3.png" alt="Upgrade3" tabindex="10" id="upgrade3" class="image" aria-describedby="upgradeText">
-                    <img src="/Used%20files%20(Image's)/Upgrade4.png" alt="Upgrade4" tabindex="10" id="upgrade4" class="image" aria-describedby="upgradeText">
-                    <img src="/Used%20files%20(Image's)/UpgradeW1.png" alt="UpgradeWater1" tabindex="10" id="upgradeW1" class="image" aria-describedby="upgradeText">
+                    <img src="/Used%20files%20(Image's)/Upgrade1.png" alt="Upgrade1" tabindex="10" id="upgrade1" aria-describedby="upgradeText">
+                    <img src="/Used%20files%20(Image's)/Upgrade2.png" alt="Upgrade2" tabindex="10" id="upgrade2" aria-describedby="upgradeText">
+                    <img src="/Used%20files%20(Image's)/Upgrade3.png" alt="Upgrade3" tabindex="10" id="upgrade3" aria-describedby="upgradeText">
+                    <img src="/Used%20files%20(Image's)/Upgrade4.png" alt="Upgrade4" tabindex="10" id="upgrade4" aria-describedby="upgradeText">
+                    <img src="/Used%20files%20(Image's)/UpgradeW1.png" alt="UpgradeWater1" tabindex="10" id="upgradeW1" aria-describedby="upgradeText">
                 </div>
                 <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
                 <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see</span></p>
                 <p>Cost: <span id="upgradeCost" class="orangeText">Energy</span></p>
             </div>
+            <label class="invisible" aria-live="polite">Current tab: Stage tab</label>
         </div>
         <div id="settingsTab" class="insideTab">
+            <div id="resetToggles">
+                <p>Confirmation toggles</p>
+                <div>
+                    <img src="/Used%20files%20(Image's)/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder">
+                    <button id="toggle1" class="toggle">ON</button>
+                </div>
+                <div>
+                    <img src="/Used%20files%20(Image's)/Discharge%20toggle.png" alt="Discharge Reset Toggle">
+                    <button id="toggle2" class="toggle">ON</button>
+                </div>
+            </div>
             <div class="saveButtonGroup">
                 <p>Please export save file regularly</p>
                 <div>
@@ -77,7 +89,7 @@
                 </div>
                 <p class="whiteText">Last time saved: <span id="isSaved" class="stageText">Not in current session</span></p>
             </div>
-            <div id="themeArea">
+            <div id="themeArea" aria-hidden="true">
                 <p>You can select different theme from here</p>
                 <div>
                     <button id="currentTheme">Default</button>
@@ -95,25 +107,26 @@
                     <li class="whiteText">Offline progress<button id="toggle0" class="toggle">ON</button></li>
                 </ul>
             </div>
+            <label class="invisible" aria-live="polite">Current tab: Settings</label>
         </div>
         <div id="footer">
             <div class=""> <!-- Add option to hide it, add special buttons, like buy x here -->
             </div>
             <div class="footerArea">
                 <div id="quarkStat" class="statFoot">
-                    <img src="/Used%20files%20(Image's)/Quarks.png" alt="Quarks" class="image">
-                    <p id="quarks" class="cyanText">Quarks: 3</p>
+                    <img src="/Used%20files%20(Image's)/Quarks.png" alt="Quarks">
+                    <p id="quarks" class="statText cyanText">Quarks: 3</p>
                 </div>
                 <div id="atomStat" class="statFoot">
-                    <img src="/Used%20files%20(Image's)/Atom.png" alt="Atom" class="image">
-                    <p id="atoms" class="cyanText">Atoms: 0</p>
+                    <img src="/Used%20files%20(Image's)/Atom.png" alt="Atom">
+                    <p id="atoms" class="statText cyanText">Atoms: 0</p>
                 </div>
                 <div id="energyStat" class="statFoot">
-                    <img src="/Used%20files%20(Image's)/Energy.png" alt="Energy" class="image">
-                    <p id="energy" class="orangeText">Energy: 0</p>
+                    <img src="/Used%20files%20(Image's)/Energy.png" alt="Energy">
+                    <p id="energy" class="statText orangeText">Energy: 0</p>
                 </div>
             </div>
-            <div class="footerArea" aria-hidden="true">
+            <div class="footerArea">
                 <nav>
                     <button id="stageTabBtn">Stage</button>
                     <button id="settingsTabBtn">Settings</button>

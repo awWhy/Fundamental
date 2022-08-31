@@ -36,6 +36,7 @@ export const switchTheme = () => {
             body.removeProperty('--button-delete-hover');
             body.removeProperty('--stage-text-color');
             body.removeProperty('--cyan-text-color');
+            body.removeProperty('--border-image');
             getId('upgradeEffect').style.color = '';
             break;
         case 2:
@@ -50,6 +51,7 @@ export const switchTheme = () => {
             body.setProperty('--button-delete-hover', 'firebrick');
             body.setProperty('--stage-text-color', 'dodgerblue');
             body.setProperty('--cyan-text-color', 'cyan');
+            body.setProperty('--border-image', 'url(Used%20files%20%28Image%27s%29/Stage2%20border.png)');
             getId('upgradeEffect').style.color = '#82cb3b';
             break;
     }

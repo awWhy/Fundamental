@@ -156,9 +156,17 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
     getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';
-    getId('upgrade4').style.display = stage > 1 ? 'block' : 'none';
-    getId('upgradeW1').style.display = stage > 1 ? 'block' : 'none';
-    getId('themeArea').style.display = stage > 1 ? 'block' : 'none';
+    if (stage > 1) {
+        getId('upgrade4').style.display = 'block';
+        getId('upgradeW1').style.display = 'block';
+        getId('resetToggles').style.display = 'flex';
+        getId('themeArea').style.display = 'block';
+    } else {
+        getId('upgrade4').style.display = 'none';
+        getId('upgradeW1').style.display = 'none';
+        getId('resetToggles').style.display = 'none';
+        getId('themeArea').style.display = 'none';
+    }
 };
 
 export const earlyRound = (input: number, precision = input < 1e6 ? 7 : 0) => {
@@ -191,7 +199,3 @@ export const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0, type
             }
     }
 };
-
-/* Change aria-label for main buttons to "Buy (buidlingName), (cost Number and a Word), (if can afford), (how many owned), (how much being produced per/s of cost building)" */
-/* Add hotkeys for switching tabs; Inside each tab add aria-life */
-/* aria-disable for maxed upgrades */
