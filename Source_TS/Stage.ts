@@ -1,7 +1,7 @@
-import { getId, reLoad } from './Main(OnLoad)';
+import { getId } from './Main(OnLoad)';
 import { global, player } from './Player';
-import { Alert, Confirm } from './Special';
-import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
+import { Alert, Confirm, switchTheme } from './Special';
+import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate, visualUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number) => {
     const { stage, energy } = player;
@@ -26,6 +26,10 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number) =
 export const calculateBuildingsCost = (index: number) => {
     const { buildings, upgrades } = player;
     const { buildingsCost } = global;
+
+    if (index === 3) {
+        buildingsCost.increase[3] = upgrades[4] === 1 ? 1.2 : 1.4;
+    }
 
     if (index === 1 && upgrades[0] === 1) {
         buildingsCost.current[index] = earlyRound(buildingsCost.initial[index] / 10 * buildingsCost.increase[index] ** buildings[index].true);
@@ -52,7 +56,7 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
 
     switch (type) {
         case 'normal':
-            if (upgrades[upgrade] === 0 && energy.current >= upgradesInfo.cost[upgrade]) {
+            if (upgrades[upgrade] !== 1 && energy.current >= upgradesInfo.cost[upgrade]) {
                 upgrades[upgrade] = 1;
                 energy.current -= upgradesInfo.cost[upgrade];
                 getId(`upgrade${upgrade + 1}`).style.backgroundColor = 'forestgreen';
@@ -60,11 +64,13 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
                     calculateBuildingsCost(1);
                 } else if (upgrade === 3) {
                     getId('discharge').style.display = 'flex';
+                } else if (upgrade === 4) {
+                    calculateBuildingsCost(3);
                 }
             }
             break;
         case 'water':
-            if (upgradesW[upgrade] === 0 && buildings[3].current >= upgradesWInfo.cost[upgrade]) {
+            if (upgradesW[upgrade] !== 1 && buildings[3].current >= upgradesWInfo.cost[upgrade]) {
                 upgradesW[upgrade] = 1;
                 buildings[3].current -= upgradesWInfo.cost[upgrade];
                 getId(`upgradeW${upgrade + 1}`).style.backgroundColor = 'forestgreen';
@@ -88,38 +94,53 @@ export const toggleSwap = (number: number, change = true) => {
 };
 
 export const stageResetCheck = async() => {
-    const { stage, energy } = player;
+    const { stage, energy, buildings } = player;
 
-    if (stage === 1) {
-        if (energy.current >= 250) {
-            let ok = true;
-            if (player.toggles[1]) {
-                ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
-            }
-            if (ok) {
-                energy.current -= 250;
-                player.stage = 2;
-                void reLoad('reset');
-            }
-        } else {
-            return Alert('You need more energy.');
+    if ((energy.current >= 250 && stage === 1) || (energy.current === -1 /* Just so lint would leave me alone */ && stage === 2)) {
+        let ok = true;
+        if (player.toggles[1]) {
+            ok = await Confirm('You\'r current progress will be reset, but you will progress further into a game. Are you sure you want to reset?');
         }
-    } //else if (stage === 2) { }
+        if (ok) {
+            energy.current = 0;
+            if (stage === 1) {
+                buildings[2].current = 3;
+                buildings[3].current = 0;
+                buildings[3].true = 0;
+                calculateBuildingsCost(3);
+            }
+            player.stage++;
+            getId('stageReset').textContent = 'You are not ready';
+            getId('stageWord').textContent = global.stage.word[player.stage - 1];
+            getId('stageWord').style.color = global.stage.wordColor[player.stage - 1];
+            visualUpdate();
+            numbersUpdate();
+            switchTheme();
+        }
+    } else {
+        if (stage === 1) {
+            return Alert('You need more energy.');
+        } else if (stage === 2) {
+            return Alert('You will know when.');
+        }
+    }
 };
 
 export const dischargeResetCheck = async() => {
     const { energy, discharge, buildings, upgrades } = player;
     const { dischargeInfo } = global;
 
-    if (upgrades[3] === 1 && energy.current >= dischargeInfo.cost) {
+    if (upgrades[3] === 1) {
         let ok = true;
-        if (player.toggles[2]) {
-            ok = await Confirm('This will reset all of your current buildings and energy, but you will gain boost to production. Continue?');
+        if (player.toggles[2] && energy.current < dischargeInfo.cost) {
+            ok = await Confirm('This will reset all of your current buildings and energy. You will NOT gain production boost. Continue?');
         }
         if (ok) {
-            dischargeInfo.cost *= 10;
-            discharge.current += 1;
-            discharge.max += 1;
+            if (energy.current >= dischargeInfo.cost) {
+                dischargeInfo.cost *= 10;
+                discharge.current++;
+                discharge.max++;
+            }
             energy.current = 0;
             buildings[2].current = 3;
             buildings[3].current = 0;

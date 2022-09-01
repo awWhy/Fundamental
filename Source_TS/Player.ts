@@ -112,18 +112,24 @@ AddMainBuilding(3); //Particles[1]
 AddMainBuilding(24); //Atoms[2]
 AddMainBuilding(3); //Molecules[3]
 AddUpgradeArray('upgrades',
-    [9, 12, 16, 500], //Cost
-    [10, 10, 5, 2], //Effect, only used visually (since no need for dynamic right now)
+    [9, 12, 16, 300, 600, 9999, 99999], //Cost
+    [10, 10, 5, 4, 0.2, 1.1, 0.1], //Effect
     [ //Description
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
         'More neutrons. Increased particle gain.',
-        'Superposition. Unlocks new reset tier.'
+        'Superposition. Unlocks new reset tier.',
+        'Protium. Basic.',
+        'Deuterium. Heavy.',
+        'Tritium. Radioactive.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Particle cost is ', ' times cheaper.'],
         ['Particles produce ', ' times more quarks.'],
         ['Atoms produce ', ' times more particles.'],
-        ['Each reset cost energy and gives ', ' times production for all buildings.']
+        ['Each reset cost energy and can give ', ' times production for all buildings.'],
+        ['Cost scalling for molecules is decreased by ', '.'],
+        ['Molecules (only bought one\'s) boost each other by ', ' times.'],
+        ['Molecules produce molecules. At a reduced rate (', ').']
     ]);
 AddUpgradeArray('upgradesW',
     [1e21],

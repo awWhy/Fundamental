@@ -38,8 +38,7 @@
         //"no-class-assign": "off", //Can be turned off
         "no-sparse-arrays": "off",
         "operator-assignment": "warn", //Test
-        "prefer-destructuring": "warn", //Test
-        "operator-linebreak": ["error", "after"], //I hate this being "before" by default
+        "operator-linebreak": ["error", "after"],
 
         "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
         "@typescript-eslint/semi": ["error", "always"],

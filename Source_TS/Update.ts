@@ -36,20 +36,20 @@ export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') =>
         case 'normal':
             getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber];
             getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber][0]}${upgradesInfo.effect[upgradeNumber]}${upgradesInfo.effectText[upgradeNumber][1]}`;
-            getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber] === 0 ? upgradesInfo.cost[upgradeNumber] : 0} Energy`;
+            getId('upgradeCost').textContent = `${player.upgrades[upgradeNumber] === 1 ? 0 : upgradesInfo.cost[upgradeNumber]} Energy`;
             getId('upgradeCost').style.color = '';
             break;
         case 'water':
             getId('upgradeText').textContent = upgradesWInfo.description[upgradeNumber];
             getId('upgradeEffect').textContent = `${upgradesWInfo.effectText[upgradeNumber][0]}${upgradesWInfo.effect[upgradeNumber]}${upgradesWInfo.effectText[upgradeNumber][1]}`;
-            getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber] === 0 ? upgradesWInfo.cost[upgradeNumber] : 0} Molecules`;
+            getId('upgradeCost').textContent = `${player.upgradesW[upgradeNumber] === 1 ? 0 : upgradesWInfo.cost[upgradeNumber]} Molecules`;
             getId('upgradeCost').style.color = '#03d3d3';
             break;
     }
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { stage, time, energy, upgrades, buildings, discharge } = player;
+    const { stage, time, upgrades, buildings, discharge } = player;
 
     time.current = Date.now();
     let passedTime = (time.current - time.lastUpdate) / 1000;
@@ -67,18 +67,19 @@ export const invisibleUpdate = () => { //This is only for important or time base
     }
 
     /*if (auto) { }*/ //Add auto's in here
-    if (stage === 2) {
-        calculateGainedBuildings(energy, passedTime);
-    }
-    if (stage <= 2) {
-        buildings[3].producing = earlyRound(0.3 * buildings[3].current * 2 ** discharge.current, 1);
-        calculateGainedBuildings(2, passedTime);
-    }
-    if (stage === 1) {
-        buildings[2].producing = earlyRound(0.4 * buildings[2].current * (upgrades[2] === 1 ? 5 : 1), 1);
-        calculateGainedBuildings(1, passedTime);
-        buildings[1].producing = earlyRound(0.5 * buildings[1].current * (upgrades[1] === 1 ? 10 : 1), 1);
-        calculateGainedBuildings(0, passedTime);
+    switch (stage) {
+        case 2:
+            buildings[3].producing = earlyRound(0.3 * buildings[3].current * 4 ** discharge.current, 1);
+            calculateGainedBuildings(2, passedTime);
+            break;
+        case 1:
+            buildings[3].producing = earlyRound(0.3 * buildings[3].current, 1);
+            calculateGainedBuildings(2, passedTime);
+            buildings[2].producing = earlyRound(0.4 * buildings[2].current * (upgrades[2] === 1 ? 5 : 1), 1);
+            calculateGainedBuildings(1, passedTime);
+            buildings[1].producing = earlyRound(0.5 * buildings[1].current * (upgrades[1] === 1 ? 10 : 1), 1);
+            calculateGainedBuildings(0, passedTime);
+            break;
     }
 };
 
@@ -146,7 +147,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
-    const { stage, energy, buildings, upgrades } = player;
+    const { stage, energy, discharge, buildings, upgrades } = player;
 
     getId('energyStat').style.display = energy.total >= 9 ? 'flex' : 'none';
     getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
@@ -156,6 +157,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
     getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
     getId('atomStat').style.display = stage === 2 ? 'flex' : 'none';
+    getId('researchTabBtn').style.display = discharge.current >= 4 ? 'block' : 'none';
     if (stage > 1) {
         getId('upgrade4').style.display = 'block';
         getId('upgradeW1').style.display = 'block';
@@ -166,6 +168,13 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('upgradeW1').style.display = 'none';
         getId('resetToggles').style.display = 'none';
         getId('themeArea').style.display = 'none';
+    }
+    for (let i = 5; i <= 8; i++) {
+        if (discharge.current >= 3) {
+            getId(`upgrade${i}`).style.display = 'block';
+        } else {
+            getId(`upgrade${i}`).style.display = 'none';
+        }
     }
 };
 

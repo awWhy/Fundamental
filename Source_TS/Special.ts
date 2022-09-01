@@ -14,16 +14,24 @@ export const setTheme = (theme: number, initial = false) => {
 };
 
 export const switchTheme = () => {
+    const { stage } = player;
+    const { theme } = global;
     const body = document.body.style;
+
     body.setProperty('--transition', '1s'); //Every part of a button is ignored, but shouldn't be hard to add.
-    if (global.theme.default) {
-        global.theme.stage = player.stage;
+    if (theme.default) {
+        theme.stage = stage;
         getId('currentTheme').textContent = 'Default';
     } else {
-        getId('currentTheme').textContent = global.stage.word[global.theme.stage - 1];
+        getId('currentTheme').textContent = global.stage.word[theme.stage - 1];
+    }
+    if (stage === 1) {
+        body.removeProperty('--border-image');
+    } else {
+        body.setProperty('--border-image', `url(Used%20files%20%28Image%27s%29/Stage${stage}%20border.png)`);
     }
 
-    switch (global.theme.stage) {
+    switch (theme.stage) {
         case 1:
             body.removeProperty('--background-color');
             body.removeProperty('--window-color');
@@ -36,7 +44,6 @@ export const switchTheme = () => {
             body.removeProperty('--button-delete-hover');
             body.removeProperty('--stage-text-color');
             body.removeProperty('--cyan-text-color');
-            body.removeProperty('--border-image');
             getId('upgradeEffect').style.color = '';
             break;
         case 2:
@@ -51,7 +58,6 @@ export const switchTheme = () => {
             body.setProperty('--button-delete-hover', 'firebrick');
             body.setProperty('--stage-text-color', 'dodgerblue');
             body.setProperty('--cyan-text-color', 'cyan');
-            body.setProperty('--border-image', 'url(Used%20files%20%28Image%27s%29/Stage2%20border.png)');
             getId('upgradeEffect').style.color = '#82cb3b';
             break;
     }

@@ -48,12 +48,7 @@ export const reLoad = async(type = 'normal') => {
     }
     dischargeInfo.cost = 10 ** discharge.current;
     switchTheme();
-    if (type !== 'reset') {
-        switchTab();
-    } else {
-        visualUpdate();
-        numbersUpdate();
-    }
+    switchTab();
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = global.stage.word[stage - 1];
     getId('stageWord').style.color = global.stage.wordColor[stage - 1];
@@ -76,14 +71,10 @@ export const reLoad = async(type = 'normal') => {
     }
     if (type === 'load' && !toggles[0]) {
         const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
-        if (noOffline) {
-            player.time.lastUpdate = Date.now();
-        }
+        if (noOffline) { player.time.lastUpdate = Date.now(); }
     }
     //Add function to hide footer here
-    if (type !== 'reset') {
-        changeIntervals();
-    }
+    changeIntervals();
 };
 
 void reLoad('load');
