@@ -23,7 +23,7 @@
         </div>
         <div id="stageTab" class="insideTab">
             <div class="resets">
-                <div class="reset">
+                <div id="stage" class="reset">
                     <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="bigWord">Microworld</span>.</p>
                     <button id="stageReset" class="bigButton" aria-live="polite">You are not ready</button>
                 </div>
@@ -60,7 +60,6 @@
                     <img src="/Used%20files%20(Image's)/Upgrade6.png" alt="Upgrade 6" tabindex="10" id="upgrade6" aria-describedby="upgradeText">
                     <img src="/Used%20files%20(Image's)/Upgrade7.png" alt="Upgrade 7" tabindex="10" id="upgrade7" aria-describedby="upgradeText">
                     <img src="/Used%20files%20(Image's)/Upgrade8.png" alt="Upgrade 8" tabindex="10" id="upgrade8" aria-describedby="upgradeText">
-                    <img src="/Used%20files%20(Image's)/UpgradeW1.png" alt="Water Upgrade 1" tabindex="10" id="upgradeW1" aria-describedby="upgradeText">
                 </div>
                 <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
                 <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see</span></p>
@@ -72,11 +71,11 @@
             <div id="resetToggles">
                 <p>Confirmation toggles</p>
                 <div>
-                    <img src="/Used%20files%20(Image's)/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder">
+                    <img src="/Used%20files%20(Image's)/Discharge%20toggle.png" alt="Discharge Reset Toggle">
                     <button id="toggle1" class="toggle">ON</button>
                 </div>
-                <div>
-                    <img src="/Used%20files%20(Image's)/Discharge%20toggle.png" alt="Discharge Reset Toggle">
+                <div id="stageToggleReset">
+                    <img src="/Used%20files%20(Image's)/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder">
                     <button id="toggle2" class="toggle">ON</button>
                 </div>
             </div>
@@ -120,10 +119,6 @@
                 <div id="quarkStat" class="statFoot">
                     <img src="/Used%20files%20(Image's)/Quarks.png" alt="Quarks">
                     <p id="quarks" class="statText cyanText">Quarks: 3</p>
-                </div>
-                <div id="atomStat" class="statFoot">
-                    <img src="/Used%20files%20(Image's)/Atom.png" alt="Atom">
-                    <p id="atoms" class="statText cyanText">Atoms: 0</p>
                 </div>
                 <div id="energyStat" class="statFoot">
                     <img src="/Used%20files%20(Image's)/Energy.png" alt="Energy">

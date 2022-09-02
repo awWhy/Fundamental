@@ -31,7 +31,7 @@ export const reLoad = async(type = 'normal') => {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
             if (player.toggles[0]) {
-                Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}.`);
+                Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.updated), 0, 'time')}.`);
             }
         } else {
             console.warn('Save file wasn\'t detected.');
@@ -41,17 +41,18 @@ export const reLoad = async(type = 'normal') => {
             global.theme.stage = Number(theme);
         }
     }
-    const { stage, discharge, buildings, upgrades, upgradesW, toggles } = player;
-    const { dischargeInfo } = global;
+    const { stage, discharge, buildings, upgrades, time, toggles } = player;
+    const { stageInfo, dischargeInfo } = global;
+
     for (let i = 1; i < buildings.length; i++) {
         calculateBuildingsCost(i);
     }
     dischargeInfo.cost = 10 ** discharge.current;
-    switchTheme();
     switchTab();
+    switchTheme();
     getId('stageReset').textContent = 'You are not ready';
-    getId('stageWord').textContent = global.stage.word[stage - 1];
-    getId('stageWord').style.color = global.stage.wordColor[stage - 1];
+    getId('stageWord').textContent = stageInfo.word[stage - 1];
+    getId('stageWord').style.color = stageInfo.wordColor[stage - 1];
     for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false);
     }
@@ -62,16 +63,9 @@ export const reLoad = async(type = 'normal') => {
             getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
         }
     }
-    for (let i = 0; i < playerStart.upgradesW.length; i++) {
-        if (upgradesW[i] === 1) {
-            getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'forestgreen';
-        } else {
-            getId(`upgradeW${[i + 1]}`).style.backgroundColor = '';
-        }
-    }
     if (type === 'load' && !toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
-        if (noOffline) { player.time.lastUpdate = Date.now(); }
+        const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+        if (noOffline) { time.updated = Date.now(); }
     }
     //Add function to hide footer here
     changeIntervals();
@@ -93,11 +87,6 @@ for (let i = 0; i < playerStart.upgrades.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
     getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //Atempt to give Screen Readers ability to buy upgrades
 }
-for (let i = 0; i < playerStart.upgradesW.length; i++) {
-    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'water'));
-    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'water'));
-    getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i, 'water'));
-}
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 
@@ -107,7 +96,7 @@ getId('file').addEventListener('change', async() => await saveLoad('load'));
 getId('export').addEventListener('click', async() => await saveLoad('export'));
 getId('delete').addEventListener('click', async() => await saveLoad('delete'));
 getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
-for (let i = 1; i <= global.stage.word.length; i++) {
+for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
@@ -118,15 +107,17 @@ getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Intervals */
 function changeIntervals(pause = false) {
-    clearInterval(global.intervalsId.main);
-    clearInterval(global.intervalsId.numbers);
-    clearInterval(global.intervalsId.visual);
-    clearInterval(global.intervalsId.autoSave);
+    const { intervals, intervalsId } = global;
+
+    clearInterval(intervalsId.main);
+    clearInterval(intervalsId.numbers);
+    clearInterval(intervalsId.visual);
+    clearInterval(intervalsId.autoSave);
     if (!pause) {
-        global.intervalsId.main = setInterval(invisibleUpdate, global.intervals.main);
-        global.intervalsId.numbers = setInterval(numbersUpdate, global.intervals.numbers);
-        global.intervalsId.visual = setInterval(visualUpdate, global.intervals.visual);
-        global.intervalsId.autoSave = setInterval(saveLoad, global.intervals.autoSave, 'save');
+        intervalsId.main = setInterval(invisibleUpdate, intervals.main);
+        intervalsId.numbers = setInterval(numbersUpdate, intervals.numbers);
+        intervalsId.visual = setInterval(visualUpdate, intervals.visual);
+        intervalsId.autoSave = setInterval(saveLoad, intervals.autoSave, 'save');
     }
 }
 
@@ -146,9 +137,9 @@ async function saveLoad(type: string) {
                 const load = JSON.parse(atob(text));
                 changeIntervals(true);
                 updatePlayer(load);
-                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${finalFormat((Date.now() - player.time.lastUpdate), 0, 'time')}). Press confirm to NOT to gain offline time.`);
+                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${finalFormat((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
                 if (noOffline) {
-                    player.time.lastUpdate = Date.now();
+                    player.time.updated = Date.now();
                 }
                 void reLoad();
             } catch {
@@ -184,10 +175,11 @@ async function saveLoad(type: string) {
                 localStorage.clear();
                 const deletePlayer = structuredClone(playerStart);
                 const deleteGlobal = structuredClone(globalStart);
+                /* I'm pretty sure this method wont clear out save completely. But `for (let i in player) { if (player.hasOwnProperty(i)) { delete player[i]; } }` could work. (?) */
                 Object.assign(player, deletePlayer);
                 Object.assign(global, deleteGlobal);
                 player.time.started = Date.now();
-                player.time.lastUpdate = player.time.started;
+                player.time.updated = player.time.started;
                 void reLoad();
             } else if (ok !== false) {
                 Alert('Save file wasn\'t deleted.');
@@ -201,9 +193,7 @@ const pauseGame = async() => {
     changeIntervals(true);
     const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time.");
     if (offline !== false && offline.toLowerCase() === 'nooffline') {
-        player.time.lastUpdate = Date.now();
-        changeIntervals();
-    } else {
-        changeIntervals();
+        player.time.updated = Date.now();
     }
+    changeIntervals();
 };

@@ -171,7 +171,10 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
     gap: 2.2em;
 }
 
-.resets > div:not(:first-of-type) { margin-top: 1.2em;}
+.resets {
+    display: flex;
+    gap: 1.2em;
+}
 
 .reset {
     display: flex;

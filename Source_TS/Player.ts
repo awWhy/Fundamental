@@ -1,22 +1,50 @@
 import { globalType, playerType } from './Types';
 
-export const player: playerType = { //Only for information that need to be saved
+export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     stage: 1,
-    discharge: {},
-    energy: {},
-    time: {},
-    buildings: [],
+    energy: {
+        current: 0,
+        total: 0
+    },
+    discharge: {
+        current: 0
+    },
+    time: {
+        current: Date.now(),
+        updated: Date.now(),
+        started: Date.now()
+    },
+    buildings: [
+        { //Quarks[0]
+            current: 3,
+            total: 3
+        },
+        { //Particles[1]
+            current: 0,
+            true: 0,
+            total: 0
+        },
+        { //Atoms[2]
+            current: 0,
+            true: 0,
+            total: 0
+        },
+        { //Molecules[3]
+            current: 0,
+            true: 0,
+            total: 0
+        }
+    ],
     upgrades: [],
-    upgradesW: [],
     toggles: []
 };
 
-export const global: globalType = { //Only some information is saved across
+export const global: globalType = { //Only intervals (for small reasons) is saved
     tab: 'stage',
     footer: true,
     lastSave: 0,
     energyType: [0, 1, 5, 20],
-    stage: {
+    stageInfo: {
         word: ['Microworld', 'Submerged'],
         wordColor: ['#03d3d3', 'dodgerblue']
     },
@@ -25,14 +53,13 @@ export const global: globalType = { //Only some information is saved across
         default: true
     },
     dischargeInfo: {
-        cost: 1,
-        increase: 10 //Not used anywhere
+        cost: 1
     },
     intervals: {
         main: 1000, //Min 20 max 1000, default 50
         numbers: 1000,
-        visual: 1000, //Min 500 max 10000
-        autoSave: 300000 //Min 120000 Max 1800000
+        visual: 1000, //Min 500 max 10000, default 1000
+        autoSave: 300000 //Min 60000 Max 1800000, default 180000
     },
     intervalsId: {
         main: 0,
@@ -40,48 +67,19 @@ export const global: globalType = { //Only some information is saved across
         visual: 0,
         autoSave: 0
     },
-    buildingsCost: {
-        initial: [],
-        current: [],
-        increase: []
+    buildingsInfo: {
+        cost: [0, 3, 24, 3],
+        initial: [0, 3, 24, 3],
+        increase: 1.4,
+        producing: [0, 0, 0, 0]
     },
     upgradesInfo: {
         description: [],
         effect: [],
         effectText: [],
         cost: []
-    },
-    upgradesWInfo: {
-        description: [],
-        effect: [],
-        effectText: [],
-        cost: []
     }
 };
-
-function AddResource(name: string, type = 'normal', current = 0) {
-    if (type === 'time') {
-        Object.assign(player, { [name]: { current, lastUpdate: current, started: current } });
-    } else if (type === 'reset') {
-        Object.assign(player, { [name]: { current, max: current } });
-    } else {
-        Object.assign(player, { [name]: { current, total: current } });
-    }
-}
-
-function AddMainBuilding(cost: number, type = 'building', increase = 1.4) {
-    if (type === 'building') {
-        player.buildings.push({ current: 0, true: 0, total: 0, producing: 0 });
-        global.buildingsCost.initial.push(cost);
-        global.buildingsCost.current.push(cost);
-        global.buildingsCost.increase.push(increase);
-    } else {
-        player.buildings.push({ current: cost, total: cost });
-        global.buildingsCost.initial.push(0); //To have same index
-        global.buildingsCost.current.push(0);
-        global.buildingsCost.increase.push(0);
-    }
-}
 
 function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[], description: string[], effectText: string[][]) {
     Object.assign(player, { [name]: createArray(cost.length) });
@@ -103,17 +101,9 @@ const createArray = (amount: number, type = 'number') => {
 const togglesL = document.getElementsByClassName('toggle').length;
 /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2] */
 Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
-AddResource('energy');
-AddResource('discharge', 'reset');
-AddResource('time', 'time', Date.now());
-/* Main buildings, first number is cost; Don't forget to add energyType for new building */
-AddMainBuilding(3, 'Resource'); //Quarks[0]
-AddMainBuilding(3); //Particles[1]
-AddMainBuilding(24); //Atoms[2]
-AddMainBuilding(3); //Molecules[3]
 AddUpgradeArray('upgrades',
-    [9, 12, 16, 300, 600, 9999, 99999], //Cost
-    [10, 10, 5, 4, 0.2, 1.1, 0.1], //Effect
+    [9, 12, 36, 300, 800, 9999, 99999, 999999], //Cost
+    [10, 10, 5, 4, 0.2, 1.1, 0.1, 0], //Effect
     [ //Description
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
@@ -121,23 +111,17 @@ AddUpgradeArray('upgrades',
         'Superposition. Unlocks new reset tier.',
         'Protium. Basic.',
         'Deuterium. Heavy.',
-        'Tritium. Radioactive.'
+        'Tritium. Radioactive.',
+        'Nuclear fusion. More energy.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Particle cost is ', ' times cheaper.'],
         ['Particles produce ', ' times more quarks.'],
         ['Atoms produce ', ' times more particles.'],
         ['Each reset cost energy and can give ', ' times production for all buildings.'],
-        ['Cost scalling for molecules is decreased by ', '.'],
+        ['Cost scalling is decreased by ', '.'],
         ['Molecules (only bought one\'s) boost each other by ', ' times.'],
-        ['Molecules produce molecules. At a reduced rate (', ').']
+        ['Particles produce molecules. At a reduced rate (', ').'],
+        ['Placeholder ', '.']
     ]);
-AddUpgradeArray('upgradesW',
-    [1e21],
-    [4],
-    [
-        'A single drop of water. Unlocks new building.'
-    ], [
-        ['Unlocks new building and ', ' new upgrades.']
-    ]);
-export const playerStart = structuredClone(player);
-export const globalStart = structuredClone(global);
+export const playerStart = structuredClone(player) as playerType;
+export const globalStart = structuredClone(global) as globalType;

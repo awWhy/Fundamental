@@ -1,21 +1,23 @@
 import { getId } from './Main(OnLoad)';
 import { global, player } from './Player';
 
-export const setTheme = (theme: number, initial = false) => {
+export const setTheme = (themeNumber: number, initial = false) => {
+    const { theme } = global;
+
     if (initial) {
-        global.theme.default = true;
+        theme.default = true;
         localStorage.removeItem('theme');
     } else {
-        global.theme.default = false;
-        global.theme.stage = theme;
-        localStorage.setItem('theme', String(theme));
+        theme.default = false;
+        theme.stage = themeNumber;
+        localStorage.setItem('theme', String(themeNumber));
     }
     switchTheme();
 };
 
 export const switchTheme = () => {
     const { stage } = player;
-    const { theme } = global;
+    const { stageInfo, theme } = global;
     const body = document.body.style;
 
     body.setProperty('--transition', '1s'); //Every part of a button is ignored, but shouldn't be hard to add.
@@ -23,7 +25,7 @@ export const switchTheme = () => {
         theme.stage = stage;
         getId('currentTheme').textContent = 'Default';
     } else {
-        getId('currentTheme').textContent = global.stage.word[theme.stage - 1];
+        getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
     }
     if (stage === 1) {
         body.removeProperty('--border-image');

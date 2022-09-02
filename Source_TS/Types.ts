@@ -1,11 +1,19 @@
 export interface playerType {
     stage: number
-    discharge: Record<string, number>
-    energy: Record<string, number>
-    time: Record<string, number>
+    energy: {
+        current: number
+        total: number
+    }
+    discharge: {
+        current: number
+    }
+    time: {
+        current: number
+        updated: number
+        started: number
+    }
     buildings: Array<Record<string, number>>
     upgrades: number[]
-    upgradesW: number[]
     toggles: boolean[]
 }
 
@@ -14,7 +22,7 @@ export interface globalType {
     footer: boolean
     lastSave: number
     energyType: number[]
-    stage: {
+    stageInfo: {
         word: string[]
         wordColor: string[]
     }
@@ -24,22 +32,16 @@ export interface globalType {
     }
     dischargeInfo: {
         cost: number
-        increase: number
     }
     intervals: Record<string, number>
     intervalsId: Record<string, number>
-    buildingsCost: {
+    buildingsInfo: {
+        cost: number[]
         initial: number[]
-        current: number[]
-        increase: number[]
+        increase: number
+        producing: number[]
     }
     upgradesInfo: {
-        description: string[]
-        effect: number[]
-        effectText: string[][]
-        cost: number[]
-    }
-    upgradesWInfo: {
         description: string[]
         effect: number[]
         effectText: string[][]
