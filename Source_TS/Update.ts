@@ -6,6 +6,8 @@ export const switchTab = (tab = 'none') => {
     if (global.tab !== tab) {
         getId('stageTab').style.display = 'none';
         getId('stageTabBtn').style.borderColor = '';
+        getId('researchTab').style.display = 'none';
+        getId('researchTabBtn').style.borderColor = '';
         getId('settingsTab').style.display = 'none';
         getId('settingsTabBtn').style.borderColor = '';
         const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
@@ -59,15 +61,15 @@ export const invisibleUpdate = () => { //This is only for important or time base
         console.log('Max offline progress is 1 hour.');
     }
 
-    /*if (auto) { }*/ //Add auto's in here
     switch (stage) {
         case 1:
-            buildingsInfo.producing[3] = earlyRound(0.3 * buildings[3].current * 4 ** discharge.current, 1);
+            buildingsInfo.producing[3] = 0.3 * buildings[3].current * 4 ** discharge.current;
             calculateGainedBuildings(2, passedTime);
-            buildingsInfo.producing[2] = earlyRound(0.4 * buildings[2].current * 4 ** discharge.current, 1);
+            /*if (auto) { }*/ //Add auto's in here
+            buildingsInfo.producing[2] = 0.4 * buildings[2].current * 4 ** discharge.current;
             if (upgrades[2] === 1) { buildingsInfo.producing[2] *= 5; }
             calculateGainedBuildings(1, passedTime);
-            buildingsInfo.producing[1] = earlyRound(0.5 * buildings[1].current * 4 ** discharge.current, 1);
+            buildingsInfo.producing[1] = 0.5 * buildings[1].current * 4 ** discharge.current;
             if (upgrades[1] === 1) { buildingsInfo.producing[1] *= 10; }
             calculateGainedBuildings(0, passedTime);
             break;
@@ -80,53 +82,53 @@ export const numbersUpdate = () => { //This is for relevant visual info
 
     if (global.footer) {
         if (stage === 1) {
-            getId('quarks').textContent = `Quarks: ${finalFormat(buildings[0].current)}`;
+            getId('quarks').textContent = `Quarks: ${format(buildings[0].current)}`;
         }
         if (energy.total >= 9 && stage !== 2) {
-            getId('energy').textContent = `Energy: ${finalFormat(energy.current, 0)}`;
+            getId('energy').textContent = `Energy: ${format(energy.current, 0)}`;
         }
     }
     if (tab === 'stage') {
         if (stage === 1) {
-            getId('building1Cur').textContent = finalFormat(buildings[1].current);
-            getId('building1Prod').textContent = finalFormat(buildingsInfo.producing[1]);
+            getId('building1Cur').textContent = format(buildings[1].current);
+            getId('building1Prod').textContent = format(buildingsInfo.producing[1]);
             if (buildingsInfo.cost[1] <= buildings[0].current) {
                 getId('building1Btn').classList.add('availableBuilding');
-                getId('building1Btn').textContent = `Buy for: ${finalFormat(buildingsInfo.cost[1])} Quarks`;
+                getId('building1Btn').textContent = `Buy for: ${format(buildingsInfo.cost[1])} Quarks`;
             } else {
                 getId('building1Btn').classList.remove('availableBuilding');
-                getId('building1Btn').textContent = `Need: ${finalFormat(buildingsInfo.cost[1])} Quarks`;
+                getId('building1Btn').textContent = `Need: ${format(buildingsInfo.cost[1])} Quarks`;
             }
             if (buildings[1].total >= 11) {
-                getId('building2Cur').textContent = finalFormat(buildings[2].current);
-                getId('building2Prod').textContent = finalFormat(buildingsInfo.producing[2]);
+                getId('building2Cur').textContent = format(buildings[2].current);
+                getId('building2Prod').textContent = format(buildingsInfo.producing[2]);
                 if (buildingsInfo.cost[2] <= buildings[1].current) {
                     getId('building2Btn').classList.add('availableBuilding');
-                    getId('building2Btn').textContent = `Buy for: ${finalFormat(buildingsInfo.cost[2])} Particles`;
+                    getId('building2Btn').textContent = `Buy for: ${format(buildingsInfo.cost[2])} Particles`;
                 } else {
                     getId('building2Btn').classList.remove('availableBuilding');
-                    getId('building2Btn').textContent = `Need: ${finalFormat(buildingsInfo.cost[2])} Particles`;
+                    getId('building2Btn').textContent = `Need: ${format(buildingsInfo.cost[2])} Particles`;
                 }
             }
             if (buildings[2].total >= 2) {
-                getId('building3Cur').textContent = finalFormat(buildings[3].current);
-                getId('building3Prod').textContent = finalFormat(buildingsInfo.producing[3]);
+                getId('building3Cur').textContent = format(buildings[3].current);
+                getId('building3Prod').textContent = format(buildingsInfo.producing[3]);
                 if (buildingsInfo.cost[3] <= buildings[2].current) {
                     getId('building3Btn').classList.add('availableBuilding');
-                    getId('building3Btn').textContent = `Buy for: ${finalFormat(buildingsInfo.cost[3])} Atoms`;
+                    getId('building3Btn').textContent = `Buy for: ${format(buildingsInfo.cost[3])} Atoms`;
                 } else {
                     getId('building3Btn').classList.remove('availableBuilding');
-                    getId('building3Btn').textContent = `Need: ${finalFormat(buildingsInfo.cost[3])} Atoms`;
+                    getId('building3Btn').textContent = `Need: ${format(buildingsInfo.cost[3])} Atoms`;
                 }
             }
             if (upgrades[3] === 1) {
-                getId('dischargeReset').textContent = `Next goal is ${finalFormat(dischargeInfo.cost, 0)} energy`;
+                getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.cost, 0)} energy`;
             }
             //if () { getId('stageReset').textContent = 'Enter next stage'; }
         }
     }
     if (tab === 'settings') {
-        getId('isSaved').textContent = `${finalFormat(lastSave, 0)} seconds ago`;
+        getId('isSaved').textContent = `${format(lastSave, 0)} seconds ago`;
     }
 };
 
@@ -154,17 +156,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('stage').style.display = 'none';
 };
 
-export const earlyRound = (input: number, precision = input < 1e6 ? 7 : 0) => {
-    if (precision > 0 && input < 1e6) {
-        return Math.round(input * (10 ** precision)) / (10 ** precision);
-    } else if (precision <= 0 && input < 1e6) {
-        return Math.round(input);
-    } else {
-        return Math.trunc(input); //Math.trunc is quicker
-    }
-}; /* Cheap solution in order not to deal with floats, 7 because its max amount for 32 bit (15 max for 64 bit) */
-
-export const finalFormat = (input: number, precision = input < 1e3 ? 2 : 0, type = 'number') => {
+export const format = (input: number, precision = input < 1e3 ? 2 : 0, type = 'number') => {
     switch (type) {
         case 'time':
             if (input > 7200000) {

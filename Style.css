@@ -48,6 +48,8 @@ body {
 img {
     background-color: var(--background-color);
     object-fit: none;
+    width: 32px;
+    height: 32px;
 }
 
 .stageBorder {
@@ -162,6 +164,19 @@ nav button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 
+input[type = number] {
+    width: 3.1em;
+    height: 1.5em;
+    background-color: black;
+    border: 2px solid #831aa5;
+    border-radius: 2px;
+    color: #e3e3e3;
+    -moz-appearance: textfield; /* To remove arrows */
+}
+
+input[type = number]::-webkit-inner-spin-button, input[type = number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input:invalid { border-color: crimson; }
+
 .insideTab {
     margin-top: min(2vh, 1.2em);
     display: flex;
@@ -236,6 +251,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 #resetToggles > div {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.3em;
 }
 
@@ -314,13 +330,16 @@ li {
 }
 
 ul { margin-left: -0.8em; }
-ul button { margin-left: 0.4em; }
+ul button, p button { margin-left: 0.4em; }
 
 #footer {
     position: fixed;
-    background-color: var(--footer-color);
     width: 100%;
     bottom: 0;
+}
+
+.footerColor {
+    background-color: var(--footer-color);
     padding: min(1.3vh, 0.8em) 2vw;
 }
 
@@ -345,10 +364,42 @@ ul button { margin-left: 0.4em; }
     background-color: black;
 }
 
+.footer img { background-color: black; }
 .statFoot { display: flex; }
-.statFoot > img { background-color: black; }
 #quarks, #atoms { border-color: #008b8b; }
 #energy { border-color: #f28100; }
+#buyAnyInput { margin: 0 0.25em 0; }
+
+.footerSpecial {
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5em;
+    width: max-content;
+    background-color: var(--footer-color);
+    border: min(1vh, 0.5em) solid var(--footer-color);
+    border-right-width: min(3vw, 0.6em);
+    border-left-width: min(3vw, 0.6em);
+    border-bottom: none;
+    border-top-right-radius: 10px;
+    /* Placeholder, since as of now I have no idea how I want it to look like */
+}
+
+.footerSpecial > img {
+    height: 22px;
+    cursor: pointer;
+}
+
+#buyStrict {
+    display: flex;
+    align-items: center;
+    border: 2px solid forestgreen;
+    background-color: black;
+    height: 1.5rem;
+    padding: 0 0.4em 0;
+    font-size: 0.85em;
+    cursor: pointer;
+}
 
 @media screen and (max-width: 55em) {
     .insideTab {

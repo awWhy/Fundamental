@@ -41,6 +41,11 @@ export interface globalType {
         increase: number
         producing: number[]
     }
+    buyToggle: {
+        howMany: number
+        input: number
+        strict: boolean
+    }
     upgradesInfo: {
         description: string[]
         effect: number[]

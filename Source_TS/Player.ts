@@ -73,6 +73,11 @@ export const global: globalType = { //Only intervals (for small reasons) is save
         increase: 1.4,
         producing: [0, 0, 0, 0]
     },
+    buyToggle: {
+        howMany: 1, //If more types will be added
+        input: 10, //Then turn all of them
+        strict: true //Into array
+    },
     upgradesInfo: {
         description: [],
         effect: [],

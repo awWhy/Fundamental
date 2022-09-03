@@ -32,7 +32,7 @@
         "no-extra-label": "warn",
         "switch-colon-spacing": "error",
         "generator-star-spacing": "error",
-        //"no-var": "off", //If there is good reason
+        "no-var": "off",
         "multiline-ternary": "off", //I don't like it
         //"no-case-declarations": "off", //Can be turned off
         //"no-class-assign": "off", //Can be turned off
@@ -56,7 +56,7 @@
         "@typescript-eslint/no-unnecessary-type-constraint": "warn", //Test
         "@typescript-eslint/no-unnecessary-type-arguments": "warn", //Test
         "@typescript-eslint/no-require-imports": "warn", //I think it's better this way
-        //"@typescript-eslint/no-redeclare": "error, { "builtinGlobals": true }", //No real need, if var not allowed (?)
+        "@typescript-eslint/no-redeclare": ["error", { "builtinGlobals": true }],
         "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn", //Test
         "@typescript-eslint/no-meaningless-void-operator": "warn", //Test
         "@typescript-eslint/no-inferrable-types": "warn",

@@ -1,13 +1,38 @@
 import { getId } from './Main(OnLoad)';
 import { global, player } from './Player';
 import { Confirm } from './Special';
-import { earlyRound, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
+import { getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number) => {
     const { energy } = player;
-    const { energyType, buildingsInfo } = global;
+    const { energyType, buildingsInfo, buyToggle } = global;
 
-    if (buy[index - 1].current >= buildingsInfo.cost[index]) {
+    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany !== 1) {
+        let budget = buy[index - 1].current;
+        let cost = buildingsInfo.cost[index];
+        let total = 0;
+        /* I don't know better way... I looked everywhere for formula with geometric progression, haven't found it... */
+        for (var canAfford = 0; budget >= cost; canAfford++) {
+            if (canAfford === buyToggle.howMany && buyToggle.howMany !== -1) {
+                break;
+            }
+            total += cost;
+            budget -= cost;
+            cost *= buildingsInfo.increase;
+        }
+        if (canAfford < buyToggle.howMany && buyToggle.howMany !== -1 && buyToggle.strict) { return; }
+        buy[index - 1].current -= total;
+        buy[index].current += canAfford;
+        buy[index].true += canAfford;
+        buy[index].total += canAfford;
+        energy.current += energyType[index] * canAfford;
+        energy.total += energyType[index] * canAfford;
+        calculateBuildingsCost(index);
+        invisibleUpdate();
+        numbersUpdate();
+    }
+
+    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany === 1) {
         buy[index - 1].current -= buildingsInfo.cost[index];
         buy[index].current++;
         buy[index].true++;
@@ -27,17 +52,17 @@ export const calculateBuildingsCost = (index: number) => {
     //if (stage === 1) {
     buildingsInfo.increase = upgrades[4] === 1 ? 1.2 : 1.4;
     //}
-    buildingsInfo.cost[index] = earlyRound(buildingsInfo.initial[index] * buildingsInfo.increase ** buildings[index].true);
+    buildingsInfo.cost[index] = buildingsInfo.initial[index] * buildingsInfo.increase ** buildings[index].true;
     if (index === 1 && upgrades[0] === 1) { buildingsInfo.cost[1] /= 10; }
 };
 
 export const calculateGainedBuildings = (get: number, time: number) => {
     const { buildings } = player;
     const { buildingsInfo } = global;
-    const before = buildings[get].current; //I think its fastest way (?)
+    const before = buildings[get].current; //I think it's faster this way (?)
 
-    buildings[get].current = earlyRound(buildings[get].current + buildingsInfo.producing[get + 1] * time);
-    buildings[get].total = earlyRound(buildings[get].total + buildings[get].current - before);
+    buildings[get].current += buildingsInfo.producing[get + 1] * time;
+    buildings[get].total += buildings[get].current - before;
 };
 
 export const buyUpgrades = (upgrade: number, type = 'normal') => {
@@ -78,6 +103,28 @@ export const toggleSwap = (number: number, change = true) => {
     }
 };
 
+export const toggleBuy = (type = 'none') => {
+    const { buyToggle } = global;
+    const input = getId('buyAnyInput') as HTMLInputElement;
+
+    if (type === '1') {
+        buyToggle.howMany = 1;
+    } else if (type === 'max') {
+        buyToggle.howMany = -1;
+    } else if (type === 'any') {
+        buyToggle.input = Math.max(Math.trunc(Number(input.value)), 1);
+        buyToggle.howMany = buyToggle.input;
+    } else if (type === 'strict') {
+        buyToggle.strict = !buyToggle.strict;
+    } else {
+        input.value = String(buyToggle.input);
+    }
+    getId('buyStrict').style.borderColor = buyToggle.strict ? '' : 'crimson';
+    getId('buy1x').style.backgroundColor = buyToggle.howMany === 1 ? 'forestgreen' : '';
+    getId('buyAny').style.backgroundColor = Math.abs(buyToggle.howMany) !== 1 ? 'forestgreen' : '';
+    getId('buyMax').style.backgroundColor = buyToggle.howMany === -1 ? 'forestgreen' : '';
+};
+
 export const stageResetCheck = async() => {
     /*if () {
         let ok = true;
@@ -101,7 +148,7 @@ export const dischargeResetCheck = async() => {
     const { energy, discharge, buildings, upgrades } = player;
     const { dischargeInfo } = global;
 
-    if (upgrades[3] === 1) {
+    if (upgrades[3] === 1 && buildings[1].true > 0) {
         let ok = true;
         if (player.toggles[1] && energy.current < dischargeInfo.cost) {
             ok = await Confirm('This will reset all of your current buildings and energy. You will NOT gain production boost. Continue?');

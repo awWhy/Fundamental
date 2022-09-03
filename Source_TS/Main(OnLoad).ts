@@ -1,6 +1,6 @@
 import { player, global, playerStart, globalStart } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, finalFormat } from './Update';
-import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleSwap } from './Stage';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format } from './Update';
+import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
 import { Alert, Confirm, Prompt, setTheme, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
@@ -16,8 +16,10 @@ export const getId = (id: string) => { //To type less and check if ID exist
 
 const updatePlayer = (load: any) => {
     if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
+        /* All undefined check's have to go here */
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
+        global.buyToggle = load.global.buyToggle;
     } else {
         Alert('Save file coudn\'t be loaded as its missing important info.');
     }
@@ -31,7 +33,7 @@ export const reLoad = async(type = 'normal') => {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
             if (player.toggles[0]) {
-                Alert(`Welcome back, you were away for ${finalFormat((Date.now() - player.time.updated), 0, 'time')}.`);
+                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.`);
             }
         } else {
             console.warn('Save file wasn\'t detected.');
@@ -56,6 +58,7 @@ export const reLoad = async(type = 'normal') => {
     for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false);
     }
+    toggleBuy();
     for (let i = 0; i < playerStart.upgrades.length; i++) {
         if (upgrades[i] === 1) {
             getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
@@ -64,7 +67,7 @@ export const reLoad = async(type = 'normal') => {
         }
     }
     if (type === 'load' && !toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${finalFormat((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
         if (noOffline) { time.updated = Date.now(); }
     }
     //Add function to hide footer here
@@ -103,7 +106,13 @@ getId('pauseGame').addEventListener('click', async() => await pauseGame());
 
 /* Footer */
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
+getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
+getId('buy1x').addEventListener('click', () => toggleBuy('1'));
+getId('buyAny').addEventListener('click', () => toggleBuy('any'));
+getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
+getId('buyMax').addEventListener('click', () => toggleBuy('max'));
+getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Intervals */
 function changeIntervals(pause = false) {
@@ -137,7 +146,7 @@ async function saveLoad(type: string) {
                 const load = JSON.parse(atob(text));
                 changeIntervals(true);
                 updatePlayer(load);
-                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${finalFormat((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
+                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
                 if (noOffline) {
                     player.time.updated = Date.now();
                 }
@@ -150,7 +159,7 @@ async function saveLoad(type: string) {
             break;
         }
         case 'save': {
-            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)}}}`);
+            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)},"buyToggle":${JSON.stringify(global.buyToggle)}}}`);
             localStorage.setItem('save', save);
             getId('isSaved').textContent = 'Saved';
             global.lastSave = 0;
