@@ -20,7 +20,8 @@ export const switchTheme = () => {
     const { stageInfo, theme } = global;
     const body = document.body.style;
 
-    body.setProperty('--transition', '1s'); //Every part of a button is ignored, but shouldn't be hard to add.
+    body.setProperty('--transition', '1s');
+    //Buttons are ignored //Font size doesn't have enough time to stretch
     if (theme.default) {
         theme.stage = stage;
         getId('currentTheme').textContent = 'Default';
@@ -191,4 +192,23 @@ export const hideFooter = () => {
         arrow.style.animation = '';
         toggle.addEventListener('click', hideFooter);
     }, 1000);
+};
+
+export const changeFontSize = (change = false) => {
+    const { toggles } = player;
+    const body = document.body.style;
+    const input = getId('customFontSize') as HTMLInputElement;
+    let size = localStorage.getItem('fontSize');
+
+    if (!toggles[3]) {
+        body.setProperty('--font-size', '1em');
+        localStorage.removeItem('fontSize');
+    } else {
+        if (size === null || Number(size) < 10 || Number(size) > 32 || change) {
+            size = String(Math.min(Math.max(Math.trunc(Number(input.value) * 10) / 10, 10), 32));
+            localStorage.setItem('fontSize', size);
+        }
+        body.setProperty('--font-size', `${size}px`);
+        input.value = size;
+    }
 };

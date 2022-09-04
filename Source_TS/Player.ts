@@ -104,7 +104,7 @@ const createArray = (amount: number, type = 'number') => {
 };
 
 const togglesL = document.getElementsByClassName('toggle').length;
-/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2] */
+/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3] */
 Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
 AddUpgradeArray('upgrades',
     [9, 12, 36, 300, 800, 9999, 99999, 999999], //Cost

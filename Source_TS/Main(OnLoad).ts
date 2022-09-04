@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format } from './Update';
 import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, switchTheme } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -51,6 +51,7 @@ export const reLoad = async(type = 'normal') => {
     }
     dischargeInfo.cost = 10 ** discharge.current;
     switchTab();
+    changeFontSize();
     switchTheme();
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = stageInfo.word[stage - 1];
@@ -102,6 +103,8 @@ for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
+getId('toggle3').addEventListener('click', () => changeFontSize());
+getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
 
 /* Footer */
 getId('hideToggle').addEventListener('click', hideFooter);

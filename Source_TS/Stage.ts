@@ -94,12 +94,12 @@ export const toggleSwap = (number: number, change = true) => {
     if (change) {
         toggles[number] = !toggles[number];
     }
-    if (toggles[number]) {
-        getId(`toggle${number}`).textContent = 'ON';
-        getId(`toggle${number}`).style.borderColor = '';
-    } else {
+    if (!toggles[number]) {
         getId(`toggle${number}`).textContent = 'OFF';
         getId(`toggle${number}`).style.borderColor = 'crimson';
+    } else {
+        getId(`toggle${number}`).textContent = 'ON';
+        getId(`toggle${number}`).style.borderColor = '';
     }
 };
 
@@ -117,12 +117,14 @@ export const toggleBuy = (type = 'none') => {
         case 'any':
             buyToggle.input = Math.max(Math.trunc(Number(input.value)), 1);
             buyToggle.howMany = buyToggle.input;
+            //input.value = String(buyToggle.input); //See below
             break;
         case 'strict':
             buyToggle.strict = !buyToggle.strict;
             break;
         default:
             input.value = String(buyToggle.input);
+            /* No idea how to deal with 1e1 being turned into 10... Also for big numbers '+e' instead of 'e'...*/
     }
     getId('buyStrict').style.borderColor = buyToggle.strict ? '' : 'crimson';
     getId('buy1x').style.backgroundColor = buyToggle.howMany === 1 ? 'forestgreen' : '';
