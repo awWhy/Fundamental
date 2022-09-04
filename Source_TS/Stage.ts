@@ -13,7 +13,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number) =
         let total = 0;
         /* I don't know better way... I looked everywhere for formula with geometric progression, haven't found it... */
         for (var canAfford = 0; budget >= cost; canAfford++) {
-            if (canAfford === buyToggle.howMany && buyToggle.howMany !== -1) {
+            if (canAfford === buyToggle.howMany) {
                 break;
             }
             total += cost;
@@ -107,17 +107,22 @@ export const toggleBuy = (type = 'none') => {
     const { buyToggle } = global;
     const input = getId('buyAnyInput') as HTMLInputElement;
 
-    if (type === '1') {
-        buyToggle.howMany = 1;
-    } else if (type === 'max') {
-        buyToggle.howMany = -1;
-    } else if (type === 'any') {
-        buyToggle.input = Math.max(Math.trunc(Number(input.value)), 1);
-        buyToggle.howMany = buyToggle.input;
-    } else if (type === 'strict') {
-        buyToggle.strict = !buyToggle.strict;
-    } else {
-        input.value = String(buyToggle.input);
+    switch (type) {
+        case '1':
+            buyToggle.howMany = 1;
+            break;
+        case 'max':
+            buyToggle.howMany = -1;
+            break;
+        case 'any':
+            buyToggle.input = Math.max(Math.trunc(Number(input.value)), 1);
+            buyToggle.howMany = buyToggle.input;
+            break;
+        case 'strict':
+            buyToggle.strict = !buyToggle.strict;
+            break;
+        default:
+            input.value = String(buyToggle.input);
     }
     getId('buyStrict').style.borderColor = buyToggle.strict ? '' : 'crimson';
     getId('buy1x').style.backgroundColor = buyToggle.howMany === 1 ? 'forestgreen' : '';

@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format } from './Update';
 import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
-import { Alert, Confirm, Prompt, setTheme, switchTheme } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -70,7 +70,6 @@ export const reLoad = async(type = 'normal') => {
         const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
         if (noOffline) { time.updated = Date.now(); }
     }
-    //Add function to hide footer here
     changeIntervals();
 };
 
@@ -105,6 +104,7 @@ for (let i = 1; i <= global.stageInfo.word.length; i++) {
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 
 /* Footer */
+getId('hideToggle').addEventListener('click', hideFooter);
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));

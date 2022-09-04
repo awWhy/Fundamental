@@ -160,3 +160,35 @@ export const Prompt = async(text: string): Promise<string | false> => {
         input.addEventListener('blur', getValue);
     });
 };
+
+/* This is a pain, I had to remove animation for it to play again... Though I still think it's better that adding a class... */
+export const hideFooter = () => {
+    const footer = getId('footer');
+    const hide = getId('footerColor');
+    const toggle = getId('hideToggle');
+    const text = getId('hideText');
+    const arrow = getId('hideArrow');
+
+    global.footer = !global.footer;
+    toggle.removeEventListener('click', hideFooter);
+    if (global.footer) {
+        hide.style.display = '';
+        arrow.style.transform = '';
+        footer.style.animation = 'hide 1s forwards reverse';
+        arrow.style.animation = 'rotate 1s forwards reverse';
+        text.textContent = 'Hide';
+    } else {
+        footer.style.animation = 'hide 1s backwards';
+        arrow.style.animation = 'rotate 1s backwards';
+        text.textContent = 'Show';
+        setTimeout(() => {
+            hide.style.display = 'none';
+            arrow.style.transform = 'rotate(180deg)';
+        }, 1000);
+    }
+    setTimeout(() => {
+        footer.style.animation = '';
+        arrow.style.animation = '';
+        toggle.addEventListener('click', hideFooter);
+    }, 1000);
+};

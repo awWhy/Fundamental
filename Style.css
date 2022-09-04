@@ -221,6 +221,30 @@ input:invalid { border-color: crimson; }
 .buyBuilding > p span:first-of-type { margin-left: 0.5em; }
 .buyBuilding > p span:last-of-type { float: right; } /* I wish, I knew a better way*/
 .availableBuilding { border-color: #a90000; }
+#buyAnyInput { margin: 0 0.3em 0; }
+
+#toggleBuy {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    column-gap: 0.3em;
+}
+
+#toggleBuy > img {
+    height: 22px;
+    cursor: pointer;
+}
+
+#buyStrict {
+    display: flex;
+    align-items: center;
+    border: 2px solid forestgreen;
+    background-color: black;
+    height: 1.5rem;
+    padding: 0 0.4em 0;
+    font-size: 0.85em;
+    cursor: pointer;
+}
 
 #upgrades {
     display: flex;
@@ -338,16 +362,18 @@ ul button, p button { margin-left: 0.4em; }
     bottom: 0;
 }
 
-.footerColor {
+#footerColor {
     background-color: var(--footer-color);
     padding: min(1.3vh, 0.8em) 2vw;
+    overflow-x: overlay;
 }
 
 .footerArea, nav {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 0.6em 1em;
+    column-gap: 1em;
+    /* row-gap: 0.6em; */
 }
 
 .footerArea:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
@@ -368,37 +394,46 @@ ul button, p button { margin-left: 0.4em; }
 .statFoot { display: flex; }
 #quarks, #atoms { border-color: #008b8b; }
 #energy { border-color: #f28100; }
-#buyAnyInput { margin: 0 0.25em 0; }
 
-.footerSpecial {
-    margin-right: auto;
+#hideToggle {
+    margin-left: auto;
+    margin-right: 2.5%;
+    width: min-content;
     display: flex;
     align-items: center;
-    column-gap: 0.5em;
-    width: max-content;
+    column-gap: 0.25em;
     background-color: var(--footer-color);
-    border: min(1vh, 0.5em) solid var(--footer-color);
+    border: min(0.5vh, 0.3em) solid var(--footer-color);
     border-right-width: min(3vw, 0.6em);
     border-left-width: min(3vw, 0.6em);
     border-bottom: none;
-    border-top-right-radius: 10px;
-    /* Placeholder, since as of now I have no idea how I want it to look like */
-}
-
-.footerSpecial > img {
-    height: 22px;
+    border-radius: 15px 15px 0 0;
     cursor: pointer;
 }
 
-#buyStrict {
-    display: flex;
-    align-items: center;
-    border: 2px solid forestgreen;
-    background-color: black;
-    height: 1.5rem;
-    padding: 0 0.4em 0;
-    font-size: 0.85em;
-    cursor: pointer;
+#hideArrow {
+    background-color: var(--stage-text-color);
+    width: 0.8em;
+    height: 0.8em;
+    clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
+}
+
+@keyframes hide {
+    from {
+        bottom: 0;
+    }
+    to {
+        bottom: calc(-1 * (min(4.5vh, 2.6em) + 32px + 1.6em)); /* There is minor issue that some vh is missing... */
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(180deg);
+    }
 }
 
 @media screen and (max-width: 55em) {

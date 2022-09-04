@@ -48,6 +48,13 @@
                     <p>Molecules: <span id="building3Cur" class="whiteText">0</span><span> producing: <span id="building3Prod" class="whiteText">0</span></span></p>
                     <button id="building3Btn">Need: 3 Atoms</button>
                 </div>
+                <div id="toggleBuy">
+                    <img src="/Used%20files%20(Image's)/Buy%201x.png" alt="Toggle buy 1" id="buy1x" loading="lazy">
+                    <img src="/Used%20files%20(Image's)/Buy%20any.png" alt="Toggle buy any" id="buyAny" loading="lazy">
+                    <img src="/Used%20files%20(Image's)/Buy%20max.png" alt="Toggle buy max" id="buyMax" loading="lazy">
+                    <input type="number" id="buyAnyInput" min="1">
+                    <p id="buyStrict" class="whiteText">Strict</p>
+                </div>
             </div>
             <div id="upgrades">
                 <p>Upgrades</p>
@@ -115,14 +122,11 @@
             <label class="invisible" aria-live="polite">Current tab: Settings</label>
         </div>
         <div id="footer">
-            <div class="footerSpecial"> <!-- Add option to hide it -->
-                <img src="/Used%20files%20(Image's)/Buy%201x.png" alt="Toggle buy 1" id="buy1x" loading="lazy">
-                <img src="/Used%20files%20(Image's)/Buy%20any.png" alt="Toggle buy any" id="buyAny" loading="lazy">
-                <img src="/Used%20files%20(Image's)/Buy%20max.png" alt="Toggle buy max" id="buyMax" loading="lazy">
-                <input type="number" id="buyAnyInput" min="1">
-                <p id="buyStrict" class="whiteText">Strict</p>
+            <div id="hideToggle">
+                <p id="hideText">Hide</p>
+                <div id="hideArrow"></div>
             </div>
-            <div class="footerColor">
+            <div id="footerColor">
                 <div class="footerArea">
                     <div id="quarkStat" class="statFoot">
                         <img src="/Used%20files%20(Image's)/Quarks.png" alt="Quarks" loading="lazy">

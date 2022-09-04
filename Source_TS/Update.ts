@@ -18,12 +18,12 @@ export const switchTab = (tab = 'none') => {
 
         switch (tab) {
             case global.tab:
-                getId(`${global.tab}Tab`).style.display = 'flex';
+                getId(`${global.tab}Tab`).style.display = '';
                 getId(`${global.tab}TabBtn`).style.borderColor = color;
                 break;
             default:
                 global.tab = 'stage';
-                getId(`${global.tab}Tab`).style.display = 'flex';
+                getId(`${global.tab}Tab`).style.display = '';
                 getId(`${global.tab}TabBtn`).style.borderColor = color;
         }
         visualUpdate();
@@ -135,24 +135,24 @@ export const numbersUpdate = () => { //This is for relevant visual info
 export const visualUpdate = () => { //This is everything that can be shown later
     const { stage, energy, discharge, buildings, upgrades } = player;
 
-    getId('energyStat').style.display = energy.total >= 9 && stage !== 2 ? 'flex' : 'none';
-    getId('upgrades').style.display = energy.total >= 9 ? 'flex' : 'none';
-    getId('atomsMain').style.display = buildings[1].total >= 11 && stage === 1 ? 'flex' : 'none';
-    getId('moleculesMain').style.display = buildings[2].total >= 2 && stage === 1 ? 'flex' : 'none';
-    getId('discharge').style.display = upgrades[3] > 0 ? 'flex' : 'none';
-    getId('quarkStat').style.display = stage === 1 ? 'flex' : 'none';
-    getId('particlesMain').style.display = stage === 1 ? 'flex' : 'none';
-    getId('resetToggles').style.display = discharge.current >= 1 ? 'flex' : 'none';
+    getId('energyStat').style.display = energy.total >= 9 && stage !== 2 ? '' : 'none';
+    getId('upgrades').style.display = energy.total >= 9 ? '' : 'none';
+    getId('atomsMain').style.display = buildings[1].total >= 11 && stage === 1 ? '' : 'none';
+    getId('moleculesMain').style.display = buildings[2].total >= 2 && stage === 1 ? '' : 'none';
+    getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
+    getId('quarkStat').style.display = stage === 1 ? '' : 'none';
+    getId('particlesMain').style.display = stage === 1 ? '' : 'none';
+    getId('resetToggles').style.display = discharge.current >= 1 ? '' : 'none';
     for (let i = 5; i <= 8; i++) {
         if (discharge.current >= 3) {
-            getId(`upgrade${i}`).style.display = 'block';
+            getId(`upgrade${i}`).style.display = '';
         } else {
             getId(`upgrade${i}`).style.display = 'none';
         }
     }
-    getId('researchTabBtn').style.display = discharge.current >= 4 ? 'block' : 'none';
-    getId('stageToggleReset').style.display = stage > 1 ? 'flex' : 'none';
-    getId('themeArea').style.display = stage > 1 ? 'block' : 'none';
+    getId('researchTabBtn').style.display = discharge.current >= 4 ? '' : 'none';
+    getId('stageToggleReset').style.display = stage > 1 ? '' : 'none';
+    getId('themeArea').style.display = stage > 1 ? '' : 'none';
     getId('stage').style.display = 'none';
 };
 
