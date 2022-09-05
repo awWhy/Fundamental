@@ -20,18 +20,12 @@ export const switchTheme = () => {
     const { stageInfo, theme } = global;
     const body = document.body.style;
 
-    body.setProperty('--transition', '1s');
-    //Buttons are ignored //Font size doesn't have enough time to stretch
+    body.setProperty('--transition', '1s'); //Buttons are ignored
     if (theme.default) {
         theme.stage = stage;
         getId('currentTheme').textContent = 'Default';
     } else {
         getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
-    }
-    if (stage === 1) {
-        body.removeProperty('--border-image');
-    } else {
-        body.setProperty('--border-image', `url(Used%20files%20%28Image%27s%29/Stage${stage}%20border.png)`);
     }
 
     switch (theme.stage) {

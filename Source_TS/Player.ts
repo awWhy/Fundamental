@@ -10,7 +10,6 @@ export const player: playerType = { //Only for information that need to be saved
         current: 0
     },
     time: {
-        current: Date.now(),
         updated: Date.now(),
         started: Date.now()
     },
@@ -36,10 +35,17 @@ export const player: playerType = { //Only for information that need to be saved
         }
     ],
     upgrades: [],
-    toggles: []
+    researches: [],
+    researchesAuto: [],
+    toggles: [],
+    buyToggle: {
+        howMany: 1, //If more types will be added
+        input: 10, //Then turn all of them
+        strict: true //Into array
+    }
 };
 
-export const global: globalType = { //Only intervals (for small reasons) is saved
+export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage',
     footer: true,
     lastSave: 0,
@@ -73,22 +79,35 @@ export const global: globalType = { //Only intervals (for small reasons) is save
         increase: 1.4,
         producing: [0, 0, 0, 0]
     },
-    buyToggle: {
-        howMany: 1, //If more types will be added
-        input: 10, //Then turn all of them
-        strict: true //Into array
-    },
     upgradesInfo: {
         description: [],
         effect: [],
         effectText: [],
         cost: []
+    },
+    researchesInfo: {
+        description: [],
+        effect: [],
+        effectText: [],
+        cost: [],
+        max: []
+    },
+    researchesAutoInfo: {
+        description: [],
+        effect: [],
+        effectText: [],
+        cost: [],
+        max: []
     }
 };
 
-function AddUpgradeArray(name: keyof playerType, cost: number[], effect: number[], description: string[], effectText: string[][]) {
+function AddUpgradeArray(name: keyof playerType, cost: number[], effect: Array<number | ''>, description: string[], effectText: string[][], max = [] as number[]) {
     Object.assign(player, { [name]: createArray(cost.length) });
-    Object.assign(global, { [name + 'Info']: { description, cost, effect, effectText } });
+    if (String(name).includes('researches')) {
+        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost, max } });
+    } else {
+        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost } });
+    }
 }
 
 const createArray = (amount: number, type = 'number') => {
@@ -125,8 +144,26 @@ AddUpgradeArray('upgrades',
         ['Each reset cost energy and can give ', ' times production for all buildings.'],
         ['Cost scalling is decreased by ', '.'],
         ['Molecules (only bought one\'s) boost each other by ', ' times.'],
-        ['Particles produce molecules. At a reduced rate (', ').'],
+        ['Particles produce molecules. At a reduced rate. (', ')'],
         ['Placeholder ', '.']
     ]);
+AddUpgradeArray('researches',
+    [2000], //Cost
+    [0.1], //Effect
+    [ //Description
+        "Effect of 'Protium' upgrade is stronger."
+    ], [ //Effect text: '[0]', effect[n], '[1]'
+        ['Cost scalling is -', ' smaller for each level.']
+    ], [9]); //Max level
+AddUpgradeArray('researchesAuto',
+    [300, 999999], //Cost
+    ['', ''], //Effect
+    [ //Description
+        'Buy toggles.',
+        'Automatization for buying upgrades.'
+    ], [ //Effect text: '[0]', effect[n], '[1]'
+        ['Unlock abbility to buy multiple buildings at same time.', ''],
+        ['Automaticly buyes buildings for you.', '']
+    ], [1, 3]); //Max level
 export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;

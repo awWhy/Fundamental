@@ -4,10 +4,10 @@ import { Confirm } from './Special';
 import { getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number) => {
-    const { energy } = player;
-    const { energyType, buildingsInfo, buyToggle } = global;
+    const { energy, researchesAuto, buyToggle } = player;
+    const { energyType, buildingsInfo } = global;
 
-    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany !== 1) {
+    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany !== 1 && researchesAuto[0] > 0) {
         let budget = buy[index - 1].current;
         let cost = buildingsInfo.cost[index];
         let total = 0;
@@ -20,7 +20,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number) =
             budget -= cost;
             cost *= buildingsInfo.increase;
         }
-        if (canAfford < buyToggle.howMany && buyToggle.howMany !== -1 && buyToggle.strict) { return; }
+        if ((canAfford < buyToggle.howMany && buyToggle.howMany !== -1 && buyToggle.strict) || researchesAuto[0] === 0) { return; }
         buy[index - 1].current -= total;
         buy[index].current += canAfford;
         buy[index].true += canAfford;
@@ -74,7 +74,7 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
             if (upgrades[upgrade] !== 1 && energy.current >= upgradesInfo.cost[upgrade]) {
                 upgrades[upgrade] = 1;
                 energy.current -= upgradesInfo.cost[upgrade];
-                getId(`upgrade${upgrade + 1}`).style.backgroundColor = 'forestgreen';
+                getId(`upgrade${upgrade + 1}`).style.backgroundColor = 'green';
                 if (upgrade === 0) {
                     calculateBuildingsCost(1);
                 } else if (upgrade === 3) {
@@ -104,7 +104,7 @@ export const toggleSwap = (number: number, change = true) => {
 };
 
 export const toggleBuy = (type = 'none') => {
-    const { buyToggle } = global;
+    const { buyToggle } = player;
     const input = getId('buyAnyInput') as HTMLInputElement;
 
     switch (type) {
@@ -127,25 +127,28 @@ export const toggleBuy = (type = 'none') => {
             /* No idea how to deal with 1e1 being turned into 10... Also for big numbers '+e' instead of 'e'...*/
     }
     getId('buyStrict').style.borderColor = buyToggle.strict ? '' : 'crimson';
-    getId('buy1x').style.backgroundColor = buyToggle.howMany === 1 ? 'forestgreen' : '';
-    getId('buyAny').style.backgroundColor = Math.abs(buyToggle.howMany) !== 1 ? 'forestgreen' : '';
-    getId('buyMax').style.backgroundColor = buyToggle.howMany === -1 ? 'forestgreen' : '';
+    getId('buy1x').style.backgroundColor = buyToggle.howMany === 1 ? 'green' : '';
+    getId('buyAny').style.backgroundColor = Math.abs(buyToggle.howMany) !== 1 ? 'green' : '';
+    getId('buyMax').style.backgroundColor = buyToggle.howMany === -1 ? 'green' : '';
 };
 
 export const stageResetCheck = async() => {
-    /*if () {
+    /*const { researchesAuto, toggles } = player;
+
+    if () {
         let ok = true;
-        if (player.toggles[2]) {
+        if (toggles[2]) {
             ok = await Confirm('Ready to move on to the next stage?');
         }
         if (ok) {
-            //No idea, for now
             player.stage++;
-            getId('stageReset').textContent = 'You are not ready';
-            getId('stageWord').textContent = global.stageInfo.word[player.stage - 1];
-            getId('stageWord').style.color = global.stageInfo.wordColor[player.stage - 1];
-            visualUpdate();
-            numbersUpdate();
+            //Do not reuse buildings, upgrades, researches, toggles and etc, in case challenge's will be added
+            //But do reset them all (not automatization), like with a new function reset(type: string);
+            //Auto buy buyToggle just in case
+            if (researchesAuto[0] === 0) {
+                researchesAuto[0]++;
+            }
+            stageCheck();
             switchTheme();
         }
     }*/
@@ -167,6 +170,7 @@ export const dischargeResetCheck = async() => {
                 dischargeInfo.cost *= 10;
                 discharge.current++;
             }
+            /* Maybe move into new function reset(type: string); */
             energy.current = 0;
             for (let i = 0; i <= 3; i++) {
                 if (i === 0) {

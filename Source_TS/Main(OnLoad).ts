@@ -1,6 +1,6 @@
 import { player, global, playerStart, globalStart } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format } from './Update';
-import { buyBuilding, buyUpgrades, calculateBuildingsCost, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
+import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
@@ -19,14 +19,13 @@ const updatePlayer = (load: any) => {
         /* All undefined check's have to go here */
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
-        global.buyToggle = load.global.buyToggle;
     } else {
         Alert('Save file coudn\'t be loaded as its missing important info.');
     }
 };
 
-export const reLoad = async(type = 'normal') => {
-    if (type === 'load') {
+export const reLoad = async(loadSave = false) => {
+    if (loadSave) {
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
         if (save !== null) {
@@ -43,45 +42,33 @@ export const reLoad = async(type = 'normal') => {
             global.theme.stage = Number(theme);
         }
     }
-    const { stage, discharge, buildings, upgrades, time, toggles } = player;
-    const { stageInfo, dischargeInfo } = global;
+    const { time, toggles } = player;
 
-    for (let i = 1; i < buildings.length; i++) {
-        calculateBuildingsCost(i);
-    }
-    dischargeInfo.cost = 10 ** discharge.current;
-    switchTab();
-    changeFontSize();
-    switchTheme();
-    getId('stageReset').textContent = 'You are not ready';
-    getId('stageWord').textContent = stageInfo.word[stage - 1];
-    getId('stageWord').style.color = stageInfo.wordColor[stage - 1];
+    switchTab(); //Sets tab to Stage, also visual and number update
+    changeFontSize(); //Changes font size
+    stageCheck(); //Visual and other (like next reset goal) stage information
+
     for (let i = 0; i < playerStart.toggles.length; i++) {
-        toggleSwap(i, false);
+        toggleSwap(i, false); //Gives toggles proper visual appearance
     }
-    toggleBuy();
-    for (let i = 0; i < playerStart.upgrades.length; i++) {
-        if (upgrades[i] === 1) {
-            getId(`upgrade${[i + 1]}`).style.backgroundColor = 'forestgreen';
-        } else {
-            getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
-        }
-    }
-    if (type === 'load' && !toggles[0]) {
+    toggleBuy(); //Sets buy toggle's (for buildings) into saved number
+    switchTheme(); //Changes theme
+
+    if (loadSave && !toggles[0]) {
         const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
         if (noOffline) { time.updated = Date.now(); }
     }
-    changeIntervals();
+    changeIntervals(); //Will 'unpause' game
 };
 
-void reLoad('load');
+void reLoad(true);
 
 /* Global */
 for (let i = 0; i < playerStart.toggles.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
 }
 
-/* Stage tab */
+/* Stage tab (stage 1) */
 for (let i = 1; i < playerStart.buildings.length; i++) {
     getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(player.buildings, i));
 }
@@ -90,8 +77,14 @@ for (let i = 0; i < playerStart.upgrades.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
     getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //Atempt to give Screen Readers ability to buy upgrades
 }
-getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
+/* Don't know if there any need to load above one's, if stage !== 1 */
+getId('stageReset').addEventListener('click', async() => await stageResetCheck());
+getId('buy1x').addEventListener('click', () => toggleBuy('1'));
+getId('buyAny').addEventListener('click', () => toggleBuy('any'));
+getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
+getId('buyMax').addEventListener('click', () => toggleBuy('max'));
+getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Settings tab */
 getId('save').addEventListener('click', async() => await saveLoad('save'));
@@ -111,11 +104,6 @@ getId('hideToggle').addEventListener('click', hideFooter);
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
-getId('buy1x').addEventListener('click', () => toggleBuy('1'));
-getId('buyAny').addEventListener('click', () => toggleBuy('any'));
-getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
-getId('buyMax').addEventListener('click', () => toggleBuy('max'));
-getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Intervals */
 function changeIntervals(pause = false) {
@@ -162,7 +150,7 @@ async function saveLoad(type: string) {
             break;
         }
         case 'save': {
-            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)},"buyToggle":${JSON.stringify(global.buyToggle)}}}`);
+            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)}}}`);
             localStorage.setItem('save', save);
             getId('isSaved').textContent = 'Saved';
             global.lastSave = 0;

@@ -1,6 +1,6 @@
 import { getId } from './Main(OnLoad)';
-import { global, player } from './Player';
-import { calculateGainedBuildings } from './Stage';
+import { global, player, playerStart } from './Player';
+import { calculateBuildingsCost, calculateGainedBuildings } from './Stage';
 
 export const switchTab = (tab = 'none') => {
     if (global.tab !== tab) {
@@ -11,6 +11,7 @@ export const switchTab = (tab = 'none') => {
         getId('settingsTab').style.display = 'none';
         getId('settingsTabBtn').style.borderColor = '';
         const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
+        const invText = getId('invisible'); //For screen readers (no idea if it works)
 
         if (tab !== 'none') {
             global.tab = tab;
@@ -20,28 +21,16 @@ export const switchTab = (tab = 'none') => {
             case global.tab:
                 getId(`${global.tab}Tab`).style.display = '';
                 getId(`${global.tab}TabBtn`).style.borderColor = color;
+                invText.textContent = `Current tab: ${global.tab} tab`;
                 break;
             default:
                 global.tab = 'stage';
                 getId(`${global.tab}Tab`).style.display = '';
                 getId(`${global.tab}TabBtn`).style.borderColor = color;
+                invText.textContent = 'Current tab: stage tab';
         }
         visualUpdate();
         numbersUpdate();
-    }
-};
-
-export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') => {
-    const { upgrades } = player;
-    const { upgradesInfo } = global;
-
-    switch (type) {
-        case 'normal':
-            getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber];
-            getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber][0]}${upgradesInfo.effect[upgradeNumber]}${upgradesInfo.effectText[upgradeNumber][1]}`;
-            getId('upgradeCost').textContent = `${upgrades[upgradeNumber] === 1 ? 0 : upgradesInfo.cost[upgradeNumber]} Energy`;
-            getId('upgradeCost').style.color = '';
-            break;
     }
 };
 
@@ -49,8 +38,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
     const { stage, time, upgrades, buildings, discharge } = player;
     const { buildingsInfo } = global;
 
-    time.current = Date.now();
-    let passedTime = (time.current - time.updated) / 1000;
+    let passedTime = (Date.now() - time.updated) / 1000;
     time.updated = Date.now();
     if (passedTime < 0) {
         return console.warn('Negative passed time detected.');
@@ -133,27 +121,43 @@ export const numbersUpdate = () => { //This is for relevant visual info
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
-    const { stage, energy, discharge, buildings, upgrades } = player;
+    const { stage, energy, discharge, buildings, upgrades, researchesAuto } = player;
 
-    getId('energyStat').style.display = energy.total >= 9 && stage !== 2 ? '' : 'none';
-    getId('upgrades').style.display = energy.total >= 9 ? '' : 'none';
-    getId('atomsMain').style.display = buildings[1].total >= 11 && stage === 1 ? '' : 'none';
-    getId('moleculesMain').style.display = buildings[2].total >= 2 && stage === 1 ? '' : 'none';
-    getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
-    getId('quarkStat').style.display = stage === 1 ? '' : 'none';
-    getId('particlesMain').style.display = stage === 1 ? '' : 'none';
-    getId('resetToggles').style.display = discharge.current >= 1 ? '' : 'none';
-    for (let i = 5; i <= 8; i++) {
-        if (discharge.current >= 3) {
-            getId(`upgrade${i}`).style.display = '';
-        } else {
-            getId(`upgrade${i}`).style.display = 'none';
+    /* They are going to be hidden with stageCheck(); */
+    if (stage === 1) {
+        getId('energyStat').style.display = energy.total >= 9 ? '' : 'none';
+        getId('atomsMain').style.display = buildings[1].total >= 11 ? '' : 'none';
+        getId('moleculesMain').style.display = buildings[2].total >= 2 ? '' : 'none';
+        getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
+        for (let i = 5; i <= 8; i++) {
+            if (discharge.current >= 3) {
+                getId(`upgrade${i}`).style.display = '';
+            } else {
+                getId(`upgrade${i}`).style.display = 'none';
+            }
         }
     }
-    getId('researchTabBtn').style.display = discharge.current >= 4 ? '' : 'none';
+
+    getId('upgrades').style.display = energy.total >= 9 || stage > 1 ? '' : 'none';
+    getId('resetToggles').style.display = discharge.current >= 1 || stage > 1 ? '' : 'none';
+    getId('researchTabBtn').style.display = discharge.current >= 4 || stage !== 1 ? '' : 'none';
+    getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
+    getId('stage').style.display = stage > 1 ? '' : 'none'; //Add real condition later
     getId('stageToggleReset').style.display = stage > 1 ? '' : 'none';
     getId('themeArea').style.display = stage > 1 ? '' : 'none';
-    getId('stage').style.display = 'none';
+};
+
+export const getUpgradeDescription = (upgradeNumber: number, type = 'normal') => {
+    const { upgrades } = player;
+    const { upgradesInfo } = global;
+
+    switch (type) {
+        case 'normal':
+            getId('upgradeText').textContent = upgradesInfo.description[upgradeNumber];
+            getId('upgradeEffect').textContent = `${upgradesInfo.effectText[upgradeNumber][0]}${upgradesInfo.effect[upgradeNumber]}${upgradesInfo.effectText[upgradeNumber][1]}`;
+            getId('upgradeCost').textContent = `${upgrades[upgradeNumber] === 1 ? 0 : upgradesInfo.cost[upgradeNumber]} Energy`;
+            break;
+    }
 };
 
 export const format = (input: number, precision = input < 1e3 ? 2 : 0, type = 'number') => {
@@ -174,5 +178,62 @@ export const format = (input: number, precision = input < 1e3 ? 2 : 0, type = 'n
                 const digits = Math.trunc(Math.log10(input));
                 return `${Math.trunc((input / 10 ** (digits)) * 100) / 100}e${digits}`;
             }
+    }
+};
+
+export const stageCheck = () => {
+    const { stage, discharge, buildings, upgrades } = player;
+    const { stageInfo, dischargeInfo } = global;
+    const body = document.body.style;
+
+    /* Stage specific information */
+    if (stage === 1) {
+        dischargeInfo.cost = 10 ** discharge.current;
+        for (let i = 1; i < buildings.length; i++) {
+            calculateBuildingsCost(i);
+        }
+        for (let i = 0; i < playerStart.upgrades.length; i++) {
+            if (upgrades[i] === 1) {
+                getId(`upgrade${[i + 1]}`).style.backgroundColor = 'green';
+            } else {
+                getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
+            }
+        }
+        getId('quarkStat').style.display = '';
+        getId('particlesMain').style.display = '';
+        getId('dischargeToggleReset').style.display = '';
+        for (let i = 1; i <= 4; i++) {
+            getId(`upgrade${i}`).style.display = '';
+        }
+    }
+    /* Hide stage specific part's, that were shown in visualUpdate(); */
+    if (stage !== 1) {
+        getId('quarkStat').style.display = 'none';
+        getId('energyStat').style.display = 'none';
+        getId('particlesMain').style.display = 'none';
+        getId('atomsMain').style.display = 'none';
+        getId('moleculesMain').style.display = 'none';
+        getId('discharge').style.display = 'none';
+        getId('dischargeToggleReset').style.display = 'none';
+        for (let i = 1; i <= playerStart.upgrades.length; i++) {
+            getId(`upgrade${i}`).style.display = 'none';
+        }
+    }
+    /* Visual */
+    getId('stageReset').textContent = 'You are not ready';
+    getId('stageWord').textContent = stageInfo.word[stage - 1];
+    getId('stageWord').style.color = stageInfo.wordColor[stage - 1];
+    if (stage === 1) {
+        body.removeProperty('--border-image');
+        body.removeProperty('--border-stage');
+    } else {
+        body.setProperty('--border-image', `url(Used%20files%20%28Art%29/Stage${stage}%20border.png)`);
+        if (stage === 2) {
+            body.setProperty('--border-stage', '#1460a8');
+        } else if (stage === 3) {
+            body.setProperty('--border-stage', '#5b5b75');
+        } else {
+            body.setProperty('--border-stage', '#f28100');
+        }
     }
 };

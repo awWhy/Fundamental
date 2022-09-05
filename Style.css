@@ -18,14 +18,19 @@ body {
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
-    --cyan-text-color: #03d3d3;
     --white-text-color: white;
-    --orange-text-color: darkorange;
+    --cyan-text-color: #03d3d3;
     --blue-text-color: dodgerblue;
+    --orange-text-color: darkorange;
+    --darkorchid-text-color: #bd24ef;
+    --orchid-text-color: #e14bdb;
+    --red-text-color: #eb0000;
+    --green-text-color: #00e900;
 
     /* Special */
     --transition: 0s;
     --border-image: url(Used%20files%20%28Art%29/Stage1%20border.png);
+    --border-stage: #008b8b;
     --font-size: 16px;
 }
 
@@ -38,14 +43,14 @@ body {
 #stageWord { color: #03d3d3; }
 #dischargeWord { color: darkorange; }
 .stageText { color: var(--stage-text-color); }
-/* .darkOrchidText { color: #bd24ef; } */
-/* .orchidText { color: #e14bdb; } */
-/* .redText { color: #eb0000; } */
-/* .greenText { color: #82cb3b; } */
-.cyanText { color: var(--cyan-text-color); }
 .whiteText { color: var(--white-text-color); }
-.orangeText { color: var(--orange-text-color); }
+.cyanText { color: var(--cyan-text-color); }
 .blueText { color: var(--blue-text-color); }
+.orangeText { color: var(--orange-text-color); }
+.darkOrchidText { color: var(--darkorchid-text-color); }
+.orchidText { color: var(--orchid-text-color); }
+.redText { color: var(--red-text-color); }
+.greenText { color: var(--green-text-color); }
 
 img {
     background-color: var(--background-color);
@@ -60,7 +65,7 @@ img {
     background-position: center;
 }
 
-.invisible { /* Important for screen readers */
+#invisible { /* For screen readers */
     position: absolute;
     bottom: 0;
     clip-path: circle(0);
@@ -171,7 +176,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 input[type = number] {
     width: 3.1em;
     height: 1.5em;
-    background-color: black;
+    background-color: var(--background-color);;
     border: 2px solid #831aa5;
     border-radius: 2px;
     color: #e3e3e3;
@@ -202,7 +207,7 @@ input { font-size: 0.84em; }
     align-items: center;
     width: 15em;
     padding: 1.2em 1.1em;
-    gap: 1.2em;
+    row-gap: 1.2em;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
 }
@@ -245,7 +250,6 @@ input { font-size: 0.84em; }
     display: flex;
     align-items: center;
     border: 2px solid forestgreen;
-    background-color: black;
     height: 1.6em;
     padding: 0 0.4em 0;
     font-size: 0.85em;
@@ -256,18 +260,61 @@ input { font-size: 0.84em; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     width: 100%;
-    gap: 0.4em;
+    row-gap: 0.45em;
 }
 
-#upgrades > div {
+#upgrades > div:first-of-type {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3em;
 }
 
 #upgrades > a { margin-bottom: 0.25em; }
+
+.researchSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.researchSection > div {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px solid;
+    border-left-width: 1px;
+    border-radius: 4px;
+    padding: 0.25em;
+    margin-left: -1px;
+    gap: 0.5em;
+    background-color: var(--window-color);
+}
+
+.researchSection > div > div > p {
+    display: flex;
+    align-items: center;
+    border: 2px solid;
+    border-left: none;
+    height: 28px;
+    padding: 0 0.25em 0;
+    background-color: var(--background-color);
+}
+
+.researchSection > div > div { display: flex; }
+#researchTab .descriptionText { margin-top: -0.5em; }
+#stageResearch > div { border-color: var(--border-stage); }
+#researchStage1 > p { border-color: #008b8b; }
+#automatizationResearch > div { border-color: #5b5b75; }
+#researchAuto1 > p { border-color: #bd24ef; }
+#researchAuto2 > p { border-color: var(--border-stage); }
+
+.descriptionText {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+    row-gap: 0.3em;
+}
 
 #resetToggles {
     display: flex;
@@ -282,7 +329,7 @@ input { font-size: 0.84em; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3em;
+    row-gap: 0.3em;
 }
 
 #resetToggles > p { width: 100%; }
@@ -292,19 +339,19 @@ input { font-size: 0.84em; }
     flex-direction: column;
     align-items: center;
     width: 100%;
-    gap: 0.3em;
+    row-gap: 0.3em;
 }
 
 .saveButtonGroup > div {
     display: flex;
     flex-direction: column;
     width: min-content;
-    gap: 0.2em;
+    row-gap: 0.2em;
 }
 
 .saveButtonGroup > div > div {
     display: flex;
-    gap: 0.2em;
+    column-gap: 0.2em;
 }
 
 #file {
@@ -409,7 +456,7 @@ ul button, p button { margin-left: 0.4em; }
     background-color: black;
 }
 
-.footer img { background-color: black; }
+#footer img { background-color: black; }
 .statFoot { display: flex; }
 #quarks, #atoms { border-color: #008b8b; }
 #energy { border-color: #f28100; }

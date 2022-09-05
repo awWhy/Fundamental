@@ -53,39 +53,67 @@
                     <img src="/Used%20files%20(Art)/Buy%20any.png" alt="Toggle buy any" id="buyAny" loading="lazy">
                     <img src="/Used%20files%20(Art)/Buy%20max.png" alt="Toggle buy max" id="buyMax" loading="lazy">
                     <input type="number" id="buyAnyInput" min="1">
-                    <p id="buyStrict" class="whiteText">Strict</p>
+                    <p id="buyStrict" class="whiteText" title="(If green) will buy only if you can afford set amount" aria-label="Buy only if can afford set amount">Strict</p>
                 </div>
             </div>
             <div id="upgrades">
                 <p>Upgrades</p>
                 <div>
-                    <img src="/Used%20files%20(Art)/Upgrade1.png" alt="Upgrade 1" tabindex="10" id="upgrade1" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade2.png" alt="Upgrade 2" tabindex="10" id="upgrade2" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade3.png" alt="Upgrade 3" tabindex="10" id="upgrade3" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade4.png" alt="Upgrade 4" tabindex="10" id="upgrade4" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade5.png" alt="Upgrade 5" tabindex="10" id="upgrade5" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade6.png" alt="Upgrade 6" tabindex="10" id="upgrade6" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade7.png" alt="Upgrade 7" tabindex="10" id="upgrade7" aria-describedby="upgradeText" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade8.png" alt="Upgrade 8" tabindex="10" id="upgrade8" aria-describedby="upgradeText" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade1.png" alt="Upgrade 1" tabindex="10" id="upgrade1" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade2.png" alt="Upgrade 2" tabindex="10" id="upgrade2" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade3.png" alt="Upgrade 3" tabindex="10" id="upgrade3" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade4.png" alt="Upgrade 4" tabindex="10" id="upgrade4" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade5.png" alt="Upgrade 5" tabindex="10" id="upgrade5" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade6.png" alt="Upgrade 6" tabindex="10" id="upgrade6" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade7.png" alt="Upgrade 7" tabindex="10" id="upgrade7" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade8.png" alt="Upgrade 8" tabindex="10" id="upgrade8" aria-describedby="upgradeText upgradeEffect" loading="lazy">
                 </div>
-                <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
-                <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see</span></p>
-                <p>Cost: <span id="upgradeCost" class="orangeText">Energy</span></p>
+                <div class="descriptionText">
+                    <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
+                    <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see</span></p>
+                    <p>Cost: <span id="upgradeCost" class="orangeText">Energy</span></p>
+                </div>
             </div>
-            <label class="invisible" aria-live="polite">Current tab: Stage tab</label>
         </div>
         <div id="researchTab" class="insideTab">
+            <div id="stageResearch" class="researchSection">
+                <img src="/Used%20files%20(Art)/Stage.png" alt="Stage" class="stageBorder" loading="lazy">
+                <div>
+                    <div id="researchStage1">
+                        <img src="/Used%20files%20(Art)/Stage1%20border.png" alt="Buy max" tabindex="10" aria-describedby="researchText researchEffect" loading="lazy">
+                        <p class="whiteText"><span id="researchStage1Level" class="redText">0</span>/<span id="researchStage1Max" class="greenText">9</span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="automatizationResearch" class="researchSection">
+                <img src="/Used%20files%20(Art)/Automatization.png" alt="Automatization" loading="lazy">
+                <div>
+                    <div id="researchAuto1">
+                        <img src="/Used%20files%20(Art)/Buy%20toggles.png" alt="Buy max" tabindex="10" aria-describedby="researchText researchEffect" loading="lazy">
+                        <p class="whiteText"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">1</span></p>
+                    </div>
+                    <div id="researchAuto2">
+                        <img src="/Used%20files%20(Art)/Auto.png" alt="Auto" tabindex="10" class="stageBorder" aria-describedby="researchText researchEffect" loading="lazy">
+                        <p class="whiteText"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">3</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="descriptionText">
+                <label>Type: <span id="researchText" class="orchidText">Hover to see</span></label>
+                <p>Effect: <span id="researchEffect" class="blueText">Hover to see</span></p>
+                <p>Next : <span id="researchCost" class="orangeText">Energy</span></p>
+            </div>
         </div>
         <div id="settingsTab" class="insideTab">
             <div id="resetToggles">
                 <p>Confirmation toggles</p>
-                <div>
-                    <img src="/Used%20files%20(Art)/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
-                    <button id="toggle1" class="toggle">ON</button>
-                </div>
                 <div id="stageToggleReset">
                     <img src="/Used%20files%20(Art)/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder" loading="lazy">
                     <button id="toggle2" class="toggle">ON</button>
+                </div>
+                <div id="dischargeToggleReset">
+                    <img src="/Used%20files%20(Art)/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
+                    <button id="toggle1" class="toggle">ON</button>
                 </div>
             </div>
             <div class="saveButtonGroup">
@@ -117,11 +145,11 @@
                 <ul>
                     <li id="pauseGame" class="whiteText">Pause game</li>
                     <li class="whiteText">Offline progress<button id="toggle0" class="toggle">ON</button></li>
-                    <li class="whiteText">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16"> px<button id="toggle3" class="toggle">ON</button></li>
+                    <li class="whiteText" aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16"> px<button id="toggle3" class="toggle">ON</button></li>
                 </ul>
             </div>
-            <label class="invisible" aria-live="polite">Current tab: Settings</label>
         </div>
+        <label id="invisible" aria-live="polite">Current tab: stage tab</label>
         <div id="footer">
             <div id="hideToggle">
                 <p id="hideText" aria-label="Hide footer">Hide</p>

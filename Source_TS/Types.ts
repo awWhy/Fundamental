@@ -8,13 +8,19 @@ export interface playerType {
         current: number
     }
     time: {
-        current: number
         updated: number
         started: number
     }
     buildings: Array<Record<string, number>>
     upgrades: number[]
+    researches: number[]
+    researchesAuto: number[]
     toggles: boolean[]
+    buyToggle: {
+        howMany: number
+        input: number
+        strict: boolean
+    }
 }
 
 export interface globalType {
@@ -41,15 +47,24 @@ export interface globalType {
         increase: number
         producing: number[]
     }
-    buyToggle: {
-        howMany: number
-        input: number
-        strict: boolean
-    }
     upgradesInfo: {
         description: string[]
-        effect: number[]
+        effect: Array<number | ''>
         effectText: string[][]
         cost: number[]
+    }
+    researchesInfo: {
+        description: string[]
+        effect: Array<number | ''>
+        effectText: string[][]
+        cost: number[]
+        max: number[]
+    }
+    researchesAutoInfo: {
+        description: string[]
+        effect: Array<number | ''>
+        effectText: string[][]
+        cost: number[]
+        max: number[]
     }
 }
