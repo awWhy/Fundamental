@@ -1,4 +1,4 @@
-import { player, global, playerStart, globalStart } from './Player';
+import { player, global, playerStart, globalStart, updatePlayer } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme } from './Special';
@@ -12,16 +12,6 @@ export const getId = (id: string) => { //To type less and check if ID exist
     }
     Alert('Some ID failed to load, game won\'t be working properly. Please refresh.');
     throw new TypeError(`ID "${id}" not found.`);
-};
-
-const updatePlayer = (load: any) => {
-    if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
-        /* All undefined check's have to go here */
-        Object.assign(player, load.player);
-        global.intervals = load.global.intervals;
-    } else {
-        Alert('Save file coudn\'t be loaded as its missing important info.');
-    }
 };
 
 export const reLoad = async(loadSave = false) => {
@@ -46,7 +36,8 @@ export const reLoad = async(loadSave = false) => {
 
     switchTab(); //Sets tab to Stage, also visual and number update
     changeFontSize(); //Changes font size
-    stageCheck(); //Visual and other (like next reset goal) stage information
+    stageCheck(); //Visual and other stage information (like next reset goal)
+    /* I'm pretty sure upgrade hover text is not reset when loading, but no idea if it should be added */
 
     for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false); //Gives toggles proper visual appearance
@@ -75,7 +66,8 @@ for (let i = 1; i < playerStart.buildings.length; i++) {
 for (let i = 0; i < playerStart.upgrades.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //Atempt to give Screen Readers ability to buy upgrades
+    //getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //For Screen readers
+    /* Fix focus double buying upgrades, maybe by adding a toggle to switch beetwin click and focus (?) */
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 /* Don't know if there any need to load above one's, if stage !== 1 */
@@ -85,6 +77,18 @@ getId('buyAny').addEventListener('click', () => toggleBuy('any'));
 getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
 getId('buyMax').addEventListener('click', () => toggleBuy('max'));
 getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
+
+/* Research tab */
+for (let i = 0; i < playerStart.researches.length; i++) {
+    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'research'));
+    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'research'));
+    //getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'research'));
+}
+for (let i = 0; i < playerStart.researchesAuto.length; i++) {
+    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchAuto'));
+    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchAuto'));
+    //getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchAuto'));
+}
 
 /* Settings tab */
 getId('save').addEventListener('click', async() => await saveLoad('save'));

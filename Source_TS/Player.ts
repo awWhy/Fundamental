@@ -1,4 +1,5 @@
-import { globalType, playerType } from './Types';
+import { Alert } from './Special';
+import { globalType, saveType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     stage: 1,
@@ -112,19 +113,23 @@ function AddUpgradeArray(name: keyof playerType, cost: number[], effect: Array<n
 
 const createArray = (amount: number, type = 'number') => {
     const array = [];
-    for (let i = 1; i <= amount; i++) {
+    for (let i = 0; i < amount; i++) {
         if (type === 'number') {
             array.push(0);
         } else {
-            array.push(true);
+            if (i === 4 || i === 5 || i === 6) {
+                array.push(false);
+            } else {
+                array.push(true);
+            }
         }
     }
     return array;
 };
 
 const togglesL = document.getElementsByClassName('toggle').length;
-/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3] */
-Object.assign(player, { toggles: createArray(togglesL, 'boolean') });
+/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
+Object.assign(player, { toggles: createArray(togglesL, 'toggles') });
 AddUpgradeArray('upgrades',
     [9, 12, 36, 300, 800, 9999, 99999, 999999], //Cost
     [10, 10, 5, 4, 0.2, 1.1, 0.1, 0], //Effect
@@ -163,7 +168,46 @@ AddUpgradeArray('researchesAuto',
         'Automatization for buying upgrades.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Unlock abbility to buy multiple buildings at same time.', ''],
-        ['Automaticly buyes buildings for you.', '']
+        ['Will automatically buy buildings for you.', '']
     ], [1, 3]); //Max level
+
+/* Do not do anything like 'player.energy = playerStart.energy', because that will literally explode universe...
+   Instead do 'const anyName = structuredClone(playerStart)', so far this is the only method I know to prevent playerStart from being changed (Object.freeze won't work) */
 export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;
+
+export const updatePlayer = (load: saveType) => {
+    if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
+        const playerCheck = structuredClone(playerStart); //If to add 'as playerType', TS will lose its mind
+        for (const i in playerStart) { //This should auto add missing information
+            if (!Object.prototype.hasOwnProperty.call(load.player, i)) {
+                load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
+            }
+        }
+        /* Next one's will auto add missing part of already existing information */
+        if (playerStart.upgrades.length > load.player.upgrades.length) {
+            for (let i = load.player.upgrades.length; i < playerStart.upgrades.length; i++) {
+                load.player.upgrades[i] = 0;
+            }
+        }
+        if (playerStart.researches.length > load.player.researches.length) {
+            for (let i = load.player.researches.length; i < playerStart.researches.length; i++) {
+                load.player.researches[i] = 0;
+            }
+        }
+        if (playerStart.researchesAuto.length > load.player.researchesAuto.length) {
+            for (let i = load.player.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
+                load.player.researchesAuto[i] = 0;
+            }
+        }
+        if (playerStart.toggles.length > load.player.toggles.length) {
+            for (let i = load.player.toggles.length; i < playerStart.toggles.length; i++) {
+                load.player.toggles[i] = playerCheck.toggles[i];
+            }
+        }
+        Object.assign(player, load.player);
+        global.intervals = load.global.intervals;
+    } else {
+        Alert('Save file coudn\'t be loaded as its missing important info.');
+    }
+};

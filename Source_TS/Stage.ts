@@ -3,46 +3,42 @@ import { global, player } from './Player';
 import { Confirm } from './Special';
 import { getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
-export const buyBuilding = (buy: Array<Record<string, number>>, index: number) => {
+export const buyBuilding = (buy: Array<Record<string, number>>, index: number, auto = false) => {
     const { energy, researchesAuto, buyToggle } = player;
     const { energyType, buildingsInfo } = global;
 
-    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany !== 1 && researchesAuto[0] > 0) {
+    if (buy[index - 1].current < buildingsInfo.cost[index]) { return; }
+
+    if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buy[index - 1].current;
         let cost = buildingsInfo.cost[index];
         let total = 0;
+        const howMany = auto ? -1 : buyToggle.howMany;
         /* I don't know better way... I looked everywhere for formula with geometric progression, haven't found it... */
         for (var canAfford = 0; budget >= cost; canAfford++) {
-            if (canAfford === buyToggle.howMany) {
-                break;
-            }
+            if (canAfford === howMany) { break; }
             total += cost;
             budget -= cost;
             cost *= buildingsInfo.increase;
         }
-        if ((canAfford < buyToggle.howMany && buyToggle.howMany !== -1 && buyToggle.strict) || researchesAuto[0] === 0) { return; }
+        if (canAfford < howMany && howMany !== -1 && buyToggle.strict) { return; }
         buy[index - 1].current -= total;
         buy[index].current += canAfford;
         buy[index].true += canAfford;
         buy[index].total += canAfford;
         energy.current += energyType[index] * canAfford;
         energy.total += energyType[index] * canAfford;
-        calculateBuildingsCost(index);
-        invisibleUpdate();
-        numbersUpdate();
-    }
-
-    if (buy[index - 1].current >= buildingsInfo.cost[index] && buyToggle.howMany === 1) {
+    } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buy[index - 1].current -= buildingsInfo.cost[index];
         buy[index].current++;
         buy[index].true++;
         buy[index].total++;
         energy.current += energyType[index];
         energy.total += energyType[index];
-        calculateBuildingsCost(index);
-        invisibleUpdate();
-        numbersUpdate();
     }
+    calculateBuildingsCost(index);
+    invisibleUpdate();
+    numbersUpdate();
 };
 
 export const calculateBuildingsCost = (index: number) => {
@@ -66,40 +62,90 @@ export const calculateGainedBuildings = (get: number, time: number) => {
 };
 
 export const buyUpgrades = (upgrade: number, type = 'normal') => {
-    const { energy, upgrades } = player;
-    const { upgradesInfo } = global;
+    const { energy, upgrades, researches, researchesAuto } = player;
+    const { upgradesInfo, researchesInfo, researchesAutoInfo } = global;
 
     switch (type) {
         case 'normal':
-            if (upgrades[upgrade] !== 1 && energy.current >= upgradesInfo.cost[upgrade]) {
-                upgrades[upgrade] = 1;
-                energy.current -= upgradesInfo.cost[upgrade];
-                getId(`upgrade${upgrade + 1}`).style.backgroundColor = 'green';
-                if (upgrade === 0) {
-                    calculateBuildingsCost(1);
-                } else if (upgrade === 3) {
-                    getId('discharge').style.display = 'flex';
-                } else if (upgrade === 4) {
-                    calculateBuildingsCost(3);
+            if (upgrades[upgrade] === 1 || energy.current < upgradesInfo.cost[upgrade]) { return; }
+
+            upgrades[upgrade] = 1;
+            energy.current -= upgradesInfo.cost[upgrade];
+            getId(`upgrade${upgrade + 1}`).style.backgroundColor = 'green';
+            /* Some upgrades effects better to be done instanly */
+            if (upgrade === 0) {
+                calculateBuildingsCost(1);
+            } else if (upgrade === 3) {
+                getId('discharge').style.display = '';
+            } else if (upgrade === 4) {
+                for (let i = 1; i <= 3; i++) {
+                    calculateBuildingsCost(i);
                 }
             }
             break;
+        case 'research': {
+            if (researches[upgrade] === researchesInfo.max[upgrade] || energy.current < researchesInfo.cost[upgrade]) { return; }
+
+            const researchNumber = getId(`research${upgrade + 1}Stage1Level`);
+            researches[upgrade]++;
+            energy.current -= researchesInfo.cost[upgrade];
+            researchNumber.textContent = String(researches[upgrade]);
+            if (researches[upgrade] !== researchesInfo.max[upgrade]) {
+                researchNumber.classList.replace('redText', 'orchidText');
+            } else {
+                researchNumber.classList.remove('redText', 'orchidText');
+                researchNumber.classList.add('greenText');
+            }
+            if (upgrade === 0) {
+                for (let i = 1; i <= 3; i++) {
+                    calculateBuildingsCost(i);
+                }
+            }
+            break;
+        }
+        case 'researchAuto': {
+            if (researchesAuto[upgrade] === researchesAutoInfo.max[upgrade] || energy.current < researchesAutoInfo.cost[upgrade]) { return; }
+
+            const researchNumber = getId(`researchAuto${upgrade + 1}Level`);
+            researchesAuto[upgrade]++;
+            energy.current -= researchesAutoInfo.cost[upgrade];
+            researchNumber.textContent = String(researchesAuto[upgrade]);
+            if (researchesAuto[upgrade] !== researchesAutoInfo.max[upgrade]) {
+                researchNumber.classList.replace('redText', 'orchidText');
+            } else {
+                researchNumber.classList.remove('redText', 'orchidText');
+                researchNumber.classList.add('greenText');
+            }
+            break;
+        }
     }
+    numbersUpdate();
     getUpgradeDescription(upgrade, type);
 };
 
 export const toggleSwap = (number: number, change = true) => {
     const { toggles } = player;
+    const toggle = getId(`toggle${number}`);
 
     if (change) {
         toggles[number] = !toggles[number];
     }
-    if (!toggles[number]) {
-        getId(`toggle${number}`).textContent = 'OFF';
-        getId(`toggle${number}`).style.borderColor = 'crimson';
+    if (toggle.classList.contains('auto')) {
+        if (!toggles[number]) {
+            toggle.textContent = 'Auto OFF';
+            toggle.style.borderColor = 'crimson';
+        } else {
+            toggle.textContent = 'Auto ON';
+            toggle.style.borderColor = '';
+        }
     } else {
-        getId(`toggle${number}`).textContent = 'ON';
-        getId(`toggle${number}`).style.borderColor = '';
+        if (!toggles[number]) {
+            toggle.textContent = 'OFF';
+            toggle.style.borderColor = 'crimson';
+        } else {
+            toggle.textContent = 'ON';
+            toggle.style.borderColor = '';
+        }
     }
 };
 
@@ -138,13 +184,12 @@ export const stageResetCheck = async() => {
     if () {
         let ok = true;
         if (toggles[2]) {
-            ok = await Confirm('Ready to move on to the next stage?');
+            ok = await Confirm('Ready to enter next stage?');
         }
         if (ok) {
             player.stage++;
-            //Do not reuse buildings, upgrades, researches, toggles and etc, in case challenge's will be added
-            //But do reset them all (not automatization), like with a new function reset(type: string);
-            //Auto buy buyToggle just in case
+            //Reuse buildings, upgrades, researches, (not toggles) if challenge's will be added, just add own category for them
+            //Reset them all (not automatization), like with a new function reset(type: string);
             if (researchesAuto[0] === 0) {
                 researchesAuto[0]++;
             }
@@ -155,14 +200,14 @@ export const stageResetCheck = async() => {
 };
 
 export const dischargeResetCheck = async() => {
-    const { energy, discharge, buildings, upgrades } = player;
+    const { energy, discharge, buildings, upgrades, toggles } = player;
     const { dischargeInfo } = global;
 
     if (upgrades[3] === 1 && buildings[1].true > 0) {
         let ok = true;
-        if (player.toggles[1] && energy.current < dischargeInfo.cost) {
+        if (toggles[1] && energy.current < dischargeInfo.cost) {
             ok = await Confirm('This will reset all of your current buildings and energy. You will NOT gain production boost. Continue?');
-        } else if (player.toggles[1] && energy.current >= dischargeInfo.cost) {
+        } else if (toggles[1] && energy.current >= dischargeInfo.cost) {
             ok = await Confirm('You have enough energy to gain boost. Continue?');
         }
         if (ok) {

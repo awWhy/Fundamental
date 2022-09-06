@@ -68,3 +68,8 @@ export interface globalType {
         max: number[]
     }
 }
+
+export interface saveType {
+    player: playerType
+    global: globalType
+}
