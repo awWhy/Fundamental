@@ -1,7 +1,7 @@
 import { player, global, playerStart, globalStart, updatePlayer } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -34,6 +34,7 @@ export const reLoad = async(loadSave = false) => {
     }
     const { time, toggles } = player;
 
+    screenReaderSupport(); //If screen reader support is ON, then it will change some stuff
     switchTab(); //Sets tab to Stage, also visual and number update
     changeFontSize(); //Changes font size
     stageCheck(); //Visual and other stage information (like next reset goal)
@@ -55,6 +56,7 @@ export const reLoad = async(loadSave = false) => {
 void reLoad(true);
 
 /* Global */
+const screenReader = global.screenReader.isOn;
 for (let i = 0; i < playerStart.toggles.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
 }
@@ -66,8 +68,7 @@ for (let i = 1; i < playerStart.buildings.length; i++) {
 for (let i = 0; i < playerStart.upgrades.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    //getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); //For Screen readers
-    /* Fix focus double buying upgrades, maybe by adding a toggle to switch beetwin click and focus (?) */
+    if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 /* Don't know if there any need to load above one's, if stage !== 1 */
@@ -82,12 +83,12 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 for (let i = 0; i < playerStart.researches.length; i++) {
     getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'research'));
     getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'research'));
-    //getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'research'));
+    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'research')); }
 }
 for (let i = 0; i < playerStart.researchesAuto.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchAuto'));
     getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchAuto'));
-    //getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchAuto'));
+    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchAuto')); }
 }
 
 /* Settings tab */
@@ -102,6 +103,17 @@ for (let i = 1; i <= global.stageInfo.word.length; i++) {
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 getId('toggle3').addEventListener('click', () => changeFontSize());
 getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
+/* Only for screen readers */
+getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
+if (screenReader) {
+    for (let i = 1; i <= playerStart.buildings.length; i++) {
+        getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i - 1, 'button'));
+    }
+    getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
+    getId('specialTabBtn').addEventListener('click', () => switchTab('special'));
+} else {
+    getId('specialTabBtn').style.display = 'none';
+}
 
 /* Footer */
 getId('hideToggle').addEventListener('click', hideFooter);
@@ -125,8 +137,8 @@ function changeIntervals(pause = false) {
     }
 }
 
-/* Promise returned in function argument where a void return was expected. */
-/* I have no idea what does that even mean... I have to use async since 'await saveFile[0].text()' must have await in it.*/
+/* Promise returned in function argument where a void return was expected.
+   I have no idea what does that even mean... I have to use async since 'await saveFile[0].text()' must have await in it.*/
 async function saveLoad(type: string) {
     switch (type) {
         case 'load': {
@@ -174,7 +186,7 @@ async function saveLoad(type: string) {
         }
         case 'delete': {
             const ok = await Prompt("This will truly delete your save file!\nType 'delete' to confirm.");
-            if (ok !== false && ok.toLowerCase() === 'delete') {
+            if (ok?.toLowerCase() === 'delete') {
                 changeIntervals(true);
                 localStorage.clear();
                 const deletePlayer = structuredClone(playerStart);
@@ -185,8 +197,8 @@ async function saveLoad(type: string) {
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
                 void reLoad();
-            } else if (ok !== false) {
-                Alert('Save file wasn\'t deleted.');
+            } else if (ok !== null) {
+                Alert(`You wrote '${ok}', so save file wasn't deleted.`);
             }
             break;
         }
@@ -196,8 +208,10 @@ async function saveLoad(type: string) {
 const pauseGame = async() => {
     changeIntervals(true);
     const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time.");
-    if (offline !== false && offline.toLowerCase() === 'nooffline') {
+    if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();
+    } else if (offline !== null) {
+        Alert(`You wrote '${offline}', so you gained offline time.`);
     }
     changeIntervals();
 };

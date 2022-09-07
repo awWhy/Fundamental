@@ -11,7 +11,8 @@ export const switchTab = (tab = 'none') => {
         getId('settingsTab').style.display = 'none';
         getId('settingsTabBtn').style.borderColor = '';
         const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
-        const invText = getId('invisible'); //For screen readers (no idea if it works)
+        const invText = getId('invisibleTab'); //For screen readers, always turned on, to let screen reader user get to settings tab easier
+        getId('specialTab').style.display = 'none';
 
         if (tab !== 'none') {
             global.tab = tab;
@@ -114,7 +115,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 }
             }
             if (upgrades[3] === 1) {
-                getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.cost, 0)} energy`;
+                getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.next, 0)} energy`;
             }
             //if () { getId('stageReset').textContent = 'Enter next stage'; }
         }
@@ -202,7 +203,7 @@ export const stageCheck = () => {
 
     /* Stage specific information */
     if (stage === 1) {
-        dischargeInfo.cost = 10 ** discharge.current;
+        dischargeInfo.next = 10 ** discharge.current;
         for (let i = 1; i < buildings.length; i++) {
             calculateBuildingsCost(i);
         }
@@ -259,6 +260,7 @@ export const stageCheck = () => {
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = stageInfo.word[stage - 1];
     getId('stageWord').style.color = stageInfo.wordColor[stage - 1];
+    if (global.screenReader.isOn) { getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[stage - 1]}'`; }
     if (stage === 1) {
         body.removeProperty('--border-image');
         body.removeProperty('--border-stage');

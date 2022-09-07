@@ -59,8 +59,12 @@ export const global: globalType = { //For information that doesn't need to be sa
         stage: 1,
         default: true
     },
+    screenReader: {
+        isOn: false,
+        building: ['quarks', 'particles', 'atoms', 'molecules']
+    },
     dischargeInfo: {
-        cost: 1
+        next: 1
     },
     intervals: {
         main: 1000, //Min 20 max 1000, default 50

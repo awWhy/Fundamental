@@ -1,5 +1,6 @@
 import { getId } from './Main(OnLoad)';
 import { global, player } from './Player';
+import { format } from './Update';
 
 export const setTheme = (themeNumber: number, initial = false) => {
     const { theme } = global;
@@ -64,7 +65,7 @@ export const switchTheme = () => {
 export const Alert = (text: string) => {
     const blocker = getId('blocker');
     if (getId('blocker').style.display === 'block') {
-        return;
+        return console.warn('Wasn\'t able to show another window (alert)');
     }
 
     getId('alertText').textContent = text;
@@ -83,6 +84,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display === 'block') {
+            console.warn('Wasn\'t able to show another window (confirm)');
             resolve(false);
         }
 
@@ -111,11 +113,12 @@ export const Confirm = async(text: string): Promise<boolean> => {
     });
 };
 
-export const Prompt = async(text: string): Promise<string | false> => {
+export const Prompt = async(text: string): Promise<string | null> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display === 'block') {
-            resolve(false);
+            console.warn('Wasn\'t able to show another window (prompt)');
+            resolve(null);
         }
 
         getId('alertText').textContent = text;
@@ -148,7 +151,7 @@ export const Prompt = async(text: string): Promise<string | false> => {
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
             input.removeEventListener('blur', getValue);
-            resolve(false);
+            resolve(null);
         };
         confirm.addEventListener('click', yes);
         cancel.addEventListener('click', no);
@@ -188,13 +191,61 @@ export const hideFooter = () => {
     }, 1000);
 };
 
+export const screenReaderSupport = (info = false as boolean | number, type = 'toggle', special = 'building') => {
+    switch (type) {
+        case 'toggle': {
+            const change = info as boolean;
+            let turnOn = Boolean(localStorage.getItem('screen reader') ?? false);
+            const toggle = getId('screenReaderToggle');
+
+            if (change) { turnOn = !turnOn; }
+            /* Its a nightmare to try and remove event listener's...
+               So as of now refresh of page is the best (and only) way I know how
+               Also I'm super confused on how tabindex works... */
+            if (turnOn) {
+                toggle.textContent = 'ON';
+                toggle.style.borderColor = 'crimson';
+                toggle.setAttribute('aria-label', 'Screen reader support is ON');
+                localStorage.setItem('screen reader', 'true');
+                global.screenReader.isOn = true;
+                player.buyToggle.strict = false;
+                if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make image clickable for a keyboard), also you will get a special tab where you can get information on any resource.\n(For non screen readers this will cause first click to double buy upgrades)'); }
+            } else {
+                toggle.textContent = 'OFF';
+                toggle.style.borderColor = '';
+                toggle.setAttribute('aria-label', 'Screen reader support is OFF');
+                localStorage.removeItem('screen reader');
+                global.screenReader.isOn = false;
+                if (change) { Alert('To remove focus event on upgrades you need to refresh page.'); }
+            }
+            break;
+        }
+        case 'button': {
+            const index = info as number;
+            const { energy, buildings, upgrades, researchesAuto, toggles } = player;
+            const { dischargeInfo, screenReader, buildingsInfo } = global;
+            const invText = getId('invisibleBought');
+
+            if (special === 'building') {
+                if (index === 0) {
+                    invText.textContent = `You have ${format(buildings[0].current)} ${screenReader.building[0]}`;
+                } else {
+                    invText.textContent = `You have ${format(buildings[index].current)} ${screenReader.building[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${screenReader.building[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${screenReader.building[index - 1]} per second${researchesAuto[1] >= index ? `, auto is ${toggles[index + 3] ? 'on' : 'off'}` : ''}`;
+                }
+            } else {
+                invText.textContent = `You have ${energy.current} Energy${upgrades[3] === 1 ? `, next discharge goal is ${format(dischargeInfo.next)} Energy (can reset without reaching it)` : ''}`;
+            }
+            break;
+        }
+    }
+};
+
 export const changeFontSize = (change = false) => {
-    const { toggles } = player;
     const body = document.body.style;
     const input = getId('customFontSize') as HTMLInputElement;
     let size = localStorage.getItem('fontSize');
 
-    if (!toggles[3]) {
+    if (!player.toggles[3]) {
         body.setProperty('--font-size', '1em');
         localStorage.removeItem('fontSize');
     } else {

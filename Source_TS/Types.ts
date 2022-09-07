@@ -36,8 +36,12 @@ export interface globalType {
         stage: number
         default: boolean
     }
+    screenReader: {
+        isOn: boolean
+        building: string[]
+    }
     dischargeInfo: {
-        cost: number
+        next: number
     }
     intervals: Record<string, number>
     intervalsId: Record<string, number>

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="Style.css">
         <title>Test game</title>
-        <!-- Add later <link rel="icon" href="Icon.ico"> -->
+        <link rel="icon" href="Icon.ico">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Just testing abbility to make anything">
@@ -15,9 +15,9 @@
             <div id="alertPopUp">
                 <label id="alertText" aria-live="polite">Welcome back</label>
                 <div>
-                    <input type="text" id="inputArea">
-                    <button id="confirmBtn">Confirm</button>
-                    <button id="cancelBtn">Cancel</button>
+                    <input type="text" id="inputArea" tabindex="1">
+                    <button id="confirmBtn" tabindex="1">Confirm</button>
+                    <button id="cancelBtn" tabindex="1">Cancel</button>
                 </div>
             </div>
         </div>
@@ -64,21 +64,21 @@
                     <img src="/Used%20files%20(Art)/Buy%201x.png" alt="Toggle buy 1" id="buy1x" loading="lazy">
                     <img src="/Used%20files%20(Art)/Buy%20any.png" alt="Toggle buy any" id="buyAny" loading="lazy">
                     <img src="/Used%20files%20(Art)/Buy%20max.png" alt="Toggle buy max" id="buyMax" loading="lazy">
-                    <input type="number" id="buyAnyInput" min="1">
-                    <p id="buyStrict" class="whiteText" title="(If green) will buy only if you can afford set amount" aria-label="Buy only if can afford set amount">Strict</p>
+                    <input type="number" id="buyAnyInput" min="-1" aria-label="Type in here number for how much you want to buy at same time. (-1 to buy max)">
+                    <p id="buyStrict" class="whiteText" title="(If green) will buy only if you can afford set amount" aria-label="I don't think that it can be clicked with screen reader. If its ON (by deffault is OFF) then can buy buildings only if can afford all at same time">Strict</p>
                 </div>
             </div>
             <div id="upgrades">
                 <p>Upgrades</p>
                 <div>
-                    <img src="/Used%20files%20(Art)/Upgrade1.png" alt="Upgrade 1" tabindex="10" id="upgrade1" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade2.png" alt="Upgrade 2" tabindex="10" id="upgrade2" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade3.png" alt="Upgrade 3" tabindex="10" id="upgrade3" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade4.png" alt="Upgrade 4" tabindex="10" id="upgrade4" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade5.png" alt="Upgrade 5" tabindex="10" id="upgrade5" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade6.png" alt="Upgrade 6" tabindex="10" id="upgrade6" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade7.png" alt="Upgrade 7" tabindex="10" id="upgrade7" aria-describedby="upgradeText upgradeEffect" loading="lazy">
-                    <img src="/Used%20files%20(Art)/Upgrade8.png" alt="Upgrade 8" tabindex="10" id="upgrade8" aria-describedby="upgradeText upgradeEffect" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade1.png" alt="Upgrade 1" tabindex="10" id="upgrade1" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade2.png" alt="Upgrade 2" tabindex="10" id="upgrade2" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade3.png" alt="Upgrade 3" tabindex="10" id="upgrade3" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade4.png" alt="Upgrade 4" tabindex="10" id="upgrade4" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade5.png" alt="Upgrade 5" tabindex="10" id="upgrade5" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade6.png" alt="Upgrade 6" tabindex="10" id="upgrade6" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade7.png" alt="Upgrade 7" tabindex="10" id="upgrade7" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
+                    <img src="/Used%20files%20(Art)/Upgrade8.png" alt="Upgrade 8" tabindex="10" id="upgrade8" aria-labelledby="upgradeText upgradeEffect upgradeCost" loading="lazy">
                 </div>
                 <div class="descriptionText">
                     <label>Description: <span id="upgradeText" class="whiteText">Hover to see</span></label>
@@ -92,7 +92,7 @@
                 <img src="/Used%20files%20(Art)/Stage.png" alt="Stage" class="stageBorder" loading="lazy">
                 <div>
                     <div id="research1Stage1">
-                        <img src="/Used%20files%20(Art)/Stage1%20border.png" alt="Buy max" tabindex="10" id="research1Stage1Image" aria-describedby="researchText researchEffect" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Stage1%20border.png" alt="Buy max" tabindex="10" id="research1Stage1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="research1Stage1Level" class="redText">0</span>/<span id="research1Stage1Max" class="greenText">9</span></p>
                     </div>
                 </div>
@@ -101,11 +101,11 @@
                 <img src="/Used%20files%20(Art)/Automatization.png" alt="Automatization" loading="lazy">
                 <div>
                     <div id="researchAuto1">
-                        <img src="/Used%20files%20(Art)/Buy%20toggles.png" alt="Buy max" tabindex="10" id="researchAuto1Image" aria-describedby="researchText researchEffect" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Buy%20toggles.png" alt="Buy max" tabindex="10" id="researchAuto1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">1</span></p>
                     </div>
                     <div id="researchAuto2">
-                        <img src="/Used%20files%20(Art)/Auto.png" alt="Auto" tabindex="10" id="researchAuto2Image"  class="stageBorder" aria-describedby="researchText researchEffect" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Auto.png" alt="Auto" tabindex="10" id="researchAuto2Image"  class="stageBorder" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">3</span></p>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
             <div class="descriptionText">
                 <label>Type: <span id="researchText" class="darkOrchidText">Hover to see</span></label>
                 <p>Effect: <span id="researchEffect" class="blueText">Hover to see</span></p>
-                <p>Next : <span id="researchCost" class="orangeText">Energy</span></p>
+                <p>Next: <span id="researchCost" class="orangeText">Energy</span></p>
             </div>
         </div>
         <div id="settingsTab" class="insideTab">
@@ -132,8 +132,8 @@
                 <p>Please export save file regularly</p>
                 <div>
                     <div>
-                        <button id="save">Save</button>
-                        <label for="file" id="load">Load</label>
+                        <button id="save" aria-label="Save game">Save</button>
+                        <label id="load" for="file" aria-hidden="true">Load</label>
                         <input type="file" id="file" accept=".txt" aria-label="Load from file">
                     </div>
                     <button id="export">Export save file</button>
@@ -144,7 +144,7 @@
             <div id="themeArea" aria-hidden="true">
                 <p>You can select different theme from here</p>
                 <div>
-                    <button id="currentTheme">Default</button>
+                    <button id="currentTheme" tabIndex="-1">Default</button>
                     <div>
                         <button id="switchTheme0">Default</button>
                         <button id="switchTheme1">Microworld</button>
@@ -152,19 +152,35 @@
                     </div>
                 </div>
             </div>
-            <div class="options">
-                <p>Less recommended options</p>
-                <ul>
-                    <li id="pauseGame" class="whiteText">Pause game</li>
-                    <li class="whiteText">Offline progress<button id="toggle0" class="toggle">ON</button></li>
-                    <li class="whiteText" aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16"> px<button id="toggle3" class="toggle">ON</button></li>
-                </ul>
+            <div>
+                <div class="options">
+                    <p>Options</p>
+                    <ul class="whiteText">
+                        <li>Screen reader support<button id="screenReaderToggle" aria-label="Screen reader support is OFF">OFF</button></li>
+                    </ul>
+                </div>
+                <div class="options">
+                    <p>Less recommended options</p>
+                    <ul class="whiteText">
+                        <li id="pauseGame" aria-label="If you somehow can click on it, then it will pause game">Pause game</li>
+                        <li>Offline progress<button id="toggle0" class="toggle">ON</button></li>
+                        <li aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="toggle3" class="toggle" tabindex="-1">ON</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <label id="invisible" aria-live="polite">Current tab: stage tab</label>
+        <div id="specialTab">
+            <button id="invisibleGetBuilding1">Get information for quarks</button>
+            <button id="invisibleGetBuilding2">Get information for particles</button>
+            <button id="invisibleGetBuilding3">Get information for atoms</button>
+            <button id="invisibleGetBuilding4">Get information for molecules</button>
+            <button id="invisibleGetResource1">Get information for energy</button>
+        </div>
+        <label id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</label>
+        <label id="invisibleBought" class="invisible" aria-live="polite"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
         <div id="footer">
-            <div id="hideToggle">
-                <p id="hideText" aria-label="Hide footer">Hide</p>
+            <div id="hideToggle" aria-hidden="true">
+                <p id="hideText">Hide</p>
                 <div id="hideArrow"></div>
             </div>
             <div id="footerColor">
@@ -180,9 +196,11 @@
                 </div>
                 <div class="footerArea">
                     <nav>
+                        <!-- If hotkeys for switching tabs will be added, then add tabindex="-1" and aria-hidden="true" for every button inside nav -->
                         <button id="stageTabBtn">Stage</button>
                         <button id="researchTabBtn">Research</button>
                         <button id="settingsTabBtn">Settings</button>
+                        <button id="specialTabBtn" class="invisible">Special</button>
                     </nav>
                 </div>
             </div>
