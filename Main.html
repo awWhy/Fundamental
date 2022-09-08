@@ -92,7 +92,7 @@
                 <img src="/Used%20files%20(Art)/Stage.png" alt="Stage" class="stageBorder" loading="lazy">
                 <div>
                     <div id="research1Stage1">
-                        <img src="/Used%20files%20(Art)/Stage1%20border.png" alt="Buy max" tabindex="10" id="research1Stage1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Research1.png" alt="Research 1" tabindex="10" id="research1Stage1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="research1Stage1Level" class="redText">0</span>/<span id="research1Stage1Max" class="greenText">9</span></p>
                     </div>
                 </div>
@@ -101,11 +101,11 @@
                 <img src="/Used%20files%20(Art)/Automatization.png" alt="Automatization" loading="lazy">
                 <div>
                     <div id="researchAuto1">
-                        <img src="/Used%20files%20(Art)/Buy%20toggles.png" alt="Buy max" tabindex="10" id="researchAuto1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Buy%20toggles.png" alt="Automatization research 1" tabindex="10" id="researchAuto1Image" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">1</span></p>
                     </div>
                     <div id="researchAuto2">
-                        <img src="/Used%20files%20(Art)/Auto.png" alt="Auto" tabindex="10" id="researchAuto2Image"  class="stageBorder" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <img src="/Used%20files%20(Art)/Auto.png" alt="Automatization research 2" tabindex="10" id="researchAuto2Image"  class="stageBorder" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">3</span></p>
                     </div>
                 </div>
@@ -121,11 +121,11 @@
                 <p>Confirmation toggles</p>
                 <div id="stageToggleReset">
                     <img src="/Used%20files%20(Art)/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder" loading="lazy">
-                    <button id="toggle2" class="toggle">ON</button>
+                    <button id="toggle2" class="toggle" aria-label="Toggle for stage reset confirmation, currently ON">ON</button>
                 </div>
                 <div id="dischargeToggleReset">
                     <img src="/Used%20files%20(Art)/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
-                    <button id="toggle1" class="toggle">ON</button>
+                    <button id="toggle1" class="toggle" aria-label="Toggle for discharge reset confirmation, currently ON">ON</button>
                 </div>
             </div>
             <div class="saveButtonGroup">
@@ -163,18 +163,18 @@
                     <p>Less recommended options</p>
                     <ul class="whiteText">
                         <li id="pauseGame" aria-label="If you somehow can click on it, then it will pause game">Pause game</li>
-                        <li>Offline progress<button id="toggle0" class="toggle">ON</button></li>
+                        <li>Offline progress<button id="toggle0" class="toggle" aria-label="Toggle to receive offline progress, currently ON">ON</button></li>
                         <li aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="toggle3" class="toggle" tabindex="-1">ON</button></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div id="specialTab">
-            <button id="invisibleGetBuilding1">Get information for quarks</button>
-            <button id="invisibleGetBuilding2">Get information for particles</button>
-            <button id="invisibleGetBuilding3">Get information for atoms</button>
-            <button id="invisibleGetBuilding4">Get information for molecules</button>
-            <button id="invisibleGetResource1">Get information for energy</button>
+            <button id="invisibleGetBuilding0">Get information for Quarks</button>
+            <button id="invisibleGetBuilding1">Get information for Particles</button>
+            <button id="invisibleGetBuilding2">Get information for Atoms</button>
+            <button id="invisibleGetBuilding3">Get information for Molecules</button>
+            <button id="invisibleGetResource1">Get information for Energy</button>
         </div>
         <label id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</label>
         <label id="invisibleBought" class="invisible" aria-live="polite"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->

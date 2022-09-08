@@ -1,15 +1,15 @@
 import { getId } from './Main(OnLoad)';
-import { global, player } from './Player';
+import { global, globalStart, player } from './Player';
 import { Confirm } from './Special';
 import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number, auto = false) => {
     const { energy, researchesAuto, buyToggle } = player;
-    const { screenReader, energyType, buildingsInfo } = global;
+    const { energyType, buildingsInfo } = global;
 
     if (buy[index - 1].current < buildingsInfo.cost[index]) {
-        if (screenReader.isOn && !auto) {
-            getId('invisibleBought').textContent = `Coudn't buy '${screenReader.building[index]}', because didn't had enough of '${screenReader.building[index - 1]}'`;
+        if (global.screenReader && !auto) {
+            getId('invisibleBought').textContent = `Coudn't buy '${buildingsInfo.name[index]}', because didn't had enough of '${buildingsInfo.name[index - 1]}'`;
         }
         return;
     }
@@ -33,8 +33,8 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         buy[index].total += canAfford;
         energy.current += energyType[index] * canAfford;
         energy.total += energyType[index] * canAfford;
-        if (screenReader.isOn && !auto) {
-            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${screenReader.building[index]}', gained ${format(energyType[index] * canAfford)} energy`;
+        if (global.screenReader && !auto) {
+            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}', gained ${format(energyType[index] * canAfford)} energy`;
         }
     } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buy[index - 1].current -= buildingsInfo.cost[index];
@@ -43,8 +43,8 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         buy[index].total++;
         energy.current += energyType[index];
         energy.total += energyType[index];
-        if (screenReader.isOn) {
-            getId('invisibleBought').textContent = `Bought 1 '${screenReader.building[index]}', gained ${energyType[index]} energy`;
+        if (global.screenReader) {
+            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}', gained ${energyType[index]} energy`;
         }
     }
     calculateBuildingsCost(index);
@@ -53,14 +53,24 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
 };
 
 export const calculateBuildingsCost = (index: number) => {
-    const { buildings, upgrades } = player;
-    const { buildingsInfo } = global;
+    const { stage, buildings, upgrades, researches } = player;
+    const { buildingsInfo, upgradesInfo } = global;
 
-    //if (stage === 1) {
-    buildingsInfo.increase = upgrades[4] === 1 ? 1.2 : 1.4;
-    //}
-    buildingsInfo.cost[index] = buildingsInfo.initial[index] * buildingsInfo.increase ** buildings[index].true;
+    if (stage === 1) {
+        upgradesInfo.effect[4] = Math.trunc((0.2 + researches[0] * 0.01) * 100) / 100;
+        buildingsInfo.increase = Math.trunc((globalStart.buildingsInfo.increase - (upgrades[4] === 1 ? upgradesInfo.effect[4] : 0)) * 100) / 100;
+        /* I feel like i'm losing my mind 1.4 - 0.3 = 0... But 1.4 - (0.3) = 1.1 */
+    }
+
+    buildingsInfo.cost[index] = globalStart.buildingsInfo.cost[index] * buildingsInfo.increase ** buildings[index].true;
     if (index === 1 && upgrades[0] === 1) { buildingsInfo.cost[1] /= 10; }
+};
+
+export const calculateResearchCost = (research: number, type: string) => {
+    //@ts-expect-error //Not dealing with it, not my fault TS hates dynamic objects, also have no idea what type it even meant to be...
+    if (player[type][research] === global[type + 'Info'].max[research]) { return; }
+    //@ts-expect-error
+    global[type + 'Info'].cost[research] = globalStart[type + 'Info'].cost[research] + global[type + 'Info'].scalling[research] * player[type][research];
 };
 
 export const calculateGainedBuildings = (get: number, time: number) => {
@@ -75,6 +85,7 @@ export const calculateGainedBuildings = (get: number, time: number) => {
 export const buyUpgrades = (upgrade: number, type = 'normal') => {
     const { energy, upgrades, researches, researchesAuto } = player;
     const { upgradesInfo, researchesInfo, researchesAutoInfo } = global;
+    if (global.screenReader) { getUpgradeDescription(upgrade, type); }
 
     switch (type) {
         case 'normal':
@@ -93,9 +104,9 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
                     calculateBuildingsCost(i);
                 }
             }
-            if (global.screenReader.isOn) { getId('invisibleBought').textContent = `You have bought upgrade '${upgradesInfo.description[upgrade]}'`; }
+            if (global.screenReader) { getId('invisibleBought').textContent = `You have bought upgrade '${upgradesInfo.description[upgrade]}'`; }
             break;
-        case 'research': {
+        case 'researches': {
             if (researches[upgrade] === researchesInfo.max[upgrade] || energy.current < researchesInfo.cost[upgrade]) { return; }
 
             const researchNumber = getId(`research${upgrade + 1}Stage1Level`);
@@ -113,10 +124,10 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
                     calculateBuildingsCost(i);
                 }
             }
-            if (global.screenReader.isOn) { getId('invisibleBought').textContent = `You have researched '${researchesInfo.description[upgrade]}', level is now ${researches[upgrade]} ${researches[upgrade] === researchesInfo.max[upgrade] ? 'maxed' : ''}`; }
+            if (global.screenReader) { getId('invisibleBought').textContent = `You have researched '${researchesInfo.description[upgrade]}', level is now ${researches[upgrade]} ${researches[upgrade] === researchesInfo.max[upgrade] ? 'maxed' : ''}`; }
             break;
         }
-        case 'researchAuto': {
+        case 'researchesAuto': {
             if (researchesAuto[upgrade] === researchesAutoInfo.max[upgrade] || energy.current < researchesAutoInfo.cost[upgrade]) { return; }
 
             const researchNumber = getId(`researchAuto${upgrade + 1}Level`);
@@ -129,11 +140,13 @@ export const buyUpgrades = (upgrade: number, type = 'normal') => {
                 researchNumber.classList.remove('redText', 'orchidText');
                 researchNumber.classList.add('greenText');
             }
-            if (global.screenReader.isOn) { getId('invisibleBought').textContent = `You have researched '${researchesAutoInfo.description[upgrade]}', level is now ${researchesAuto[upgrade]} ${researchesAuto[upgrade] === researchesAutoInfo.max[upgrade] ? 'maxed' : ''}`; }
+            if (global.screenReader) { getId('invisibleBought').textContent = `You have researched '${researchesAutoInfo.description[upgrade]}', level is now ${researchesAuto[upgrade]} ${researchesAuto[upgrade] === researchesAutoInfo.max[upgrade] ? 'maxed' : ''}`; }
             break;
         }
     }
     numbersUpdate();
+    /* Don't know what easier to do: send precise string name or object key for each case */
+    if (type.includes('researches')) { calculateResearchCost(upgrade, type); }
     getUpgradeDescription(upgrade, type);
 };
 
@@ -155,9 +168,11 @@ export const toggleSwap = (number: number, change = true) => {
         if (!toggles[number]) {
             toggle.textContent = 'OFF';
             toggle.style.borderColor = 'crimson';
+            if (global.screenReader) { toggle.ariaLabel = toggle.ariaLabel?.replace(' ON', ' OFF') ?? ''; }
         } else {
             toggle.textContent = 'ON';
             toggle.style.borderColor = '';
+            if (global.screenReader) { toggle.ariaLabel = toggle.ariaLabel?.replace(' OFF', ' ON') ?? ''; }
         }
     }
 };
@@ -228,8 +243,8 @@ export const dischargeResetCheck = async() => {
             if (energy.current >= dischargeInfo.next) {
                 dischargeInfo.next *= 10;
                 discharge.current++;
-                if (global.screenReader.isOn) { getId('invisibleBought').textContent = 'Progress was reset for 4x boost'; }
-            } else if (global.screenReader.isOn && energy.current < dischargeInfo.next) {
+                if (global.screenReader) { getId('invisibleBought').textContent = 'Progress was reset for 4x boost'; }
+            } else if (global.screenReader && energy.current < dischargeInfo.next) {
                 getId('invisibleBought').textContent = 'Buildings and energy were reset, no boost';
             }
             /* Maybe move into new function reset(type: string); */

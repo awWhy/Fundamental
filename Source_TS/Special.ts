@@ -207,7 +207,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.style.borderColor = 'crimson';
                 toggle.setAttribute('aria-label', 'Screen reader support is ON');
                 localStorage.setItem('screen reader', 'true');
-                global.screenReader.isOn = true;
+                global.screenReader = true;
                 player.buyToggle.strict = false;
                 if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make image clickable for a keyboard), also you will get a special tab where you can get information on any resource.\n(For non screen readers this will cause first click to double buy upgrades)'); }
             } else {
@@ -215,7 +215,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.style.borderColor = '';
                 toggle.setAttribute('aria-label', 'Screen reader support is OFF');
                 localStorage.removeItem('screen reader');
-                global.screenReader.isOn = false;
+                global.screenReader = false;
                 if (change) { Alert('To remove focus event on upgrades you need to refresh page.'); }
             }
             break;
@@ -223,14 +223,14 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         case 'button': {
             const index = info as number;
             const { energy, buildings, upgrades, researchesAuto, toggles } = player;
-            const { dischargeInfo, screenReader, buildingsInfo } = global;
+            const { dischargeInfo, buildingsInfo } = global;
             const invText = getId('invisibleBought');
 
             if (special === 'building') {
                 if (index === 0) {
-                    invText.textContent = `You have ${format(buildings[0].current)} ${screenReader.building[0]}`;
+                    invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${screenReader.building[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${screenReader.building[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${screenReader.building[index - 1]} per second${researchesAuto[1] >= index ? `, auto is ${toggles[index + 3] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[index - 1]} per second${researchesAuto[1] >= index ? `, auto is ${toggles[index + 3] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
                 invText.textContent = `You have ${energy.current} Energy${upgrades[3] === 1 ? `, next discharge goal is ${format(dischargeInfo.next)} Energy (can reset without reaching it)` : ''}`;

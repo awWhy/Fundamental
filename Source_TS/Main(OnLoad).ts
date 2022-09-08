@@ -1,4 +1,4 @@
-import { player, global, playerStart, globalStart, updatePlayer } from './Player';
+import { player, global, playerStart, updatePlayer, startValue } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport } from './Special';
@@ -25,7 +25,8 @@ export const reLoad = async(loadSave = false) => {
                 Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.`);
             }
         } else {
-            console.warn('Save file wasn\'t detected.');
+            Alert('Welcome. This is a test-project. Since I don\'t expect anyone to play this, save file can get corrupted with a new version.');
+            //Alert("Welcome. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
         }
         if (theme !== null) {
             global.theme.default = false;
@@ -56,7 +57,7 @@ export const reLoad = async(loadSave = false) => {
 void reLoad(true);
 
 /* Global */
-const screenReader = global.screenReader.isOn;
+const { screenReader } = global;
 for (let i = 0; i < playerStart.toggles.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
 }
@@ -81,14 +82,14 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Research tab */
 for (let i = 0; i < playerStart.researches.length; i++) {
-    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'research'));
-    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'research'));
-    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'research')); }
+    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
+    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
+    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
 }
 for (let i = 0; i < playerStart.researchesAuto.length; i++) {
-    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchAuto'));
-    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchAuto'));
-    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchAuto')); }
+    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
+    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
+    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchesAuto')); }
 }
 
 /* Settings tab */
@@ -106,8 +107,8 @@ getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
 /* Only for screen readers */
 getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
 if (screenReader) {
-    for (let i = 1; i <= playerStart.buildings.length; i++) {
-        getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i - 1, 'button'));
+    for (let i = 0; i < playerStart.buildings.length; i++) {
+        getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i, 'button'));
     }
     getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
     getId('specialTabBtn').addEventListener('click', () => switchTab('special'));
@@ -189,11 +190,14 @@ async function saveLoad(type: string) {
             if (ok?.toLowerCase() === 'delete') {
                 changeIntervals(true);
                 localStorage.clear();
-                const deletePlayer = structuredClone(playerStart);
-                const deleteGlobal = structuredClone(globalStart);
-                /* I'm pretty sure this method wont clear out save completely. But `for (let i in player) { if (player.hasOwnProperty(i)) { delete player[i]; } }` could work. (?) */
-                Object.assign(player, deletePlayer);
-                Object.assign(global, deleteGlobal);
+                /* This wont remove unused properties, but bellow will work if needed (or just refresh page after deleting save file)
+                for (let i in player) {
+                    if (Object.prototype.hasOwnProperty.call(player, i)) {
+                        delete player[i as keyof typeof player];
+                    }
+                } */
+                Object.assign(player, startValue('p'));
+                Object.assign(global, startValue('g'));
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
                 void reLoad();

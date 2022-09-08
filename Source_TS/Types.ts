@@ -26,6 +26,7 @@ export interface playerType {
 export interface globalType {
     tab: string
     footer: boolean
+    screenReader: boolean
     lastSave: number
     energyType: number[]
     stageInfo: {
@@ -36,39 +37,37 @@ export interface globalType {
         stage: number
         default: boolean
     }
-    screenReader: {
-        isOn: boolean
-        building: string[]
-    }
     dischargeInfo: {
         next: number
     }
     intervals: Record<string, number>
     intervalsId: Record<string, number>
     buildingsInfo: {
+        name: string[]
         cost: number[]
-        initial: number[]
         increase: number
         producing: number[]
     }
     upgradesInfo: {
         description: string[]
-        effect: Array<number | ''>
+        effect: number[]
         effectText: string[][]
         cost: number[]
     }
     researchesInfo: {
         description: string[]
-        effect: Array<number | ''>
+        effect: number[]
         effectText: string[][]
         cost: number[]
+        scalling: number[]
         max: number[]
     }
     researchesAutoInfo: {
         description: string[]
-        effect: Array<number | ''>
+        effect: Array<number | string>
         effectText: string[][]
         cost: number[]
+        scalling: number[]
         max: number[]
     }
 }

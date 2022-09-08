@@ -49,6 +49,7 @@ export const player: playerType = { //Only for information that need to be saved
 export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage',
     footer: true,
+    screenReader: false,
     lastSave: 0,
     energyType: [0, 1, 5, 20],
     stageInfo: {
@@ -58,10 +59,6 @@ export const global: globalType = { //For information that doesn't need to be sa
     theme: {
         stage: 1,
         default: true
-    },
-    screenReader: {
-        isOn: false,
-        building: ['quarks', 'particles', 'atoms', 'molecules']
     },
     dischargeInfo: {
         next: 1
@@ -79,8 +76,8 @@ export const global: globalType = { //For information that doesn't need to be sa
         autoSave: 0
     },
     buildingsInfo: {
+        name: ['Quarks', 'Particles', 'Atoms', 'Molecules'],
         cost: [0, 3, 24, 3],
-        initial: [0, 3, 24, 3],
         increase: 1.4,
         producing: [0, 0, 0, 0]
     },
@@ -95,6 +92,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         effect: [],
         effectText: [],
         cost: [],
+        scalling: [],
         max: []
     },
     researchesAutoInfo: {
@@ -102,14 +100,15 @@ export const global: globalType = { //For information that doesn't need to be sa
         effect: [],
         effectText: [],
         cost: [],
+        scalling: [],
         max: []
     }
 };
 
-function AddUpgradeArray(name: keyof playerType, cost: number[], effect: Array<number | ''>, description: string[], effectText: string[][], max = [] as number[]) {
+function AddUpgradeArray(name: keyof playerType, cost: number[], effect: Array<number | string>, description: string[], effectText: string[][], scalling = [] as number[], max = [] as number[]) {
     Object.assign(player, { [name]: createArray(cost.length) });
     if (String(name).includes('researches')) {
-        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost, max } });
+        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost, scalling, max } });
     } else {
         Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost } });
     }
@@ -135,7 +134,7 @@ const togglesL = document.getElementsByClassName('toggle').length;
 /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
 Object.assign(player, { toggles: createArray(togglesL, 'toggles') });
 AddUpgradeArray('upgrades',
-    [9, 12, 36, 300, 800, 9999, 99999, 999999], //Cost
+    [9, 12, 36, 300, 800, 5000, 99999, 999999], //Cost
     [10, 10, 5, 4, 0.2, 1.1, 0.1, 0], //Effect
     [ //Description
         'Bigger electrons. Particles cost decreased.',
@@ -162,27 +161,37 @@ AddUpgradeArray('researches',
     [ //Description
         "Effect of 'Protium' upgrade is stronger."
     ], [ //Effect text: '[0]', effect[n], '[1]'
-        ['Cost scalling is -', ' smaller for each level.']
-    ], [9]); //Max level
+        ['Cost scalling is ', ' smaller for each level.']
+    ], [300], //Cost scalling
+    [9]); //Max level
 AddUpgradeArray('researchesAuto',
-    [300, 999999], //Cost
-    ['', ''], //Effect
+    [300, 3000], //Cost
+    ['', 'Particles'], //Effect
     [ //Description
         'Buy toggles.',
         'Automatization for buying upgrades.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Unlock abbility to buy multiple buildings at same time.', ''],
-        ['Will automatically buy buildings for you.', '']
-    ], [1, 3]); //Max level
-
-/* Do not do anything like 'player.energy = playerStart.energy', because that will literally explode universe...
-   Instead do 'const anyName = structuredClone(playerStart)', so far this is the only method I know to prevent playerStart from being changed (Object.freeze won't work) */
+        ['Will automatically buy ', ' for you.']
+    ], [0, 999999], //Cost scalling
+    [1, 3]); //Max level
 export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;
+/* For cases when ID of starting values can get changed */
+export const startValue = (which: 'p' | 'g') => {
+    let value;
+    if (which === 'p') {
+        value = structuredClone(playerStart);
+    } else {
+        value = structuredClone(globalStart);
+    }
+    /* Not adding type, because TS can't give to a function that has only 2 possible outcomes proper type, and NOT type1 | type2 */
+    return value;
+};
 
 export const updatePlayer = (load: saveType) => {
     if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
-        const playerCheck = structuredClone(playerStart); //If to add 'as playerType', TS will lose its mind
+        const playerCheck = startValue('p'); //If to add 'as playerType', TS will lose its mind
         for (const i in playerStart) { //This should auto add missing information
             if (!Object.prototype.hasOwnProperty.call(load.player, i)) {
                 load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
