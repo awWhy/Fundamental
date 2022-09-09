@@ -134,8 +134,8 @@ const togglesL = document.getElementsByClassName('toggle').length;
 /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
 Object.assign(player, { toggles: createArray(togglesL, 'toggles') });
 AddUpgradeArray('upgrades',
-    [9, 12, 36, 300, 800, 5000, 99999, 999999], //Cost
-    [10, 10, 5, 4, 0.2, 1.1, 0.1, 0], //Effect
+    [9, 12, 36, 300, 800, 5000, 15000, 36000], //Cost
+    [10, 10, 5, 4, 0.2, 1.01, '', ''], //Effect
     [ //Description
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
@@ -149,21 +149,29 @@ AddUpgradeArray('upgrades',
         ['Particle cost is ', ' times cheaper.'],
         ['Particles produce ', ' times more quarks.'],
         ['Atoms produce ', ' times more particles.'],
-        ['Each reset cost energy and can give ', ' times production for all buildings.'],
+        ['Abbility to reset at any time and boost production for all buildings ', ' times, if had enough energy.'],
         ['Cost scalling is decreased by ', '.'],
-        ['Molecules (only bought one\'s) boost each other by ', ' times.'],
-        ['Particles produce molecules. At a reduced rate. (', ')'],
-        ['Placeholder ', '.']
+        ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
+        ['Molecules produce molecules. At a reduced rate.', ''],
+        ['Unspent energy boost molecules production of themselfs 1 to 1.', '']
     ]);
 AddUpgradeArray('researches',
-    [2000], //Cost
-    [0.1], //Effect
+    [2000, 6500, 20000, 12000, 42000], //Cost
+    [0.01, 0.01, 12, 1, 2], //Effect
     [ //Description
-        "Effect of 'Protium' upgrade is stronger."
+        "Effect of 'Protium' upgrade is stronger.",
+        "Effect of 'Deuterium' upgrade is bigger.",
+        "Effect of 'Tritium' upgrade is better.",
+        'Discharge bonus improved.',
+        'Gain more energy from buying a building.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
-        ['Cost scalling is ', ' smaller for each level.']
-    ], [300], //Cost scalling
-    [9]); //Max level
+        ['Cost scalling is ', ' smaller for each level.'],
+        ['Each bought building boost each other by additional ', '.'],
+        ['Molecules now produce themselfs ', ' times quicker.'],
+        ['Discharge is now gives extra +', ' bonus per reached goal.'],
+        ['A single building now gives ', ' times more energy.']
+    ], [300, 1500, 1800, 0, 38000], //Cost scalling
+    [9, 3, 9, 1, 2]); //Max level
 AddUpgradeArray('researchesAuto',
     [300, 3000], //Cost
     ['', 'Particles'], //Effect
@@ -173,7 +181,7 @@ AddUpgradeArray('researchesAuto',
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Unlock abbility to buy multiple buildings at same time.', ''],
         ['Will automatically buy ', ' for you.']
-    ], [0, 999999], //Cost scalling
+    ], [0, 5000], //Cost scalling
     [1, 3]); //Max level
 export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;

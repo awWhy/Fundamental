@@ -233,7 +233,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                     invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[index - 1]} per second${researchesAuto[1] >= index ? `, auto is ${toggles[index + 3] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
-                invText.textContent = `You have ${energy.current} Energy${upgrades[3] === 1 ? `, next discharge goal is ${format(dischargeInfo.next)} Energy (can reset without reaching it)` : ''}`;
+                invText.textContent = `You have ${energy.current} Energy${upgrades[3] === 1 ? `, next discharge goal is ${format(dischargeInfo.next)} Energy` : ''}`;
             }
             break;
         }

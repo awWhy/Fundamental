@@ -29,8 +29,8 @@ export const switchTab = (tab = 'none') => {
 };
 
 export const invisibleUpdate = () => { //This is only for important or time based info
-    const { stage, discharge, time, upgrades, researchesAuto, buildings, toggles } = player;
-    const { buildingsInfo } = global;
+    const { stage, discharge, time, upgrades, researches, researchesAuto, buildings, toggles } = player;
+    const { buildingsInfo, upgradesInfo } = global;
 
     const passedTime = Date.now() - time.updated;
     let passedSeconds = passedTime / 1000;
@@ -46,18 +46,25 @@ export const invisibleUpdate = () => { //This is only for important or time base
 
     switch (stage) {
         case 1:
+            upgradesInfo.effect[5] = Math.trunc((1.02 + 0.01 * researches[1]) * 100) / 100;
+            upgradesInfo.effect[3] = 4 + 1 * researches[3];
+            if (upgrades[6] === 1) { calculateGainedBuildings(3, passedSeconds); }
+
             if (toggles[6] && researchesAuto[1] >= 3) { buyBuilding(buildings, 3, true); }
-            buildingsInfo.producing[3] = 0.3 * buildings[3].current * 4 ** discharge.current;
+            buildingsInfo.producing[3] = 0.3 * buildings[3].current * upgradesInfo.effect[3] ** discharge.current;
+            if (upgrades[5] === 1) { buildingsInfo.producing[3] *= upgradesInfo.effect[5] ** buildings[3].true; }
             calculateGainedBuildings(2, passedSeconds);
 
             if (toggles[5] && researchesAuto[1] >= 2) { buyBuilding(buildings, 2, true); }
-            buildingsInfo.producing[2] = 0.4 * buildings[2].current * 4 ** discharge.current;
+            buildingsInfo.producing[2] = 0.4 * buildings[2].current * upgradesInfo.effect[3] ** discharge.current;
             if (upgrades[2] === 1) { buildingsInfo.producing[2] *= 5; }
+            if (upgrades[5] === 1) { buildingsInfo.producing[2] *= upgradesInfo.effect[5] ** buildings[2].true; }
             calculateGainedBuildings(1, passedSeconds);
 
             if (toggles[4] && researchesAuto[1] >= 1) { buyBuilding(buildings, 1, true); }
-            buildingsInfo.producing[1] = 0.5 * buildings[1].current * 4 ** discharge.current;
+            buildingsInfo.producing[1] = 0.5 * buildings[1].current * upgradesInfo.effect[3] ** discharge.current;
             if (upgrades[1] === 1) { buildingsInfo.producing[1] *= 10; }
+            if (upgrades[5] === 1) { buildingsInfo.producing[1] *= upgradesInfo.effect[5] ** buildings[1].true; }
             calculateGainedBuildings(0, passedSeconds);
             break;
     }
@@ -65,7 +72,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
 
 export const numbersUpdate = () => { //This is for relevant visual info
     const { stage, energy, buildings, upgrades } = player;
-    const { tab, lastSave, dischargeInfo, buildingsInfo } = global;
+    const { tab, lastSave, dischargeInfo, buildingsInfo, upgradesInfo } = global;
 
     if (global.footer) {
         if (stage === 1) {
@@ -110,8 +117,9 @@ export const numbersUpdate = () => { //This is for relevant visual info
             }
             if (upgrades[3] === 1) {
                 getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.next, 0)} energy`;
+                getId('dischargeEffect').textContent = String(upgradesInfo.effect[3]);
             }
-            //if () { getId('stageReset').textContent = 'Enter next stage'; }
+            if (buildings[3].current >= 1e21) { getId('stageReset').textContent = 'Enter next stage'; }
         }
     }
     if (tab === 'settings') {
@@ -152,7 +160,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
             getId(`toggle${i + 3}`).style.display = 'none';
         }
     }
-    getId('stage').style.display = stage > 1 ? '' : 'none'; //Add real condition later
+    getId('stage').style.display = upgrades[7] === 1 || stage > 1 ? '' : 'none';
     getId('stageToggleReset').style.display = stage > 1 ? '' : 'none';
     getId('themeArea').style.display = stage > 1 ? '' : 'none';
 };
@@ -165,12 +173,12 @@ export const getUpgradeDescription = (index: number, type = 'normal') => {
         case 'normal':
             getId('upgradeText').textContent = upgradesInfo.description[index];
             getId('upgradeEffect').textContent = `${upgradesInfo.effectText[index][0]}${upgradesInfo.effect[index]}${upgradesInfo.effectText[index][1]}`;
-            getId('upgradeCost').textContent = `${upgrades[index] === 1 ? 0 : upgradesInfo.cost[index]} Energy`;
+            getId('upgradeCost').textContent = `${upgrades[index] === 1 ? 0 : upgradesInfo.cost[index]} Energy.`;
             break;
         case 'researches':
             getId('researchText').textContent = researchesInfo.description[index];
             getId('researchEffect').textContent = `${researchesInfo.effectText[index][0]}${researchesInfo.effect[index]}${researchesInfo.effectText[index][1]}`;
-            getId('researchCost').textContent = `${researches[index] === researchesInfo.max[index] ? 0 : researchesInfo.cost[index]} Energy`;
+            getId('researchCost').textContent = `${researches[index] === researchesInfo.max[index] ? 0 : researchesInfo.cost[index]} Energy.`;
             break;
         case 'researchesAuto':
             getId('researchText').textContent = researchesAutoInfo.description[index];
@@ -178,7 +186,7 @@ export const getUpgradeDescription = (index: number, type = 'normal') => {
                 researchesAutoInfo.effect[1] = buildingsInfo.name[Math.min(researchesAuto[1] + 1, buildingsInfo.name.length - 1)];
             }
             getId('researchEffect').textContent = `${researchesAutoInfo.effectText[index][0]}${researchesAutoInfo.effect[index]}${researchesAutoInfo.effectText[index][1]}`;
-            getId('researchCost').textContent = `${researchesAuto[index] === researchesAutoInfo.max[index] ? 0 : researchesAutoInfo.cost[index]} Energy`;
+            getId('researchCost').textContent = `${researchesAuto[index] === researchesAutoInfo.max[index] ? 0 : researchesAutoInfo.cost[index]} Energy.`;
             break;
     }
 };

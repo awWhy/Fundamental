@@ -1,10 +1,10 @@
 import { getId } from './Main(OnLoad)';
 import { global, globalStart, player } from './Player';
-import { Confirm } from './Special';
+import { Alert, Confirm } from './Special';
 import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number, auto = false) => {
-    const { energy, researchesAuto, buyToggle } = player;
+    const { stage, energy, researchesAuto, buyToggle } = player;
     const { energyType, buildingsInfo } = global;
 
     if (buy[index - 1].current < buildingsInfo.cost[index]) {
@@ -14,6 +14,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         return;
     }
 
+    if (stage === 1) { energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buy[index - 1].current;
         let cost = buildingsInfo.cost[index];
@@ -31,20 +32,24 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         buy[index].current += canAfford;
         buy[index].true += canAfford;
         buy[index].total += canAfford;
-        energy.current += energyType[index] * canAfford;
-        energy.total += energyType[index] * canAfford;
-        if (global.screenReader && !auto) {
-            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}', gained ${format(energyType[index] * canAfford)} energy`;
+        if (stage === 1) {
+            energy.current += energyType[index] * canAfford;
+            energy.total += energyType[index] * canAfford;
+            if (global.screenReader && !auto) {
+                getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}', gained ${format(energyType[index] * canAfford)} energy`;
+            }
         }
     } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buy[index - 1].current -= buildingsInfo.cost[index];
         buy[index].current++;
         buy[index].true++;
         buy[index].total++;
-        energy.current += energyType[index];
-        energy.total += energyType[index];
-        if (global.screenReader) {
-            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}', gained ${energyType[index]} energy`;
+        if (stage === 1) {
+            energy.current += energyType[index];
+            energy.total += energyType[index];
+            if (global.screenReader) {
+                getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}', gained ${energyType[index]} energy`;
+            }
         }
     }
     calculateBuildingsCost(index);
@@ -74,11 +79,17 @@ export const calculateResearchCost = (research: number, type: string) => {
 };
 
 export const calculateGainedBuildings = (get: number, time: number) => {
-    const { buildings } = player;
+    const { stage, buildings } = player;
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way (?)
 
-    buildings[get].current += buildingsInfo.producing[get + 1] * time;
+    if (stage === 1 && get === 3) {
+        if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
+        buildings[get].current += Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2] * (player.upgrades[7] === 1 ? player.energy.current : 1);
+    } else {
+        buildings[get].current += buildingsInfo.producing[get + 1] * time;
+    }
+
     buildings[get].total += buildings[get].current - before;
 };
 
@@ -208,10 +219,15 @@ export const toggleBuy = (type = 'none') => {
 };
 
 export const stageResetCheck = async() => {
-    /*const { researchesAuto, toggles } = player;
+    const { stage, buildings/*, researchesAuto, toggles*/ } = player;
 
-    if () {
-        let ok = true;
+    if (stage === 1) {
+        if (buildings[3].current >= 1e21) {
+            Alert('There is nothing past stage 1 for now');
+        } else {
+            Alert('There are more molecules in a single drop than that you know');
+        }
+        /*let ok = true;
         if (toggles[2]) {
             ok = await Confirm('Ready to enter next stage?');
         }
@@ -224,8 +240,8 @@ export const stageResetCheck = async() => {
             }
             stageCheck();
             switchTheme();
-        }
-    }*/
+        }*/
+    }
 };
 
 export const dischargeResetCheck = async() => {

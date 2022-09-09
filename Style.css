@@ -285,7 +285,7 @@ input { font-size: 0.84em; }
 .researchSection > div {
     display: flex;
     flex-wrap: wrap;
-    border: 2px solid;
+    border: 2px solid var(--border-stage);
     border-left-width: 1px;
     border-radius: 4px;
     padding: 0.25em;
@@ -297,7 +297,7 @@ input { font-size: 0.84em; }
 .researchSection > div > div > p {
     display: flex;
     align-items: center;
-    border: 2px solid;
+    border: 2px solid var(--border-stage);
     border-left: none;
     height: 28px;
     padding: 0 0.25em;
@@ -306,8 +306,7 @@ input { font-size: 0.84em; }
 
 .researchSection > div > div { display: flex; }
 #researchTab .descriptionText { margin-top: -0.5em; }
-#stageResearch > div { border-color: var(--border-stage); }
-#research1Stage1 > p { border-color: #008b8b; }
+.stage4research > p { border-color: #f28100 !important; }
 #automatizationResearch > div { border-color: #5b5b75; }
 #researchAuto1 > p { border-color: #bd24ef; }
 #researchAuto2 > p { border-color: var(--border-stage); }
