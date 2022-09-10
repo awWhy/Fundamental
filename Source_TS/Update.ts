@@ -1,4 +1,4 @@
-import { getId } from './Main(OnLoad)';
+import { getId } from './Main';
 import { global, player, playerStart } from './Player';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateResearchCost } from './Stage';
 
@@ -287,7 +287,7 @@ export const stageCheck = () => {
         body.removeProperty('--border-image');
         body.removeProperty('--border-stage');
     } else {
-        body.setProperty('--border-image', `url(Used%20files%20%28Art%29/Stage${stage}%20border.png)`);
+        body.setProperty('--border-image', `url(Used_art/Stage${stage}%20border.png)`);
         if (stage === 2) {
             body.setProperty('--border-stage', '#1460a8');
         } else if (stage === 3) {

@@ -26,7 +26,7 @@ export const reLoad = async(loadSave = false) => {
             }
         } else {
             Alert('Welcome. This is a test-project. Since I don\'t expect anyone to play this, save file can get corrupted with a new version.');
-            //Alert("Welcome. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
+            //Alert("Welcome to 'Fundamental'. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
         }
         if (theme !== null) {
             global.theme.default = false;
@@ -205,7 +205,7 @@ async function saveLoad(type: string) {
             }
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;
-            a.download = 'test.txt'; //Add choice for a name, later
+            a.download = 'Fundamental.txt'; //Add choice for a name, later
             a.click();
             break;
         }

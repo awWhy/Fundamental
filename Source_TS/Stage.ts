@@ -1,4 +1,4 @@
-import { getId } from './Main(OnLoad)';
+import { getId } from './Main';
 import { global, globalStart, player } from './Player';
 import { Alert, Confirm } from './Special';
 import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';

@@ -1,4 +1,4 @@
-import { getId } from './Main(OnLoad)';
+import { getId } from './Main';
 import { global, player } from './Player';
 import { format } from './Update';
 

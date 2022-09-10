@@ -1,26 +1,26 @@
 {
-  "name": "test",
+  "name": "fundamental",
   "description": "",
   "version": "0.0.0",
   "main": "Code.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/awWhy/Test.git"
+    "url": "git+https://github.com/awWhy/Fundamental.git"
   },
   "keywords": [],
   "author": "awWhy",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/awWhy/Test/issues"
+    "url": "https://github.com/awWhy/Fundamental/issues"
   },
-  "homepage": "https://github.com/awWhy/Test#readme",
+  "homepage": "https://github.com/awWhy/Fundamental#readme",
   "scripts": {
     "lint": "npx eslint Source_TS/*.ts",
     "fix": "npx eslint Source_TS/*.ts --fix",
-    "build": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js",
-    "watch": "npx esbuild Source_TS/Main(OnLoad).ts --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch",
-    "build:map": "npx esbuild Source_TS/Main(OnLoad).ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js",
-    "watch:map": "npx esbuild Source_TS/Main(OnLoad).ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch"
+    "build": "npx esbuild Source_TS/Main.ts --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js",
+    "watch": "npx esbuild Source_TS/Main.ts --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch",
+    "build:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js",
+    "watch:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch"
   },
   "dependencies": {
     "esbuild": "^0.15.5"

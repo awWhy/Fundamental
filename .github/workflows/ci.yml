@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  # I don't know if there any need to do it twice...
+  #push:
+  #  branches:
+  #    - main
+  pull_request:
+    branches:
+      - main
+
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs I'll leave it here, because I'm too confused...
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+
+      - name: Install
+        run: npm install
+
+      - name: Lint
+        run: npm run lint

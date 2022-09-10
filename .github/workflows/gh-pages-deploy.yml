@@ -1,0 +1,25 @@
+name: Deploy to github pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  gh-pages-deploy:
+    name: Deploying to gh-pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+
+      -  run: npm install
+      -  run: npm run lint
+      -  run: npm run build:map
