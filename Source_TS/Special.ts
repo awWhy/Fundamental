@@ -208,15 +208,17 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.setAttribute('aria-label', 'Screen reader support is ON');
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
-                player.buyToggle.strict = false;
-                if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make image clickable for a keyboard), also you will get a special tab where you can get information on any resource.\n(For non screen readers this will cause first click to double buy upgrades)'); }
+                /* This is recommended options */
+                player.buyToggle.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
+                global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
+                global.intervals.numbers = 1000; //To lag less, since visual information is not important
+                if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make an image clickable with a keyboard), also you will get a special tab where you can check how much you own and more.\n(For non screen readers this will cause issues)'); }
             } else {
                 toggle.textContent = 'OFF';
                 toggle.style.borderColor = '';
                 toggle.setAttribute('aria-label', 'Screen reader support is OFF');
                 localStorage.removeItem('screen reader');
                 global.screenReader = false;
-                if (change) { Alert('To remove focus event on upgrades you need to refresh page.'); }
             }
             break;
         }

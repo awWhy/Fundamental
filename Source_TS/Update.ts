@@ -119,7 +119,6 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.next, 0)} energy`;
                 getId('dischargeEffect').textContent = String(upgradesInfo.effect[3]);
             }
-            if (buildings[3].current >= 1e21) { getId('stageReset').textContent = 'Enter next stage'; }
         }
     }
     if (tab === 'settings') {
@@ -143,6 +142,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
                 getId(`upgrade${i}`).style.display = 'none';
             }
         }
+        if (buildings[3].current >= 1e21) { getId('stageReset').textContent = 'Enter next stage'; }
         if (global.screenReader) {
             getId('invisibleGetBuilding2').style.display = buildings[2].total > 0 ? '' : 'none';
             getId('invisibleGetBuilding3').style.display = buildings[3].total > 0 ? '' : 'none';

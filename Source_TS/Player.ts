@@ -9,6 +9,7 @@ export const player: playerType = { //Only for information that need to be saved
     },
     discharge: {
         current: 0
+        //bonus: 0
     },
     time: {
         updated: Date.now(),
@@ -64,10 +65,10 @@ export const global: globalType = { //For information that doesn't need to be sa
         next: 1
     },
     intervals: {
-        main: 1000, //Min 20 max 1000, default 50
-        numbers: 1000,
-        visual: 1000, //Min 500 max 10000, default 1000
-        autoSave: 300000 //Min 60000 Max 1800000, default 180000
+        main: 50,
+        numbers: 50,
+        visual: 1,
+        autoSave: 180
     },
     intervalsId: {
         main: 0,

@@ -40,8 +40,18 @@ export interface globalType {
     dischargeInfo: {
         next: number
     }
-    intervals: Record<string, number>
-    intervalsId: Record<string, number>
+    intervals: {
+        main: number
+        numbers: number
+        visual: number
+        autoSave: number
+    }
+    intervalsId: {
+        main: number
+        numbers: number
+        visual: number
+        autoSave: number
+    }
     buildingsInfo: {
         name: string[]
         cost: number[]

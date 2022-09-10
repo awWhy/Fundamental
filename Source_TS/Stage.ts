@@ -7,7 +7,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
     const { stage, energy, researchesAuto, buyToggle } = player;
     const { energyType, buildingsInfo } = global;
 
-    if (buy[index - 1].current < buildingsInfo.cost[index]) {
+    if (buy[index - 1].current < buildingsInfo.cost[index] * (auto ? 2 : 1)) {
         if (global.screenReader && !auto) {
             getId('invisibleBought').textContent = `Coudn't buy '${buildingsInfo.name[index]}', because didn't had enough of '${buildingsInfo.name[index - 1]}'`;
         }
@@ -16,7 +16,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
 
     if (stage === 1) { energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
-        let budget = buy[index - 1].current;
+        let budget = buy[index - 1].current / (auto ? 2 : 1);
         let cost = buildingsInfo.cost[index];
         let total = 0;
         const howMany = auto ? -1 : buyToggle.howMany;
@@ -63,7 +63,7 @@ export const calculateBuildingsCost = (index: number) => {
 
     if (stage === 1) {
         upgradesInfo.effect[4] = Math.trunc((0.2 + researches[0] * 0.01) * 100) / 100;
-        buildingsInfo.increase = Math.trunc((globalStart.buildingsInfo.increase - (upgrades[4] === 1 ? upgradesInfo.effect[4] : 0)) * 100) / 100;
+        buildingsInfo.increase = Math.trunc((1.4 - (upgrades[4] === 1 ? upgradesInfo.effect[4] : 0)) * 100) / 100;
         /* I feel like i'm losing my mind 1.4 - 0.3 = 0... But 1.4 - (0.3) = 1.1 */
     }
 
@@ -179,7 +179,7 @@ export const toggleSwap = (number: number, change = true) => {
         if (!toggles[number]) {
             toggle.textContent = 'OFF';
             toggle.style.borderColor = 'crimson';
-            if (global.screenReader) { toggle.ariaLabel = toggle.ariaLabel?.replace(' ON', ' OFF') ?? ''; }
+            if (global.screenReader) { toggle.ariaLabel = toggle.ariaLabel?.replace(' ON', ' OFF') ?? ''; } //I have no idea if textcontent will be read along with aria-label...
         } else {
             toggle.textContent = 'ON';
             toggle.style.borderColor = '';

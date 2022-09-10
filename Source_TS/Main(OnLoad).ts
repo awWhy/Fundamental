@@ -51,7 +51,7 @@ export const reLoad = async(loadSave = false) => {
         const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
         if (noOffline) { time.updated = Date.now(); }
     }
-    changeIntervals(); //Will 'unpause' game
+    changeIntervals(false, 'all'); //Will 'unpause' game
 };
 
 void reLoad(true);
@@ -101,6 +101,10 @@ getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
 for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
+getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'main'));
+getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
+getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
+getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 'autoSave'));
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 getId('toggle3').addEventListener('click', () => changeFontSize());
 getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
@@ -123,9 +127,29 @@ getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Intervals */
-function changeIntervals(pause = false) {
+function changeIntervals(pause = false, input = '') {
     const { intervals, intervalsId } = global;
-
+    if (input !== '') {
+        const mainInput = getId('mainInterval') as HTMLInputElement;
+        const numberInput = getId('numbersInterval') as HTMLInputElement;
+        const visualInput = getId('visualInterval') as HTMLInputElement;
+        const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
+        if (input === 'main') {
+            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 1000);
+            if (intervals.main > intervals.numbers) { intervals.numbers = intervals.main; }
+        } else if (input === 'numbers') {
+            const value = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 20), 1000);
+            intervals.numbers = Math.max(value, intervals.main);
+        } else if (input === 'visual') {
+            intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.5), 10);
+        } else if (input === 'autoSave') {
+            intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 60), 1800);
+        }
+        mainInput.value = String(intervals.main);
+        numberInput.value = String(intervals.numbers);
+        visualInput.value = String(intervals.visual);
+        autoSaveInput.value = String(intervals.autoSave);
+    }
     clearInterval(intervalsId.main);
     clearInterval(intervalsId.numbers);
     clearInterval(intervalsId.visual);
@@ -133,8 +157,8 @@ function changeIntervals(pause = false) {
     if (!pause) {
         intervalsId.main = setInterval(invisibleUpdate, intervals.main);
         intervalsId.numbers = setInterval(numbersUpdate, intervals.numbers);
-        intervalsId.visual = setInterval(visualUpdate, intervals.visual);
-        intervalsId.autoSave = setInterval(saveLoad, intervals.autoSave, 'save');
+        intervalsId.visual = setInterval(visualUpdate, intervals.visual * 1000);
+        intervalsId.autoSave = setInterval(saveLoad, intervals.autoSave * 1000, 'save');
     }
 }
 

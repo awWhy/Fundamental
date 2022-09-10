@@ -415,17 +415,17 @@ input { font-size: 0.84em; }
     list-style-type: ">  ";
 }
 
+li > input[type = number] {
+    text-align: center;
+    height: 1.2em;
+    width: 2.5em;
+}
+
 .options ul button, p button { margin-left: 0.4em; }
 
 #pauseGame {
     cursor: pointer;
     width: max-content;
-}
-
-#customFontSize {
-    text-align: center;
-    height: 1.2em;
-    width: 2.5em;
 }
 
 #footer {
