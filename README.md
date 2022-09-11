@@ -1,5 +1,7 @@
 # Fundamental
 Attempt to make something
+Can be checked at 'https://awwhy.github.io/Fundamental/'
+When I will figure out how to publish...
 
 ---
 ### If you plan do anything with this, then you need to:
