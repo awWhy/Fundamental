@@ -4,8 +4,8 @@ import { globalType, saveType, playerType } from './Types';
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     //version: 0.0.1, //If someone will be playing, have a check for game version incase some save file changes or other
     stage: {
-        true: 1
-        //current: 0 //In case challenges will be added, move most of checks into stage.current istead of stage.true
+        true: 1,
+        current: 0
     },
     energy: {
         current: 0,
@@ -59,7 +59,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     energyType: [0, 1, 5, 20],
     stageInfo: {
         word: ['Microworld', 'Submerged'],
-        wordColor: ['#03d3d3', 'dodgerblue']
+        resourceName: ['Energy', 'Water drops']
     },
     theme: {
         stage: 1,
@@ -231,6 +231,7 @@ export const updatePlayer = (load: saveType) => {
                 load.player.toggles[i] = playerCheck.toggles[i];
             }
         }
+        if (load.player.stage.current === undefined) { load.player.stage.current = load.player.stage.true; } //Will be removed shortly
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
     } else {

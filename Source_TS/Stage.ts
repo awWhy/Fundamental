@@ -6,7 +6,7 @@ import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from '.
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number, auto = false) => {
     const { stage, energy, researchesAuto, buyToggle } = player;
-    const { energyType, buildingsInfo } = global;
+    const { stageInfo, energyType, buildingsInfo } = global;
 
     if (buy[index - 1].current < buildingsInfo.cost[index] * (auto ? 2 : 1)) {
         if (global.screenReader && !auto) {
@@ -37,9 +37,9 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         if (stage.true === 1) {
             energy.current += energyType[index] * canAfford;
             energy.total += energyType[index] * canAfford;
-            if (global.screenReader && !auto) {
-                getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}', gained ${format(energyType[index] * canAfford)} energy`;
-            }
+        }
+        if (global.screenReader && !auto) {
+            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}'${stage.true === 1 ? `, gained ${format(energyType[index] * canAfford)} ${stageInfo.resourceName[stage.true]}` : ''}`;
         }
     } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buy[index - 1].current -= buildingsInfo.cost[index];
@@ -49,9 +49,9 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         if (stage.true === 1) {
             energy.current += energyType[index];
             energy.total += energyType[index];
-            if (global.screenReader) {
-                getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}', gained ${energyType[index]} energy`;
-            }
+        }
+        if (global.screenReader) {
+            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}'${stage.true === 1 ? `, gained ${energyType[index]} ${stageInfo.resourceName[stage.true]}` : ''}`;
         }
     }
     calculateBuildingsCost(index);
@@ -70,7 +70,7 @@ export const calculateBuildingsCost = (index: number) => {
     }
 
     buildingsInfo.cost[index] = globalStart.buildingsInfo.cost[index] * buildingsInfo.increase ** buildings[index].true;
-    if (index === 1 && upgrades[0] === 1) { buildingsInfo.cost[1] /= 10; }
+    if (index === 1 && upgrades[0] === 1 && stage.true === 1) { buildingsInfo.cost[1] /= 10; }
 };
 
 export const calculateResearchCost = (research: number, type: string) => {
@@ -221,28 +221,33 @@ export const toggleBuy = (type = 'none') => {
 };
 
 export const stageResetCheck = async() => {
-    const { stage, buildings } = player;
+    const { stage, buildings, researchesAuto } = player;
+    let reseted = false;
 
     if (stage.true === 1) {
         if (buildings[3].current >= 1e21) {
-            Alert('There is nothing past stage 1 for now');
-            /*let ok = true;
+            let ok = true;
             if (player.toggles[2]) {
                 ok = await Confirm('Ready to enter next stage?');
             }
             if (ok) {
-                if (player.researchesAuto[0] === 0) {
-                    player.researchesAuto[0]++;
-                }
-                stage.true++;
-                //stage.current = stage.true //If challenges will be added
-                reset('stage');
-                stageCheck();
-                switchTheme();
-            }*/
+                if (researchesAuto[0] === 0) { researchesAuto[0]++; }
+                reseted = true;
+            }
         } else {
             Alert('There are more molecules in a single drop than that you know.');
         }
+    } else {
+        Alert('Not yet in game');
+    }
+    if (reseted) {
+        Alert('There is nothing past stage 1 for now');
+        /*researchesAuto[1] = 0;
+        stage.true++;
+        //stage.current = stage.true //If challenges will be added, might become very complicated, oh well that's future problem
+        reset('stage');
+        stageCheck();
+        switchTheme();*/
     }
 };
 

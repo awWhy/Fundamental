@@ -24,37 +24,37 @@
         <div id="stageTab" class="insideTab">
             <div class="resets">
                 <div id="stage" class="reset">
-                    <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="bigWord">Microworld</span>.</p>
+                    <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="bigWord stageText">Microworld</span>.</p>
                     <button id="stageReset" class="bigButton" aria-live="polite">You are not ready</button>
                 </div>
                 <div id="discharge" class="reset">
-                    <p class="whiteText"><span id="dischargeWord" class="bigWord">Discharge</span>. Reset current buildings and energy. Will also boost production by <span id="dischargeEffect" class="orangeText">4</span>, if you reset with enough energy.</p>
-                    <button id="dischargeReset" class="mediumButton">Next goal is 1 energy</button>
+                    <p class="whiteText"><span class="bigWord orangeText">Discharge</span>. Reset current buildings and energy. Will also boost production by <span id="dischargeEffect" class="orangeText">4</span>, if you reset with enough energy.</p>
+                    <button id="dischargeReset" class="mediumButton">Next goal is 1 Energy</button>
                 </div>
             </div>
             <div class="buyBuldingsAll">
-                <div id="particlesMain" class="buyBuilding">
-                    <img src="Used_art/Particle.png" alt="Particle" loading="lazy">
+                <div id="building1" class="buyBuilding">
+                    <img src="Used_art/Particle.png" alt="Particle" id="particles" loading="lazy">
                     <div>
-                        <p>Particles: <span id="building1Cur" class="whiteText">0</span></p>
+                        <p><span id="building1Name">Particles</span>: <span id="building1Cur" class="whiteText">0</span></p>
                         <p>producing: <span id="building1Prod" class="whiteText">0</span></p>
                     </div>
                     <button id="building1Btn">Need: 3 Quarks</button>
                     <button id="toggle4" class="toggle auto">Auto ON</button>
                 </div>
-                <div id="atomsMain" class="buyBuilding">
-                    <img src="Used_art/Atom.png" alt="Atom" loading="lazy">
+                <div id="building2" class="buyBuilding">
+                    <img src="Used_art/Atom.png" alt="Atom" id="atoms" loading="lazy">
                     <div>
-                        <p>Atoms: <span id="building2Cur" class="whiteText">0</span></p>
+                        <p><span id="building2Name">Atoms</span>: <span id="building2Cur" class="whiteText">0</span></p>
                         <p>producing: <span id="building2Prod" class="whiteText">0</span></p>
                     </div>
                     <button id="building2Btn">Need: 24 Particles</button>
                     <button id="toggle5" class="toggle auto">Auto ON</button>
                 </div>
-                <div id="moleculesMain" class="buyBuilding">
-                    <img src="Used_art/Molecule.png" alt="Molecule" loading="lazy">
+                <div id="building3" class="buyBuilding">
+                    <img src="Used_art/Molecule.png" alt="Molecule" id="molecules" loading="lazy">
                     <div>
-                        <p>Molecules: <span id="building3Cur" class="whiteText">0</span></p>
+                        <p><span id="building3Name">Molecules</span>: <span id="building3Cur" class="whiteText">0</span></p>
                         <p>producing: <span id="building3Prod" class="whiteText">0</span></p>
                     </div>
                     <button id="building3Btn">Need: 3 Atoms</button>
@@ -83,7 +83,7 @@
                 <div class="descriptionText">
                     <label>Description: <span id="upgradeText" class="whiteText">Hover to see.</span></label>
                     <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see.</span></p>
-                    <p>Cost: <span id="upgradeCost" class="orangeText">Energy.</span></p>
+                    <p>Cost: <span id="upgradeCost" class="orangeText">Resource.</span></p>
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
             <div class="descriptionText">
                 <label>Type: <span id="researchText" class="darkOrchidText">Hover to see.</span></label>
                 <p>Effect: <span id="researchEffect" class="blueText">Hover to see.</span></p>
-                <p>Next: <span id="researchCost" class="orangeText">Energy.</span></p>
+                <p>Next: <span id="researchCost" class="orangeText">Resource.</span></p>
             </div>
         </div>
         <div id="settingsTab" class="insideTab">
@@ -155,7 +155,7 @@
                     <button id="export">Export save file</button>
                     <button id="delete">Delete save file</button>
                 </div>
-                <p class="whiteText">Last time saved: <span id="isSaved" class="stageText">Not in current session</span></p>
+                <p class="whiteText">Last time saved: <span id="isSaved" class="mainText">Not in current session</span></p>
             </div>
             <div>
                 <div class="options">
@@ -207,11 +207,15 @@
                 <div class="footerArea">
                     <div id="quarkStat" class="statFoot">
                         <img src="Used_art/Quarks.png" alt="Quarks" loading="lazy">
-                        <p id="quarks" class="statText cyanText">Quarks: 3</p>
+                        <p id="quarks" class="statText">Quarks: 3</p>
                     </div>
                     <div id="energyStat" class="statFoot">
                         <img src="Used_art/Energy.png" alt="Energy" loading="lazy">
-                        <p id="energy" class="statText orangeText">Energy: 0</p>
+                        <p id="energy" class="statText">Energy: 0</p>
+                    </div>
+                    <div id="waterStat" class="statFoot">
+                        <img src="Used_art/Drop.png" alt="Drop of water" loading="lazy">
+                        <p id="water" class="statText">Drops: 1</p>
                     </div>
                 </div>
                 <div class="footerArea">

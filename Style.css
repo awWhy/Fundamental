@@ -19,12 +19,14 @@ body {
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
+    --main-text-color: #03d3d3;
     --white-text-color: white;
     --cyan-text-color: #03d3d3;
     --blue-text-color: dodgerblue;
     --orange-text-color: darkorange;
-    --darkorchid-text-color: #bd24ef;
+    /* --gray-text-color: #8f8f8f */
     --orchid-text-color: #e14bdb;
+    --darkorchid-text-color: #bd24ef;
     --red-text-color: #eb0000;
     --green-text-color: #00e900;
 
@@ -36,14 +38,12 @@ body {
 }
 
 .customColors {
-    color: var(--stage-text-color);
+    color: var(--main-text-color);
     background-color: var(--background-color);
-    /* Color for stage 3 #8f8f8f */
 }
 
-#stageWord { color: #03d3d3; }
-#dischargeWord { color: darkorange; }
 .stageText { color: var(--stage-text-color); }
+.mainText { color: var(--main-text-color); }
 .whiteText { color: var(--white-text-color); }
 .cyanText { color: var(--cyan-text-color); }
 .blueText { color: var(--blue-text-color); }
@@ -237,7 +237,7 @@ input { font-size: 0.84em; }
 }
 
 .buyBuilding > div > p { width: 11em; }
-.buyBuilding > div > p > span { margin-left: 0.5em; }
+.buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.5em; }
 .availableBuilding { border-color: #a90000; }
 
 #toggleBuy {
@@ -448,16 +448,22 @@ li > input[type = number] {
     justify-content: center;
     width: 8.8em;
     height: 28px;
-    border: 2px solid;
+    border: 2px solid var(--border-stage);
     border-left: none;
     border-radius: 0 6px 6px 0;
     background-color: black;
+    color: var(--stage-text-color);
 }
 
 #footer img { background-color: black; }
 .statFoot { display: flex; }
-#quarks, #atoms { border-color: #008b8b; }
-#energy { border-color: #f28100; }
+
+#energy {
+    color: var(--orange-text-color);
+    border-color: #f28100;
+}
+
+#water { color: #3099ff; }
 
 #hideToggle {
     margin-left: auto;
@@ -476,7 +482,7 @@ li > input[type = number] {
 }
 
 #hideArrow {
-    background-color: var(--stage-text-color);
+    background-color: var(--main-text-color);
     width: 0.8em;
     height: 0.8em;
     clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);

@@ -1,5 +1,5 @@
 import { getId } from './Main';
-import { global, player, playerStart } from './Player';
+import { global, globalStart, player, playerStart } from './Player';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateResearchCost } from './Stage';
 
 export const switchTab = (tab = 'none') => {
@@ -77,15 +77,15 @@ export const numbersUpdate = () => { //This is for relevant visual info
     if (global.footer) {
         if (stage.true === 1) {
             getId('quarks').textContent = `Quarks: ${format(buildings[0].current)}`;
-        }
-        if (energy.total >= 9 && stage.true === 1) {
-            getId('energy').textContent = `Energy: ${format(energy.current, 0)}`;
+            if (energy.total >= 9) { getId('energy').textContent = `Energy: ${format(energy.current, 0)}`; }
+        } else if (stage.true === 2) {
+            getId('water').textContent = `Drops: ${format(buildings[0].current)}`;
         }
     }
     if (tab === 'stage') {
+        getId('building1Cur').textContent = format(buildings[1].current);
+        getId('building1Prod').textContent = format(buildingsInfo.producing[1]);
         if (stage.true === 1) {
-            getId('building1Cur').textContent = format(buildings[1].current);
-            getId('building1Prod').textContent = format(buildingsInfo.producing[1]);
             if (buildingsInfo.cost[1] <= buildings[0].current) {
                 getId('building1Btn').classList.add('availableBuilding');
                 getId('building1Btn').textContent = `Buy for: ${format(buildingsInfo.cost[1])} Quarks`;
@@ -116,12 +116,19 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 }
             }
             if (upgrades[3] === 1) {
-                getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.next, 0)} energy`;
+                getId('dischargeReset').textContent = `Next goal is ${format(dischargeInfo.next, 0)} Energy`;
                 getId('dischargeEffect').textContent = String(upgradesInfo.effect[3]);
             }
+        } else if (stage.true === 2) {
+            if (buildingsInfo.cost[1] <= buildings[0].current) {
+                getId('building1Btn').classList.add('availableBuilding');
+                getId('building1Btn').textContent = `Buy for: ${format(buildingsInfo.cost[1])} Drops`;
+            } else {
+                getId('building1Btn').classList.remove('availableBuilding');
+                getId('building1Btn').textContent = `Need: ${format(buildingsInfo.cost[1])} Drops`;
+            }
         }
-    }
-    if (tab === 'settings') {
+    } else if (tab === 'settings') {
         if (lastSave >= 1000) { getId('isSaved').textContent = `${format(lastSave, 0, 'time')} ago`; }
     }
 };
@@ -132,9 +139,11 @@ export const visualUpdate = () => { //This is everything that can be shown later
     /* They are going to be hidden with stageCheck(); */
     if (stage.true === 1) {
         getId('energyStat').style.display = energy.total >= 9 ? '' : 'none';
-        getId('atomsMain').style.display = buildings[1].total >= 11 ? '' : 'none';
-        getId('moleculesMain').style.display = buildings[2].total >= 2 ? '' : 'none';
+        getId('building2').style.display = buildings[1].total >= 11 ? '' : 'none';
+        getId('building3').style.display = buildings[2].total >= 2 ? '' : 'none';
+        getId('upgrades').style.display = energy.total >= 9 ? '' : 'none';
         getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
+        getId('resetToggles').style.display = discharge.current >= 1 ? '' : 'none';
         for (let i = 5; i <= 8; i++) {
             if (discharge.current >= 3) {
                 getId(`upgrade${i}`).style.display = '';
@@ -142,43 +151,38 @@ export const visualUpdate = () => { //This is everything that can be shown later
                 getId(`upgrade${i}`).style.display = 'none';
             }
         }
+        getId('researchTabBtn').style.display = discharge.current >= 4 ? '' : 'none';
+        getId('stage').style.display = upgrades[7] === 1 ? '' : 'none';
         if (buildings[3].current >= 1e21) { getId('stageReset').textContent = 'Enter next stage'; }
         if (global.screenReader) {
             getId('invisibleGetBuilding2').style.display = buildings[2].total > 0 ? '' : 'none';
             getId('invisibleGetBuilding3').style.display = buildings[3].total > 0 ? '' : 'none';
         }
     }
-
-    getId('upgrades').style.display = energy.total >= 9 || stage.true > 1 ? '' : 'none';
-    getId('resetToggles').style.display = discharge.current >= 1 || stage.true > 1 ? '' : 'none';
-    getId('researchTabBtn').style.display = discharge.current >= 4 || stage.true !== 1 ? '' : 'none';
-    getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i < playerStart.buildings.length; i++) {
         if (researchesAuto[1] >= i) {
             getId(`toggle${i + 3}`).style.display = '';
         } else {
             getId(`toggle${i + 3}`).style.display = 'none';
         }
     }
-    getId('stage').style.display = upgrades[7] === 1 || stage.true > 1 ? '' : 'none';
-    getId('stageToggleReset').style.display = stage.true > 1 ? '' : 'none';
-    getId('themeArea').style.display = stage.true > 1 ? '' : 'none';
+    getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
 };
 
 export const getUpgradeDescription = (index: number, type = 'normal') => {
-    const { upgrades, researches, researchesAuto } = player;
-    const { buildingsInfo, upgradesInfo, researchesInfo, researchesAutoInfo } = global;
+    const { stage, upgrades, researches, researchesAuto } = player;
+    const { stageInfo, buildingsInfo, upgradesInfo, researchesInfo, researchesAutoInfo } = global;
 
     switch (type) {
         case 'normal':
             getId('upgradeText').textContent = upgradesInfo.description[index];
             getId('upgradeEffect').textContent = `${upgradesInfo.effectText[index][0]}${upgradesInfo.effect[index]}${upgradesInfo.effectText[index][1]}`;
-            getId('upgradeCost').textContent = `${upgrades[index] === 1 ? 0 : upgradesInfo.cost[index]} Energy.`;
+            getId('upgradeCost').textContent = `${upgrades[index] === 1 ? 0 : upgradesInfo.cost[index]} ${stageInfo.resourceName[stage.true - 1]}.`;
             break;
         case 'researches':
             getId('researchText').textContent = researchesInfo.description[index];
             getId('researchEffect').textContent = `${researchesInfo.effectText[index][0]}${researchesInfo.effect[index]}${researchesInfo.effectText[index][1]}`;
-            getId('researchCost').textContent = `${researches[index] === researchesInfo.max[index] ? 0 : researchesInfo.cost[index]} Energy.`;
+            getId('researchCost').textContent = `${researches[index] === researchesInfo.max[index] ? 0 : researchesInfo.cost[index]} ${stageInfo.resourceName[stage.true - 1]}.`;
             break;
         case 'researchesAuto':
             getId('researchText').textContent = researchesAutoInfo.description[index];
@@ -186,7 +190,7 @@ export const getUpgradeDescription = (index: number, type = 'normal') => {
                 researchesAutoInfo.effect[1] = buildingsInfo.name[Math.min(researchesAuto[1] + 1, buildingsInfo.name.length - 1)];
             }
             getId('researchEffect').textContent = `${researchesAutoInfo.effectText[index][0]}${researchesAutoInfo.effect[index]}${researchesAutoInfo.effectText[index][1]}`;
-            getId('researchCost').textContent = `${researchesAuto[index] === researchesAutoInfo.max[index] ? 0 : researchesAutoInfo.cost[index]} Energy.`;
+            getId('researchCost').textContent = `${researchesAuto[index] === researchesAutoInfo.max[index] ? 0 : researchesAutoInfo.cost[index]} ${stageInfo.resourceName[stage.true - 1]}.`;
             break;
     }
 };
@@ -221,10 +225,17 @@ export const stageCheck = () => {
     const body = document.body.style;
 
     /* Stage specific information */
+    getId('upgradeCost').classList.remove('orangeText', 'cyanText');
+    getId('researchCost').classList.remove('orangeText', 'cyanText');
+    for (let i = 2; i < playerStart.buildings.length; i++) {
+        getId(`building${i}`).style.display = 'none';
+    }
     if (stage.true === 1) {
-        //buildingsInfo.name = ['quarks', 'particles', 'atoms', 'molecules'];
-        //globalStart.buildingsInfo.cost = [0, 3, 24, 3];
+        buildingsInfo.name = ['Quarks', 'Particles', 'Atoms', 'Molecules'];
+        globalStart.buildingsInfo.cost = [0, 3, 24, 3];
         dischargeInfo.next = 10 ** discharge.current;
+        getId('upgradeCost').classList.add('orangeText');
+        getId('researchCost').classList.add('orangeText');
         for (let i = 0; i < playerStart.upgrades.length; i++) {
             if (upgrades[i] === 1) {
                 getId(`upgrade${[i + 1]}`).style.backgroundColor = 'green';
@@ -245,7 +256,9 @@ export const stageCheck = () => {
             }
         }
         getId('quarkStat').style.display = '';
-        getId('particlesMain').style.display = '';
+        getId('particles').style.display = '';
+        getId('atoms').style.display = '';
+        getId('molecules').style.display = '';
         getId('dischargeToggleReset').style.display = '';
         for (let i = 1; i <= 4; i++) {
             getId(`upgrade${i}`).style.display = '';
@@ -253,10 +266,21 @@ export const stageCheck = () => {
         for (let i = 1; i <= playerStart.researches.length; i++) {
             getId(`research${i}Stage1`).style.display = '';
         }
+        /* These one's better to keep (move other's into stage.current) if challenge's will be added */
+        getId('stageToggleReset').style.display = 'none';
+        getId('themeArea').style.display = 'none';
+    } else if (stage.true === 2) {
+        buildingsInfo.name = ['Water drops', ''];
+        globalStart.buildingsInfo.cost = [0, 1];
+        getId('upgradeCost').classList.add('cyanText');
+        getId('researchCost').classList.add('cyanText');
+        getId('waterStat').style.display = '';
     }
     for (let i = 1; i < buildingsInfo.name.length; i++) {
+        getId(`building${i}Name`).textContent = buildingsInfo.name[i];
         calculateBuildingsCost(i);
     }
+    researchesAutoInfo.max[1] = buildingsInfo.name.length - 1;
     for (let i = 0; i < playerStart.researchesAuto.length; i++) {
         getId(`researchAuto${i + 1}Level`).textContent = String(researchesAuto[i]);
         getId(`researchAuto${i + 1}Level`).classList.remove('redText', 'orchidText', 'greenText');
@@ -269,13 +293,15 @@ export const stageCheck = () => {
             getId(`researchAuto${i + 1}Level`).classList.add('orchidText');
         }
     }
+    getId('researchAuto2Max').textContent = String(researchesAutoInfo.max[1]);
+
     /* Hide stage specific part's, that were shown in visualUpdate(); */
     if (stage.true !== 1) {
         getId('quarkStat').style.display = 'none';
         getId('energyStat').style.display = 'none';
-        getId('particlesMain').style.display = 'none';
-        getId('atomsMain').style.display = 'none';
-        getId('moleculesMain').style.display = 'none';
+        getId('particles').style.display = 'none';
+        getId('atoms').style.display = 'none';
+        getId('molecules').style.display = 'none';
         getId('discharge').style.display = 'none';
         getId('dischargeToggleReset').style.display = 'none';
         for (let i = 1; i <= playerStart.upgrades.length; i++) {
@@ -284,28 +310,39 @@ export const stageCheck = () => {
         for (let i = 1; i <= playerStart.researches.length; i++) {
             getId(`research${i}Stage1`).style.display = 'none';
         }
+        /* These one's better to keep if challenge's will be added */
+        getId('upgrades').style.display = '';
+        getId('resetToggles').style.display = '';
+        getId('researchTabBtn').style.display = '';
+        getId('stage').style.display = '';
+        getId('stageToggleReset').style.display = '';
+        getId('themeArea').style.display = '';
+    }
+    if (stage.true !== 2) {
+        getId('waterStat').style.display = 'none';
     }
     /* Visual */
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = stageInfo.word[stage.true - 1];
-    getId('stageWord').style.color = stageInfo.wordColor[stage.true - 1];
     if (stage.true === 1) {
         body.removeProperty('--border-image');
         body.removeProperty('--border-stage');
+        body.removeProperty('--stage-text-color');
     } else {
         body.setProperty('--border-image', `url(Used_art/Stage${stage.true}%20border.png)`);
         if (stage.true === 2) {
             body.setProperty('--border-stage', '#1460a8');
-        } else if (stage.true === 3) {
-            body.setProperty('--border-stage', '#5b5b75');
-        } else {
-            body.setProperty('--border-stage', '#f28100');
+            body.setProperty('--stage-text-color', 'dodgerblue');
         }
     }
     if (global.screenReader) {
         getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[stage.true - 1]}'`;
-        /*for (let i = 0; i < buildingsInfo.name.length; i++) {
+        getId('invisibleGetResource1').style.display = stage.true === 1 ? '' : 'none';
+        for (let i = 2; i < playerStart.buildings.length; i++) {
+            getId(`invisibleGetBuilding${i}`).style.display = 'none';
+        }
+        for (let i = 0; i < buildingsInfo.name.length; i++) {
             getId(`invisibleGetBuilding${i}`).textContent = `Get information for ${buildingsInfo.name[i]}`;
-        }*/
+        }
     }
 };

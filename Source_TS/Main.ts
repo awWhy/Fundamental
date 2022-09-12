@@ -36,10 +36,10 @@ export const reLoad = async(loadSave = false) => {
     const { time, toggles } = player;
 
     screenReaderSupport(); //If screen reader support is ON, then it will change some stuff
+    stageCheck(); //Visual and other stage information (like next reset goal)
     switchTab(); //Sets tab to Stage, also visual and number update
     changeFontSize(); //Changes font size
-    stageCheck(); //Visual and other stage information (like next reset goal)
-    /* I'm pretty sure upgrade hover text is not reset when loading, but no idea if it should be added */
+    /* Upgrade hover text won't reset when reload, but no idea if it should */
 
     for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false); //Gives toggles proper visual appearance

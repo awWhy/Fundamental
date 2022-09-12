@@ -17,7 +17,7 @@ export const reset = (type: 'discharge' | 'stage') => {
             }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
-            const { upgrades, researches, researchesAuto } = player;
+            const { upgrades, researches } = player;
 
             switch (stage.true) {
                 case 1:
@@ -38,7 +38,6 @@ export const reset = (type: 'discharge' | 'stage') => {
                     for (let i = 0; i < playerStart.researches.length; i++) {
                         researches[i] = 0;
                     }
-                    researchesAuto[1] = 0;
                     break;
                 case 2:
                     /* Since I don't have stage 3 yet nothing to put here */
@@ -52,7 +51,6 @@ export const reset = (type: 'discharge' | 'stage') => {
                             buildings[i].total = 0;
                         }
                     }
-                    researchesAuto[1] = 0;
                     break;
             }
             break;

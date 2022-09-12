@@ -1,6 +1,7 @@
 export interface playerType {
     stage: {
         true: number
+        current: number
     }
     energy: {
         current: number
@@ -33,7 +34,7 @@ export interface globalType {
     energyType: number[]
     stageInfo: {
         word: string[]
-        wordColor: string[]
+        resourceName: string[]
     }
     theme: {
         stage: number

@@ -52,7 +52,7 @@
         "@typescript-eslint/await-thenable": "error", //Test
         "@typescript-eslint/consistent-type-definitions": "off", //Don't see a reason for it
         "@typescript-eslint/unified-signatures": ["error", { "ignoreDifferentlyNamedParameters": true}], //Test
-        "@typescript-eslint/no-unnecessary-condition": "warn", //Test
+        //"@typescript-eslint/no-unnecessary-condition": "warn", //This one is stupid, just because an object doesn't have type undefined DOES NOT mean it cannot be undefined. I'm not adding into every single object undefined type, probably really easy to guess why
         "@typescript-eslint/no-unnecessary-type-constraint": "warn", //Test
         "@typescript-eslint/no-unnecessary-type-arguments": "warn", //Test
         "@typescript-eslint/no-require-imports": "warn", //I think it's better this way

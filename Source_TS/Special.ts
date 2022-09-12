@@ -37,9 +37,19 @@ export const switchTheme = () => {
     body.removeProperty('--button-main-color');
     body.removeProperty('--button-main-border');
     body.removeProperty('--button-main-hover');
-    body.removeProperty('--stage-text-color');
-    body.removeProperty('--cyan-text-color');
+    body.removeProperty('--button-extra-hover');
+    //body.removeProperty('--button-delete-color');
+    //body.removeProperty('--button-delete-hover');
+    body.removeProperty('--main-text-color');
+    //body.removeProperty('--white-text-color');
+    //body.removeProperty('--cyan-text-color');
     body.removeProperty('--blue-text-color');
+    //body.removeProperty('--orange-text-color');
+    //body.removeProperty('--gray-text-color');
+    //body.removeProperty('--orchid-text-color');
+    //body.removeProperty('--darkorchid-text-color');
+    //body.removeProperty('--red-text-color');
+    //body.removeProperty('--green-text-color');
     /* And set new colors */
     switch (theme.stage) {
         case 2:
@@ -50,8 +60,8 @@ export const switchTheme = () => {
             body.setProperty('--button-main-color', 'blue');
             body.setProperty('--button-main-border', '#427be1');
             body.setProperty('--button-main-hover', '#1515cf');
-            body.setProperty('--stage-text-color', 'dodgerblue');
-            body.setProperty('--cyan-text-color', 'cyan');
+            body.setProperty('--button-extra-hover', '#2400d7');
+            body.setProperty('--main-text-color', 'dodgerblue');
             body.setProperty('--blue-text-color', '#82cb3b');
             break;
     }
