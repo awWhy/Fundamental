@@ -122,7 +122,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
         }
     }
     if (tab === 'settings') {
-        getId('isSaved').textContent = `${format(lastSave, 0, 'time')} ago`;
+        if (lastSave >= 1000) { getId('isSaved').textContent = `${format(lastSave, 0, 'time')} ago`; }
     }
 };
 

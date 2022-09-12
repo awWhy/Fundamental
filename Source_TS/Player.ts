@@ -140,7 +140,7 @@ AddUpgradeArray('upgrades',
     [ //Description
         'Bigger electrons. Particles cost decreased.',
         'Stronger protons. Particles produce more.',
-        'More neutrons. Increased particle gain.',
+        'More neutrons. Increased gain of Particles.',
         'Superposition. Unlocks new reset tier.',
         'Protium. Basic.',
         'Deuterium. Heavy.',
@@ -148,13 +148,13 @@ AddUpgradeArray('upgrades',
         'Nuclear fusion. More energy.'
     ], [ //Effect text: '[0]', effect[n], '[1]'
         ['Particle cost is ', ' times cheaper.'],
-        ['Particles produce ', ' times more quarks.'],
-        ['Atoms produce ', ' times more particles.'],
-        ['Abbility to reset at any time and boost production for all buildings ', ' times, if had enough energy.'],
+        ['Particles produce ', ' times more Quarks.'],
+        ['Atoms produce ', ' times more Particles.'],
+        ['Abbility to reset at any time and boost production for all buildings by ', ', if had enough energy.'],
         ['Cost scalling is decreased by ', '.'],
         ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
-        ['Molecules produce molecules. At a reduced rate.', ''],
-        ['Unspent energy boost molecules production of themselfs 1 to 1.', '']
+        ['Molecules produce Molecules. At a reduced rate.', ''],
+        ['Unspent energy boost Molecules production of themselfs 1 to 1.', '']
     ]);
 AddUpgradeArray('researches',
     [2000, 6500, 20000, 12000, 42000], //Cost

@@ -1,6 +1,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 .vscode/
 node_modules/
-# Code.js
+# Code.js # Will be not ignored, until I can figure out how to make it publish itself... So for now I will send it manually
 eslintconifg.txt
-# Code.js.map
+Code.js.map

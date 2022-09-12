@@ -11,7 +11,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         if (global.screenReader && !auto) {
             getId('invisibleBought').textContent = `Coudn't buy '${buildingsInfo.name[index]}', because didn't had enough of '${buildingsInfo.name[index - 1]}'`;
         }
-        return;
+        return; //This is the only thing that stop's endless auto buying
     }
 
     if (stage === 1) { energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
@@ -29,6 +29,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         }
         if (canAfford < howMany && howMany !== -1 && buyToggle.strict) { return; }
         buy[index - 1].current -= total;
+        /* No idea what is better (performance wise) bonus + true or just current++ and true++ */
         buy[index].current += canAfford;
         buy[index].true += canAfford;
         buy[index].total += canAfford;

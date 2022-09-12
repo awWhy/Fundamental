@@ -225,7 +225,7 @@ async function saveLoad(type: string) {
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
                 void reLoad();
-            } else if (ok !== null) {
+            } else if (ok !== null && ok !== '') {
                 Alert(`You wrote '${ok}', so save file wasn't deleted.`);
             }
             break;
@@ -235,10 +235,10 @@ async function saveLoad(type: string) {
 
 const pauseGame = async() => {
     changeIntervals(true);
-    const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time.");
+    const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. Offline timer has a limit.");
     if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();
-    } else if (offline !== null) {
+    } else if (offline !== null && offline !== '') {
         Alert(`You wrote '${offline}', so you gained offline time.`);
     }
     changeIntervals();

@@ -15,6 +15,7 @@ body {
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
+    --button-extra-hover: #170089;
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
     --stage-text-color: #03d3d3;
@@ -58,6 +59,8 @@ img {
     width: 32px;
     height: 32px;
 }
+
+.interactiveImage { cursor: pointer; }
 
 .stageBorder {
     background-image: var(--border-image);
@@ -139,7 +142,7 @@ img {
 .options ul button { font-size: 0.92em; }
 .saveButtonGroup button, #load { font-size: 1em; }
 #save, #load { width: 4.5em; }
-.buyBuldingsAll button:first-of-type { width: 14em; }
+.buyBuldingsAll button:first-of-type:not(#buyStrict) { width: 14em; }
 
 .bigButton {
     width: 9.5em;
@@ -176,6 +179,7 @@ nav button {
 nav button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
+.toggle:hover, #buyStrict:hover, #screenReaderToggle:hover, .interactiveImage:hover { background-color: var(--button-extra-hover); }
 
 input[type = number] {
     width: 3.1em;
@@ -243,21 +247,14 @@ input { font-size: 0.84em; }
     column-gap: 0.3em;
 }
 
-#toggleBuy > img {
-    height: 22px;
-    cursor: pointer;
-}
-
+#toggleBuy > img { height: 22px; }
 #buyAnyInput { margin: 0 0.3em 0; }
 
 #buyStrict {
-    display: flex;
-    align-items: center;
-    border: 2px solid forestgreen;
-    height: 1.6em;
+    background-color: var(--background-color);
+    border-color: forestgreen;
     padding: 0 0.4em;
     font-size: 0.85em;
-    cursor: pointer;
 }
 
 #upgrades {
@@ -422,11 +419,7 @@ li > input[type = number] {
 }
 
 .options ul button, p button { margin-left: 0.4em; }
-
-#pauseGame {
-    cursor: pointer;
-    width: max-content;
-}
+#pauseGame { cursor: pointer; }
 
 #footer {
     position: fixed;
