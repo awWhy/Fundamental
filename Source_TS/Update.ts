@@ -44,7 +44,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
         console.log('Max offline progress is 1 hour.');
     }
 
-    switch (stage) {
+    switch (stage.true) {
         case 1:
             upgradesInfo.effect[5] = Math.trunc((1.02 + 0.01 * researches[1]) * 100) / 100;
             upgradesInfo.effect[3] = 4 + 1 * researches[3];
@@ -75,15 +75,15 @@ export const numbersUpdate = () => { //This is for relevant visual info
     const { tab, lastSave, dischargeInfo, buildingsInfo, upgradesInfo } = global;
 
     if (global.footer) {
-        if (stage === 1) {
+        if (stage.true === 1) {
             getId('quarks').textContent = `Quarks: ${format(buildings[0].current)}`;
         }
-        if (energy.total >= 9 && stage !== 2) {
+        if (energy.total >= 9 && stage.true === 1) {
             getId('energy').textContent = `Energy: ${format(energy.current, 0)}`;
         }
     }
     if (tab === 'stage') {
-        if (stage === 1) {
+        if (stage.true === 1) {
             getId('building1Cur').textContent = format(buildings[1].current);
             getId('building1Prod').textContent = format(buildingsInfo.producing[1]);
             if (buildingsInfo.cost[1] <= buildings[0].current) {
@@ -130,7 +130,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
     const { stage, energy, discharge, buildings, upgrades, researchesAuto } = player;
 
     /* They are going to be hidden with stageCheck(); */
-    if (stage === 1) {
+    if (stage.true === 1) {
         getId('energyStat').style.display = energy.total >= 9 ? '' : 'none';
         getId('atomsMain').style.display = buildings[1].total >= 11 ? '' : 'none';
         getId('moleculesMain').style.display = buildings[2].total >= 2 ? '' : 'none';
@@ -149,9 +149,9 @@ export const visualUpdate = () => { //This is everything that can be shown later
         }
     }
 
-    getId('upgrades').style.display = energy.total >= 9 || stage > 1 ? '' : 'none';
-    getId('resetToggles').style.display = discharge.current >= 1 || stage > 1 ? '' : 'none';
-    getId('researchTabBtn').style.display = discharge.current >= 4 || stage !== 1 ? '' : 'none';
+    getId('upgrades').style.display = energy.total >= 9 || stage.true > 1 ? '' : 'none';
+    getId('resetToggles').style.display = discharge.current >= 1 || stage.true > 1 ? '' : 'none';
+    getId('researchTabBtn').style.display = discharge.current >= 4 || stage.true !== 1 ? '' : 'none';
     getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
     for (let i = 1; i <= 3; i++) {
         if (researchesAuto[1] >= i) {
@@ -160,9 +160,9 @@ export const visualUpdate = () => { //This is everything that can be shown later
             getId(`toggle${i + 3}`).style.display = 'none';
         }
     }
-    getId('stage').style.display = upgrades[7] === 1 || stage > 1 ? '' : 'none';
-    getId('stageToggleReset').style.display = stage > 1 ? '' : 'none';
-    getId('themeArea').style.display = stage > 1 ? '' : 'none';
+    getId('stage').style.display = upgrades[7] === 1 || stage.true > 1 ? '' : 'none';
+    getId('stageToggleReset').style.display = stage.true > 1 ? '' : 'none';
+    getId('themeArea').style.display = stage.true > 1 ? '' : 'none';
 };
 
 export const getUpgradeDescription = (index: number, type = 'normal') => {
@@ -221,7 +221,7 @@ export const stageCheck = () => {
     const body = document.body.style;
 
     /* Stage specific information */
-    if (stage === 1) {
+    if (stage.true === 1) {
         //buildingsInfo.name = ['quarks', 'particles', 'atoms', 'molecules'];
         //globalStart.buildingsInfo.cost = [0, 3, 24, 3];
         dischargeInfo.next = 10 ** discharge.current;
@@ -250,6 +250,9 @@ export const stageCheck = () => {
         for (let i = 1; i <= 4; i++) {
             getId(`upgrade${i}`).style.display = '';
         }
+        for (let i = 1; i <= playerStart.researches.length; i++) {
+            getId(`research${i}Stage1`).style.display = '';
+        }
     }
     for (let i = 1; i < buildingsInfo.name.length; i++) {
         calculateBuildingsCost(i);
@@ -267,7 +270,7 @@ export const stageCheck = () => {
         }
     }
     /* Hide stage specific part's, that were shown in visualUpdate(); */
-    if (stage !== 1) {
+    if (stage.true !== 1) {
         getId('quarkStat').style.display = 'none';
         getId('energyStat').style.display = 'none';
         getId('particlesMain').style.display = 'none';
@@ -278,26 +281,29 @@ export const stageCheck = () => {
         for (let i = 1; i <= playerStart.upgrades.length; i++) {
             getId(`upgrade${i}`).style.display = 'none';
         }
+        for (let i = 1; i <= playerStart.researches.length; i++) {
+            getId(`research${i}Stage1`).style.display = 'none';
+        }
     }
     /* Visual */
     getId('stageReset').textContent = 'You are not ready';
-    getId('stageWord').textContent = stageInfo.word[stage - 1];
-    getId('stageWord').style.color = stageInfo.wordColor[stage - 1];
-    if (stage === 1) {
+    getId('stageWord').textContent = stageInfo.word[stage.true - 1];
+    getId('stageWord').style.color = stageInfo.wordColor[stage.true - 1];
+    if (stage.true === 1) {
         body.removeProperty('--border-image');
         body.removeProperty('--border-stage');
     } else {
-        body.setProperty('--border-image', `url(Used_art/Stage${stage}%20border.png)`);
-        if (stage === 2) {
+        body.setProperty('--border-image', `url(Used_art/Stage${stage.true}%20border.png)`);
+        if (stage.true === 2) {
             body.setProperty('--border-stage', '#1460a8');
-        } else if (stage === 3) {
+        } else if (stage.true === 3) {
             body.setProperty('--border-stage', '#5b5b75');
         } else {
             body.setProperty('--border-stage', '#f28100');
         }
     }
     if (global.screenReader) {
-        getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[stage - 1]}'`;
+        getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[stage.true - 1]}'`;
         /*for (let i = 0; i < buildingsInfo.name.length; i++) {
             getId(`invisibleGetBuilding${i}`).textContent = `Get information for ${buildingsInfo.name[i]}`;
         }*/

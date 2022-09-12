@@ -23,27 +23,25 @@ export const switchTheme = () => {
 
     body.setProperty('--transition', '1s'); //Buttons are ignored
     if (theme.default) {
-        theme.stage = stage;
+        theme.stage = stage.true;
         getId('currentTheme').textContent = 'Default';
     } else {
         getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
     }
 
+    /* Full reset to stage 1, for easier out of order theme change */
+    body.removeProperty('--background-color');
+    body.removeProperty('--window-color');
+    body.removeProperty('--window-border');
+    body.removeProperty('--footer-color');
+    body.removeProperty('--button-main-color');
+    body.removeProperty('--button-main-border');
+    body.removeProperty('--button-main-hover');
+    body.removeProperty('--stage-text-color');
+    body.removeProperty('--cyan-text-color');
+    body.removeProperty('--blue-text-color');
+    /* And set new colors */
     switch (theme.stage) {
-        case 1:
-            body.removeProperty('--background-color');
-            body.removeProperty('--window-color');
-            body.removeProperty('--window-border');
-            body.removeProperty('--footer-color');
-            body.removeProperty('--button-main-color');
-            body.removeProperty('--button-main-border');
-            body.removeProperty('--button-main-hover');
-            body.removeProperty('--button-delete-color');
-            body.removeProperty('--button-delete-hover');
-            body.removeProperty('--stage-text-color');
-            body.removeProperty('--cyan-text-color');
-            getId('upgradeEffect').style.color = '';
-            break;
         case 2:
             body.setProperty('--background-color', '#070026');
             body.setProperty('--window-color', '#000052');
@@ -52,11 +50,9 @@ export const switchTheme = () => {
             body.setProperty('--button-main-color', 'blue');
             body.setProperty('--button-main-border', '#427be1');
             body.setProperty('--button-main-hover', '#1515cf');
-            body.setProperty('--button-delete-color', '#ce0000');
-            body.setProperty('--button-delete-hover', 'firebrick');
             body.setProperty('--stage-text-color', 'dodgerblue');
             body.setProperty('--cyan-text-color', 'cyan');
-            getId('upgradeEffect').style.color = '#82cb3b';
+            body.setProperty('--blue-text-color', '#82cb3b');
             break;
     }
     setTimeout(() => { body.removeProperty('--transition'); }, 1000);

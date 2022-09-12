@@ -2,7 +2,11 @@ import { Alert } from './Special';
 import { globalType, saveType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    stage: 1,
+    //version: 0.0.1, //If someone will be playing, have a check for game version incase some save file changes or other
+    stage: {
+        true: 1
+        //current: 0 //In case challenges will be added, move most of checks into stage.current istead of stage.true
+    },
     energy: {
         current: 0,
         total: 0

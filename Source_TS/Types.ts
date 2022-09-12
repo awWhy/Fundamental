@@ -1,5 +1,7 @@
 export interface playerType {
-    stage: number
+    stage: {
+        true: number
+    }
     energy: {
         current: number
         total: number

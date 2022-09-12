@@ -1,5 +1,6 @@
 import { getId } from './Main';
 import { global, globalStart, player } from './Player';
+import { reset } from './Reset';
 import { Alert, Confirm } from './Special';
 import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
@@ -14,7 +15,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         return; //This is the only thing that stop's endless auto buying
     }
 
-    if (stage === 1) { energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
+    if (stage.true === 1) { energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buy[index - 1].current / (auto ? 2 : 1);
         let cost = buildingsInfo.cost[index];
@@ -33,7 +34,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         buy[index].current += canAfford;
         buy[index].true += canAfford;
         buy[index].total += canAfford;
-        if (stage === 1) {
+        if (stage.true === 1) {
             energy.current += energyType[index] * canAfford;
             energy.total += energyType[index] * canAfford;
             if (global.screenReader && !auto) {
@@ -45,7 +46,7 @@ export const buyBuilding = (buy: Array<Record<string, number>>, index: number, a
         buy[index].current++;
         buy[index].true++;
         buy[index].total++;
-        if (stage === 1) {
+        if (stage.true === 1) {
             energy.current += energyType[index];
             energy.total += energyType[index];
             if (global.screenReader) {
@@ -62,7 +63,7 @@ export const calculateBuildingsCost = (index: number) => {
     const { stage, buildings, upgrades, researches } = player;
     const { buildingsInfo, upgradesInfo } = global;
 
-    if (stage === 1) {
+    if (stage.true === 1) {
         upgradesInfo.effect[4] = Math.trunc((0.2 + researches[0] * 0.01) * 100) / 100;
         buildingsInfo.increase = Math.trunc((1.4 - (upgrades[4] === 1 ? upgradesInfo.effect[4] : 0)) * 100) / 100;
         /* I feel like i'm losing my mind 1.4 - 0.3 = 0... But 1.4 - (0.3) = 1.1 */
@@ -84,7 +85,7 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way (?)
 
-    if (stage === 1 && get === 3) {
+    if (stage.true === 1 && get === 3) {
         if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
         buildings[get].current += Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2] * (player.upgrades[7] === 1 ? player.energy.current : 1);
     } else {
@@ -220,60 +221,53 @@ export const toggleBuy = (type = 'none') => {
 };
 
 export const stageResetCheck = async() => {
-    const { stage, buildings/*, researchesAuto, toggles*/ } = player;
+    const { stage, buildings } = player;
 
-    if (stage === 1) {
+    if (stage.true === 1) {
         if (buildings[3].current >= 1e21) {
             Alert('There is nothing past stage 1 for now');
-        } else {
-            Alert('There are more molecules in a single drop than that you know');
-        }
-        /*let ok = true;
-        if (toggles[2]) {
-            ok = await Confirm('Ready to enter next stage?');
-        }
-        if (ok) {
-            player.stage++;
-            //Reuse buildings, upgrades, researches, (not toggles) if challenge's will be added, just add own category for them
-            //Reset them all (not automatization), like with a new function reset(type: string);
-            if (researchesAuto[0] === 0) {
-                researchesAuto[0]++;
+            /*let ok = true;
+            if (player.toggles[2]) {
+                ok = await Confirm('Ready to enter next stage?');
             }
-            stageCheck();
-            switchTheme();
-        }*/
+            if (ok) {
+                if (player.researchesAuto[0] === 0) {
+                    player.researchesAuto[0]++;
+                }
+                stage.true++;
+                //stage.current = stage.true //If challenges will be added
+                reset('stage');
+                stageCheck();
+                switchTheme();
+            }*/
+        } else {
+            Alert('There are more molecules in a single drop than that you know.');
+        }
     }
 };
 
 export const dischargeResetCheck = async() => {
-    const { energy, discharge, buildings, upgrades, toggles } = player;
+    const { energy } = player;
     const { dischargeInfo } = global;
 
-    if (upgrades[3] === 1 && buildings[1].true > 0) {
+    if (player.upgrades[3] === 1 && player.buildings[1].true > 0 && player.stage.true === 1) {
         let ok = true;
-        if (toggles[1] && energy.current < dischargeInfo.next) {
+        if (player.toggles[1] && energy.current < dischargeInfo.next) {
             ok = await Confirm('This will reset all of your current buildings and energy. You will NOT gain production boost. Continue?');
-        } else if (toggles[1] && energy.current >= dischargeInfo.next) {
+        } else if (player.toggles[1] && energy.current >= dischargeInfo.next) {
             ok = await Confirm('You have enough energy to gain boost. Continue?');
         }
         if (ok) {
             if (energy.current >= dischargeInfo.next) {
                 dischargeInfo.next *= 10;
-                discharge.current++;
+                player.discharge.current++;
                 if (global.screenReader) { getId('invisibleBought').textContent = 'Progress was reset for 4x boost'; }
             } else if (global.screenReader && energy.current < dischargeInfo.next) {
                 getId('invisibleBought').textContent = 'Buildings and energy were reset, no boost';
             }
-            /* Maybe move into new function reset(type: string); */
-            energy.current = 0;
-            for (let i = 0; i <= 3; i++) {
-                if (i === 0) {
-                    buildings[i].current = 3;
-                } else {
-                    buildings[i].current = 0;
-                    buildings[i].true = 0;
-                    calculateBuildingsCost(i);
-                }
+            reset('discharge');
+            for (let i = 1; i < global.buildingsInfo.name.length; i++) {
+                calculateBuildingsCost(i);
             }
             numbersUpdate();
         }
