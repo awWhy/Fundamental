@@ -1,4 +1,5 @@
 export interface playerType {
+    //version: number
     stage: {
         true: number
         current: number
@@ -9,6 +10,7 @@ export interface playerType {
     }
     discharge: {
         current: number
+        bonus: number
     }
     time: {
         updated: number
@@ -67,6 +69,14 @@ export interface globalType {
         effectText: string[][]
         cost: number[]
     }
+    /*upgradesS2Info: {
+        description: string[]
+        effect: number[]
+        effectText: string[][]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }*/
     researchesInfo: {
         description: string[]
         effect: number[]
@@ -75,6 +85,14 @@ export interface globalType {
         scalling: number[]
         max: number[]
     }
+    /*researchesS2Info: {
+        description: string[]
+        effect: number[]
+        effectText: string[][]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }*/
     researchesAutoInfo: {
         description: string[]
         effect: Array<number | string>

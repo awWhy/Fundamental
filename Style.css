@@ -419,7 +419,11 @@ li > input[type = number] {
 }
 
 .options ul button, p button { margin-left: 0.4em; }
-#pauseGame { cursor: pointer; }
+
+#pauseGame {
+    cursor: pointer;
+    width: max-content; /* Without it, area where you can click will stretch */
+}
 
 #footer {
     position: fixed;

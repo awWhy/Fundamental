@@ -5,15 +5,15 @@ export const player: playerType = { //Only for information that need to be saved
     //version: 0.0.1, //If someone will be playing, have a check for game version incase some save file changes or other
     stage: {
         true: 1,
-        current: 0
+        current: 1
     },
     energy: {
         current: 0,
         total: 0
     },
     discharge: {
-        current: 0
-        //bonus: 0
+        current: 0,
+        bonus: 0
     },
     time: {
         updated: Date.now(),
@@ -211,15 +211,20 @@ export const updatePlayer = (load: saveType) => {
             }
         }
         /* Next one's will auto add missing part of already existing information */
-        if (playerStart.upgrades.length > load.player.upgrades.length) {
-            for (let i = load.player.upgrades.length; i < playerStart.upgrades.length; i++) {
-                load.player.upgrades[i] = 0;
-            }
-        }
-        if (playerStart.researches.length > load.player.researches.length) {
-            for (let i = load.player.researches.length; i < playerStart.researches.length; i++) {
-                load.player.researches[i] = 0;
-            }
+        //Everything in comments, means not going to happen (at least for now)
+        if (load.player.stage.current === 1) {
+        //    if (global.upgradesInfo.cost.length > load.player.upgrades.length) {
+        //        for (let i = load.player.upgrades.length; i < global.upgradesInfo.cost.length; i++) {
+        //            load.player.upgrades[i] = 0;
+        //        }
+        //    }
+        //    if (global.researchesInfo.cost.length > load.player.researches.length) {
+        //        for (let i = load.player.researches.length; i < global.researchesInfo.cost.length; i++) {
+        //            load.player.researches[i] = 0;
+        //        }
+        //    }
+        } else if (load.player.stage.current === 2) {
+            //
         }
         if (playerStart.researchesAuto.length > load.player.researchesAuto.length) {
             for (let i = load.player.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
@@ -231,7 +236,8 @@ export const updatePlayer = (load: saveType) => {
                 load.player.toggles[i] = playerCheck.toggles[i];
             }
         }
-        if (load.player.stage.current === undefined) { load.player.stage.current = load.player.stage.true; } //Will be removed shortly
+        if (load.player.stage.current === undefined || load.player.stage.current === 0) { load.player.stage.current = load.player.stage.true; } //Will stay a little longer
+        if (load.player.discharge.bonus === undefined) { load.player.discharge.bonus = 0; } //Same will be removed next update
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
     } else {

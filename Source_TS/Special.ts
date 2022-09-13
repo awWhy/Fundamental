@@ -23,7 +23,7 @@ export const switchTheme = () => {
 
     body.setProperty('--transition', '1s'); //Buttons are ignored
     if (theme.default) {
-        theme.stage = stage.true;
+        theme.stage = stage.current;
         getId('currentTheme').textContent = 'Default';
     } else {
         getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
@@ -85,7 +85,6 @@ export const Alert = (text: string) => {
     confirm.addEventListener('click', close);
 };
 
-/* I have no idea how it works... I just did what was in comments: https://dev.to/ramonak/javascript-how-to-access-the-return-value-of-a-promise-object-1bck */
 export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
@@ -214,10 +213,12 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.setAttribute('aria-label', 'Screen reader support is ON');
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
-                /* This is recommended options */
-                player.buyToggle.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
-                global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
-                global.intervals.numbers = 1000; //To lag less, since visual information is not important
+                if (special === 'reload') {
+                    /* This is recommended options, being set after every reload */
+                    player.buyToggle.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
+                    global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
+                    global.intervals.numbers = 1000; //To lag less, since visual information is not important
+                }
                 if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make an image clickable with a keyboard), also you will get a special tab where you can check how much you own and more.\n(For non screen readers this will cause issues)'); }
             } else {
                 toggle.textContent = 'OFF';
@@ -230,18 +231,22 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         }
         case 'button': {
             const index = info as number;
-            const { energy, buildings, upgrades, researchesAuto, toggles } = player;
-            const { dischargeInfo, buildingsInfo } = global;
+            const { stage } = player;
             const invText = getId('invisibleBought');
 
             if (special === 'building') {
+                const { buildings } = player;
+                const { buildingsInfo } = global;
+
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[index - 1]} per second${researchesAuto[1] >= index ? `, auto is ${toggles[index + 3] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[index - 1]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles[index + 3] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
-                invText.textContent = `You have ${energy.current} Energy${upgrades[3] === 1 ? `, next discharge goal is ${format(dischargeInfo.next)} Energy` : ''}`;
+                if (stage.current === 1) {
+                    invText.textContent = `You have ${player.energy.current} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
+                }
             }
             break;
         }

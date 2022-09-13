@@ -33,9 +33,8 @@ export const reLoad = async(loadSave = false) => {
             global.theme.stage = Number(theme);
         }
     }
-    const { time, toggles } = player;
 
-    screenReaderSupport(); //If screen reader support is ON, then it will change some stuff
+    screenReaderSupport(false, 'toggle', 'reload'); //If screen reader support is ON, then it will change some stuff
     stageCheck(); //Visual and other stage information (like next reset goal)
     switchTab(); //Sets tab to Stage, also visual and number update
     changeFontSize(); //Changes font size
@@ -47,9 +46,9 @@ export const reLoad = async(loadSave = false) => {
     toggleBuy(); //Sets buy toggle's (for buildings) into saved number
     switchTheme(); //Changes theme
 
-    if (loadSave && !toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
-        if (noOffline) { time.updated = Date.now(); }
+    if (loadSave && !player.toggles[0]) {
+        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+        if (noOffline) { player.time.updated = Date.now(); }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game
 };
@@ -66,7 +65,7 @@ for (let i = 0; i < playerStart.toggles.length; i++) {
 for (let i = 1; i < playerStart.buildings.length; i++) {
     getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(player.buildings, i));
 }
-for (let i = 0; i < playerStart.upgrades.length; i++) {
+for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
     if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
@@ -81,15 +80,15 @@ getId('buyMax').addEventListener('click', () => toggleBuy('max'));
 getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Research tab */
-for (let i = 0; i < playerStart.researches.length; i++) {
-    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
-    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+for (let i = 0; i < global.researchesInfo.cost.length; i++) {
+    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'research'));
+    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'research'));
+    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'research')); }
 }
-for (let i = 0; i < playerStart.researchesAuto.length; i++) {
-    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
-    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
-    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchesAuto')); }
+for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
+    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchAuto'));
+    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchAuto'));
+    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchAuto')); }
 }
 
 /* Settings tab */
