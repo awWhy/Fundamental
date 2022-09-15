@@ -5,16 +5,15 @@ import { Alert, Confirm } from './Special';
 import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
 
 export const buyBuilding = (buy: Array<Record<string, number>>, index: number, auto = false) => {
-    if (buy[index - 1].current < global.buildingsInfo.cost[index] * (auto ? 2 : 1)) {
+    if (buy[index - 1].current < global.buildingsInfo.cost[index] * (auto ? 2 : 1) || !isFinite(global.buildingsInfo.cost[index])) {
         if (global.screenReader && !auto) {
             getId('invisibleBought').textContent = `Coudn't buy '${global.buildingsInfo.name[index]}', because didn't had enough of '${global.buildingsInfo.name[index - 1]}'`;
         }
         return; //This is the only thing that stop's endless auto buying
     }
-
     const { stage, researchesAuto, buyToggle } = player;
     const { stageInfo, buildingsInfo } = global;
-    if (stage.current === 1) { global.energyType[index] = globalStart.energyType[index] * 2 ** player.researches[4]; }
+    if (stage.current === 1) { global.energyType[index] = globalStart.energyType[index] * 3 ** player.researches[4]; }
 
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buy[index - 1].current / (auto ? 2 : 1);
@@ -73,10 +72,8 @@ export const calculateBuildingsCost = (index: number) => {
     if (index === 1 && upgrades[0] === 1 && stage.current === 1) { buildingsInfo.cost[1] /= 10; }
 };
 
-export const calculateResearchCost = (research: number, playerOne: 'researches' | 'researchesAuto', globalOne = playerOne + 'Info') => {
-    //@ts-expect-error //Not dealing with it, not my fault TS hates dynamic objects, also have no idea what type it even meant to be...
+export const calculateResearchCost = (research: number, playerOne: 'researches' | 'researchesAuto', globalOne = playerOne + 'Info' as 'researchesS2Info') => {
     if (player[playerOne][research] === global[globalOne].max[research]) { return; }
-    //@ts-expect-error
     global[globalOne].cost[research] = globalStart[globalOne].cost[research] + global[globalOne].scalling[research] * player[playerOne][research];
 };
 
@@ -84,22 +81,30 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     const { buildings } = player; //Add stage, researches and\or upgrades, if more will be added into here
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way
+    let add: number;
 
     if (player.stage.current === 1 && get === 3) {
         if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
-        buildings[get].current += Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2] * (player.upgrades[7] === 1 ? player.energy.current : 1);
+        add = Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2];
+        if (player.upgrades[7] === 1) { add *= player.energy.current; }
     } else {
-        buildings[get].current += buildingsInfo.producing[get + 1] * time;
+        add = buildingsInfo.producing[get + 1] * time;
     }
 
-    buildings[get].total += buildings[get].current - before;
+    let check = buildings[get].current + add;
+    if (isFinite(check)) {
+        buildings[get].current = check;
+    } else { return; }
+
+    check = buildings[get].total + (buildings[get].current - before);
+    if (isFinite(check)) { buildings[get].total = check; }
 };
 
-export const buyUpgrades = (upgrade: number, type = 'upgrade' as 'upgrade' | 'research' | 'researchAuto') => {
+export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto') => {
     const { stage } = player;
 
     switch (type) {
-        case 'upgrade': {
+        case 'upgrades': {
             const { upgrades } = player;
 
             if (stage.current === 1) {
@@ -124,7 +129,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrade' as 'upgrade' | 're
             }
             break;
         }
-        case 'research': {
+        case 'researches': {
             const { researches } = player;
 
             if (stage.current === 1) {
@@ -152,7 +157,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrade' as 'upgrade' | 're
             }
             break;
         }
-        case 'researchAuto': {
+        case 'researchesAuto': {
             const { researchesAuto } = player;
             const { researchesAutoInfo } = global;
             const researchNumber = getId(`researchAuto${upgrade + 1}Level`);
@@ -245,7 +250,7 @@ export const stageResetCheck = async() => {
     let reseted = false;
 
     if (stage.current === 1) {
-        if (buildings[3].current >= 1e21) {
+        if (buildings[3].current >= 1.67e21) {
             let ok = true;
             if (toggles[2]) {
                 ok = await Confirm('Ready to enter next stage?');

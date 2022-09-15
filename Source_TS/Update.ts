@@ -161,7 +161,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
         }
         if (discharge.current >= 4) { getId('researchTabBtn').style.display = ''; }
         if (upgrades[7] === 1) { getId('stage').style.display = ''; }
-        if (buildings[3].current >= 1e21) { getId('stageReset').textContent = 'Enter next stage'; }
+        if (buildings[3].current >= 1.67e21) { getId('stageReset').textContent = 'Enter next stage'; }
         if (global.screenReader) {
             getId('invisibleGetBuilding2').style.display = buildings[2].total > 0 ? '' : 'none';
             getId('invisibleGetBuilding3').style.display = buildings[3].total > 0 ? '' : 'none';
@@ -177,45 +177,31 @@ export const visualUpdate = () => { //This is everything that can be shown later
     getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
 };
 
-export const getUpgradeDescription = (index: number, type = 'upgrade' as 'upgrade' | 'research' | 'researchAuto') => {
-    const { stage } = player;
-    const { stageInfo } = global;
+export const getUpgradeDescription = (index: number, playerOne = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto', globalOne = playerOne + 'Info' as 'upgradesS2Info' | 'researchesS2Info') => {
+    if (playerOne.includes('researches')) {
+        getId('researchText').textContent = global[globalOne].description[index];
 
-    switch (type) {
-        case 'upgrade': {
-            const { upgrades } = player;
-
-            if (stage.current === 1) {
-                const { upgradesInfo } = global;
-                getId('upgradeText').textContent = upgradesInfo.description[index];
-                getId('upgradeEffect').textContent = `${upgradesInfo.effectText[index][0]}${upgradesInfo.effect[index]}${upgradesInfo.effectText[index][1]}`;
-                getId('upgradeCost').textContent = `${upgrades[index] === 1 ? 0 : upgradesInfo.cost[index]} ${stageInfo.resourceName[stage.current - 1]}.`;
-            }
-            break;
+        /* Special cases */
+        if (playerOne === 'researchesAuto' && index === 1) {
+            global.researchesAutoInfo.effect[1] = global.buildingsInfo.name[Math.min(player.researchesAuto[1] + 1, global.buildingsInfo.name.length - 1)];
         }
-        case 'research': {
-            const { researches } = player;
 
-            if (stage.current === 1) {
-                const { researchesInfo } = global;
-                getId('researchText').textContent = researchesInfo.description[index];
-                getId('researchEffect').textContent = `${researchesInfo.effectText[index][0]}${researchesInfo.effect[index]}${researchesInfo.effectText[index][1]}`;
-                getId('researchCost').textContent = `${researches[index] === researchesInfo.max[index] ? 0 : researchesInfo.cost[index]} ${stageInfo.resourceName[stage.current - 1]}.`;
-            }
-            break;
+        if (global[globalOne].effect[index] !== 0) {
+            getId('researchEffect').textContent = `${global[globalOne].effectText[index][0]}${global[globalOne].effect[index]}${global[globalOne].effectText[index][1]}`;
+        } else {
+            getId('researchEffect').textContent = global[globalOne].effectText[index][0];
         }
-        case 'researchAuto': {
-            const { researchesAuto } = player;
-            const { researchesAutoInfo } = global;
+        //@ts-expect-error //I don't want to deal with it
+        getId('researchCost').textContent = `${player[playerOne][index] === global[globalOne].max[index] ? 0 : global[globalOne].cost[index]} ${global.stageInfo.resourceName[player.stage.current - 1]}.`;
+    } else {
+        getId('upgradeText').textContent = global[globalOne].description[index];
 
-            getId('researchText').textContent = researchesAutoInfo.description[index];
-            if (index === 1) {
-                researchesAutoInfo.effect[1] = global.buildingsInfo.name[Math.min(researchesAuto[1] + 1, global.buildingsInfo.name.length - 1)];
-            }
-            getId('researchEffect').textContent = `${researchesAutoInfo.effectText[index][0]}${researchesAutoInfo.effect[index]}${researchesAutoInfo.effectText[index][1]}`;
-            getId('researchCost').textContent = `${researchesAuto[index] === researchesAutoInfo.max[index] ? 0 : researchesAutoInfo.cost[index]} ${stageInfo.resourceName[stage.current - 1]}.`;
-            break;
+        if (global[globalOne].effect[index] !== 0) {
+            getId('upgradeEffect').textContent = `${global[globalOne].effectText[index][0]}${global[globalOne].effect[index]}${global[globalOne].effectText[index][1]}`;
+        } else {
+            getId('upgradeEffect').textContent = global[globalOne].effectText[index][0];
         }
+        getId('upgradeCost').textContent = `${player[playerOne][index] === 1 ? 0 : global[globalOne].cost[index]} ${global.stageInfo.resourceName[player.stage.current - 1]}.`;
     }
 };
 
@@ -304,7 +290,8 @@ export const stageCheck = () => {
         }
     } else if (stage.current === 2) {
         buildingsInfo.name = ['Moles of water', 'Drops'];
-        globalStart.buildingsInfo.cost = [0, 0.0025];
+        buildingsInfo.increase = 1.2;
+        globalStart.buildingsInfo.cost = [0, 0.0028];
         getId('upgradeCost').classList.add('cyanText');
         getId('researchCost').classList.add('cyanText');
         getId('waterStat').style.display = '';

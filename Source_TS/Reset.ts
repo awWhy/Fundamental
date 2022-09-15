@@ -1,7 +1,7 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
 import { calculateBuildingsCost } from './Stage';
-import { numbersUpdate, stageCheck } from './Update';
+import { numbersUpdate, stageCheck, visualUpdate } from './Update';
 
 export const reset = (type: 'discharge' | 'stage') => {
     const { stage, buildings } = player;
@@ -46,14 +46,14 @@ export const reset = (type: 'discharge' | 'stage') => {
                     }
                     break;
                 case 2:
-                    buildings[0].current = 0.0025;
-                    buildings[0].total = 0.0025;
+                    buildings[0].current = 0.0028;
+                    buildings[0].total = 0.0028;
                     //Reset upgrades
                     //Reset researches
                     break;
             }
-
             stageCheck();
+            visualUpdate();
             switchTheme();
             break;
         }

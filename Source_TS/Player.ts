@@ -40,10 +40,12 @@ export const player: playerType = { //Only for information that need to be saved
             total: 0
         }
     ],
-    upgrades: [],
-    researches: [],
-    researchesAuto: [],
-    toggles: [],
+    /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
+    upgrades: [0, 0, 0, 0, 0, 0, 0, 0],
+    researches: [0, 0, 0, 0, 0],
+    researchesAuto: [0, 0],
+    toggles: [], //Auto added for every element with a class 'toggle', all toggle's are:
+    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
     buyToggle: {
         howMany: 1, //If more types will be added
         input: 10, //Then turn all of them
@@ -86,108 +88,95 @@ export const global: globalType = { //For information that doesn't need to be sa
         increase: 1.4,
         producing: [0, 0, 0, 0]
     },
+    /* Every stage using its own array (because I think its better this way) */
     upgradesInfo: {
+        description: [
+            'Bigger electrons. Particles cost decreased.',
+            'Stronger protons. Particles produce more.',
+            'More neutrons. Increased gain of Particles.',
+            'Superposition. Unlocks new reset tier.',
+            'Protium. Basic.',
+            'Deuterium. Heavy.',
+            'Tritium. Radioactive.',
+            'Nuclear fusion. More energy.'
+        ],
+        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+            ['Particle cost is ', ' times cheaper.'],
+            ['Particles produce ', ' times more Quarks.'],
+            ['Atoms produce ', ' times more Particles.'],
+            ['Abbility to reset at any time and boost production for all buildings by ', ', if had enough energy.'],
+            ['Cost scalling is decreased by ', '.'],
+            ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
+            ['Molecules produce Molecules. At a reduced rate.'],
+            ['Unspent energy boost Molecules production of themselfs 1 to 1.']
+        ],
+        effect: [10, 10, 5, 4, 0.2, 1.01, 0, 0],
+        cost: [9, 12, 36, 300, 800, 5000, 15000, 36000]
+    },
+    upgradesS2Info: {
         description: [],
+        effectText: [], //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
         effect: [],
-        effectText: [],
         cost: []
     },
     researchesInfo: {
+        description: [
+            "Effect of 'Protium' upgrade is stronger.",
+            "Effect of 'Deuterium' upgrade is bigger.",
+            "Effect of 'Tritium' upgrade is better.",
+            'Discharge bonus improved.',
+            'Gain more energy from buying a building.'
+        ],
+        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+            ['Cost scalling is ', ' smaller for each level.'],
+            ['Each bought building boost each other by additional ', '.'],
+            ['Molecules now produce themselfs ', ' times quicker.'],
+            ['Discharge is now gives extra +', ' bonus per reached goal.'],
+            ['A single building now gives ', ' times more energy.']
+        ],
+        effect: [0.01, 0.01, 12, 1, 3],
+        cost: [2000, 6500, 20000, 12000, 42000],
+        scalling: [300, 1500, 1800, 0, 81456],
+        max: [9, 3, 9, 1, 2]
+    },
+    researchesS2Info: {
         description: [],
+        effectText: [], //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
         effect: [],
-        effectText: [],
         cost: [],
         scalling: [],
         max: []
     },
-    researchesAutoInfo: {
-        description: [],
-        effect: [],
-        effectText: [],
-        cost: [],
-        scalling: [],
-        max: []
+    researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
+        description: [
+            'Buy toggles.',
+            'Automatization for buying upgrades.' //Auto changed every stage
+        ],
+        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+            ['Unlock abbility to buy multiple buildings at same time.'],
+            ['Will automatically buy ', ' for you.']
+        ],
+        effect: [0, 'Particles'],
+        cost: [300, 3000],
+        scalling: [0, 5000],
+        max: [1, 3]
     }
 };
 
-function AddUpgradeArray(name: keyof playerType, cost: number[], effect: Array<number | string>, description: string[], effectText: string[][], scalling = [] as number[], max = [] as number[]) {
-    Object.assign(player, { [name]: createArray(cost.length) });
-    if (String(name).includes('researches')) {
-        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost, scalling, max } });
-    } else {
-        Object.assign(global, { [name + 'Info']: { description, effect, effectText, cost } });
-    }
-}
-
-const createArray = (amount: number, type = 'number') => {
+const createArray = (amount: number) => {
     const array = [];
     for (let i = 0; i < amount; i++) {
-        if (type === 'number') {
-            array.push(0);
+        if (i === 4 || i === 5 || i === 6) {
+            array.push(false);
         } else {
-            if (i === 4 || i === 5 || i === 6) {
-                array.push(false);
-            } else {
-                array.push(true);
-            }
+            array.push(true);
         }
     }
     return array;
 };
 
 const togglesL = document.getElementsByClassName('toggle').length;
-/* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
-Object.assign(player, { toggles: createArray(togglesL, 'toggles') });
-AddUpgradeArray('upgrades',
-    [9, 12, 36, 300, 800, 5000, 15000, 36000], //Cost
-    [10, 10, 5, 4, 0.2, 1.01, '', ''], //Effect
-    [ //Description
-        'Bigger electrons. Particles cost decreased.',
-        'Stronger protons. Particles produce more.',
-        'More neutrons. Increased gain of Particles.',
-        'Superposition. Unlocks new reset tier.',
-        'Protium. Basic.',
-        'Deuterium. Heavy.',
-        'Tritium. Radioactive.',
-        'Nuclear fusion. More energy.'
-    ], [ //Effect text: '[0]', effect[n], '[1]'
-        ['Particle cost is ', ' times cheaper.'],
-        ['Particles produce ', ' times more Quarks.'],
-        ['Atoms produce ', ' times more Particles.'],
-        ['Abbility to reset at any time and boost production for all buildings by ', ', if had enough energy.'],
-        ['Cost scalling is decreased by ', '.'],
-        ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
-        ['Molecules produce Molecules. At a reduced rate.', ''],
-        ['Unspent energy boost Molecules production of themselfs 1 to 1.', '']
-    ]);
-AddUpgradeArray('researches',
-    [2000, 6500, 20000, 12000, 42000], //Cost
-    [0.01, 0.01, 12, 1, 2], //Effect
-    [ //Description
-        "Effect of 'Protium' upgrade is stronger.",
-        "Effect of 'Deuterium' upgrade is bigger.",
-        "Effect of 'Tritium' upgrade is better.",
-        'Discharge bonus improved.',
-        'Gain more energy from buying a building.'
-    ], [ //Effect text: '[0]', effect[n], '[1]'
-        ['Cost scalling is ', ' smaller for each level.'],
-        ['Each bought building boost each other by additional ', '.'],
-        ['Molecules now produce themselfs ', ' times quicker.'],
-        ['Discharge is now gives extra +', ' bonus per reached goal.'],
-        ['A single building now gives ', ' times more energy.']
-    ], [300, 1500, 1800, 0, 38000], //Cost scalling
-    [9, 3, 9, 1, 2]); //Max level
-AddUpgradeArray('researchesAuto',
-    [300, 3000], //Cost
-    ['', 'Particles'], //Effect
-    [ //Description
-        'Buy toggles.',
-        'Automatization for buying upgrades.'
-    ], [ //Effect text: '[0]', effect[n], '[1]'
-        ['Unlock abbility to buy multiple buildings at same time.', ''],
-        ['Will automatically buy ', ' for you.']
-    ], [0, 5000], //Cost scalling
-    [1, 3]); //Max level
+Object.assign(player, { toggles: createArray(togglesL) });
 export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;
 /* For cases when ID of starting values can get changed */
@@ -236,8 +225,6 @@ export const updatePlayer = (load: saveType) => {
                 load.player.toggles[i] = playerCheck.toggles[i];
             }
         }
-        if (load.player.stage.current === undefined || load.player.stage.current === 0) { load.player.stage.current = load.player.stage.true; } //Will stay a little longer
-        if (load.player.discharge.bonus === undefined) { load.player.discharge.bonus = 0; } //Same will be removed next update
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
     } else {

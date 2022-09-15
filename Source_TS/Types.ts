@@ -16,7 +16,7 @@ export interface playerType {
         updated: number
         started: number
     }
-    buildings: Array<Record<string, number>>
+    buildings: Array<Record<string, number>> //It will stay in this way because TS can't tell that index 0 is never being used with 'true'...
     upgrades: number[]
     researches: number[]
     researchesAuto: number[]
@@ -65,38 +65,36 @@ export interface globalType {
     }
     upgradesInfo: {
         description: string[]
-        effect: number[]
         effectText: string[][]
+        effect: number[]
         cost: number[]
     }
-    /*upgradesS2Info: {
+    upgradesS2Info: {
         description: string[]
-        effect: number[]
         effectText: string[][]
+        effect: number[]
         cost: number[]
-        scalling: number[]
-        max: number[]
-    }*/
+    }
     researchesInfo: {
         description: string[]
-        effect: number[]
         effectText: string[][]
+        effect: number[]
         cost: number[]
         scalling: number[]
         max: number[]
     }
-    /*researchesS2Info: {
+    researchesS2Info: {
         description: string[]
-        effect: number[]
         effectText: string[][]
+        effect: number[]
         cost: number[]
         scalling: number[]
         max: number[]
-    }*/
+    }
     researchesAutoInfo: {
         description: string[]
-        effect: Array<number | string>
         effectText: string[][]
+        effect: Array<number | string>
         cost: number[]
         scalling: number[]
         max: number[]
