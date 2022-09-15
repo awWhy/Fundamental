@@ -45,6 +45,7 @@
                 </div>
                 <div id="building2" class="buyBuilding">
                     <img src="Used_art/Atom.png" alt="Atom" id="atoms" loading="lazy">
+                    <img src="Used_art/Puddle.png" alt="Puddle" id="puddles" loading="lazy">
                     <div>
                         <p><span id="building2Name">Atoms</span>: <span id="building2Cur" class="whiteText">0</span></p>
                         <p>producing: <span id="building2Prod" class="whiteText">0</span></p>
@@ -54,12 +55,31 @@
                 </div>
                 <div id="building3" class="buyBuilding">
                     <img src="Used_art/Molecule.png" alt="Molecule" id="molecules" loading="lazy">
+                    <img src="Used_art/Pond.png" alt="Pond" id="ponds" loading="lazy">
                     <div>
                         <p><span id="building3Name">Molecules</span>: <span id="building3Cur" class="whiteText">0</span></p>
                         <p>producing: <span id="building3Prod" class="whiteText">0</span></p>
                     </div>
                     <button id="building3Btn">Need: 3 Atoms</button>
                     <button id="toggle6" class="toggle auto">Auto ON</button>
+                </div>
+                <div id="building4" class="buyBuilding">
+                    <img src="Used_art/Lake.png" alt="Lake" id="lakes" loading="lazy">
+                    <div>
+                        <p><span id="building4Name">Lakes</span>: <span id="building4Cur" class="whiteText">0</span></p>
+                        <p>producing: <span id="building4Prod" class="whiteText">0</span></p>
+                    </div>
+                    <button id="building4Btn">Need: ? Drops</button>
+                    <button id="toggle7" class="toggle auto">Auto ON</button>
+                </div>
+                <div id="building5" class="buyBuilding">
+                    <img src="Used_art/Sea.png" alt="Sea" id="seas" loading="lazy">
+                    <div>
+                        <p><span id="building5Name">Seas</span>: <span id="building5Cur" class="whiteText">0</span></p>
+                        <p>producing: <span id="building5Prod" class="whiteText">0</span></p>
+                    </div>
+                    <button id="building5Btn">Need: ? Drops</button>
+                    <button id="toggle8" class="toggle auto">Auto ON</button>
                 </div>
                 <div id="toggleBuy">
                     <img src="Used_art/Buy%201x.png" alt="Toggle buy 1" id="buy1x" class="interactiveImage" loading="lazy">
@@ -92,25 +112,29 @@
             <div id="stageResearch" class="researchSection">
                 <img src="Used_art/Stage.png" alt="Stage" class="stageBorder" loading="lazy">
                 <div>
-                    <div id="research1Stage1">
-                        <img src="Used_art/Research1.png" alt="Research 1" tabindex="10" id="research1Stage1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research1Stage1Level" class="redText">0</span>/<span id="research1Stage1Max" class="greenText">9</span></p>
+                    <div id="research1">
+                        <img src="Used_art/Research1.png" alt="Research 1" tabindex="10" id="research1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="research1Level" class="redText">0</span>/<span id="research1Max" class="greenText">9</span></p>
                     </div>
-                    <div id="research2Stage1">
-                        <img src="Used_art/Research2.png" alt="Research 2" tabindex="10" id="research2Stage1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research2Stage1Level" class="redText">0</span>/<span id="research2Stage1Max" class="greenText">3</span></p>
+                    <div id="research2">
+                        <img src="Used_art/Research2.png" alt="Research 2" tabindex="10" id="research2Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="research2Level" class="redText">0</span>/<span id="research2Max" class="greenText">3</span></p>
                     </div>
-                    <div id="research3Stage1">
-                        <img src="Used_art/Research3.png" alt="Research 3" tabindex="10" id="research3Stage1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research3Stage1Level" class="redText">0</span>/<span id="research3Stage1Max" class="greenText">9</span></p>
+                    <div id="research3">
+                        <img src="Used_art/Research3.png" alt="Research 3" tabindex="10" id="research3Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="research3Level" class="redText">0</span>/<span id="research3Max" class="greenText">9</span></p>
                     </div>
-                    <div id="research4Stage1" class="stage4research">
-                        <img src="Used_art/Research4.png" alt="Research 4" tabindex="10" id="research4Stage1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research4Stage1Level" class="redText">0</span>/<span id="research4Stage1Max" class="greenText">1</span></p>
+                    <div id="research4" class="stage4research">
+                        <img src="Used_art/Research4.png" alt="Research 4" tabindex="10" id="research4Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="research4Level" class="redText">0</span>/<span id="research4Max" class="greenText">1</span></p>
                     </div>
-                    <div id="research5Stage1" class="stage4research">
-                        <img src="Used_art/Research5.png" alt="Research 5" tabindex="10" id="research5Stage1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research5Stage1Level" class="redText">0</span>/<span id="research5Stage1Max" class="greenText">2</span></p>
+                    <div id="research5" class="stage4research">
+                        <img src="Used_art/Research5.png" alt="Research 5" tabindex="10" id="research5Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="research5Level" class="redText">0</span>/<span id="research5Max" class="greenText">2</span></p>
+                    </div>
+                    <div id="researchW1">
+                        <img src="Used_art/ResearchW1.png" alt="Research 1" tabindex="10" id="researchW1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchW1Level" class="redText">0</span>/<span id="researchW1Max" class="greenText">9</span></p>
                     </div>
                 </div>
             </div>
@@ -195,6 +219,8 @@
             <button id="invisibleGetBuilding1">Get information for Particles</button>
             <button id="invisibleGetBuilding2">Get information for Atoms</button>
             <button id="invisibleGetBuilding3">Get information for Molecules</button>
+            <button id="invisibleGetBuilding4">Get information for Lakes</button>
+            <button id="invisibleGetBuilding5">Get information for Seas</button>
             <button id="invisibleGetResource1">Get information for Energy</button>
         </div>
         <label id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</label>
@@ -216,7 +242,11 @@
                     </div>
                     <div id="waterStat" class="statFoot">
                         <img src="Used_art/Water.png" alt="H2O" loading="lazy">
-                        <p id="water" class="statText">Moles: 1</p>
+                        <p id="water" class="statText">Moles: 0.0028</p>
+                    </div>
+                    <div id="dropStat" class="statFoot">
+                        <img src="Used_art/Drop.png" alt="Drop of water" loading="lazy">
+                        <p id="dropExtra" class="statText">Drops: 0</p>
                     </div>
                 </div>
                 <div class="footerArea">

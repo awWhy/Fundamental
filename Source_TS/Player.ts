@@ -19,7 +19,7 @@ export const player: playerType = { //Only for information that need to be saved
         updated: Date.now(),
         started: Date.now()
     },
-    buildings: [
+    buildings: [ //If new building to be addded, then also add extra's to 'global.buildingsInfo.producing' (only visual importance)
         { //Quarks[0]
             current: 3,
             total: 3
@@ -38,6 +38,16 @@ export const player: playerType = { //Only for information that need to be saved
             current: 0,
             true: 0,
             total: 0
+        },
+        { //[4]
+            current: 0,
+            true: 0,
+            total: 0
+        },
+        { //[5]
+            current: 0,
+            true: 0,
+            total: 0
         }
     ],
     /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
@@ -45,7 +55,7 @@ export const player: playerType = { //Only for information that need to be saved
     researches: [0, 0, 0, 0, 0],
     researchesAuto: [0, 0],
     toggles: [], //Auto added for every element with a class 'toggle', all toggle's are:
-    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6] */
+    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8] */
     buyToggle: {
         howMany: 1, //If more types will be added
         input: 10, //Then turn all of them
@@ -82,13 +92,14 @@ export const global: globalType = { //For information that doesn't need to be sa
         visual: 0,
         autoSave: 0
     },
-    buildingsInfo: {
+    buildingsInfo: { //stageCheck(); will automaticly change name and cost (globalStart)
         name: ['Quarks', 'Particles', 'Atoms', 'Molecules'],
         cost: [0, 3, 24, 3],
         increase: 1.4,
-        producing: [0, 0, 0, 0]
+        producing: [0, 0, 0, 0, 0, 0] //2 extra here, only for visual on load (not having NaN)
     },
     /* Every stage using its own array (because I think its better this way) */
+    //Also effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
     upgradesInfo: {
         description: [
             'Bigger electrons. Particles cost decreased.',
@@ -100,7 +111,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Tritium. Radioactive.',
             'Nuclear fusion. More energy.'
         ],
-        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+        effectText: [
             ['Particle cost is ', ' times cheaper.'],
             ['Particles produce ', ' times more Quarks.'],
             ['Atoms produce ', ' times more Particles.'],
@@ -115,7 +126,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     upgradesS2Info: {
         description: [],
-        effectText: [], //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+        effectText: [],
         effect: [],
         cost: []
     },
@@ -127,7 +138,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Discharge bonus improved.',
             'Gain more energy from buying a building.'
         ],
-        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+        effectText: [
             ['Cost scalling is ', ' smaller for each level.'],
             ['Each bought building boost each other by additional ', '.'],
             ['Molecules now produce themselfs ', ' times quicker.'],
@@ -140,19 +151,23 @@ export const global: globalType = { //For information that doesn't need to be sa
         max: [9, 3, 9, 1, 2]
     },
     researchesS2Info: {
-        description: [],
-        effectText: [], //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
-        effect: [],
-        cost: [],
-        scalling: [],
-        max: []
+        description: [
+            'More moles.'
+        ],
+        effectText: [
+            ['Drops produce ', ' times more moles.']
+        ],
+        effect: [3],
+        cost: [20],
+        scalling: [1.2],
+        max: [9]
     },
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
             'Buy toggles.',
             'Automatization for buying upgrades.' //Auto changed every stage
         ],
-        effectText: [ //Effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+        effectText: [
             ['Unlock abbility to buy multiple buildings at same time.'],
             ['Will automatically buy ', ' for you.']
         ],
@@ -166,7 +181,7 @@ export const global: globalType = { //For information that doesn't need to be sa
 const createArray = (amount: number) => {
     const array = [];
     for (let i = 0; i < amount; i++) {
-        if (i === 4 || i === 5 || i === 6) {
+        if (i >= 4 && i <= 8) {
             array.push(false);
         } else {
             array.push(true);
@@ -200,20 +215,26 @@ export const updatePlayer = (load: saveType) => {
             }
         }
         /* Next one's will auto add missing part of already existing information */
-        //Everything in comments, means not going to happen (at least for now)
-        if (load.player.stage.current === 1) {
-        //    if (global.upgradesInfo.cost.length > load.player.upgrades.length) {
-        //        for (let i = load.player.upgrades.length; i < global.upgradesInfo.cost.length; i++) {
-        //            load.player.upgrades[i] = 0;
-        //        }
-        //    }
-        //    if (global.researchesInfo.cost.length > load.player.researches.length) {
-        //        for (let i = load.player.researches.length; i < global.researchesInfo.cost.length; i++) {
-        //            load.player.researches[i] = 0;
-        //        }
-        //    }
-        } else if (load.player.stage.current === 2) {
-            //
+        if (load.player.stage.current === 2) { //Only needed until stage x is not done (or stage if was made public early)
+            if (global.upgradesS2Info.cost.length > load.player.upgrades.length) {
+                for (let i = load.player.upgrades.length; i < global.upgradesS2Info.cost.length; i++) {
+                    load.player.upgrades[i] = 0;
+                }
+            }
+            if (global.researchesS2Info.cost.length > load.player.researches.length) {
+                for (let i = load.player.researches.length; i < global.researchesS2Info.cost.length; i++) {
+                    load.player.researches[i] = 0;
+                }
+            }
+        }
+        if (playerStart.buildings.length > load.player.buildings.length) {
+            for (let i = load.player.buildings.length; i < playerStart.buildings.length; i++) {
+                load.player.buildings[i] = {
+                    current: 0,
+                    true: 0,
+                    total: 0
+                };
+            }
         }
         if (playerStart.researchesAuto.length > load.player.researchesAuto.length) {
             for (let i = load.player.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {

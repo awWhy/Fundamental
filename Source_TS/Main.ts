@@ -59,17 +59,21 @@ for (let i = 0; i < playerStart.toggles.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
 }
 
-/* Stage tab (stage 1) */
+/* Stage tab */
 for (let i = 1; i < playerStart.buildings.length; i++) {
-    getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(player.buildings, i));
+    getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(i));
 }
 for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
     if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
 }
+for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
+    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 'upgradesS2Info'));
+    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 'upgradesS2Info'));
+    if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i, 'upgrades', 'upgradesS2Info')); }
+}
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
-/* Don't know if there any need to load above one's, if stage !== 1 */
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 getId('buy1x').addEventListener('click', () => toggleBuy('1'));
 getId('buyAny').addEventListener('click', () => toggleBuy('any'));
@@ -79,9 +83,14 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Research tab */
 for (let i = 0; i < global.researchesInfo.cost.length; i++) {
-    getId(`research${i + 1}Stage1Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
-    getId(`research${i + 1}Stage1Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader) { getId(`research${i + 1}Stage1Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+    getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
+    getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
+    if (screenReader) { getId(`research${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+}
+for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
+    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 'researchesS2Info'));
+    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 'researchesS2Info'));
+    if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches', 'researchesS2Info')); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));

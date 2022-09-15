@@ -237,11 +237,13 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
             if (special === 'building') {
                 const { buildings } = player;
                 const { buildingsInfo } = global;
+                let extra = index - 1;
+                if (stage.current === 2 && index > 2) { extra = 1; }
 
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[index - 1]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[index - 1]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles[index + 3] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[extra]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles[index + 3] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
                 if (stage.current === 1) {
