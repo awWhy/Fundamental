@@ -127,34 +127,27 @@ export const visualUpdate = () => { //This is everything that can be shown later
         const { energy, discharge } = player;
 
         getId('energyStat').style.display = energy.total >= 9 ? '' : 'none';
-        getId('building2').style.display = buildings[1].total >= 11 ? '' : 'none';
-        getId('building3').style.display = buildings[2].total >= 2 ? '' : 'none';
-        if (energy.total >= 9) { getId('upgrades').style.display = ''; }
         getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
+        if (buildings[1].total >= 11) { getId('building2').style.display = ''; }
+        if (buildings[2].total >= 2) { getId('building3').style.display = ''; }
+        if (energy.total >= 9) { getId('upgrades').style.display = ''; }
         if (discharge.current >= 1) { getId('resetToggles').style.display = ''; }
         for (let i = 5; i <= 8; i++) {
-            if (discharge.current >= 3) {
-                getId(`upgrade${i}`).style.display = '';
-            } else {
-                getId(`upgrade${i}`).style.display = 'none';
-            }
+            getId(`upgrade${i}`).style.display = discharge.current >= 3 ? '' : 'none';
         }
         if (discharge.current >= 4) { getId('researchTabBtn').style.display = ''; }
         if (upgrades[7] === 1) { getId('stage').style.display = ''; }
         if (buildings[3].current >= 1.67e21) { getId('stageReset').textContent = 'Enter next stage'; }
     } else if (stage.current === 2) {
         getId('dropStat').style.display = global.tab !== 'stage' ? '' : 'none';
-        getId('building2').style.display = buildings[1].total >= 400 ? '' : 'none';
-        //getId('building3').style.display = buildings[2].total >= 9e99 ? '' : 'none';
-        //getId('building4').style.display = buildings[3].total >= 9e99 ? '' : 'none';
-        //getId('building5').style.display = buildings[4].total >= 9e99 ? '' : 'none';
+        if (buildings[1].total >= 400) { getId('building2').style.display = ''; }
+        //if (buildings[2].total >= 9e99) { getId('building3').style.display = ''; }
+        //if (buildings[3].total >= 9e99) { getId('building4').style.display = ''; }
+        //if (buildings[4].total >= 9e99) { getId('building5').style.display = ''; }
     }
+
     for (let i = 1; i < playerStart.buildings.length; i++) {
-        if (researchesAuto[1] >= i) {
-            getId(`toggle${i + 3}`).style.display = '';
-        } else {
-            getId(`toggle${i + 3}`).style.display = 'none';
-        }
+        getId(`toggle${i + 3}`).style.display = researchesAuto[1] >= i ? '' : 'none';
     }
     getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
     if (global.screenReader) {
@@ -220,18 +213,75 @@ export const format = (input: number, precision = input < 1e3 ? (input < 1 ? 4 :
 export const stageCheck = () => {
     const { stage, upgrades, researches, researchesAuto } = player;
     const { stageInfo, buildingsInfo, researchesAutoInfo } = global;
-    const body = document.body.style;
 
-    /* Stage specific information */
-    getId('upgradeCost').classList.remove('orangeText', 'cyanText'); //First remove all classes from stage specific colors
+    //First remove (hide) all information that might be missing in a new stage
+    getId('upgradeCost').classList.remove('orangeText', 'cyanText');
     getId('researchCost').classList.remove('orangeText', 'cyanText');
     for (let i = 2; i < playerStart.buildings.length; i++) {
-        getId(`building${i}`).style.display = 'none'; //Hide all buildings past 1
+        getId(`building${i}`).style.display = 'none';
+    }
+    getId('upgradeText').textContent = 'Hover to see.';
+    getId('upgradeEffect').textContent = 'Hover to see.';
+    getId('upgradeCost').textContent = 'Resource.';
+    getId('researchText').textContent = 'Hover to see.';
+    getId('researchEffect').textContent = 'Hover to see.';
+    getId('researchCost').textContent = 'Resource.';
+
+    //Next add colors
+    let upgradeType = 'upgradesInfo' as 'upgradesS2Info'; //Will deal with TS being stupid later
+    let researchType = 'researchesInfo' as 'researchesS2Info';
+    if (stage.current !== 1) {
+        upgradeType = `upgradesS${stage.current}Info` as 'upgradesS2Info';
+        researchType = `researchesS${stage.current}Info` as 'researchesS2Info';
+    }
+    let extra = '';
+    if (stage.current === 2) {
+        extra = 'W'; //buyUpgrades(); also need it
+    }
+    for (let i = 0; i < global[upgradeType].cost.length; i++) {
+        getId(`upgrade${extra}${[i + 1]}`).style.backgroundColor = upgrades[i] === 1 ? 'green' : '';
+    }
+    for (let i = 0; i < global[researchType].cost.length; i++) {
+        getId(`research${extra}${i + 1}Level`).textContent = String(researches[i]);
+        getId(`research${extra}${i + 1}Level`).classList.remove('redText', 'orchidText', 'greenText');
+        calculateResearchCost(i, 'researches', researchType);
+        if (researches[i] === global[researchType].max[i]) {
+            getId(`research${extra}${i + 1}Level`).classList.add('greenText');
+        } else if (researches[i] === 0) {
+            getId(`research${extra}${i + 1}Level`).classList.add('redText');
+        } else {
+            getId(`research${extra}${i + 1}Level`).classList.add('orchidText');
+        }
     }
 
-    if (stage.current === 1) {
-        const { upgradesInfo, researchesInfo } = global;
+    //Hide | show stage specific information
+    getId('quarkStat').style.display = stage.current === 1 ? '' : 'none';
+    getId('particles').style.display = stage.current === 1 ? '' : 'none';
+    getId('atoms').style.display = stage.current === 1 ? '' : 'none';
+    getId('molecules').style.display = stage.current === 1 ? '' : 'none';
+    getId('dischargeToggleReset').style.display = stage.current === 1 ? '' : 'none';
 
+    getId('waterStat').style.display = stage.current === 2 ? '' : 'none';
+    getId('drops').style.display = stage.current === 2 ? '' : 'none';
+    getId('puddles').style.display = stage.current === 2 ? '' : 'none';
+    getId('ponds').style.display = stage.current === 2 ? '' : 'none';
+    getId('lakes').style.display = stage.current === 2 ? '' : 'none';
+    getId('seas').style.display = stage.current === 2 ? '' : 'none';
+
+    getId('upgrades').style.display = stage.true > 1 ? '' : 'none';
+    getId('resetToggles').style.display = stage.true > 1 ? '' : 'none';
+    getId('researchTabBtn').style.display = stage.true > 1 ? '' : 'none';
+    getId('stage').style.display = stage.true > 1 ? '' : 'none';
+    getId('stageToggleReset').style.display = stage.true > 1 ? '' : 'none';
+    getId('themeArea').style.display = stage.true > 1 ? '' : 'none';
+
+    //Researches (upgrades) when ALL are shown or hidden based of stage
+    for (let i = 1; i <= global.researchesInfo.cost.length; i++) {
+        getId(`research${i}`).style.display = stage.current === 1 ? '' : 'none';
+    }
+
+    //Add (change) unique information
+    if (stage.current === 1) {
         buildingsInfo.name = ['Quarks', 'Particles', 'Atoms', 'Molecules']; //Assign new constants
         globalStart.buildingsInfo.cost = [0, 3, 24, 3];
         researchesAutoInfo.cost[1] = 3000;
@@ -239,47 +289,10 @@ export const stageCheck = () => {
         global.dischargeInfo.next = 10 ** player.discharge.current; //Calculate stage specific part's
         getId('upgradeCost').classList.add('orangeText'); //Add colors
         getId('researchCost').classList.add('orangeText');
-        for (let i = 0; i < upgradesInfo.cost.length; i++) {
-            if (upgrades[i] === 1) {
-                getId(`upgrade${[i + 1]}`).style.backgroundColor = 'green';
-            } else {
-                getId(`upgrade${[i + 1]}`).style.backgroundColor = '';
-            }
-        }
-        for (let i = 0; i < researchesInfo.cost.length; i++) {
-            getId(`research${i + 1}Level`).textContent = String(researches[i]);
-            getId(`research${i + 1}Level`).classList.remove('redText', 'orchidText', 'greenText');
-            calculateResearchCost(i, 'researches');
-            if (researches[i] === researchesInfo.max[i]) {
-                getId(`research${i + 1}Level`).classList.add('greenText');
-            } else if (researches[i] === 0) {
-                getId(`research${i + 1}Level`).classList.add('redText');
-            } else {
-                getId(`research${i + 1}Level`).classList.add('orchidText');
-            }
-        }
-        getId('quarkStat').style.display = ''; //Show required parts
-        getId('particles').style.display = '';
-        getId('atoms').style.display = '';
-        getId('molecules').style.display = '';
-        getId('dischargeToggleReset').style.display = '';
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 4; i++) { //Rest handled in visualUpdate();
             getId(`upgrade${i}`).style.display = '';
         }
-        for (let i = 1; i <= researchesInfo.cost.length; i++) {
-            getId(`research${i}`).style.display = '';
-        }
-        if (stage.true === 1) { //Overall progress check
-            getId('upgrades').style.display = 'none';
-            getId('resetToggles').style.display = 'none';
-            getId('researchTabBtn').style.display = 'none';
-            getId('stage').style.display = 'none';
-            getId('stageToggleReset').style.display = 'none';
-            getId('themeArea').style.display = 'none';
-        }
     } else if (stage.current === 2) {
-        const { upgradesS2Info, researchesS2Info } = global;
-
         buildingsInfo.name = ['Moles', 'Drops', 'Puddles', 'Ponds', 'Lakes', 'Seas'];
         buildingsInfo.increase = 1.2;
         globalStart.buildingsInfo.cost = [0, 0.0028, 100, 9e99, 9e99, 9e99]; //When cost is decided on, add into index just incase as well (building 4 and 5)
@@ -287,44 +300,22 @@ export const stageCheck = () => {
         //researchesAutoInfo.scalling[1] = 9999;
         getId('upgradeCost').classList.add('cyanText');
         getId('researchCost').classList.add('cyanText');
-        for (let i = 0; i < upgradesS2Info.cost.length; i++) {
-            if (upgrades[i] === 1) {
-                getId(`upgradeW${[i + 1]}`).style.backgroundColor = 'green';
-            } else {
-                getId(`upgradeW${[i + 1]}`).style.backgroundColor = '';
-            }
-        }
-        for (let i = 0; i < researchesS2Info.cost.length; i++) {
-            getId(`researchW${i + 1}Level`).textContent = String(researches[i]);
-            getId(`researchW${i + 1}Level`).classList.remove('redText', 'orchidText', 'greenText');
-            calculateResearchCost(i, 'researches', 'researchesS2Info');
-            if (researches[i] === researchesS2Info.max[i]) {
-                getId(`researchW${i + 1}Level`).classList.add('greenText');
-            } else if (researches[i] === 0) {
-                getId(`researchW${i + 1}Level`).classList.add('redText');
-            } else {
-                getId(`researchW${i + 1}Level`).classList.add('orchidText');
-            }
-        }
-        getId('waterStat').style.display = '';
-        getId('drops').style.display = '';
-        getId('puddles').style.display = '';
-        getId('ponds').style.display = '';
-        getId('lakes').style.display = '';
-        getId('seas').style.display = '';
-        for (let i = 1; i <= 0; i++) {
+        for (let i = 1; i <= global.upgradesS2Info.cost.length; i++) { //When done, show only when reached goal one's
             getId(`upgradeW${i}`).style.display = '';
         }
-        for (let i = 1; i <= researchesS2Info.cost.length; i++) {
+        for (let i = 1; i <= global.researchesS2Info.cost.length; i++) {
             getId(`researchW${i}`).style.display = '';
         }
     }
 
-    for (let i = 1; i < buildingsInfo.name.length; i++) { //Calculate building specific information based of current stage
+    //Buildings special information that was assigned above
+    for (let i = 1; i < buildingsInfo.name.length; i++) {
         getId(`building${i}Name`).textContent = buildingsInfo.name[i];
         calculateBuildingsCost(i);
     }
-    researchesAutoInfo.max[1] = buildingsInfo.name.length - 1; //Research for auto buying is always equal to that
+
+    //Automation researches, they are overall same across all stages
+    researchesAutoInfo.max[1] = buildingsInfo.name.length - 1;
     for (let i = 0; i < researchesAutoInfo.cost.length; i++) {
         getId(`researchAuto${i + 1}Level`).textContent = String(researchesAuto[i]);
         getId(`researchAuto${i + 1}Level`).classList.remove('redText', 'orchidText', 'greenText');
@@ -339,30 +330,16 @@ export const stageCheck = () => {
     }
     getId('researchAuto2Max').textContent = String(researchesAutoInfo.max[1]);
 
-    /* Hide stage specific part's, if stage isn't that one */
+    //Unique cases that are better to be handled here (most of them are handled in visualUpdate();)
     if (stage.current !== 1) {
-        getId('quarkStat').style.display = 'none';
         getId('energyStat').style.display = 'none';
-        getId('particles').style.display = 'none';
-        getId('atoms').style.display = 'none';
-        getId('molecules').style.display = 'none';
         getId('discharge').style.display = 'none';
-        getId('dischargeToggleReset').style.display = 'none';
         for (let i = 1; i <= global.upgradesInfo.cost.length; i++) {
             getId(`upgrade${i}`).style.display = 'none';
         }
-        for (let i = 1; i <= global.researchesInfo.cost.length; i++) {
-            getId(`research${i}`).style.display = 'none';
-        }
     }
     if (stage.current !== 2) {
-        getId('waterStat').style.display = 'none';
         getId('dropStat').style.display = 'none';
-        getId('drops').style.display = 'none';
-        getId('puddles').style.display = 'none';
-        getId('ponds').style.display = 'none';
-        getId('lakes').style.display = 'none';
-        getId('seas').style.display = 'none';
         for (let i = 1; i <= global.upgradesS2Info.cost.length; i++) {
             getId(`upgradeW${i}`).style.display = 'none';
         }
@@ -370,16 +347,9 @@ export const stageCheck = () => {
             getId(`researchW${i}`).style.display = 'none';
         }
     }
-    if (stage.true > 1) {
-        getId('upgrades').style.display = '';
-        getId('resetToggles').style.display = '';
-        getId('researchTabBtn').style.display = '';
-        getId('stage').style.display = '';
-        getId('stageToggleReset').style.display = '';
-        getId('themeArea').style.display = '';
-    }
 
-    /* Visual */
+    //Special information
+    const body = document.body.style;
     getId('stageReset').textContent = 'You are not ready';
     getId('stageWord').textContent = stageInfo.word[stage.current - 1];
     if (stage.current === 1) {

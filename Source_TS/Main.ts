@@ -37,7 +37,6 @@ export const reLoad = async(loadSave = false) => {
     stageCheck(); //Visual and other stage information (like next reset goal)
     switchTab(); //Sets tab to Stage, also visual and number update
     changeFontSize(); //Changes font size
-    //Upgrade hover text won't reset when reload, but no idea if it should
     for (let i = 0; i < playerStart.toggles.length; i++) {
         toggleSwap(i, false); //Gives toggles proper visual appearance
     }
@@ -114,6 +113,7 @@ getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 getId('toggle3').addEventListener('click', () => changeFontSize());
 getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
+
 /* Only for screen readers */
 getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
 if (screenReader) {
@@ -184,9 +184,9 @@ async function saveLoad(type: string) {
                 const load = JSON.parse(atob(text));
                 changeIntervals(true);
                 updatePlayer(load);
-                const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
-                if (noOffline) {
-                    player.time.updated = Date.now();
+                if (!player.toggles[0]) {
+                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
+                    if (noOffline) { player.time.updated = Date.now(); }
                 }
                 void reLoad();
             } catch {

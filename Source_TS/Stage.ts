@@ -136,11 +136,11 @@ export const buyUpgrades = (upgrade: number, playerOne = 'upgrades' as 'upgrades
         if (playerOne === 'researchesAuto') {
             researchNumber = getId(`researchAuto${upgrade + 1}Level`);
         } else {
-            if (stage.current === 1) {
-                researchNumber = getId(`research${upgrade + 1}Level`);
-            } else /*if (stage.current === 2)*/ {
-                researchNumber = getId(`researchW${upgrade + 1}Level`);
+            let extra = '';
+            if (stage.current === 2) {
+                extra = 'W';
             }
+            researchNumber = getId(`research${extra}${upgrade + 1}Level`);
         }
 
         researchNumber.textContent = String(player[playerOne][upgrade]);
@@ -168,13 +168,11 @@ export const buyUpgrades = (upgrade: number, playerOne = 'upgrades' as 'upgrades
         player[playerOne][upgrade] = 1;
         price.current -= global[globalOne].cost[upgrade];
 
-        let image: HTMLElement;
-        if (stage.current === 1) {
-            image = getId(`upgrade${upgrade + 1}`);
-        } else /*if (stage.current === 2)*/ {
-            image = getId(`upgradeW${upgrade + 1}`);
+        let extra = '';
+        if (stage.current === 2) {
+            extra = 'W';
         }
-        image.style.backgroundColor = 'green';
+        getId(`upgrade${extra}${upgrade + 1}`).style.backgroundColor = 'green';
 
         /* Special cases */
         if (stage.current === 1) {

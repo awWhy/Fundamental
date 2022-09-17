@@ -31,29 +31,30 @@ export const reset = (type: 'discharge' | 'stage') => {
                 buildings[i].total = 0;
             }
 
+            let upgradeType = 'upgradesInfo' as 'upgradesS2Info'; //TS is still incredebly stupid (no idea how to deal with it)
+            let researchType = 'researchesInfo' as 'researchesS2Info';
+            if (stage.current !== 1) {
+                upgradeType = `upgradesS${stage.current}Info` as 'upgradesS2Info';
+                researchType = `researchesS${stage.current}Info` as 'researchesS2Info';
+            }
+            for (let i = 0; i < global[upgradeType].cost.length; i++) {
+                upgrades[i] = 0;
+            }
+            for (let i = 0; i < global[researchType].cost.length; i++) {
+                researches[i] = 0;
+            }
+
             switch (stage.current) {
                 case 1:
+                    buildings[0].current = 3;
+                    buildings[0].total = 3;
                     player.energy.current = 0;
                     player.energy.total = 0;
                     player.discharge.current = 0;
-                    buildings[0].current = 3;
-                    buildings[0].total = 3;
-                    for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
-                        upgrades[i] = 0;
-                    }
-                    for (let i = 0; i < global.researchesInfo.cost.length; i++) {
-                        researches[i] = 0;
-                    }
                     break;
                 case 2:
                     buildings[0].current = 0.0028;
                     buildings[0].total = 0.0028;
-                    for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
-                        upgrades[i] = 0;
-                    }
-                    for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
-                        researches[i] = 0;
-                    }
                     break;
             }
             stageCheck();
