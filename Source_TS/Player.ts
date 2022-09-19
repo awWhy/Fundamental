@@ -125,10 +125,24 @@ export const global: globalType = { //For information that doesn't need to be sa
         cost: [9, 12, 36, 300, 800, 5000, 15000, 36000]
     },
     upgradesS2Info: {
-        description: [],
-        effectText: [],
-        effect: [],
-        cost: []
+        description: [
+            'Surface tension. Allows for bigger Puddles.',
+            'Streams. Spread quicker.',
+            '',
+            'Vaporization. Unlock new reset tier.',
+            '',
+            ''
+        ],
+        effectText: [
+            ['Each Puddle boost Puddle production by ', '.'],
+            ['Ponds boost to Puddles produtcion is now ', ' times bigger.'],
+            ['', ''],
+            ['Gain ability to convert Drops into Clouds. (', ' per 1)'],
+            ['', ''],
+            ['', '']
+        ],
+        effect: [1.03, 1.5, 0, 1e10, 0, 0],
+        cost: [1000, 2e8, 0, 1e10, 0, 0]
     },
     researchesInfo: {
         description: [
@@ -152,15 +166,19 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     researchesS2Info: {
         description: [
-            'More moles.'
+            'More moles.',
+            'Production of Drops is boosted.',
+            'Surface stress.'
         ],
         effectText: [
-            ['Drops produce ', ' times more moles.']
+            ['Drops produce ', ' times more moles.'],
+            ['Drops now give boost to what produces them based of bought amount, at a reduced rate.'],
+            ['Surface tension upgrade is now +', ' stronger.']
         ],
-        effect: [3],
-        cost: [20],
-        scalling: [1.2],
-        max: [9]
+        effect: [3, 0, 0.01],
+        cost: [20, 1e9, 1e5],
+        scalling: [1.2, 0, 10],
+        max: [9, 1, 2]
     },
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
@@ -214,17 +232,19 @@ export const updatePlayer = (load: saveType) => {
                 load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
             }
         }
+
         /* Next one's will auto add missing part of already existing information */
-        if (load.player.stage.current === 2) { //Only needed until stage x is not done (or stage if was made public early)
-            if (global.upgradesS2Info.cost.length > load.player.upgrades.length) {
-                for (let i = load.player.upgrades.length; i < global.upgradesS2Info.cost.length; i++) {
-                    load.player.upgrades[i] = 0;
-                }
+        const upgradeType = `upgrades${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'upgradesS2Info';
+        const researchType = `researches${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'researchesS2Info';
+
+        if (global[upgradeType].cost.length > load.player.upgrades.length) {
+            for (let i = load.player.upgrades.length; i < global[upgradeType].cost.length; i++) {
+                load.player.upgrades[i] = 0;
             }
-            if (global.researchesS2Info.cost.length > load.player.researches.length) {
-                for (let i = load.player.researches.length; i < global.researchesS2Info.cost.length; i++) {
-                    load.player.researches[i] = 0;
-                }
+        }
+        if (global[researchType].cost.length > load.player.researches.length) {
+            for (let i = load.player.researches.length; i < global[researchType].cost.length; i++) {
+                load.player.researches[i] = 0;
             }
         }
         if (playerStart.buildings.length > load.player.buildings.length) {

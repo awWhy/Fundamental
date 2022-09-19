@@ -26,7 +26,7 @@ export const reLoad = async(loadSave = false) => {
             }
         } else {
             Alert('Welcome. This is a test-project. Since I don\'t expect anyone to play this, save file can get corrupted with a new version.');
-            //Alert("Welcome to 'Fundamental'. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
+            //Alert("Welcome to 'Fundamental'. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). Was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
         }
         if (theme !== null) {
             global.theme.default = false;
@@ -68,9 +68,9 @@ for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
     if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
 }
 for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
-    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 'upgradesS2Info'));
-    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 'upgradesS2Info'));
-    if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i, 'upgrades', 'upgradesS2Info')); }
+    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
+    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i));
+    if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
@@ -87,9 +87,9 @@ for (let i = 0; i < global.researchesInfo.cost.length; i++) {
     if (screenReader) { getId(`research${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
 }
 for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
-    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 'researchesS2Info'));
-    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 'researchesS2Info'));
-    if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches', 'researchesS2Info')); }
+    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
+    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
+    if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));

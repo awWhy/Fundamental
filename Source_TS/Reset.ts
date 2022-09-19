@@ -1,23 +1,25 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
 import { calculateBuildingsCost } from './Stage';
-import { numbersUpdate, stageCheck, visualUpdate } from './Update';
+import { numbersUpdate, stageCheck, visualUpdate, visualUpdateUpgrades } from './Update';
 
-export const reset = (type: 'discharge' | 'stage') => {
+export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
     const { stage, buildings } = player;
 
     switch (type) {
-        case 'discharge':
+        case 'discharge': //Buildings reset at bottom
             player.energy.current = 0;
-            for (let i = 0; i < playerStart.buildings.length; i++) {
-                if (i === 0) {
-                    buildings[0].current = 3;
-                    buildings[0].total += 3;
-                } else {
-                    buildings[i].current = 0;
-                    buildings[i].true = 0;
-                    calculateBuildingsCost(i);
-                }
+            buildings[0].current = 3;
+            break;
+        case 'vaporization':
+            buildings[0].current = 0.0028;
+            for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
+                player.upgrades[i] = 0;
+                visualUpdateUpgrades(i);
+            }
+            for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
+                player.researches[i] = 0;
+                visualUpdateUpgrades(i, 'researches');
             }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
@@ -61,6 +63,13 @@ export const reset = (type: 'discharge' | 'stage') => {
             visualUpdate();
             switchTheme();
             break;
+        }
+    }
+    if (type !== 'stage') {
+        for (let i = 1; i < playerStart.buildings.length; i++) {
+            buildings[i].current = 0;
+            buildings[i].true = 0;
+            calculateBuildingsCost(i);
         }
     }
     numbersUpdate();

@@ -2,7 +2,7 @@ import { getId } from './Main';
 import { global, globalStart, player } from './Player';
 import { reset } from './Reset';
 import { Alert, Confirm } from './Special';
-import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate } from './Update';
+import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate, visualUpdateUpgrades } from './Update';
 
 export const buyBuilding = (index: number, auto = false) => {
     const { stage, buildings } = player;
@@ -84,12 +84,18 @@ export const calculateBuildingsCost = (index: number) => {
     if (stage.current === 1 && index === 1 && upgrades[0] === 1) { buildingsInfo.cost[1] /= 10; }
 };
 
-export const calculateResearchCost = (research: number, playerOne: 'researches' | 'researchesAuto', globalOne = playerOne + 'Info' as 'researchesS2Info') => {
-    if (player[playerOne][research] === global[globalOne].max[research]) { return; }
-    if (player.stage.current === 1) {
-        global[globalOne].cost[research] = globalStart[globalOne].cost[research] + global[globalOne].scalling[research] * player[playerOne][research];
+export const calculateResearchCost = (research: number, type: 'researches' | 'researchesAuto') => {
+    const { stage } = player;
+    let typeInfo = 'researchesAutoInfo' as 'researchesAutoInfo' | 'researchesS2Info';
+    if (type !== 'researchesAuto') {
+        typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
+    }
+
+    if (player[type][research] === global[typeInfo].max[research]) { return; }
+    if (stage.current === 1) {
+        global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] + global[typeInfo].scalling[research] * player[type][research];
     } else {
-        global[globalOne].cost[research] = Math.trunc(globalStart[globalOne].cost[research] * global[globalOne].scalling[research] ** player[playerOne][research]);
+        global[typeInfo].cost[research] = Math.trunc(globalStart[typeInfo].cost[research] * global[typeInfo].scalling[research] ** player[type][research]);
     }
 };
 
@@ -117,8 +123,9 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     if (isFinite(check)) { buildings[get].total = check; }
 };
 
-export const buyUpgrades = (upgrade: number, playerOne = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto', globalOne = playerOne + 'Info' as 'upgradesS2Info' | 'researchesS2Info') => {
+export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto') => {
     const { stage } = player;
+
     let price: Record<string, number>;
     if (stage.current === 1) {
         price = player.energy;
@@ -126,53 +133,31 @@ export const buyUpgrades = (upgrade: number, playerOne = 'upgrades' as 'upgrades
         price = player.buildings[1];
     }
 
-    if (playerOne !== 'upgrades') {
-        //@ts-expect-error //Not in a mood
-        if (player[playerOne][upgrade] === global[globalOne].max[upgrade] || price.current < global[globalOne].cost[upgrade]) { return; }
-        player[playerOne][upgrade]++;
-        price.current -= global[globalOne].cost[upgrade];
-
-        let researchNumber: HTMLElement;
-        if (playerOne === 'researchesAuto') {
-            researchNumber = getId(`researchAuto${upgrade + 1}Level`);
-        } else {
-            let extra = '';
-            if (stage.current === 2) {
-                extra = 'W';
-            }
-            researchNumber = getId(`research${extra}${upgrade + 1}Level`);
+    if (type !== 'upgrades') {
+        let typeInfo = 'researchesAutoInfo' as 'researchesAutoInfo' | 'researchesS2Info';
+        if (type !== 'researchesAuto') {
+            typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
         }
 
-        researchNumber.textContent = String(player[playerOne][upgrade]);
-        //@ts-expect-error
-        if (player[playerOne][upgrade] !== global[globalOne].max[upgrade]) {
-            researchNumber.classList.replace('redText', 'orchidText');
-        } else {
-            researchNumber.classList.remove('redText', 'orchidText');
-            researchNumber.classList.add('greenText');
-        }
+        if (player[type][upgrade] === global[typeInfo].max[upgrade] || price.current < global[typeInfo].cost[upgrade]) { return; }
+        player[type][upgrade]++;
+        price.current -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
-        if (stage.current === 1 && playerOne === 'researches' && upgrade === 0) {
+        if (stage.current === 1 && type === 'researches' && upgrade === 0) {
             for (let i = 1; i < global.buildingsInfo.name.length; i++) {
                 calculateBuildingsCost(i);
             }
         }
-        //@ts-expect-error
-        if (global.screenReader) { getId('invisibleBought').textContent = `You have researched '${global[globalOne].description[upgrade]}', level is now ${player[playerOne][upgrade]} ${player[playerOne][upgrade] === global[globalOne].max[upgrade] ? 'maxed' : ''}`; }
+        if (global.screenReader) { getId('invisibleBought').textContent = `You have researched '${global[typeInfo].description[upgrade]}', level is now ${player[type][upgrade]} ${player[type][upgrade] === global[typeInfo].max[upgrade] ? 'maxed' : ''}`; }
 
-        //@ts-expect-error
-        calculateResearchCost(upgrade, playerOne, globalOne);
+        calculateResearchCost(upgrade, type);
     } else {
-        if (player[playerOne][upgrade] === 1 || price.current < global[globalOne].cost[upgrade]) { return; }
-        player[playerOne][upgrade] = 1;
-        price.current -= global[globalOne].cost[upgrade];
+        const typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
 
-        let extra = '';
-        if (stage.current === 2) {
-            extra = 'W';
-        }
-        getId(`upgrade${extra}${upgrade + 1}`).style.backgroundColor = 'green';
+        if (player[type][upgrade] === 1 || price.current < global[typeInfo].cost[upgrade]) { return; }
+        player[type][upgrade] = 1;
+        price.current -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
         if (stage.current === 1) {
@@ -186,10 +171,11 @@ export const buyUpgrades = (upgrade: number, playerOne = 'upgrades' as 'upgrades
                 }
             }
         }
-        if (global.screenReader) { getId('invisibleBought').textContent = `You have bought upgrade '${global[globalOne].description[upgrade]}'`; }
+        if (global.screenReader) { getId('invisibleBought').textContent = `You have bought upgrade '${global[typeInfo].description[upgrade]}'`; }
     }
     numbersUpdate();
-    getUpgradeDescription(upgrade, playerOne, globalOne);
+    getUpgradeDescription(upgrade, type);
+    visualUpdateUpgrades(upgrade, type);
 };
 
 export const toggleSwap = (number: number, change = true) => {
@@ -301,4 +287,8 @@ export const dischargeResetCheck = async() => {
             reset('discharge');
         }
     }
+};
+
+export const vaporizationResetCheck = async() => {
+    reset('vaporization');
 };
