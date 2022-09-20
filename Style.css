@@ -24,7 +24,7 @@ body {
     --cyan-text-color: #03d3d3;
     --blue-text-color: dodgerblue;
     --orange-text-color: darkorange;
-    /* --gray-text-color: #8f8f8f */
+    --gray-text-color: #8f8f8f;
     --orchid-text-color: #e14bdb;
     --darkorchid-text-color: #bd24ef;
     --red-text-color: #eb0000;
@@ -48,6 +48,7 @@ body {
 .cyanText { color: var(--cyan-text-color); }
 .blueText { color: var(--blue-text-color); }
 .orangeText { color: var(--orange-text-color); }
+.grayText { color: var(--gray-text-color); }
 .darkOrchidText { color: var(--darkorchid-text-color); }
 .orchidText { color: var(--orchid-text-color); }
 .redText { color: var(--red-text-color); }
@@ -206,6 +207,8 @@ input { font-size: 0.84em; }
 
 .resets {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1.2em;
 }
 
@@ -306,7 +309,7 @@ input { font-size: 0.84em; }
 .stage4research > p { border-color: #f28100 !important; }
 #automatizationResearch > div { border-color: #5b5b75; }
 #researchAuto1 > p { border-color: #bd24ef; }
-#researchAuto2 > p { border-color: var(--border-stage); }
+#researchAuto3 > p { border-color: #1460a8; }
 
 .descriptionText {
     display: flex;
@@ -390,6 +393,7 @@ input { font-size: 0.84em; }
 
 #themeArea { text-align: center; }
 #themeArea > div:focus-within > div { display: block; }
+#themeArea > div:focus-within > button { clip-path: circle(0); } /* Just makes button invisible without removing focus from it */
 #themeArea button { width: 6em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
 #switchTheme1 { border-color: darkcyan; }
@@ -465,6 +469,11 @@ li > input[type = number] {
 #energy {
     color: var(--orange-text-color);
     border-color: #f28100;
+}
+
+#clouds {
+    color: var(--gray-text-color);
+    border-color: #5b5b75;
 }
 
 #water { color: #3099ff; }

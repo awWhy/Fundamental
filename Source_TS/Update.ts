@@ -30,7 +30,7 @@ export const switchTab = (tab = 'none') => {
 
 export const invisibleUpdate = () => { //This is only for important or time based info
     const { stage, time, buildings, upgrades, researches, researchesAuto, toggles } = player;
-    const { buildingsInfo } = global;
+    const { timeSpecial, buildingsInfo } = global;
 
     const passedTime = Date.now() - time.updated;
     let passedSeconds = passedTime / 1000;
@@ -38,10 +38,13 @@ export const invisibleUpdate = () => { //This is only for important or time base
     if (passedTime < 0) {
         return console.warn('Negative passed time detected.');
     }
-    global.lastSave += passedTime;
-    if (passedSeconds > 3600) {
-        passedSeconds = 3600;
-        console.log('Max offline progress is 1 hour.');
+    timeSpecial.lastSave += passedTime;
+
+    timeSpecial.maxOffline = 3600;
+    if (researchesAuto[2] > 0) { timeSpecial.maxOffline += 3600 * researchesAuto[2]; }
+    if (passedSeconds > timeSpecial.maxOffline) {
+        passedSeconds = timeSpecial.maxOffline;
+        console.log(`Max offline progress is ${timeSpecial.maxOffline / 3600} hours.`);
     }
 
     if (stage.current === 1) {
@@ -104,6 +107,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
         } else if (stage.current === 2) {
             getId('water').textContent = `Moles: ${format(buildings[0].current)}`;
             if (tab !== 'stage') { getId('dropExtra').textContent = `Drops: ${format(buildings[1].current)}`; }
+            if (upgrades[3] === 1) { getId('clouds').textContent = `Clouds: ${format(player.vaporization.clouds)}`; }
         }
     }
     if (tab === 'stage') {
@@ -125,21 +129,26 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 getId('dischargeReset').textContent = `Next goal is ${format(global.dischargeInfo.next, 0)} Energy`;
                 getId('dischargeEffect').textContent = String(global.upgradesInfo.effect[3]);
             }
+        } else if (stage.current === 2) {
+            if (upgrades[3] === 1) { //Get 'buildings[1].current / 1e10' from global.vaporizationInfo.get (?)
+                getId('vaporizationReset').textContent = `Reset for ${format(buildings[1].current / 1e10)} Clouds`;
+            }
         }
     } else if (tab === 'settings') {
-        if (global.lastSave >= 1000) { getId('isSaved').textContent = `${format(global.lastSave, 0, 'time')} ago`; }
+        if (global.timeSpecial.lastSave >= 1000) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, 0, 'time')} ago`; }
     }
 };
 
 export const visualUpdate = () => { //This is everything that can be shown later
     const { stage, buildings, upgrades, researchesAuto } = player;
+    const { screenReader } = global;
 
     /* They are going to be hidden with stageCheck(); */
     if (stage.current === 1) {
         const { energy, discharge } = player;
 
         getId('energyStat').style.display = energy.total >= 9 ? '' : 'none';
-        getId('discharge').style.display = upgrades[3] > 0 ? '' : 'none';
+        getId('discharge').style.display = upgrades[3] === 1 ? '' : 'none';
         if (buildings[1].total >= 11) { getId('building2').style.display = ''; }
         if (buildings[2].total >= 2) { getId('building3').style.display = ''; }
         if (energy.total >= 9) { getId('upgrades').style.display = ''; }
@@ -150,19 +159,24 @@ export const visualUpdate = () => { //This is everything that can be shown later
         if (discharge.current >= 4) { getId('researchTabBtn').style.display = ''; }
         if (upgrades[7] === 1) { getId('stage').style.display = ''; }
         if (buildings[3].current >= 1.67e21) { getId('stageReset').textContent = 'Enter next stage'; }
+        if (screenReader) { getId('invisibleGetResource1').style.display = energy.total > 0 ? '' : 'none'; }
     } else if (stage.current === 2) {
         getId('dropStat').style.display = global.tab !== 'stage' ? '' : 'none';
+        getId('cloudStat').style.display = upgrades[3] === 1 ? '' : 'none';
+        getId('vaporization').style.display = upgrades[3] === 1 ? '' : 'none';
+        getId('vaporizationToggleReset').style.display = player.vaporization.current > 0 ? '' : 'none';
         if (buildings[1].total >= 400) { getId('building2').style.display = ''; }
         if (buildings[1].total >= 1e7) { getId('building3').style.display = ''; }
         //if (buildings[3].total >= 9e99) { getId('building4').style.display = ''; }
         //if (buildings[4].total >= 9e99) { getId('building5').style.display = ''; }
+        if (screenReader) { getId('invisibleGetResource1').style.display = upgrades[3] === 1 ? '' : 'none'; }
     }
 
     for (let i = 1; i < playerStart.buildings.length; i++) {
         getId(`toggle${i + 3}`).style.display = researchesAuto[1] >= i ? '' : 'none';
     }
     getId('toggleBuy').style.display = researchesAuto[0] > 0 ? '' : 'none';
-    if (global.screenReader) {
+    if (screenReader) {
         getId('invisibleGetBuilding2').style.display = buildings[2].total > 0 ? '' : 'none';
         getId('invisibleGetBuilding3').style.display = buildings[3].total > 0 ? '' : 'none';
         getId('invisibleGetBuilding4').style.display = buildings[4].total > 0 ? '' : 'none';
@@ -187,22 +201,22 @@ export const getUpgradeDescription = (index: number, type = 'upgrades' as 'upgra
         }
 
         if (global[typeInfo].effect[index] !== 0) {
-            getId('researchEffect').textContent = `${global[typeInfo].effectText[index][0]}${global[typeInfo].effect[index]}${global[typeInfo].effectText[index][1]}`;
+            getId('researchEffect').textContent = `${global[typeInfo].effectText[index][0]}${format(global[typeInfo].effect[index])}${global[typeInfo].effectText[index][1]}`;
         } else {
             getId('researchEffect').textContent = global[typeInfo].effectText[index][0];
         }
-        getId('researchCost').textContent = `${player[type][index] === global[typeInfo].max[index] ? 0 : format(global[typeInfo].cost[index])} ${global.stageInfo.resourceName[player.stage.current - 1]}.`;
+        getId('researchCost').textContent = `${player[type][index] === global[typeInfo].max[index] ? 0 : format(global[typeInfo].cost[index])} ${global.stageInfo.priceName[player.stage.current - 1]}.`;
     } else {
         const typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
 
         getId('upgradeText').textContent = global[typeInfo].description[index];
 
         if (global[typeInfo].effect[index] !== 0) {
-            getId('upgradeEffect').textContent = `${global[typeInfo].effectText[index][0]}${global[typeInfo].effect[index]}${global[typeInfo].effectText[index][1]}`;
+            getId('upgradeEffect').textContent = `${global[typeInfo].effectText[index][0]}${format(global[typeInfo].effect[index])}${global[typeInfo].effectText[index][1]}`;
         } else {
             getId('upgradeEffect').textContent = global[typeInfo].effectText[index][0];
         }
-        getId('upgradeCost').textContent = `${player[type][index] === 1 ? 0 : format(global[typeInfo].cost[index])} ${global.stageInfo.resourceName[player.stage.current - 1]}.`;
+        getId('upgradeCost').textContent = `${player[type][index] === 1 ? 0 : format(global[typeInfo].cost[index])} ${global.stageInfo.priceName[player.stage.current - 1]}.`;
     }
 };
 
@@ -245,7 +259,8 @@ export const visualUpdateUpgrades = (index: number, type = 'upgrades' as 'upgrad
     }
 };
 
-export const format = (input: number, precision = input < 1e3 ? (input < 1 ? 4 : 2) : 0, type = 'number' as 'number' | 'time') => {
+export const format = (input: number | string, precision = input < 1e3 ? (input < 1 ? 4 : 2) : 0, type = 'number' as 'number' | 'time') => {
+    if (typeof input !== 'number') { return input; } //Easier to deal this way with random strings being sent here
     switch (type) {
         case 'number':
             if (precision > 0 && input < 1e6) {
@@ -274,8 +289,6 @@ export const stageCheck = () => {
     const { stageInfo, buildingsInfo, researchesAutoInfo } = global;
 
     //First remove (hide) all information that might be missing in a new stage
-    getId('upgradeCost').classList.remove('orangeText', 'cyanText');
-    getId('researchCost').classList.remove('orangeText', 'cyanText');
     for (let i = 2; i < playerStart.buildings.length; i++) {
         getId(`building${i}`).style.display = 'none';
     }
@@ -292,6 +305,9 @@ export const stageCheck = () => {
     getId('atoms').style.display = stage.current === 1 ? '' : 'none';
     getId('molecules').style.display = stage.current === 1 ? '' : 'none';
     getId('dischargeToggleReset').style.display = stage.current === 1 ? '' : 'none';
+    for (let i = 1; i <= global.researchesInfo.cost.length; i++) {
+        getId(`research${i}`).style.display = stage.current === 1 ? '' : 'none'; //Since all of them are shown or hidden at same time anyway
+    }
 
     getId('waterStat').style.display = stage.current === 2 ? '' : 'none';
     getId('drops').style.display = stage.current === 2 ? '' : 'none';
@@ -299,18 +315,15 @@ export const stageCheck = () => {
     getId('ponds').style.display = stage.current === 2 ? '' : 'none';
     getId('lakes').style.display = stage.current === 2 ? '' : 'none';
     getId('seas').style.display = stage.current === 2 ? '' : 'none';
+    getId('researchAuto3').style.display = stage.current >= 2 ? '' : 'none';
 
     getId('upgrades').style.display = stage.true > 1 ? '' : 'none';
     getId('resetToggles').style.display = stage.true > 1 ? '' : 'none';
     getId('researchTabBtn').style.display = stage.true > 1 ? '' : 'none';
     getId('stage').style.display = stage.true > 1 ? '' : 'none';
     getId('stageToggleReset').style.display = stage.true > 1 ? '' : 'none';
-    getId('themeArea').style.display = stage.true > 1 ? '' : 'none';
-
-    //Researches (upgrades) when ALL are shown or hidden based of stage
-    for (let i = 1; i <= global.researchesInfo.cost.length; i++) {
-        getId(`research${i}`).style.display = stage.current === 1 ? '' : 'none';
-    }
+    getId('themeArea').style.display = stage.true > 1 || localStorage.getItem('theme') !== null ? '' : 'none';
+    getId('switchTheme2').style.display = stage.true > 1 ? '' : 'none';
 
     //Add (change) unique information
     if (stage.current === 1) {
@@ -319,8 +332,6 @@ export const stageCheck = () => {
         globalStart.researchesAutoInfo.cost[1] = 3000;
         researchesAutoInfo.scalling[1] = 5000;
         global.dischargeInfo.next = 10 ** player.discharge.current; //Calculate stage specific part's
-        getId('upgradeCost').classList.add('orangeText'); //Add colors
-        getId('researchCost').classList.add('orangeText');
         for (let i = 1; i <= 4; i++) { //Rest handled in visualUpdate();
             getId(`upgrade${i}`).style.display = '';
         }
@@ -330,8 +341,6 @@ export const stageCheck = () => {
         globalStart.buildingsInfo.cost = [0, 0.0028, 100, 1e7, 9e99, 9e99]; //When cost is decided on, add into index just incase as well (building 4 and 5)
         globalStart.researchesAutoInfo.cost[1] = 1e10;
         researchesAutoInfo.scalling[1] = 1000;
-        getId('upgradeCost').classList.add('cyanText');
-        getId('researchCost').classList.add('cyanText');
         for (let i = 1; i <= global.upgradesS2Info.cost.length; i++) { //When done, show only when reached goal one's
             getId(`upgradeW${i}`).style.display = '';
         }
@@ -385,6 +394,9 @@ export const stageCheck = () => {
     }
     if (stage.current !== 2) {
         getId('dropStat').style.display = 'none';
+        getId('cloudStat').style.display = 'none';
+        getId('vaporization').style.display = 'none';
+        getId('vaporizationToggleReset').style.display = 'none';
         for (let i = 1; i <= global.upgradesS2Info.cost.length; i++) {
             getId(`upgradeW${i}`).style.display = 'none';
         }
@@ -410,7 +422,7 @@ export const stageCheck = () => {
     }
     if (global.screenReader) {
         getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[stage.current - 1]}'`;
-        getId('invisibleGetResource1').style.display = stage.current === 1 ? '' : 'none'; //As of now only stage 1 need that button
+        getId('invisibleGetResource1').textContent = `Get information for ${stageInfo.resourceName[stage.current - 1]}`;
         for (let i = 0; i < buildingsInfo.name.length; i++) {
             getId(`invisibleGetBuilding${i}`).textContent = `Get information for ${buildingsInfo.name[i]}`;
         }

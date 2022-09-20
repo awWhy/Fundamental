@@ -12,6 +12,10 @@ export interface playerType {
         current: number
         bonus: number
     }
+    vaporization: {
+        current: number
+        clouds: number
+    }
     time: {
         updated: number
         started: number
@@ -32,10 +36,14 @@ export interface globalType {
     tab: string
     footer: boolean
     screenReader: boolean
-    lastSave: number
     energyType: number[]
+    timeSpecial: {
+        lastSave: number
+        maxOffline: number
+    }
     stageInfo: {
         word: string[]
+        priceName: string[]
         resourceName: string[]
     }
     theme: {
@@ -45,6 +53,9 @@ export interface globalType {
     dischargeInfo: {
         next: number
     }
+    /*vaporizationInfo: {
+        get: number
+    }*/
     intervals: {
         main: number
         numbers: number

@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, startValue } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
-import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap } from './Stage';
+import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
@@ -73,6 +73,7 @@ for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
     if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
+getId('vaporizationReset').addEventListener('click', async() => await vaporizationResetCheck());
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 getId('buy1x').addEventListener('click', () => toggleBuy('1'));
 getId('buyAny').addEventListener('click', () => toggleBuy('any'));
@@ -200,7 +201,7 @@ async function saveLoad(type: string) {
             const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)}}}`);
             localStorage.setItem('save', save);
             getId('isSaved').textContent = 'Saved';
-            global.lastSave = 0;
+            global.timeSpecial.lastSave = 0;
             break;
         }
         case 'export': {
@@ -241,7 +242,8 @@ async function saveLoad(type: string) {
 
 const pauseGame = async() => {
     changeIntervals(true);
-    const offline = await Prompt("Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. Offline timer has a limit.");
+    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)`);
+    //Maybe to add when game was paused (if I can figure out how later)
     if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();
     } else if (offline !== null && offline !== '') {

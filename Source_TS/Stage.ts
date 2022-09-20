@@ -23,7 +23,6 @@ export const buyBuilding = (index: number, auto = false) => {
         return;
     }
     const { researchesAuto, buyToggle } = player;
-    const { stageInfo } = global;
     if (stage.current === 1) { global.energyType[index] = globalStart.energyType[index] * 3 ** player.researches[4]; }
 
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
@@ -51,7 +50,7 @@ export const buyBuilding = (index: number, auto = false) => {
             player.energy.total += global.energyType[index] * canAfford;
         }
         if (global.screenReader && !auto) {
-            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${format(global.energyType[index] * canAfford)} ${stageInfo.resourceName[stage.current]}` : ''}`;
+            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${format(global.energyType[index] * canAfford)} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
         }
     } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buildings[extra].current -= buildingsInfo.cost[index];
@@ -63,7 +62,7 @@ export const buyBuilding = (index: number, auto = false) => {
             player.energy.total += global.energyType[index];
         }
         if (global.screenReader) {
-            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${global.energyType[index]} ${stageInfo.resourceName[stage.current]}` : ''}`;
+            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${global.energyType[index]} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
         }
     }
     calculateBuildingsCost(index);
@@ -139,6 +138,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
             typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
         }
 
+        if (type === 'researchesAuto' && stage.current === 1 && upgrade > 1) { return; }
         if (player[type][upgrade] === global[typeInfo].max[upgrade] || price.current < global[typeInfo].cost[upgrade]) { return; }
         player[type][upgrade]++;
         price.current -= global[typeInfo].cost[upgrade];
@@ -244,7 +244,7 @@ export const stageResetCheck = async() => {
             let ok = true;
             if (toggles[2]) {
                 //ok = await Confirm('Ready to enter next stage?');
-                Alert('Stage 2 is being worked on, might come out around 20.09.2022.');
+                Alert('Stage 2 is being worked on, might come out soon (-ish). (It\'s only around 33% done)');
             }
             ok = false; //Remove later
             if (ok) {
@@ -256,6 +256,7 @@ export const stageResetCheck = async() => {
         }
     } else {
         Alert('Not yet in game');
+        //if (researchesAuto[2] === 0) { researchesAuto[2]++; }
     }
     if (reseted) {
         /*researchesAuto[1] = 0;
@@ -278,8 +279,8 @@ export const dischargeResetCheck = async() => {
         }
         if (ok) {
             if (energy.current >= dischargeInfo.next) {
-                dischargeInfo.next *= 10;
                 player.discharge.current++;
+                dischargeInfo.next *= 10;
                 if (global.screenReader) { getId('invisibleBought').textContent = 'Buildings and energy were reset for some boost'; }
             } else if (global.screenReader && energy.current < dischargeInfo.next) {
                 getId('invisibleBought').textContent = 'Buildings and energy were reset, no boost';
@@ -290,5 +291,20 @@ export const dischargeResetCheck = async() => {
 };
 
 export const vaporizationResetCheck = async() => {
-    reset('vaporization');
+    const gain = player.buildings[1].current / 1e10; //Move gain into global.vaporizationInfo.get (?)
+
+    if (player.upgrades[3] === 1 && gain >= 1 && player.stage.current === 2) {
+        const { vaporization } = player;
+
+        let ok = true;
+        if (player.toggles[9]) {
+            ok = await Confirm(`Do you wish to reset buildings, upgrades and researches for ${format(gain)} Clouds?`);
+        }
+        if (ok) {
+            vaporization.current++;
+            vaporization.clouds += gain;
+            reset('vaporization');
+            if (global.screenReader) { getId('invisibleBought').textContent = `Progress were reset for ${format(gain)} Clouds`; }
+        }
+    }
 };

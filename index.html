@@ -7,13 +7,13 @@
         <link rel="icon" href="Icon.ico">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Just testing abbility to make anything">
+        <meta name="description" content="Test game">
         <script src="Code.js" defer></script>
     </head>
     <body class="customColors">
         <div id="blocker">
             <div id="alertPopUp">
-                <label id="alertText" aria-live="polite">Welcome back</label>
+                <label id="alertText" aria-live="assertive">Welcome back</label>
                 <div>
                     <input type="text" id="inputArea" tabindex="1">
                     <button id="confirmBtn" tabindex="1">Confirm</button>
@@ -30,6 +30,10 @@
                 <div id="discharge" class="reset">
                     <p class="whiteText"><span class="bigWord orangeText">Discharge</span>. Reset current buildings and energy. Will also boost production by <span id="dischargeEffect" class="orangeText">4</span>, if you reset with enough energy.</p>
                     <button id="dischargeReset" class="mediumButton">Next goal is 1 Energy</button>
+                </div>
+                <div id="vaporization" class="reset">
+                    <p class="whiteText"><span class="bigWord grayText">Vaporization</span>. It will take all of your buildings, upgrades, stage researches. But in return gain <span class="grayText">Clouds</span>. (Puddles get a boost equal to the amount of <span class="grayText">Clouds</span>)</p>
+                    <button id="vaporizationReset" class="mediumButton">Reset for 0 Clouds</button>
                 </div>
             </div>
             <div class="buyBuldingsAll">
@@ -163,6 +167,10 @@
                         <img src="Used_art/Auto.png" alt="Automatization research 2" tabindex="10" id="researchAuto2Image" class="stageBorder interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">3</span></p>
                     </div>
+                    <div id="researchAuto3">
+                        <img src="Used_art/Offline.png" alt="Automatization research 3" tabindex="10" id="researchAuto3Image" class="stageBorder interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchAuto3Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">1</span></p>
+                    </div>
                 </div>
             </div>
             <div class="descriptionText">
@@ -181,6 +189,10 @@
                 <div id="dischargeToggleReset">
                     <img src="Used_art/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
                     <button id="toggle1" class="toggle" aria-label="Toggle for discharge reset confirmation, currently ON">ON</button>
+                </div>
+                <div id="vaporizationToggleReset">
+                    <img src="Used_art/Vaporization%20toggle.png" alt="Vaporization Reset Toggle" loading="lazy">
+                    <button id="toggle9" class="toggle" aria-label="Toggle for vaporization reset confirmation, currently ON">ON</button>
                 </div>
             </div>
             <div class="saveButtonGroup">
@@ -238,7 +250,7 @@
             <button id="invisibleGetResource1">Get information for Energy</button>
         </div>
         <label id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</label>
-        <label id="invisibleBought" class="invisible" aria-live="polite"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
+        <label id="invisibleBought" class="invisible" aria-live="assertive"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
         <div id="footer">
             <div id="hideToggle" aria-hidden="true">
                 <p id="hideText">Hide</p>
@@ -253,6 +265,10 @@
                     <div id="energyStat" class="statFoot">
                         <img src="Used_art/Energy.png" alt="Energy" loading="lazy">
                         <p id="energy" class="statText">Energy: 0</p>
+                    </div>
+                    <div id="cloudStat" class="statFoot">
+                        <img src="Used_art/Clouds.png" alt="Clouds" loading="lazy">
+                        <p id="clouds" class="statText">Clouds: 1</p>
                     </div>
                     <div id="waterStat" class="statFoot">
                         <img src="Used_art/Water.png" alt="H2O" loading="lazy">

@@ -29,7 +29,9 @@ export const switchTheme = () => {
         getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
     }
 
-    /* Full reset to stage 1, for easier out of order theme change */
+    /* Full reset, for easier out of order theme change */
+    getId('upgradeCost').classList.remove('orangeText', 'cyanText');
+    getId('researchCost').classList.remove('orangeText', 'cyanText');
     body.removeProperty('--background-color');
     body.removeProperty('--window-color');
     body.removeProperty('--window-border');
@@ -45,14 +47,20 @@ export const switchTheme = () => {
     //body.removeProperty('--cyan-text-color');
     body.removeProperty('--blue-text-color');
     //body.removeProperty('--orange-text-color');
-    //body.removeProperty('--gray-text-color');
+    body.removeProperty('--gray-text-color');
     //body.removeProperty('--orchid-text-color');
     //body.removeProperty('--darkorchid-text-color');
     //body.removeProperty('--red-text-color');
     //body.removeProperty('--green-text-color');
     /* And set new colors */
     switch (theme.stage) {
+        case 1:
+            getId('upgradeCost').classList.add('orangeText');
+            getId('researchCost').classList.add('orangeText');
+            break;
         case 2:
+            getId('upgradeCost').classList.add('cyanText');
+            getId('researchCost').classList.add('cyanText');
             body.setProperty('--background-color', '#070026');
             body.setProperty('--window-color', '#000052');
             body.setProperty('--window-border', 'blue');
@@ -63,6 +71,7 @@ export const switchTheme = () => {
             body.setProperty('--button-extra-hover', '#2400d7');
             body.setProperty('--main-text-color', 'dodgerblue');
             body.setProperty('--blue-text-color', '#82cb3b');
+            body.setProperty('--gray-text-color', '#9b9b9b');
             break;
     }
     setTimeout(() => { body.removeProperty('--transition'); }, 1000);
@@ -248,6 +257,8 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
             } else {
                 if (stage.current === 1) {
                     invText.textContent = `You have ${player.energy.current} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
+                } else if (stage.current === 2) {
+                    invText.textContent = `You have ${player.vaporization.clouds} Clouds`;
                 }
             }
             break;

@@ -14,6 +14,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
         case 'vaporization':
             buildings[0].current = 0.0028;
             for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
+                if (i === 3) { continue; } //It will just skip 1 loop
                 player.upgrades[i] = 0;
                 visualUpdateUpgrades(i);
             }
@@ -57,6 +58,8 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
                 case 2:
                     buildings[0].current = 0.0028;
                     buildings[0].total = 0.0028;
+                    player.vaporization.current = 0;
+                    player.vaporization.clouds = 1;
                     break;
             }
             stageCheck();

@@ -15,6 +15,10 @@ export const player: playerType = { //Only for information that need to be saved
         current: 0,
         bonus: 0
     },
+    vaporization: {
+        current: 0,
+        clouds: 1
+    },
     time: {
         updated: Date.now(),
         started: Date.now()
@@ -39,12 +43,12 @@ export const player: playerType = { //Only for information that need to be saved
             true: 0,
             total: 0
         },
-        { //[4]
+        { //(First apears in stage 2)[4]
             current: 0,
             true: 0,
             total: 0
         },
-        { //[5]
+        { //(First apears in stage 2)[5]
             current: 0,
             true: 0,
             total: 0
@@ -53,9 +57,10 @@ export const player: playerType = { //Only for information that need to be saved
     /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
     upgrades: [0, 0, 0, 0, 0, 0, 0, 0],
     researches: [0, 0, 0, 0, 0],
-    researchesAuto: [0, 0],
+    researchesAuto: [0, 0, 0],
     toggles: [], //Auto added for every element with a class 'toggle', all toggle's are:
-    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8] */
+    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8];
+       Vaporization confirm[9]; */
     buyToggle: {
         howMany: 1, //If more types will be added
         input: 10, //Then turn all of them
@@ -67,11 +72,15 @@ export const global: globalType = { //For information that doesn't need to be sa
     tab: 'stage',
     footer: true,
     screenReader: false,
-    lastSave: 0,
     energyType: [0, 1, 5, 20],
+    timeSpecial: {
+        lastSave: 0,
+        maxOffline: 3600
+    },
     stageInfo: {
         word: ['Microworld', 'Submerged'],
-        resourceName: ['Energy', 'Water drops']
+        priceName: ['Energy', 'Drops'], //On what you buy upgrades and etc.
+        resourceName: ['Energy', 'Clouds'] //Special stage resource
     },
     theme: {
         stage: 1,
@@ -80,6 +89,9 @@ export const global: globalType = { //For information that doesn't need to be sa
     dischargeInfo: {
         next: 1
     },
+    /*vaporizationInfo: {
+        get: 0
+    },*/
     intervals: {
         main: 50,
         numbers: 50,
@@ -183,16 +195,18 @@ export const global: globalType = { //For information that doesn't need to be sa
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
             'Buy toggles.',
-            'Automatization for buying upgrades.' //Auto changed every stage
+            'Automatization for buying upgrades.', //Auto changed every stage
+            'More max offline time.'
         ],
         effectText: [
             ['Unlock abbility to buy multiple buildings at same time.'],
-            ['Will automatically buy ', ' for you.']
+            ['Will automatically buy ', ' for you.'],
+            ['Research this to make max offline timer +', ' hours.']
         ],
-        effect: [0, 'Particles'],
-        cost: [300, 3000],
-        scalling: [0, 5000],
-        max: [1, 3]
+        effect: [0, 'Particles', 1],
+        cost: [300, 3000, 1e11],
+        scalling: [0, 5000, 0],
+        max: [1, 3, 1]
     }
 };
 
