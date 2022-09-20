@@ -72,15 +72,21 @@ export const invisibleUpdate = () => { //This is only for important or time base
         if (upgrades[5] === 1) { buildingsInfo.producing[1] *= upgradesInfo.effect[5] ** buildings[1].true; }
         calculateGainedBuildings(0, passedSeconds);
     } else if (stage.current === 2) {
-        const { upgradesS2Info } = global;
+        const { vaporizationInfo, upgradesS2Info } = global;
 
-        //if (toggles[8] && researchesAuto[1] >= 5) { buyBuilding(5, true); }
+        if (toggles[8] && researchesAuto[1] >= 5) { buyBuilding(5, true); }
+        buildingsInfo.producing[5] = 2 * buildings[5].current;
+        if (upgrades[5] === 1) { buildingsInfo.producing[5] *= player.vaporization.clouds ** 0.05; }
 
-        //if (toggles[7] && researchesAuto[1] >= 4) { buyBuilding(4, true); }
+        if (toggles[7] && researchesAuto[1] >= 4) { buyBuilding(4, true); }
+        buildingsInfo.producing[4] = 2 * buildings[4].current;
+        if (upgrades[2] === 1) { buildingsInfo.producing[4] *= Math.log10(buildings[2].current); }
+        if (buildings[5].current >= 1) { buildingsInfo.producing[4] *= buildingsInfo.producing[5]; }
 
         if (toggles[6] && researchesAuto[1] >= 3) { buyBuilding(3, true); }
         buildingsInfo.producing[3] = 2 * buildings[3].current;
         if (upgrades[1] === 1) { buildingsInfo.producing[3] *= 1.5; }
+        if (buildings[4].current >= 1) { buildingsInfo.producing[3] *= buildingsInfo.producing[4]; }
 
         if (toggles[5] && researchesAuto[1] >= 2) { buyBuilding(2, true); }
         buildingsInfo.producing[2] = 2 * buildings[2].current * player.vaporization.clouds;
@@ -100,6 +106,10 @@ export const invisibleUpdate = () => { //This is only for important or time base
         buildingsInfo.producing[1] = 0.0004 * buildings[1].current;
         if (researches[0] > 0) { buildingsInfo.producing[1] *= 3 ** researches[0]; }
         calculateGainedBuildings(0, passedSeconds);
+
+        vaporizationInfo.get = buildings[1].total / 1e10;
+        if (vaporizationInfo.get > 1e5) { vaporizationInfo.get = 1e5 + (vaporizationInfo.get - 1e5) ** 0.65; }
+        if (vaporizationInfo.get > 1e7) { vaporizationInfo.get = 1e7 + (vaporizationInfo.get - 1e7) ** 0.8; }
     }
 };
 
@@ -137,8 +147,8 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 getId('dischargeEffect').textContent = String(global.upgradesInfo.effect[3]);
             }
         } else if (stage.current === 2) {
-            if (upgrades[3] === 1) { //Get 'buildings[1].current / 1e10' from global.vaporizationInfo.get (?)
-                getId('vaporizationReset').textContent = `Reset for ${format(buildings[1].total / 1e10)} Clouds`;
+            if (upgrades[3] === 1) {
+                getId('vaporizationReset').textContent = `Reset for ${format(global.vaporizationInfo.get)} Clouds`;
             }
         }
     } else if (tab === 'settings') {
@@ -168,14 +178,24 @@ export const visualUpdate = () => { //This is everything that can be shown later
         if (buildings[3].current >= 1.67e21) { getId('stageReset').textContent = 'Enter next stage'; }
         if (screenReader) { getId('invisibleGetResource1').style.display = energy.total > 0 ? '' : 'none'; }
     } else if (stage.current === 2) {
+        const { vaporization } = player;
+
         getId('dropStat').style.display = global.tab !== 'stage' ? '' : 'none';
         getId('cloudStat').style.display = upgrades[3] === 1 ? '' : 'none';
         getId('vaporization').style.display = upgrades[3] === 1 ? '' : 'none';
-        getId('vaporizationToggleReset').style.display = player.vaporization.current > 0 ? '' : 'none';
+        getId('vaporizationToggleReset').style.display = vaporization.current > 0 ? '' : 'none';
+        if (buildings[2].trueTotal >= 1) { getId('upgrades').style.display = ''; }
+        getId('upgradeW2').style.display = buildings[3].trueTotal >= 1 ? '' : 'none';
+        getId('upgradeW3').style.display = buildings[4].trueTotal >= 1 ? '' : 'none';
+        getId('upgradeW4').style.display = buildings[3].trueTotal >= 1 ? '' : 'none';
+        getId('upgradeW5').style.display = vaporization.current > 0 ? '' : 'none';
+        getId('upgradeW6').style.display = buildings[5].trueTotal >= 1 ? '' : 'none';
+        getId('researchW3').style.display = buildings[2].trueTotal >= 1 ? '' : 'none';
         if (buildings[1].trueTotal >= 400) { getId('building2').style.display = ''; }
         if (buildings[1].trueTotal >= 1e7) { getId('building3').style.display = ''; }
-        //if (buildings[3].trueTotal >= 9e99) { getId('building4').style.display = ''; }
-        //if (buildings[4].trueTotal >= 9e99) { getId('building5').style.display = ''; }
+        if (buildings[1].trueTotal >= 1e18) { getId('building4').style.display = ''; }
+        if (buildings[1].trueTotal >= 1e23) { getId('building5').style.display = ''; }
+        if (buildings[1].current >= 2.68e26) { getId('stageReset').textContent = 'Enter next stage'; }
         if (screenReader) { getId('invisibleGetResource1').style.display = upgrades[3] === 1 ? '' : 'none'; }
     }
 
@@ -324,7 +344,7 @@ export const stageCheck = () => {
     getId('seas').style.display = stage.current === 2 ? '' : 'none';
     getId('researchAuto3').style.display = stage.current >= 2 ? '' : 'none';
 
-    getId('upgrades').style.display = stage.true > 1 ? '' : 'none';
+    getId('upgrades').style.display = /*stage.true > 2 ? '' :*/ 'none';
     getId('resetToggles').style.display = stage.true > 1 ? '' : 'none';
     getId('researchTabBtn').style.display = stage.true > 1 ? '' : 'none';
     getId('stage').style.display = stage.true > 1 ? '' : 'none';
@@ -345,13 +365,11 @@ export const stageCheck = () => {
     } else if (stage.current === 2) {
         buildingsInfo.name = ['Moles', 'Drops', 'Puddles', 'Ponds', 'Lakes', 'Seas'];
         buildingsInfo.increase = 1.2;
-        globalStart.buildingsInfo.cost = [0, 0.0028, 100, 1e7, 9e99, 9e99]; //When cost is decided on, add into index just incase as well (building 4 and 5)
-        globalStart.researchesAutoInfo.cost[1] = 1e11;
+        globalStart.buildingsInfo.cost = [0, 0.0028, 100, 1e7, 1e18, 1e23];
+        globalStart.researchesAutoInfo.cost[1] = 1e10;
         researchesAutoInfo.scalling[1] = 1000;
-        for (let i = 1; i <= global.upgradesS2Info.cost.length; i++) { //When done, show only when reached goal one's
-            getId(`upgradeW${i}`).style.display = '';
-        }
-        for (let i = 1; i <= global.researchesS2Info.cost.length; i++) {
+        getId('upgradeW1').style.display = '';
+        for (let i = 1; i <= 2; i++) {
             getId(`researchW${i}`).style.display = '';
         }
     }

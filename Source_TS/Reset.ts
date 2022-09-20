@@ -1,6 +1,6 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
-import { calculateBuildingsCost } from './Stage';
+import { calculateBuildingsCost, calculateResearchCost } from './Stage';
 import { numbersUpdate, stageCheck, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
@@ -13,14 +13,14 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
             break;
         case 'vaporization':
             buildings[0].current = 0.0028;
-            for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
-                if (i === 3) { continue; } //It will just skip 1 loop
+            for (let i = 0; i < 3; i++) {
                 player.upgrades[i] = 0;
                 visualUpdateUpgrades(i);
             }
             for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
                 player.researches[i] = 0;
                 visualUpdateUpgrades(i, 'researches');
+                calculateResearchCost(i, 'researches');
             }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage

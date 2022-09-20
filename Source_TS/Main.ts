@@ -22,11 +22,10 @@ export const reLoad = async(loadSave = false) => {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
             if (player.toggles[0]) {
-                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.`);
+                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.\n${global.versionChanged ? `Game has been updated to v${player.version}` : `Current version is v${player.version}`}`);
             }
         } else {
-            Alert('Welcome. This is a test-project. Since I don\'t expect anyone to play this, save file can get corrupted with a new version.');
-            //Alert("Welcome to 'Fundamental'. This is a test-project made by awWhy. Supported by modern browsers, also should have good suport for phones and screen readers (for screen readers need to turn support ON in settings). Was inspired by 'Synergism', 'Antimatter Dimensions' and others.");
+            Alert("Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.");
         }
         if (theme !== null) {
             global.theme.default = false;
@@ -44,7 +43,7 @@ export const reLoad = async(loadSave = false) => {
     switchTheme(); //Changes theme
 
     if (loadSave && !player.toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.`);
+        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.\n${global.versionChanged ? `Also game has been updated to v${player.version}` : `Current version is v${player.version}`}`);
         if (noOffline) { player.time.updated = Date.now(); }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values

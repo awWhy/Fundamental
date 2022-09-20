@@ -2,7 +2,7 @@ import { Alert } from './Special';
 import { globalType, saveType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    //version: 0.0.1, //If someone will be playing, have a check for game version incase some save file changes or other
+    version: '0.0.0',
     stage: {
         true: 1,
         current: 1
@@ -24,9 +24,6 @@ export const player: playerType = { //Only for information that need to be saved
         started: Date.now()
     },
     buildings: [ //If new building to be addded, then also add extra's to 'global.buildingsInfo.producing' (only visual importance)
-        /* It's much easier for me to deal with building[0] not having 'true', rather that trying to tell TS that 'true' never called with index 0.
-           While still having some types in here. TS just doesn't understand and/or care about indexes of an array... */
-        //@ts-expect-error
         { //Quarks[0]
             current: 3,
             total: 3,
@@ -81,6 +78,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     tab: 'stage',
     footer: true,
     screenReader: false,
+    versionChanged: false,
     energyType: [0, 1, 5, 20],
     timeSpecial: {
         lastSave: 0,
@@ -98,9 +96,9 @@ export const global: globalType = { //For information that doesn't need to be sa
     dischargeInfo: {
         next: 1
     },
-    /*vaporizationInfo: {
+    vaporizationInfo: {
         get: 0
-    },*/
+    },
     intervals: {
         main: 50,
         numbers: 50,
@@ -147,23 +145,23 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     upgradesS2Info: {
         description: [
-            'Surface tension. Allows for bigger Puddles.',
+            'Surface tension. Allows for bigger Puddles. (This upgrade research will break balance in late game...)',
             'Streams. Spread quicker.',
-            '',
+            'River. Spread even quicker.',
             'Vaporization. Unlock new reset tier.',
-            '',
-            ''
+            'Rain. Extra production of Drops.',
+            'Storm. Boost Seas production.'
         ],
         effectText: [
             ['Each Puddle boost Puddle production by ', '.'],
-            ['Ponds boost to Puddles produtcion is now ', ' times bigger.'],
-            ['', ''],
-            ['Gain ability to convert Drops into Clouds. (', ' per 1)'],
-            ['', ''],
-            ['', '']
+            ['Ponds boost to Puddles production is now ', ' times bigger.'],
+            ['Lakes get boost based on amount of Ponds. At a reduced rate.'],
+            ['Gain ability to convert Drops into Clouds.'],
+            ['Clouds can now produce Drops. (1 per second per ', ' Clouds)'],
+            ['Clouds amount boost Seas at a very reduced rate.']
         ],
-        effect: [1.03, 1.5, 0, 1e10, 0, 0],
-        cost: [1000, 2e8, 0, 1e10, 0, 0]
+        effect: [1.03, 1.5, 0, 0, 1000, 0],
+        cost: [1000, 1e8, 1e20, 1e10, 1e12, 1e25]
     },
     researchesInfo: {
         description: [
@@ -194,7 +192,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         effectText: [
             ['Drops produce ', ' times more moles.'],
             ['Drops now give boost to what produces them based of bought amount, at a reduced rate.'],
-            ['Surface tension upgrade is now +', ' stronger.']
+            ['Surface tension upgrade is now +', ' stronger. (You can decide not to buy it after 1e5 > 1e7 resource buildings for better balance...)']
         ],
         effect: [3, 0, 0.01],
         cost: [20, 1e9, 1e5],
@@ -213,7 +211,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Research this to make max offline timer +', ' hours.']
         ],
         effect: [0, 'Particles', 1],
-        cost: [300, 3000, 1e12],
+        cost: [300, 3000, 1e10],
         scalling: [0, 5000, 0],
         max: [1, 3, 1]
     }
@@ -286,11 +284,12 @@ export const updatePlayer = (load: saveType) => {
             }
         }
 
-        for (let i = 0; i < playerStart.buildings.length; i++) { //Will be removed shortly
-            if (isNaN(load.player.buildings[i].trueTotal)) {
-                load.player.buildings[i].trueTotal = load.player.buildings[i].total;
-            }
-        }
+        global.versionChanged = false;
+        /*if (player.version === '0.0.0') {
+            player.version = '0.0.1';
+            global.versionChanged = true;
+            reset('vaporization');
+        }*/
 
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;

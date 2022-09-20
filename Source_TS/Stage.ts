@@ -7,8 +7,7 @@ import { format, getUpgradeDescription, invisibleUpdate, numbersUpdate, visualUp
 export const buyBuilding = (index: number, auto = false) => {
     const { stage, buildings } = player;
     const { buildingsInfo, screenReader } = global;
-    let extra = index - 1;
-    if (stage.current === 2 && index > 2) { extra = 1; }
+
     //Auto will endlessly call function until hits return;
     if (!isFinite(buildingsInfo.cost[index])) {
         if (screenReader && !auto) {
@@ -16,18 +15,25 @@ export const buyBuilding = (index: number, auto = false) => {
         }
         return;
     }
-    if (buildings[extra].current < buildingsInfo.cost[index] * (auto ? 2 : 1)) {
+
+    let extra = index - 1;
+    if (stage.current === 2 && index > 2) { extra = 1; }
+    let keep = 2;
+    if (stage.current === 2) { keep = 1; }
+
+    if (buildings[extra].current < buildingsInfo.cost[index] * (auto ? keep : 1)) {
         if (screenReader && !auto) {
             getId('invisibleBought').textContent = `Coudn't buy '${buildingsInfo.name[index]}', because didn't had enough of '${buildingsInfo.name[extra]}'`;
         }
         return;
     }
+
     const { researchesAuto, buyToggle } = player;
     if (stage.current === 1) { global.energyType[index] = globalStart.energyType[index] * 3 ** player.researches[4]; }
 
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buildings[extra].current;
-        if (auto) { budget /= 2; }
+        if (auto) { budget /= keep; }
 
         let cost = buildingsInfo.cost[index];
         let total = 0;
@@ -99,23 +105,26 @@ export const calculateResearchCost = (research: number, type: 'researches' | 're
         global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] + global[typeInfo].scalling[research] * player[type][research];
     } else {
         global[typeInfo].cost[research] = Math.trunc(globalStart[typeInfo].cost[research] * global[typeInfo].scalling[research] ** player[type][research]);
+        if (typeInfo === 'researchesAutoInfo' && stage.current === 2 && research === 1 && player.researchesAuto[1] >= 3) { global[typeInfo].cost[research] *= player.researchesAuto[1] >= 4 ? 1000 : 100; }
     }
 };
 
 export const calculateGainedBuildings = (get: number, time: number) => {
-    const { buildings } = player; //Add stage, researches and\or upgrades, if more will be added into here
+    const { stage, buildings, upgrades } = player;
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way
     let add: number;
 
-    if (player.stage.current === 1 && get === 3) {
+    if (stage.current === 1 && get === 3) {
         if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
         add = Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2];
-        if (player.upgrades[7] === 1) { add *= player.energy.current; }
+        if (upgrades[7] === 1) { add *= player.energy.current; }
     } else {
         add = buildingsInfo.producing[get + 1] * time;
+        if (stage.current === 2 && get === 1 && upgrades[4] === 1) { add += player.vaporization.clouds * time / 1000; }
     }
 
+    if (add === 0) { return; }
     /* Still possible, though unlikely, to get infinity by buying buildings */
     let check = buildings[get].current + add;
     if (isFinite(check)) {
@@ -253,25 +262,31 @@ export const stageResetCheck = async() => {
             let ok = true;
             if (toggles[2]) {
                 //ok = await Confirm('Ready to enter next stage?');
-                Alert('Stage 2 is being worked on, might come out soon (-ish). (It\'s only around 33% done)');
+                ok = await Confirm('I kinda mess up, with next stage... You can play it, but it will be reworked. Progress in next stage is going to be completely wiped, when I\'m done');
             }
-            ok = false; //Remove later
             if (ok) {
                 if (researchesAuto[0] === 0) { researchesAuto[0]++; }
                 reseted = true;
             }
-        } else {
-            Alert('There are more molecules in a single drop than that you know.');
         }
-    } else {
-        Alert('Not yet in game');
-        //if (researchesAuto[2] === 0) { researchesAuto[2]++; }
+    } else /*if (stage.current === 2)*/ {
+        if (buildings[1].current >= 2.68e26) {
+            Alert('Not yet in game. When new stage is out, progress is going to be fully reset again');
+            /*let ok = true;
+            if (toggles[2]) {
+                ok = await Confirm('Ready to enter next stage?');
+            }
+            if (ok) {
+                if (researchesAuto[2] === 0) { researchesAuto[2]++; }
+                reseted = true;
+            }*/
+        }
     }
     if (reseted) {
-        /*researchesAuto[1] = 0;
+        researchesAuto[1] = 0;
         stage.current++;
         if (stage.true < stage.current) { stage.true++; }
-        reset('stage');*/
+        reset('stage');
     }
 };
 
@@ -300,20 +315,20 @@ export const dischargeResetCheck = async() => {
 };
 
 export const vaporizationResetCheck = async() => {
-    const gain = player.buildings[1].total / 1e10; //Move gain into global.vaporizationInfo.get (?)
+    const { vaporizationInfo } = global;
 
-    if (player.upgrades[3] === 1 && gain >= 1 && player.stage.current === 2) {
+    if (player.upgrades[3] === 1 && vaporizationInfo.get >= 1 && player.stage.current === 2) {
         const { vaporization } = player;
 
         let ok = true;
         if (player.toggles[9]) {
-            ok = await Confirm(`Do you wish to reset buildings, upgrades and researches for ${format(gain)} Clouds?`);
+            ok = await Confirm(`Do you wish to reset buildings, upgrades and researches for ${format(vaporizationInfo.get)} Clouds?`);
         }
         if (ok) {
             vaporization.current++;
-            vaporization.clouds += gain;
+            vaporization.clouds += vaporizationInfo.get;
             reset('vaporization');
-            if (global.screenReader) { getId('invisibleBought').textContent = `Progress were reset for ${format(gain)} Clouds`; }
+            if (global.screenReader) { getId('invisibleBought').textContent = `Progress were reset for ${format(vaporizationInfo.get)} Clouds`; }
         }
     }
 };

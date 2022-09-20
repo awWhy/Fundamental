@@ -1,5 +1,5 @@
 export interface playerType {
-    //version: number
+    version: string
     stage: {
         true: number
         current: number
@@ -20,12 +20,13 @@ export interface playerType {
         updated: number
         started: number
     }
-    buildings: Array<{
+    buildings: Array<Record<string, number>>
+    /*buildings: Array<{
         current: number
         true: number
         total: number
         trueTotal: number
-    }>
+    }>*/ //I will deal with it later...
     upgrades: number[]
     researches: number[]
     researchesAuto: number[]
@@ -41,6 +42,7 @@ export interface globalType {
     tab: string
     footer: boolean
     screenReader: boolean
+    versionChanged: boolean
     energyType: number[]
     timeSpecial: {
         lastSave: number
@@ -58,9 +60,9 @@ export interface globalType {
     dischargeInfo: {
         next: number
     }
-    /*vaporizationInfo: {
+    vaporizationInfo: {
         get: number
-    }*/
+    }
     intervals: {
         main: number
         numbers: number

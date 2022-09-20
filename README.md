@@ -2,7 +2,7 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-If someone is actually playing it, and save file will get corrupted because of update, then I can restore it
+Early version for Stage 2 is out, if buildings are missing might need to refresh page
 
 ---
 ### If you plan do anything with this, then you need to:

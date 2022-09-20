@@ -295,11 +295,11 @@ input { font-size: 0.84em; }
 }
 
 .researchSection > div > div > p {
-    display: flex;
-    align-items: center;
     border: 2px solid var(--border-stage);
     border-left: none;
     height: 28px;
+    line-height: 28px;
+    text-align: center;
     padding: 0 0.25em;
     background-color: var(--background-color);
 }
@@ -451,11 +451,10 @@ li > input[type = number] {
 .footerArea:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statText {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 8.8em;
     height: 28px;
+    line-height: 28px;
+    text-align: center;
     border: 2px solid var(--border-stage);
     border-left: none;
     border-radius: 0 6px 6px 0;
