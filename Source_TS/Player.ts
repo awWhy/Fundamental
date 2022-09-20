@@ -24,34 +24,43 @@ export const player: playerType = { //Only for information that need to be saved
         started: Date.now()
     },
     buildings: [ //If new building to be addded, then also add extra's to 'global.buildingsInfo.producing' (only visual importance)
+        /* It's much easier for me to deal with building[0] not having 'true', rather that trying to tell TS that 'true' never called with index 0.
+           While still having some types in here. TS just doesn't understand and/or care about indexes of an array... */
+        //@ts-expect-error
         { //Quarks[0]
             current: 3,
-            total: 3
+            total: 3,
+            trueTotal: 3
         },
         { //Particles[1]
-            current: 0,
-            true: 0,
-            total: 0
+            current: 0, //On hands
+            true: 0, //How many were bought
+            total: 0, //How many were gained this reset
+            trueTotal: 0 //How many were gained this stage, can be moved elsewhere for history if something
         },
         { //Atoms[2]
             current: 0,
             true: 0,
-            total: 0
+            total: 0,
+            trueTotal: 0
         },
         { //Molecules[3]
             current: 0,
             true: 0,
-            total: 0
+            total: 0,
+            trueTotal: 0
         },
         { //(First apears in stage 2)[4]
             current: 0,
             true: 0,
-            total: 0
+            total: 0,
+            trueTotal: 0
         },
         { //(First apears in stage 2)[5]
             current: 0,
             true: 0,
-            total: 0
+            total: 0,
+            trueTotal: 0
         }
     ],
     /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
@@ -195,8 +204,8 @@ export const global: globalType = { //For information that doesn't need to be sa
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
             'Buy toggles.',
-            'Automatization for buying upgrades.', //Auto changed every stage
-            'More max offline time.'
+            'Automatization for buying upgrades.', //Automatically changed every stage
+            'Increased max offline time.'
         ],
         effectText: [
             ['Unlock abbility to buy multiple buildings at same time.'],
@@ -204,7 +213,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Research this to make max offline timer +', ' hours.']
         ],
         effect: [0, 'Particles', 1],
-        cost: [300, 3000, 1e11],
+        cost: [300, 3000, 1e12],
         scalling: [0, 5000, 0],
         max: [1, 3, 1]
     }
@@ -251,6 +260,11 @@ export const updatePlayer = (load: saveType) => {
         const upgradeType = `upgrades${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'upgradesS2Info';
         const researchType = `researches${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'researchesS2Info';
 
+        if (playerStart.buildings.length > load.player.buildings.length) {
+            for (let i = load.player.buildings.length; i < playerStart.buildings.length; i++) {
+                load.player.buildings[i] = playerCheck.buildings[i];
+            }
+        }
         if (global[upgradeType].cost.length > load.player.upgrades.length) {
             for (let i = load.player.upgrades.length; i < global[upgradeType].cost.length; i++) {
                 load.player.upgrades[i] = 0;
@@ -259,15 +273,6 @@ export const updatePlayer = (load: saveType) => {
         if (global[researchType].cost.length > load.player.researches.length) {
             for (let i = load.player.researches.length; i < global[researchType].cost.length; i++) {
                 load.player.researches[i] = 0;
-            }
-        }
-        if (playerStart.buildings.length > load.player.buildings.length) {
-            for (let i = load.player.buildings.length; i < playerStart.buildings.length; i++) {
-                load.player.buildings[i] = {
-                    current: 0,
-                    true: 0,
-                    total: 0
-                };
             }
         }
         if (playerStart.researchesAuto.length > load.player.researchesAuto.length) {
@@ -280,6 +285,13 @@ export const updatePlayer = (load: saveType) => {
                 load.player.toggles[i] = playerCheck.toggles[i];
             }
         }
+
+        for (let i = 0; i < playerStart.buildings.length; i++) { //Will be removed shortly
+            if (isNaN(load.player.buildings[i].trueTotal)) {
+                load.player.buildings[i].trueTotal = load.player.buildings[i].total;
+            }
+        }
+
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
     } else {

@@ -45,6 +45,8 @@ export const buyBuilding = (index: number, auto = false) => {
         buildings[index].current += canAfford;
         buildings[index].true += canAfford;
         buildings[index].total += canAfford;
+        buildings[index].trueTotal += canAfford;
+
         if (stage.current === 1) {
             player.energy.current += global.energyType[index] * canAfford;
             player.energy.total += global.energyType[index] * canAfford;
@@ -57,6 +59,8 @@ export const buyBuilding = (index: number, auto = false) => {
         buildings[index].current++;
         buildings[index].true++;
         buildings[index].total++;
+        buildings[index].trueTotal++;
+
         if (stage.current === 1) {
             player.energy.current += global.energyType[index];
             player.energy.total += global.energyType[index];
@@ -119,7 +123,12 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     } else { return; }
 
     check = buildings[get].total + (buildings[get].current - before);
-    if (isFinite(check)) { buildings[get].total = check; }
+    if (isFinite(check)) {
+        buildings[get].total = check;
+    } else { return; }
+
+    check = buildings[get].trueTotal + (buildings[get].current - before);
+    if (isFinite(check)) { buildings[get].trueTotal = check; }
 };
 
 export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto') => {
@@ -291,7 +300,7 @@ export const dischargeResetCheck = async() => {
 };
 
 export const vaporizationResetCheck = async() => {
-    const gain = player.buildings[1].current / 1e10; //Move gain into global.vaporizationInfo.get (?)
+    const gain = player.buildings[1].total / 1e10; //Move gain into global.vaporizationInfo.get (?)
 
     if (player.upgrades[3] === 1 && gain >= 1 && player.stage.current === 2) {
         const { vaporization } = player;

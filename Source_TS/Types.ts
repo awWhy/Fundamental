@@ -20,7 +20,12 @@ export interface playerType {
         updated: number
         started: number
     }
-    buildings: Array<Record<string, number>> //It will stay in this way because TS can't tell that index 0 is never being used with 'true'...
+    buildings: Array<{
+        current: number
+        true: number
+        total: number
+        trueTotal: number
+    }>
     upgrades: number[]
     researches: number[]
     researchesAuto: number[]

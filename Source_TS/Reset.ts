@@ -32,6 +32,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
                 buildings[i].current = 0;
                 buildings[i].true = 0;
                 buildings[i].total = 0;
+                buildings[i].trueTotal = 0;
             }
 
             let upgradeType = 'upgradesInfo' as 'upgradesS2Info'; //TS is still incredebly stupid (no idea how to deal with it)
@@ -50,18 +51,19 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
             switch (stage.current) {
                 case 1:
                     buildings[0].current = 3;
-                    buildings[0].total = 3;
                     player.energy.current = 0;
                     player.energy.total = 0;
                     player.discharge.current = 0;
                     break;
                 case 2:
                     buildings[0].current = 0.0028;
-                    buildings[0].total = 0.0028;
                     player.vaporization.current = 0;
                     player.vaporization.clouds = 1;
                     break;
             }
+            buildings[0].total = buildings[0].current;
+            buildings[0].trueTotal = buildings[0].current;
+
             stageCheck();
             visualUpdate();
             switchTheme();
@@ -69,9 +71,11 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
         }
     }
     if (type !== 'stage') {
+        buildings[0].total = buildings[0].current;
         for (let i = 1; i < playerStart.buildings.length; i++) {
             buildings[i].current = 0;
             buildings[i].true = 0;
+            buildings[i].total = 0;
             calculateBuildingsCost(i);
         }
     }
