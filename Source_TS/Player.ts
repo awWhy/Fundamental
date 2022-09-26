@@ -1,21 +1,20 @@
+import { reset } from './Reset';
 import { Alert } from './Special';
 import { globalType, saveType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: '0.0.0',
+    version: 'v0.0.1',
     stage: {
         true: 1,
         current: 1
     },
-    energy: {
-        current: 0,
-        total: 0
-    },
-    discharge: {
+    discharge: { //Stage 1
+        energyCur: 0,
+        energyMax: 0,
         current: 0,
         bonus: 0
     },
-    vaporization: {
+    vaporization: { //Stage 2
         current: 0,
         clouds: 1
     },
@@ -63,6 +62,7 @@ export const player: playerType = { //Only for information that need to be saved
     /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
     upgrades: [0, 0, 0, 0, 0, 0, 0, 0],
     researches: [0, 0, 0, 0, 0],
+    researchesExtra: [0, 0, 0], //First appears in Stage 2
     researchesAuto: [0, 0, 0],
     toggles: [], //Auto added for every element with a class 'toggle', all toggle's are:
     /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8];
@@ -78,8 +78,10 @@ export const global: globalType = { //For information that doesn't need to be sa
     tab: 'stage',
     footer: true,
     screenReader: false,
-    versionChanged: false,
-    energyType: [0, 1, 5, 20],
+    versionInfo: {
+        changed: false,
+        log: 'Change log:'
+    },
     timeSpecial: {
         lastSave: 0,
         maxOffline: 3600
@@ -94,6 +96,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         default: true
     },
     dischargeInfo: {
+        energyType: [0, 1, 5, 20],
         next: 1
     },
     vaporizationInfo: {
@@ -143,26 +146,6 @@ export const global: globalType = { //For information that doesn't need to be sa
         effect: [10, 10, 5, 4, 0.2, 1.01, 0, 0],
         cost: [9, 12, 36, 300, 800, 5000, 15000, 36000]
     },
-    upgradesS2Info: {
-        description: [
-            'Surface tension. Allows for bigger Puddles. (This upgrade research will break balance in late game...)',
-            'Streams. Spread quicker.',
-            'River. Spread even quicker.',
-            'Vaporization. Unlock new reset tier.',
-            'Rain. Extra production of Drops.',
-            'Storm. Boost Seas production.'
-        ],
-        effectText: [
-            ['Each Puddle boost Puddle production by ', '.'],
-            ['Ponds boost to Puddles production is now ', ' times bigger.'],
-            ['Lakes get boost based on amount of Ponds. At a reduced rate.'],
-            ['Gain ability to convert Drops into Clouds.'],
-            ['Clouds can now produce Drops. (1 per second per ', ' Clouds)'],
-            ['Clouds amount boost Seas at a very reduced rate.']
-        ],
-        effect: [1.03, 1.5, 0, 0, 1000, 0],
-        cost: [1000, 1e8, 1e20, 1e10, 1e12, 1e25]
-    },
     researchesInfo: {
         description: [
             "Effect of 'Protium' upgrade is stronger.",
@@ -183,21 +166,63 @@ export const global: globalType = { //For information that doesn't need to be sa
         scalling: [300, 1500, 1800, 0, 81456],
         max: [9, 3, 9, 1, 2]
     },
-    researchesS2Info: {
+    upgradesS2Info: {
         description: [
-            'More moles.',
-            'Production of Drops is boosted.',
-            'Surface stress.'
+            'A single Mole is a 6.022e23 Molecules.',
+            'Vaporization. Unlock new reset tier.',
+            'Surface tension. Allows for bigger Puddles.',
+            'Surface stress. Even bigger Puddles.',
+            'Stream. Spreads water around.',
+            'River. Spreads even more water.'
         ],
         effectText: [
-            ['Drops produce ', ' times more moles.'],
-            ['Drops now give boost to what produces them based of bought amount, at a reduced rate.'],
-            ['Surface tension upgrade is now +', ' stronger. (You can decide not to buy it after 1e5 > 1e7 resource buildings for better balance...)']
+            ['Drops produce Moles, based on bought amount.'],
+            ['Gain ability to convert Drops into Clouds. (Puddles get boost equal to Cloud amount)'],
+            ['Puddles get boost based on Moles. (Equal to Moles ** ', ')'],
+            ['Puddles get boost based on Drops. (Equal to Drops ** ', ')'],
+            ['Ponds produce some Puddles. (', ' extra Puddles per Pond)'],
+            ['Lakes produce some Ponds. (', ' extra Ponds per Lake)']
         ],
-        effect: [3, 0, 0.01],
-        cost: [20, 1e9, 1e5],
-        scalling: [1.2, 0, 10],
-        max: [9, 1, 2]
+        effect: [0, 0, 0.02, 0.02, 1, 1],
+        cost: [1e4, 1e10, 1000, 10000, 2e9, 5e20]
+    },
+    researchesS2Info: {
+        description: [
+            'Better Mole production.',
+            'All of it, is still around.',
+            'Stronger surface tension.',
+            'Stronger surface stress.',
+            'More streams.',
+            'Distributary channel.'
+        ],
+        effectText: [
+            ['Drops produce ', ' times more Moles.'],
+            ['Bonus to buildings now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.'],
+            ['Surface tension upgrade is now +', ' stronger.'],
+            ['Surface stress upgrades is now +', ' stronger.'],
+            ['With more streams, you can have even more extra Puddles. (+', ' extra Puddles per Pond)'],
+            ['Rivers can split now, that allows even more Ponds per Lake. (+', ' per)']
+        ],
+        effect: [3, 0, 0.02, 0.03, 1, 1],
+        cost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
+        scalling: [1.2, 1000, 1000, 10000, 1000, 100],
+        max: [9, 2, 3, 3, 2, 2]
+    },
+    researchesExtraS2Info: {
+        description: [
+            'Natural vaporization.',
+            'Rain Clouds.',
+            'Storm Clouds.'
+        ],
+        effectText: [
+            ['Clouds will now use total produced Drops instead, when formed. (Weaker past 1e4 Clouds)'],
+            ['Some Clouds will start pouring Drops themselfs. (1eX, x = research level - 1)'],
+            ['Seas get boost based on amount of Clouds.']
+        ],
+        effect: [0, 0, 0],
+        cost: [1e16, 1e13, 1e25],
+        scalling: [0, 100, 0],
+        max: [1, 4, 1]
     },
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
@@ -208,10 +233,10 @@ export const global: globalType = { //For information that doesn't need to be sa
         effectText: [
             ['Unlock abbility to buy multiple buildings at same time.'],
             ['Will automatically buy ', ' for you.'],
-            ['Research this to make max offline timer +', ' hours.']
+            ['Research this to make max offline timer +', ' hour.']
         ],
         effect: [0, 'Particles', 1],
-        cost: [300, 3000, 1e10],
+        cost: [300, 3000, 1e9],
         scalling: [0, 5000, 0],
         max: [1, 3, 1]
     }
@@ -250,13 +275,20 @@ export const updatePlayer = (load: saveType) => {
         const playerCheck = startValue('p'); //If to add 'as playerType', TS will lose its mind
         for (const i in playerStart) { //This should auto add missing information
             if (!Object.prototype.hasOwnProperty.call(load.player, i)) {
-                load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
+                if (i === 'version') {
+                    load.player[i] = '0.0.0';
+                } else {
+                    load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
+                }
             }
         }
+        //No idea if load.player = { ...load.player, ...playerCheck }; would had been better (or even works)
 
         /* Next one's will auto add missing part of already existing information */
         const upgradeType = `upgrades${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'upgradesS2Info';
         const researchType = `researches${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'researchesS2Info';
+        //const researchExtraType = `researchesExtra${load.player.stage.current !== 1 ? `S${load.player.stage.current}` : ''}Info` as 'researchesExtraS2Info';
+        //Not for stage 1 (?)
 
         if (playerStart.buildings.length > load.player.buildings.length) {
             for (let i = load.player.buildings.length; i < playerStart.buildings.length; i++) {
@@ -284,16 +316,28 @@ export const updatePlayer = (load: saveType) => {
             }
         }
 
-        global.versionChanged = false;
-        /*if (player.version === '0.0.0') {
-            player.version = '0.0.1';
-            global.versionChanged = true;
-            reset('vaporization');
-        }*/
-
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
+
+        /* Extra, version changes */
+        const { versionInfo } = global;
+        versionInfo.changed = false;
+        versionInfo.log = 'Change log:';
+        if (player.version === '0.0.0') {
+            player.version = 'v0.0.1';
+            versionInfo.changed = true;
+            versionInfo.log += '\nStage 2 has properly came out; Your Energy has been fully reset to prevent save file corruption, sorry';
+            if (player.stage.current === 2) {
+                reset('stage');
+                player.researchesAuto = [1, 0, 0];
+            } else if (player.stage.current === 1) {
+                if (player.upgrades[3] === 0) {
+                    reset('discharge');
+                } else { player.discharge.energyCur = 0; }
+            }
+            player.discharge.energyMax = 0;
+        }
     } else {
-        Alert('Save file coudn\'t be loaded as its missing important info.');
+        Alert('Save file coudn\'t be loaded as its missing important info');
     }
 };

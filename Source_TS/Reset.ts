@@ -1,6 +1,6 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
-import { calculateBuildingsCost, calculateResearchCost } from './Stage';
+import { calculateBuildingsCost } from './Stage';
 import { numbersUpdate, stageCheck, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
@@ -8,25 +8,22 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
 
     switch (type) {
         case 'discharge': //Buildings reset at bottom
-            player.energy.current = 0;
+            player.discharge.energyCur = 0;
             buildings[0].current = 3;
             break;
         case 'vaporization':
             buildings[0].current = 0.0028;
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < player.upgrades.length; i++) {
+                if (i === 1) { continue; } //Just skips that loop
                 player.upgrades[i] = 0;
                 visualUpdateUpgrades(i);
-            }
-            for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
-                player.researches[i] = 0;
-                visualUpdateUpgrades(i, 'researches');
-                calculateResearchCost(i, 'researches');
             }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
             player.upgrades = [];
             player.researches = [];
-            const { upgrades, researches } = player;
+            player.researchesExtra = [];
+            const { upgrades, researches, researchesExtra } = player;
 
             for (let i = 1; i < playerStart.buildings.length; i++) {
                 buildings[i].current = 0;
@@ -35,24 +32,27 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
                 buildings[i].trueTotal = 0;
             }
 
-            let upgradeType = 'upgradesInfo' as 'upgradesS2Info'; //TS is still incredebly stupid (no idea how to deal with it)
-            let researchType = 'researchesInfo' as 'researchesS2Info';
-            if (stage.current !== 1) {
-                upgradeType = `upgradesS${stage.current}Info` as 'upgradesS2Info';
-                researchType = `researchesS${stage.current}Info` as 'researchesS2Info';
-            }
+            const upgradeType = `upgrades${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
+            const researchType = `researches${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
+            const researchExtraType = `researchesExtra${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'researchesExtraS2Info';
+
             for (let i = 0; i < global[upgradeType].cost.length; i++) {
                 upgrades[i] = 0;
             }
             for (let i = 0; i < global[researchType].cost.length; i++) {
                 researches[i] = 0;
             }
+            if (stage.current === 2) { //No idea if stage 1 will ever have it
+                for (let i = 0; i < global[researchExtraType].cost.length; i++) {
+                    researchesExtra[i] = 0;
+                }
+            }
 
             switch (stage.current) {
                 case 1:
                     buildings[0].current = 3;
-                    player.energy.current = 0;
-                    player.energy.total = 0;
+                    player.discharge.energyCur = 0;
+                    player.discharge.energyMax = 0;
                     player.discharge.current = 0;
                     break;
                 case 2:

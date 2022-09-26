@@ -256,7 +256,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 }
             } else {
                 if (stage.current === 1) {
-                    invText.textContent = `You have ${player.energy.current} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
+                    invText.textContent = `You have ${player.discharge.energyCur} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
                 } else if (stage.current === 2) {
                     invText.textContent = `You have ${player.vaporization.clouds} Clouds`;
                 }

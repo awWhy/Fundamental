@@ -10,7 +10,7 @@ export const getId = (id: string) => { //To type less and check if ID exist
     if (i !== null) {
         return i;
     }
-    Alert('Some ID failed to load, game won\'t be working properly. Please refresh.');
+    Alert('Some ID failed to load, game won\'t be working properly. Please refresh');
     throw new TypeError(`ID "${id}" not found.`);
 };
 
@@ -22,10 +22,10 @@ export const reLoad = async(loadSave = false) => {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
             if (player.toggles[0]) {
-                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.\n${global.versionChanged ? `Game has been updated to v${player.version}` : `Current version is v${player.version}`}`);
+                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.${global.versionInfo.changed ? `\nGame has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
             }
         } else {
-            Alert("Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.");
+            Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
         }
         if (theme !== null) {
             global.theme.default = false;
@@ -43,7 +43,7 @@ export const reLoad = async(loadSave = false) => {
     switchTheme(); //Changes theme
 
     if (loadSave && !player.toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.\n${global.versionChanged ? `Also game has been updated to v${player.version}` : `Current version is v${player.version}`}`);
+        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
         if (noOffline) { player.time.updated = Date.now(); }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
@@ -90,6 +90,11 @@ for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
     getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
     getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
     if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+}
+for (let i = 0; i < global.researchesExtraS2Info.cost.length; i++) {
+    getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra'));
+    getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra'));
+    if (screenReader) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchesExtra')); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
@@ -176,21 +181,24 @@ async function saveLoad(type: string) {
             const id = getId('file') as HTMLInputElement;
             const saveFile = id.files;
             if (saveFile === null) {
-                return Alert('Loaded file wasn\'t found.');
+                return Alert('Loaded file wasn\'t found, somehow');
             }
             const text = await saveFile[0].text();
 
             try {
                 const load = JSON.parse(atob(text));
+                const versionCheck = load.player.version;
                 changeIntervals(true);
                 updatePlayer(load);
                 if (!player.toggles[0]) {
-                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.`);
+                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                     if (noOffline) { player.time.updated = Date.now(); }
+                } else {
+                    Alert(`This save is ${format((Date.now() - player.time.updated), 0, 'time')} old.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}.` : `\nSave file version is ${player.version}`}`);
                 }
                 void reLoad();
             } catch {
-                Alert('Incorrect save file format.');
+                Alert('Incorrect save file format');
             } finally {
                 id.value = ''; //Remove inputed file
             }
@@ -232,7 +240,7 @@ async function saveLoad(type: string) {
                 player.time.updated = player.time.started;
                 void reLoad();
             } else if (ok !== null && ok !== '') {
-                Alert(`You wrote '${ok}', so save file wasn't deleted.`);
+                Alert(`You wrote '${ok}', so save file wasn't deleted`);
             }
             break;
         }
@@ -246,7 +254,7 @@ const pauseGame = async() => {
     if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();
     } else if (offline !== null && offline !== '') {
-        Alert(`You wrote '${offline}', so you gained offline time.`);
+        Alert(`You wrote '${offline}', so you gained offline time`);
     }
     changeIntervals();
 };

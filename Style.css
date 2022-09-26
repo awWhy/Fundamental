@@ -182,7 +182,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 .toggle:hover, #buyStrict:hover, #screenReaderToggle:hover, .interactiveImage:hover { background-color: var(--button-extra-hover); }
 
-input[type = number] {
+input[type = "number"] {
     width: 3.1em;
     height: 1.5em;
     background-color: var(--background-color);;
@@ -192,7 +192,7 @@ input[type = number] {
     -moz-appearance: textfield; /* To remove arrows */
 }
 
-input[type = number]::-webkit-inner-spin-button, input[type = number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 input:invalid { border-color: crimson; }
 input { font-size: 0.84em; }
 
@@ -306,10 +306,13 @@ input { font-size: 0.84em; }
 
 .researchSection > div > div { display: flex; }
 #researchTab .descriptionText { margin-top: -0.5em; }
-.stage4research > p { border-color: #f28100 !important; }
-#automatizationResearch > div { border-color: #5b5b75; }
-#researchAuto1 > p { border-color: #bd24ef; }
-#researchAuto3 > p { border-color: #1460a8; }
+
+/* If !important need to be removed then remove .class and do #id instead */
+.stage1border { border-color: #008b8b !important; } 
+.stage2border { border-color: #1460a8 !important; }
+.stage3border { border-color: #5b5b75 !important; }
+.stage4border { border-color: #f28100 !important; }
+.stage5border { border-color: #bd24ef !important; }
 
 .descriptionText {
     display: flex;
@@ -416,7 +419,7 @@ input { font-size: 0.84em; }
     list-style-type: ">  ";
 }
 
-li > input[type = number] {
+li > input[type = "number"] {
     text-align: center;
     height: 1.2em;
     width: 2.5em;

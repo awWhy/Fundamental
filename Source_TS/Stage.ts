@@ -19,7 +19,7 @@ export const buyBuilding = (index: number, auto = false) => {
     let extra = index - 1;
     if (stage.current === 2 && index > 2) { extra = 1; }
     let keep = 2;
-    if (stage.current === 2) { keep = 1; }
+    if (buildings[index].true === 0) { keep = 1; }
 
     if (buildings[extra].current < buildingsInfo.cost[index] * (auto ? keep : 1)) {
         if (screenReader && !auto) {
@@ -29,7 +29,7 @@ export const buyBuilding = (index: number, auto = false) => {
     }
 
     const { researchesAuto, buyToggle } = player;
-    if (stage.current === 1) { global.energyType[index] = globalStart.energyType[index] * 3 ** player.researches[4]; }
+    if (stage.current === 1) { global.dischargeInfo.energyType[index] = globalStart.dischargeInfo.energyType[index] * 3 ** player.researches[4]; }
 
     if ((buyToggle.howMany !== 1 && researchesAuto[0] > 0) || auto) {
         let budget = buildings[extra].current;
@@ -53,12 +53,9 @@ export const buyBuilding = (index: number, auto = false) => {
         buildings[index].total += canAfford;
         buildings[index].trueTotal += canAfford;
 
-        if (stage.current === 1) {
-            player.energy.current += global.energyType[index] * canAfford;
-            player.energy.total += global.energyType[index] * canAfford;
-        }
+        if (stage.current === 1) { player.discharge.energyCur += global.dischargeInfo.energyType[index] * canAfford; }
         if (global.screenReader && !auto) {
-            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${format(global.energyType[index] * canAfford)} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
+            getId('invisibleBought').textContent = `Bought ${format(canAfford)} '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${format(global.dischargeInfo.energyType[index] * canAfford)} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
         }
     } else if (buyToggle.howMany === 1 || researchesAuto[0] === 0) {
         buildings[extra].current -= buildingsInfo.cost[index];
@@ -67,12 +64,9 @@ export const buyBuilding = (index: number, auto = false) => {
         buildings[index].total++;
         buildings[index].trueTotal++;
 
-        if (stage.current === 1) {
-            player.energy.current += global.energyType[index];
-            player.energy.total += global.energyType[index];
-        }
+        if (stage.current === 1) { player.discharge.energyCur += global.dischargeInfo.energyType[index]; }
         if (global.screenReader) {
-            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${global.energyType[index]} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
+            getId('invisibleBought').textContent = `Bought 1 '${buildingsInfo.name[index]}'${stage.current === 1 ? `, gained ${global.dischargeInfo.energyType[index]} ${global.stageInfo.resourceName[stage.current - 1]}` : ''}`;
         }
     }
     calculateBuildingsCost(index);
@@ -93,7 +87,7 @@ export const calculateBuildingsCost = (index: number) => {
     if (stage.current === 1 && index === 1 && upgrades[0] === 1) { buildingsInfo.cost[1] /= 10; }
 };
 
-export const calculateResearchCost = (research: number, type: 'researches' | 'researchesAuto') => {
+export const calculateResearchCost = (research: number, type: 'researches' | 'researchesExtra' | 'researchesAuto') => {
     const { stage } = player;
     let typeInfo = 'researchesAutoInfo' as 'researchesAutoInfo' | 'researchesS2Info';
     if (type !== 'researchesAuto') {
@@ -110,7 +104,7 @@ export const calculateResearchCost = (research: number, type: 'researches' | 're
 };
 
 export const calculateGainedBuildings = (get: number, time: number) => {
-    const { stage, buildings, upgrades } = player;
+    const { stage, buildings } = player;
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way
     let add: number;
@@ -118,10 +112,10 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     if (stage.current === 1 && get === 3) {
         if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
         add = Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2];
-        if (upgrades[7] === 1) { add *= player.energy.current; }
+        if (player.upgrades[7] === 1) { add *= player.discharge.energyCur; }
     } else {
         add = buildingsInfo.producing[get + 1] * time;
-        if (stage.current === 2 && get === 1 && upgrades[4] === 1) { add += player.vaporization.clouds * time / 1000; }
+        if (stage.current === 2 && get === 1 && player.researchesExtra[1] >= 1) { add += time * 10 ** (player.researchesExtra[1] - 1); }
     }
 
     if (add === 0) { return; }
@@ -140,14 +134,14 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     if (isFinite(check)) { buildings[get].trueTotal = check; }
 };
 
-export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | 'researches' | 'researchesAuto') => {
+export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto') => {
     const { stage } = player;
 
-    let price: Record<string, number>;
+    let price: number;
     if (stage.current === 1) {
-        price = player.energy;
+        price = player.discharge.energyCur;
     } else /*if (stage.current === 2)*/ {
-        price = player.buildings[1];
+        price = player.buildings[1].current;
     }
 
     if (type !== 'upgrades') {
@@ -157,9 +151,9 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
         }
 
         if (type === 'researchesAuto' && stage.current === 1 && upgrade > 1) { return; }
-        if (player[type][upgrade] === global[typeInfo].max[upgrade] || price.current < global[typeInfo].cost[upgrade]) { return; }
+        if (player[type][upgrade] === global[typeInfo].max[upgrade] || price < global[typeInfo].cost[upgrade]) { return; }
         player[type][upgrade]++;
-        price.current -= global[typeInfo].cost[upgrade];
+        price -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
         if (stage.current === 1 && type === 'researches' && upgrade === 0) {
@@ -173,9 +167,9 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
     } else {
         const typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
 
-        if (player[type][upgrade] === 1 || price.current < global[typeInfo].cost[upgrade]) { return; }
+        if (player[type][upgrade] === 1 || price < global[typeInfo].cost[upgrade]) { return; }
         player[type][upgrade] = 1;
-        price.current -= global[typeInfo].cost[upgrade];
+        price -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
         if (stage.current === 1) {
@@ -191,6 +185,14 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
         }
         if (global.screenReader) { getId('invisibleBought').textContent = `You have bought upgrade '${global[typeInfo].description[upgrade]}'`; }
     }
+
+    /* Because each price can use different property, so have to do it this way... */
+    if (stage.current === 1) {
+        player.discharge.energyCur = price;
+    } else /*if (stage.current === 2)*/ {
+        player.buildings[1].current = price;
+    }
+
     numbersUpdate();
     getUpgradeDescription(upgrade, type);
     visualUpdateUpgrades(upgrade, type);
@@ -256,30 +258,30 @@ export const toggleBuy = (type = 'none') => {
 export const stageResetCheck = async() => {
     const { stage, buildings, researchesAuto, toggles } = player;
     let reseted = false;
+    const message = 'Ready to enter next stage? You might want to turn off all auto\'s first';
 
     if (stage.current === 1) {
         if (buildings[3].current >= 1.67e21) {
             let ok = true;
-            if (toggles[2]) {
-                //ok = await Confirm('Ready to enter next stage?');
-                ok = await Confirm('I kinda mess up, with next stage... You can play it, but it will be reworked. Progress in next stage is going to be completely wiped, when I\'m done');
-            }
+            if (toggles[2]) { ok = await Confirm(message); }
             if (ok) {
                 if (researchesAuto[0] === 0) { researchesAuto[0]++; }
                 reseted = true;
             }
+        } else {
+            Alert('You will need a single Drop of water for next one');
         }
-    } else /*if (stage.current === 2)*/ {
+    } else if (stage.current === 2) {
         if (buildings[1].current >= 2.68e26) {
-            Alert('Not yet in game. When new stage is out, progress is going to be fully reset again');
+            Alert('Not yet in game');
             /*let ok = true;
-            if (toggles[2]) {
-                ok = await Confirm('Ready to enter next stage?');
-            }
+            if (toggles[2]) { ok = await Confirm(message); }
             if (ok) {
                 if (researchesAuto[2] === 0) { researchesAuto[2]++; }
                 reseted = true;
             }*/
+        } else {
+            Alert('Look\'s like, it, can still hold more Drops');
         }
     }
     if (reseted) {
@@ -291,22 +293,23 @@ export const stageResetCheck = async() => {
 };
 
 export const dischargeResetCheck = async() => {
-    const { energy } = player;
     const { dischargeInfo } = global;
 
     if (player.upgrades[3] === 1 && player.buildings[1].true > 0 && player.stage.current === 1) {
+        const { discharge } = player;
+
         let ok = true;
-        if (player.toggles[1] && energy.current < dischargeInfo.next) {
+        if (player.toggles[1] && discharge.energyCur < dischargeInfo.next) {
             ok = await Confirm('This will reset all of your current buildings and energy. You will NOT gain production boost. Continue?');
-        } else if (player.toggles[1] && energy.current >= dischargeInfo.next) {
+        } else if (player.toggles[1] && discharge.energyCur >= dischargeInfo.next) {
             ok = await Confirm('You have enough energy to gain boost. Continue?');
         }
         if (ok) {
-            if (energy.current >= dischargeInfo.next) {
-                player.discharge.current++;
+            if (discharge.energyCur >= dischargeInfo.next) {
+                discharge.current++;
                 dischargeInfo.next *= 10;
                 if (global.screenReader) { getId('invisibleBought').textContent = 'Buildings and energy were reset for some boost'; }
-            } else if (global.screenReader && energy.current < dischargeInfo.next) {
+            } else if (global.screenReader && discharge.energyCur < dischargeInfo.next) {
                 getId('invisibleBought').textContent = 'Buildings and energy were reset, no boost';
             }
             reset('discharge');
@@ -317,12 +320,12 @@ export const dischargeResetCheck = async() => {
 export const vaporizationResetCheck = async() => {
     const { vaporizationInfo } = global;
 
-    if (player.upgrades[3] === 1 && vaporizationInfo.get >= 1 && player.stage.current === 2) {
+    if (player.upgrades[1] === 1 && vaporizationInfo.get >= 1 && player.stage.current === 2) {
         const { vaporization } = player;
 
         let ok = true;
         if (player.toggles[9]) {
-            ok = await Confirm(`Do you wish to reset buildings, upgrades and researches for ${format(vaporizationInfo.get)} Clouds?`);
+            ok = await Confirm(`Do you wish to reset buildings and upgrades for ${format(vaporizationInfo.get)} Clouds?`);
         }
         if (ok) {
             vaporization.current++;

@@ -4,15 +4,13 @@ export interface playerType {
         true: number
         current: number
     }
-    energy: {
-        current: number
-        total: number
-    }
-    discharge: {
+    discharge: { //Stage 1
+        energyCur: number
+        energyMax: number
         current: number
         bonus: number
     }
-    vaporization: {
+    vaporization: { //Stage 2
         current: number
         clouds: number
     }
@@ -29,6 +27,7 @@ export interface playerType {
     }>*/ //I will deal with it later...
     upgrades: number[]
     researches: number[]
+    researchesExtra: number[]
     researchesAuto: number[]
     toggles: boolean[]
     buyToggle: {
@@ -42,8 +41,10 @@ export interface globalType {
     tab: string
     footer: boolean
     screenReader: boolean
-    versionChanged: boolean
-    energyType: number[]
+    versionInfo: {
+        changed: boolean
+        log: string
+    }
     timeSpecial: {
         lastSave: number
         maxOffline: number
@@ -58,6 +59,7 @@ export interface globalType {
         default: boolean
     }
     dischargeInfo: {
+        energyType: number[]
         next: number
     }
     vaporizationInfo: {
@@ -87,12 +89,6 @@ export interface globalType {
         effect: number[]
         cost: number[]
     }
-    upgradesS2Info: {
-        description: string[]
-        effectText: string[][]
-        effect: number[]
-        cost: number[]
-    }
     researchesInfo: {
         description: string[]
         effectText: string[][]
@@ -101,7 +97,21 @@ export interface globalType {
         scalling: number[]
         max: number[]
     }
+    upgradesS2Info: {
+        description: string[]
+        effectText: string[][]
+        effect: number[]
+        cost: number[]
+    }
     researchesS2Info: {
+        description: string[]
+        effectText: string[][]
+        effect: number[]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }
+    researchesExtraS2Info: {
         description: string[]
         effectText: string[][]
         effect: number[]

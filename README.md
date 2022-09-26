@@ -2,7 +2,7 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-Early version for Stage 2 is out, if buildings are missing might need to refresh page
+v**0.0.1** > Stage 2 reworked, energy will be reset on load, sorry
 
 ---
 ### If you plan do anything with this, then you need to:

@@ -32,7 +32,7 @@
                     <button id="dischargeReset" class="mediumButton">Next goal is 1 Energy</button>
                 </div>
                 <div id="vaporization" class="reset">
-                    <p class="whiteText"><span class="bigWord grayText">Vaporization</span>. Buildings, upgrades, stage researches, will be reset. But in return gain <span class="grayText">Clouds</span>. (Puddles get a boost equal to the amount of <span class="grayText">Clouds</span>)</p>
+                    <p class="whiteText"><span class="bigWord grayText">Vaporization</span>. Buildings, upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.</p>
                     <button id="vaporizationReset" class="mediumButton">Reset for 0 Clouds</button>
                 </div>
             </div>
@@ -120,7 +120,7 @@
         </div>
         <div id="researchTab" class="insideTab">
             <div id="stageResearch" class="researchSection">
-                <img src="Used_art/Stage.png" alt="Stage" class="stageBorder" loading="lazy">
+                <img src="Used_art/Stage.png" alt="Stage researches" class="stageBorder" loading="lazy">
                 <div>
                     <div id="research1">
                         <img src="Used_art/Research1.png" alt="Research 1" tabindex="10" id="research1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
@@ -134,13 +134,13 @@
                         <img src="Used_art/Research3.png" alt="Research 3" tabindex="10" id="research3Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
                         <p class="whiteText"><span id="research3Level" class="redText">0</span>/<span id="research3Max" class="greenText">9</span></p>
                     </div>
-                    <div id="research4" class="stage4research">
+                    <div id="research4">
                         <img src="Used_art/Research4.png" alt="Research 4" tabindex="10" id="research4Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research4Level" class="redText">0</span>/<span id="research4Max" class="greenText">1</span></p>
+                        <p class="whiteText stage4border"><span id="research4Level" class="redText">0</span>/<span id="research4Max" class="greenText">1</span></p>
                     </div>
-                    <div id="research5" class="stage4research">
+                    <div id="research5">
                         <img src="Used_art/Research5.png" alt="Research 5" tabindex="10" id="research5Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="research5Level" class="redText">0</span>/<span id="research5Max" class="greenText">2</span></p>
+                        <p class="whiteText stage4border"><span id="research5Level" class="redText">0</span>/<span id="research5Max" class="greenText">2</span></p>
                     </div>
                     <div id="researchW1">
                         <img src="Used_art/ResearchW1.png" alt="Research 1" tabindex="10" id="researchW1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
@@ -148,20 +148,49 @@
                     </div>
                     <div id="researchW2">
                         <img src="Used_art/ResearchW2.png" alt="Research 2" tabindex="10" id="researchW2Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="researchW2Level" class="redText">0</span>/<span id="researchW2Max" class="greenText">1</span></p>
+                        <p class="whiteText"><span id="researchW2Level" class="redText">0</span>/<span id="researchW2Max" class="greenText">2</span></p>
                     </div>
                     <div id="researchW3">
                         <img src="Used_art/ResearchW3.png" alt="Research 3" tabindex="10" id="researchW3Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="researchW3Level" class="redText">0</span>/<span id="researchW3Max" class="greenText">2</span></p>
+                        <p class="whiteText"><span id="researchW3Level" class="redText">0</span>/<span id="researchW3Max" class="greenText">3</span></p>
+                    </div>
+                    <div id="researchW4">
+                        <img src="Used_art/ResearchW4.png" alt="Research 4" tabindex="10" id="researchW4Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchW4Level" class="redText">0</span>/<span id="researchW4Max" class="greenText">3</span></p>
+                    </div>
+                    <div id="researchW5">
+                        <img src="Used_art/ResearchW5.png" alt="Research 5" tabindex="10" id="researchW5Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchW5Level" class="redText">0</span>/<span id="researchW5Max" class="greenText">2</span></p>
+                    </div>
+                    <div id="researchW6">
+                        <img src="Used_art/ResearchW6.png" alt="Research 6" tabindex="10" id="researchW6Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchW6Level" class="redText">0</span>/<span id="researchW6Max" class="greenText">2</span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="cloudResearch" class="researchSection">
+                <img src="Used_art/Cloud%20Researches.png" alt="Cloud researches" loading="lazy">
+                <div>
+                    <div id="researchClouds1">
+                        <img src="Used_art/ResearchClouds1.png" alt="Cloud research 1" tabindex="10" id="researchClouds1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText stage3border"><span id="researchClouds1Level" class="redText">0</span>/<span id="researchClouds1Max" class="greenText">1</span></p>
+                    </div>
+                    <div id="researchClouds2">
+                        <img src="Used_art/ResearchClouds2.png" alt="Cloud research 2" tabindex="10" id="researchClouds2Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText"><span id="researchClouds2Level" class="redText">0</span>/<span id="researchClouds2Max" class="greenText">4</span></p>
+                    </div>
+                    <div id="researchClouds3">
+                        <img src="Used_art/ResearchClouds3.png" alt="Cloud research 3" tabindex="10" id="researchClouds3Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
+                        <p class="whiteText stage4border"><span id="researchClouds3Level" class="redText">0</span>/<span id="researchClouds3Max" class="greenText">1</span></p>
                     </div>
                 </div>
             </div>
             <div id="automatizationResearch" class="researchSection">
                 <img src="Used_art/Automatization.png" alt="Automatization" loading="lazy">
-                <div>
+                <div class="stage3border">
                     <div id="researchAuto1">
                         <img src="Used_art/Buy%20toggles.png" alt="Automatization research 1" tabindex="10" id="researchAuto1Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">1</span></p>
+                        <p class="whiteText stage5border"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">1</span></p>
                     </div>
                     <div id="researchAuto2">
                         <img src="Used_art/Auto.png" alt="Automatization research 2" tabindex="10" id="researchAuto2Image" class="stageBorder interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
@@ -169,7 +198,7 @@
                     </div>
                     <div id="researchAuto3">
                         <img src="Used_art/Offline.png" alt="Automatization research 3" tabindex="10" id="researchAuto3Image" class="stageBorder interactiveImage" aria-labelledby="researchText researchEffect researchCost" loading="lazy">
-                        <p class="whiteText"><span id="researchAuto3Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">1</span></p>
+                        <p class="whiteText stage2border"><span id="researchAuto3Level" class="redText">0</span>/<span id="researchAuto3Max" class="greenText">1</span></p>
                     </div>
                 </div>
             </div>
