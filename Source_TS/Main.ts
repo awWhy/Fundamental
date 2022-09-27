@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, startValue } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
 
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -32,6 +32,7 @@ export const reLoad = async(loadSave = false) => {
             global.theme.stage = Number(theme);
         }
     }
+    mobileDeviceSupport(); //Not much right now inside
     screenReaderSupport(false, 'toggle', 'reload'); //If screen reader support is ON, then it will change some stuff
     stageCheck(); //Visual and other stage information (like next reset goal)
     switchTab(); //Sets tab to Stage, also visual and number update
@@ -52,7 +53,7 @@ export const reLoad = async(loadSave = false) => {
 void reLoad(true);
 
 /* Global */
-const { screenReader } = global;
+const { mobileDevice, screenReader } = global;
 for (let i = 0; i < playerStart.toggles.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
 }
@@ -64,12 +65,12 @@ for (let i = 1; i < playerStart.buildings.length; i++) {
 for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
     getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
+    if (screenReader || mobileDevice) { getId(`upgrade${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i)); }
 }
 for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
     getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
     getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => buyUpgrades(i)); }
+    if (screenReader || mobileDevice) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 getId('vaporizationReset').addEventListener('click', async() => await vaporizationResetCheck());
@@ -84,22 +85,22 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 for (let i = 0; i < global.researchesInfo.cost.length; i++) {
     getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
     getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader) { getId(`research${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+    if (screenReader || mobileDevice) { getId(`research${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches')); }
 }
 for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
     getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
     getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researches')); }
+    if (screenReader || mobileDevice) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches')); }
 }
 for (let i = 0; i < global.researchesExtraS2Info.cost.length; i++) {
     getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra'));
     getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra'));
-    if (screenReader) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchesExtra')); }
+    if (screenReader || mobileDevice) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra')); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
     getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
-    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => buyUpgrades(i, 'researchesAuto')); }
+    if (screenReader || mobileDevice) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesAuto')); }
 }
 
 /* Settings tab */
@@ -118,6 +119,9 @@ getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 getId('toggle3').addEventListener('click', () => changeFontSize());
 getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
+
+/* Only for phones */
+getId('mobileDeviceToggle').addEventListener('click', () => mobileDeviceSupport(true));
 
 /* Only for screen readers */
 getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));

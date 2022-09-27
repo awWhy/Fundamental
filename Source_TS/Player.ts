@@ -77,6 +77,7 @@ export const player: playerType = { //Only for information that need to be saved
 export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage',
     footer: true,
+    mobileDevice: false,
     screenReader: false,
     versionInfo: {
         changed: false,

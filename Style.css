@@ -1,3 +1,4 @@
+/* CSS lint will never be installed, because it was only gettin in a way without proving any help */
 * {
     font-family: Inter, serif;
     box-sizing: content-box;
@@ -54,14 +55,16 @@ body {
 .redText { color: var(--red-text-color); }
 .greenText { color: var(--green-text-color); }
 
+input[type = "image"],
 img {
     background-color: var(--background-color);
     object-fit: none;
     width: 32px;
     height: 32px;
+    color: white; /* Alt text color (shown if image failed to load) */
 }
 
-.interactiveImage { cursor: pointer; }
+.interactiveImage, input[type = "image"] { cursor: pointer; }
 
 .stageBorder {
     background-image: var(--border-image);
@@ -128,8 +131,9 @@ img {
     display: none;
 }
 
+button, input { appearance: none; }
+
 #load, button {
-    appearance: none;
     height: 1.6em;
     cursor: pointer;
     transition: border, background-color 100ms;
@@ -164,7 +168,7 @@ nav button {
     background-color: black;
 }
 
-.toggle, #screenReaderToggle {
+.toggle, .specialToggle {
     border-color: forestgreen;
     background-color: var(--background-color);
     width: 1.9em;
@@ -180,7 +184,7 @@ nav button {
 nav button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
-.toggle:hover, #buyStrict:hover, #screenReaderToggle:hover, .interactiveImage:hover { background-color: var(--button-extra-hover); }
+.toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
     width: 3.1em;
@@ -409,7 +413,7 @@ input { font-size: 0.84em; }
 .options ul {
     display: flex;
     flex-direction: column;
-    row-gap: 0.08em;
+    row-gap: 0.16em;
     margin-top: 0.2em;
     margin-left: -1em;
 }

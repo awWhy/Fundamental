@@ -205,6 +205,27 @@ export const hideFooter = () => {
     }, 1000);
 };
 
+export const mobileDeviceSupport = (change = false) => {
+    let turnOn = Boolean(localStorage.getItem('mobile device') ?? false);
+    const toggle = getId('mobileDeviceToggle');
+
+    if (change) { turnOn = !turnOn; }
+
+    if (turnOn) {
+        toggle.textContent = 'ON';
+        toggle.style.borderColor = 'crimson';
+        localStorage.setItem('mobile device', 'true');
+        global.mobileDevice = true;
+        if (change) { Alert('For full support please refresh page. This will add focus event for upgrades, to get description (more can be added if anyone using it)'); }
+    } else {
+        toggle.textContent = 'OFF';
+        toggle.style.borderColor = '';
+        localStorage.removeItem('mobile device');
+        global.mobileDevice = false;
+    }
+    if (global.screenReader) { toggle.setAttribute('aria-label', `Mobile device support is ${toggle.textContent}`); }
+};
+
 export const screenReaderSupport = (info = false as boolean | number, type = 'toggle', special = 'building') => {
     switch (type) {
         case 'toggle': {
@@ -228,7 +249,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                     global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
                     global.intervals.numbers = 1000; //To lag less, since visual information is not important
                 }
-                if (change) { Alert('For full support please refresh page. This will allow to buy upgrades on focus (because I have no idea how to make an image clickable with a keyboard), also you will get a special tab where you can check how much you own and more.\n(For non screen readers this will cause issues)'); }
+                if (change) { Alert('For full support please refresh page. You will get: focus event on upgrades to get description (I need feedback on it), special tab to check progress and more.\n(For non screen readers it auto sets recommended settings on some stuff)'); }
             } else {
                 toggle.textContent = 'OFF';
                 toggle.style.borderColor = '';

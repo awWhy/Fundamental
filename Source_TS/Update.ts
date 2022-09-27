@@ -216,7 +216,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('researchW6').style.display = buildings[4].trueTotal >= 1 ? '' : 'none';
         getId('researchClouds3').style.display = buildings[5].trueTotal >= 1 ? '' : 'none';
         if (buildings[1].trueTotal >= 300) { getId('building2').style.display = ''; }
-        if (buildings[1].trueTotal >= 1e7) { getId('building3').style.display = ''; }
+        if (buildings[1].trueTotal >= 5e6) { getId('building3').style.display = ''; }
         if (buildings[1].trueTotal >= 1e18) { getId('building4').style.display = ''; }
         if (buildings[1].trueTotal >= 1e23) { getId('building5').style.display = ''; }
         getId('stageReset').textContent = buildings[1].current >= 2.68e26 ? 'Enter next stage' : 'You are not ready';

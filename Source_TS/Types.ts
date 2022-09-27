@@ -40,6 +40,7 @@ export interface playerType {
 export interface globalType {
     tab: string
     footer: boolean
+    mobileDevice: boolean
     screenReader: boolean
     versionInfo: {
         changed: boolean
