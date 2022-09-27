@@ -122,7 +122,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         producing: [0, 0, 0, 0, 0, 0] //2 extra here, only for visual on load (not having NaN)
     },
     /* Every stage using its own array (because I think its better this way) */
-    //Also effect text = '[0]', effect[n], '[1]'; Unless effect[n] === 0, then text = '[0]'
+    //Also effect text = '[0]', effect[n], '[1]'; Unless effect[n] === null, then text = '[0]'
     upgradesInfo: {
         description: [
             'Bigger electrons. Particles cost decreased.',
@@ -132,19 +132,19 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Protium. Basic.',
             'Deuterium. Heavy.',
             'Tritium. Radioactive.',
-            'Nuclear fusion. More energy.'
+            'Nuclear fusion. More Energy.'
         ],
         effectText: [
             ['Particle cost is ', ' times cheaper.'],
             ['Particles produce ', ' times more Quarks.'],
             ['Atoms produce ', ' times more Particles.'],
-            ['Abbility to reset at any time and boost production for all buildings by ', ', if had enough energy.'],
+            ['Ability to reset at any time, and if you had enough Energy, production for all buildings will be boosted by ', ' times.'],
             ['Cost scalling is decreased by ', '.'],
             ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
-            ['Molecules produce Molecules. At a reduced rate.'],
-            ['Unspent energy boost Molecules production of themselfs 1 to 1.']
+            ['Molecules produce Molecules. At a reduced rate. (', ' per second)'],
+            ['Unspent Energy boost Molecules production of themselfs 1 to 1.']
         ],
-        effect: [10, 10, 5, 4, 0.2, 1.01, 0, 0],
+        effect: [10, 10, 5, 4, 0.2, 1.01, 0, null],
         cost: [9, 12, 36, 300, 800, 5000, 15000, 36000]
     },
     researchesInfo: {
@@ -153,14 +153,14 @@ export const global: globalType = { //For information that doesn't need to be sa
             "Effect of 'Deuterium' upgrade is bigger.",
             "Effect of 'Tritium' upgrade is better.",
             'Discharge bonus improved.',
-            'Gain more energy from buying a building.'
+            'Gain more Energy from buying a building.'
         ],
         effectText: [
             ['Cost scalling is ', ' smaller for each level.'],
-            ['Each bought building boost each other by additional ', '.'],
+            ['Each bought building, boost each other by additional ', '.'],
             ['Molecules now produce themselfs ', ' times quicker.'],
             ['Discharge is now gives extra +', ' bonus per reached goal.'],
-            ['A single building now gives ', ' times more energy.']
+            ['A single building now gives ', ' times more Energy.']
         ],
         effect: [0.01, 0.01, 12, 1, 3],
         cost: [2000, 6500, 20000, 12000, 42000],
@@ -177,14 +177,14 @@ export const global: globalType = { //For information that doesn't need to be sa
             'River. Spreads even more water.'
         ],
         effectText: [
-            ['Drops produce Moles, based on bought amount.'],
+            ['Drops produce Moles, based on how many Drops you have bought.\n(Bought amount automatically decreases if it\'s less than current amount)'],
             ['Gain ability to convert Drops into Clouds. (Puddles get boost equal to Cloud amount)'],
-            ['Puddles get boost based on Moles. (Equal to Moles ** ', ')'],
-            ['Puddles get boost based on Drops. (Equal to Drops ** ', ')'],
-            ['Ponds produce some Puddles. (', ' extra Puddles per Pond)'],
-            ['Lakes produce some Ponds. (', ' extra Ponds per Lake)']
+            ['Puddles get boost based on Moles. (Equal to Moles ^ ', ')'],
+            ['Puddles get boost based on Drops. (Equal to Drops ^ ', ')'],
+            ['Ponds do not produce Puddles, instead they give direct bonus to them.\nThis upgrade will give extra Puddles for every Pond you have. (', ' extra Puddles per Pond)'],
+            ['Lakes now give extra Ponds. (', ' extra Ponds per Lake)']
         ],
-        effect: [0, 0, 0.02, 0.02, 1, 1],
+        effect: [null, null, 0.02, 0.02, 1, 1],
         cost: [1e4, 1e10, 1000, 10000, 2e9, 5e20]
     },
     researchesS2Info: {
@@ -198,13 +198,13 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Drops produce ', ' times more Moles.'],
-            ['Bonus to buildings now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.'],
+            ['Bonus to buildings is now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.'],
             ['Surface tension upgrade is now +', ' stronger.'],
-            ['Surface stress upgrades is now +', ' stronger.'],
+            ['Surface stress upgrade is now +', ' stronger.'],
             ['With more streams, you can have even more extra Puddles. (+', ' extra Puddles per Pond)'],
             ['Rivers can split now, that allows even more Ponds per Lake. (+', ' per)']
         ],
-        effect: [3, 0, 0.02, 0.03, 1, 1],
+        effect: [3, null, 0.02, 0.03, 1, 1],
         cost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
         scalling: [1.2, 1000, 1000, 10000, 1000, 100],
         max: [9, 2, 3, 3, 2, 2]
@@ -217,10 +217,10 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Clouds will now use total produced Drops instead, when formed. (Weaker past 1e4 Clouds)'],
-            ['Some Clouds will start pouring Drops themselfs. (1eX, x = research level - 1)'],
-            ['Seas get boost based on amount of Clouds.']
+            ['Some Clouds will start pouring Drops themselfs. (1eX, x = research level - 1)'], //I feel a bit lazy to make it dynamic
+            ['Seas get boost based on amount of Clouds. (Clouds ^ ', ')']
         ],
-        effect: [0, 0, 0],
+        effect: [null, null, 0.1],
         cost: [1e16, 1e13, 1e25],
         scalling: [0, 100, 0],
         max: [1, 4, 1]
@@ -234,13 +234,15 @@ export const global: globalType = { //For information that doesn't need to be sa
         effectText: [
             ['Unlock abbility to buy multiple buildings at same time.'],
             ['Will automatically buy ', ' for you.'],
-            ['Research this to make max offline timer +', ' hour.']
+            ['Research this to make max offline timer +', ' hour longer.']
         ],
-        effect: [0, 'Particles', 1],
+        effect: [null, 'Particles', 1],
         cost: [300, 3000, 1e9],
         scalling: [0, 5000, 0],
         max: [1, 3, 1]
-    }
+    },
+    lastUpgrade: [null, 'upgrades', false] //Allows to auto update last looked upgrade description
+    //lastResearch: [null, 'researches', false] //Not needed right now
 };
 
 const createArray = (amount: number) => {

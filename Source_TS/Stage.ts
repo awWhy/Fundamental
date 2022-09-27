@@ -40,6 +40,7 @@ export const buyBuilding = (index: number, auto = false) => {
         const howMany = auto ? -1 : buyToggle.howMany;
         /* I don't know better way... I looked everywhere for formula with geometric progression, haven't found it... */
         for (var canAfford = 0; budget >= cost; canAfford++) {
+            //Yes it's a 'var', yes it goes outside of a block, no I won't use 'let'
             if (canAfford === howMany) { break; }
             total += cost;
             budget -= cost;
@@ -47,7 +48,6 @@ export const buyBuilding = (index: number, auto = false) => {
         }
         if (canAfford < howMany && howMany !== -1 && buyToggle.strict) { return; }
         buildings[extra].current -= total;
-        /* No idea what is better (performance wise) bonus + true or just current++ and true++ */
         buildings[index].current += canAfford;
         buildings[index].true += canAfford;
         buildings[index].total += canAfford;
@@ -110,9 +110,7 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     let add: number;
 
     if (stage.current === 1 && get === 3) {
-        if (buildingsInfo.producing[3] <= 1) { return; } // 0 would give -infinity and 1 would give 0, so quicker to exclude
-        add = Math.log(buildingsInfo.producing[get]) * time * 12 ** player.researches[2];
-        if (player.upgrades[7] === 1) { add *= player.discharge.energyCur; }
+        add = global.upgradesInfo.effect[6] * time;
     } else {
         add = buildingsInfo.producing[get + 1] * time;
         if (stage.current === 2 && get === 1 && player.researchesExtra[1] >= 1) { add += time * 10 ** (player.researchesExtra[1] - 1); }

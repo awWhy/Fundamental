@@ -87,7 +87,7 @@ export interface globalType {
     upgradesInfo: {
         description: string[]
         effectText: string[][]
-        effect: number[]
+        effect: [number, number, number, number, number, number, number, null]
         cost: number[]
     }
     researchesInfo: {
@@ -101,13 +101,13 @@ export interface globalType {
     upgradesS2Info: {
         description: string[]
         effectText: string[][]
-        effect: number[]
+        effect: [null, null, ...number[]]
         cost: number[]
     }
     researchesS2Info: {
         description: string[]
         effectText: string[][]
-        effect: number[]
+        effect: [number, null, ...number[]]
         cost: number[]
         scalling: number[]
         max: number[]
@@ -115,7 +115,7 @@ export interface globalType {
     researchesExtraS2Info: {
         description: string[]
         effectText: string[][]
-        effect: number[]
+        effect: [null, null, ...number[]]
         cost: number[]
         scalling: number[]
         max: number[]
@@ -123,11 +123,13 @@ export interface globalType {
     researchesAutoInfo: {
         description: string[]
         effectText: string[][]
-        effect: Array<number | string>
+        effect: [null, string, ...number[]]
         cost: number[]
         scalling: number[]
         max: number[]
     }
+    lastUpgrade: [number | null, 'upgrades', boolean]
+    //lastResearch: [number | null, 'researches' | 'researchesExtra' | 'researchesAuto', boolean]
 }
 
 export interface saveType {

@@ -2,7 +2,6 @@ import { player, global, playerStart, updatePlayer, startValue } from './Player'
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
-
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
 export const getId = (id: string) => { //To type less and check if ID exist

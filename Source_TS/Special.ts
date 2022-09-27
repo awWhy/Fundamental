@@ -100,6 +100,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
         if (blocker.style.display === 'block') {
             console.warn('Wasn\'t able to show another window (confirm)');
             resolve(false);
+            return;
         }
 
         getId('alertText').textContent = text;
@@ -133,6 +134,7 @@ export const Prompt = async(text: string): Promise<string | null> => {
         if (blocker.style.display === 'block') {
             console.warn('Wasn\'t able to show another window (prompt)');
             resolve(null);
+            return;
         }
 
         getId('alertText').textContent = text;
