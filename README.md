@@ -4,6 +4,11 @@ Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
 v**0.0.1** > Stage 2 reworked, energy will be reset on load, sorry
 
+#### Should be supported by:
+1. Modern browsers,
+2. Mobile devices (partial, can be improved if needed),
+3. Screen readers (need feedback)
+
 ---
 ### If you plan do anything with this, then you need to:
 #### `npm install` - This will install everything that was used in here.
