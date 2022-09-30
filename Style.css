@@ -91,19 +91,20 @@ img {
     position: fixed;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    top: calc(50% - min(max(8em, 7vh), 40vh));
-    height: clamp(14vh, 16em, 80vh);
-    left: calc(50% - min(max(10em, 12vw), 30vw));
-    width: clamp(24vw, 20em, 60vw);
+    top: calc(50% - min(max(9em, 7vh), 40vh));
+    height: clamp(14vh, 18em, 80vh);
+    left: calc(50% - min(max(11em, 12vw), 30vw));
+    width: clamp(24vw, 22em, 60vw);
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
     text-align: center;
     white-space: pre-line;
-    padding: 0.8em 0.8em 1.1em;
-    row-gap: 0.8em;
+    padding: 0.7em 0.8em 0.9em;
+    row-gap: 0.7em;
 }
+
+#alertText { overflow: clip auto; }
 
 #alertPopUp > div {
     display: flex;
@@ -161,13 +162,6 @@ button, input { appearance: none; }
     font-size: 0.85em;
 }
 
-nav button {
-    border-radius: 10px;
-    min-width: 4.8em;
-    font-size: 1.01em;
-    background-color: black;
-}
-
 .toggle, .specialToggle {
     border-color: forestgreen;
     background-color: var(--background-color);
@@ -181,10 +175,10 @@ nav button {
     height: 1.5em;
 }
 
-nav button:hover { background-color: #181818; }
+.footerArea button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
-.toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover { background-color: var(--button-extra-hover); }
+.toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
     width: 3.1em;
@@ -200,7 +194,7 @@ input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webk
 input:invalid { border-color: crimson; }
 input { font-size: 0.84em; }
 
-.insideTab {
+.insideTab { /* If tab has subtabs, then it should be placed ONLY on subtabs */
     margin-top: min(2vh, 1.2em);
     display: flex;
     flex-flow: row wrap;
@@ -437,6 +431,10 @@ li > input[type = "number"] {
     width: max-content; /* Without it, area where you can click will stretch */
 }
 
+/* Make stats look decent later */
+#stats > p { margin-bottom: 0.4em; }
+#stats span { color: var(--white-text-color); }
+
 #footer {
     position: fixed;
     width: 100%;
@@ -449,14 +447,21 @@ li > input[type = "number"] {
     overflow-x: overlay;
 }
 
-.footerArea, nav {
+.footerArea button {
+    border-radius: 10px;
+    min-width: 4.8em;
+    font-size: 1.01em;
+    background-color: black;
+}
+
+.footerArea, .footerArea > nav, #subtabs {
     display: flex;
     flex-direction: row;
     justify-content: center;
     column-gap: 1em;
 }
 
-.footerArea:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
+#footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statText {
     width: 8.8em;
@@ -485,9 +490,31 @@ li > input[type = "number"] {
 
 #water { color: #3099ff; }
 
+#footer > div:first-child {
+    display: flex;
+    align-items: flex-end;
+    height: 0; /* Temprorary solution to be able to click behind it */
+}
+
+#subtabs {
+    display: flex;
+    flex-direction: row;
+    margin-left: 3.5%;
+    margin-bottom: min(0.6vh, 0.8em);
+    gap: min(0.3vh, 0.4em) min(0.6vh, 0.8em);
+}
+
+#subtabs button {
+    min-width: 4.8em;
+    background-color: var(--background-color);
+    font-size: 0.84em;
+    border-radius: 2px;
+}
+
 #hideToggle {
     margin-left: auto;
     margin-right: 2.5%;
+    height: min-content;
     width: min-content;
     display: flex;
     align-items: center;
@@ -542,5 +569,9 @@ li > input[type = "number"] {
 
     #themeArea > div > div {
         width: max-content;
+    }
+
+    #subtabs {
+        flex-direction: column-reverse;
     }
 }

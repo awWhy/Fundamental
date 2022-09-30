@@ -1,5 +1,5 @@
 import { player, global, playerStart, updatePlayer, startValue } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck } from './Update';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
 import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
 /* There might be some problems with incorect build, imports being called in wrong order. */
@@ -13,15 +13,16 @@ export const getId = (id: string) => { //To type less and check if ID exist
     throw new TypeError(`ID "${id}" not found.`);
 };
 
-export const reLoad = async(loadSave = false) => {
-    if (loadSave) {
+export const reLoad = async(firstLoad = false, extra = 'normal') => {
+    if (firstLoad) {
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
         if (save !== null) {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
             if (player.toggles[0]) {
-                Alert(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}.${global.versionInfo.changed ? `\nGame has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
+                const offlineTime = Date.now() - player.time.updated;
+                Alert(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}.${offlineTime > maxOfflineTime() * 1000 ? ` (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}${global.versionInfo.changed ? `\nGame has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
             }
         } else {
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
@@ -30,20 +31,30 @@ export const reLoad = async(loadSave = false) => {
             global.theme.default = false;
             global.theme.stage = Number(theme);
         }
-    }
-    mobileDeviceSupport(); //Not much right now inside
-    screenReaderSupport(false, 'toggle', 'reload'); //If screen reader support is ON, then it will change some stuff
-    stageCheck(); //Visual and other stage information (like next reset goal)
-    switchTab(); //Sets tab to Stage, also visual and number update
-    changeFontSize(); //Changes font size
-    for (let i = 0; i < playerStart.toggles.length; i++) {
-        toggleSwap(i, false); //Gives toggles proper visual appearance
-    }
-    toggleBuy(); //Sets buy toggle's (for buildings) into saved number
-    switchTheme(); //Changes theme
 
-    if (loadSave && !player.toggles[0]) {
-        const noOffline = await Confirm(`Welcome back, you were away for ${format((Date.now() - player.time.updated), 0, 'time')}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
+        /* These one's better to do only on page reload */
+        mobileDeviceSupport();
+        screenReaderSupport(false, 'toggle', 'reload');
+        changeFontSize();
+    }
+
+    stageCheck(); //All related stage information
+    if (firstLoad || extra === 'delete') {
+        switchTab(); //Sets tab to Stage, also visual and numbers update
+        switchTab('settings', 'none'); //For each tab that has any subtabs, must be moved back (probably better to move in stageCheck();)
+        switchTheme();
+    } else if (extra === 'normal') {
+        visualUpdate();
+        numbersUpdate();
+    }
+    for (let i = 0; i < playerStart.toggles.length; i++) {
+        toggleSwap(i, false); //toggles visual
+    }
+    toggleBuy(); //Sets buildings buy toggle
+
+    if (firstLoad && !player.toggles[0]) {
+        const offlineTime = Date.now() - player.time.updated;
+        const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? ` (max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
         if (noOffline) { player.time.updated = Date.now(); }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
@@ -116,8 +127,8 @@ getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, '
 getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
 getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 'autoSave'));
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
-getId('toggle3').addEventListener('click', () => changeFontSize());
-getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
+getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
+getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
 
 /* Only for phones */
 getId('mobileDeviceToggle').addEventListener('click', () => mobileDeviceSupport(true));
@@ -139,6 +150,10 @@ getId('hideToggle').addEventListener('click', hideFooter);
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
+
+/* Subtabs */
+getId('settingsSubtabBtnsettings').addEventListener('click', () => switchTab('settings', 'settings'));
+getId('settingsSubtabBtnstats').addEventListener('click', () => switchTab('settings', 'stats'));
 
 /* Intervals */
 function changeIntervals(pause = false, input = '') {
@@ -193,11 +208,12 @@ async function saveLoad(type: string) {
                 const versionCheck = load.player.version;
                 changeIntervals(true);
                 updatePlayer(load);
+                const offlineTime = Date.now() - player.time.updated;
                 if (!player.toggles[0]) {
-                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format((Date.now() - player.time.updated), 0, 'time')}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
+                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? `, max is ${global.timeSpecial.maxOffline / 3600} hours` : ''}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                     if (noOffline) { player.time.updated = Date.now(); }
                 } else {
-                    Alert(`This save is ${format((Date.now() - player.time.updated), 0, 'time')} old.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}.` : `\nSave file version is ${player.version}`}`);
+                    Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOfflineTime() * 1000 ? `, max offline time is ${global.timeSpecial.maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}.` : `\nSave file version is ${player.version}`}`);
                 }
                 void reLoad();
             } catch {
@@ -241,7 +257,7 @@ async function saveLoad(type: string) {
                 Object.assign(global, startValue('g'));
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
-                void reLoad();
+                void reLoad(false, 'delete');
             } else if (ok !== null && ok !== '') {
                 Alert(`You wrote '${ok}', so save file wasn't deleted`);
             }

@@ -3,16 +3,16 @@ import { Alert } from './Special';
 import { globalType, saveType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.1',
+    version: 'v0.0.2',
     stage: {
         true: 1,
-        current: 1
+        current: 1,
+        resets: 0
     },
     discharge: { //Stage 1
         energyCur: 0,
         energyMax: 0,
-        current: 0,
-        bonus: 0
+        current: 0
     },
     vaporization: { //Stage 2
         current: 0,
@@ -65,8 +65,7 @@ export const player: playerType = { //Only for information that need to be saved
     researchesExtra: [0, 0, 0], //First appears in Stage 2
     researchesAuto: [0, 0, 0],
     toggles: [], //Auto added for every element with a class 'toggle', all toggle's are:
-    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Custom font size[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8];
-       Vaporization confirm[9]; */
+    /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Auto for building[1][4], [2][5], [3][6], [4][7], [5][8]; */
     buyToggle: {
         howMany: 1, //If more types will be added
         input: 10, //Then turn all of them
@@ -76,6 +75,10 @@ export const player: playerType = { //Only for information that need to be saved
 
 export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage',
+    subtab: {
+        /* Tabs and subtab have to have same name as buttons (easier screen reader support this way) */
+        settingsCurrent: 'settings'
+    },
     footer: true,
     mobileDevice: false,
     screenReader: false,
@@ -322,14 +325,14 @@ export const updatePlayer = (load: saveType) => {
         Object.assign(player, load.player);
         global.intervals = load.global.intervals;
 
-        /* Extra, version changes */
+        /* Version changes (and change log's) */
         const { versionInfo } = global;
+        const oldVersion = player.version;
         versionInfo.changed = false;
         versionInfo.log = 'Change log:';
         if (player.version === '0.0.0') {
             player.version = 'v0.0.1';
-            versionInfo.changed = true;
-            versionInfo.log += '\nStage 2 has properly came out; Your Energy has been fully reset to prevent save file corruption, sorry';
+            versionInfo.log += `\n${player.version} - Stage 2 has properly came out; Your Energy has been fully reset to prevent save file corruption, sorry`;
             if (player.stage.current === 2) {
                 reset('stage');
                 player.researchesAuto = [1, 0, 0];
@@ -340,6 +343,12 @@ export const updatePlayer = (load: saveType) => {
             }
             player.discharge.energyMax = 0;
         }
+        if (player.version === 'v0.0.1') {
+            player.version = 'v0.0.2';
+            versionInfo.log += `\n${player.version} - Added dynamic descriptions for upgrades, stats subtab, early Mobile device support`;
+            player.stage.resets = player.stage.current === 2 ? 1 : 0;
+        }
+        if (oldVersion !== player.version) { versionInfo.changed = true; }
     } else {
         Alert('Save file coudn\'t be loaded as its missing important info');
     }

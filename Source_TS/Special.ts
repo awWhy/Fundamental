@@ -289,20 +289,30 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
     }
 };
 
-export const changeFontSize = (change = false) => {
+export const changeFontSize = (change = false, inputChange = false) => {
     const body = document.body.style;
     const input = getId('customFontSize') as HTMLInputElement;
+    const toggle = getId('fontSizeToggle') as HTMLButtonElement;
+    let enable = Boolean(localStorage.getItem('enableCustomFontSize')) ?? false;
     let size = localStorage.getItem('fontSize');
 
-    if (!player.toggles[3]) {
+    if (change) { enable = !enable; }
+
+    if (!enable) {
         body.setProperty('--font-size', '1em');
         localStorage.removeItem('fontSize');
+        localStorage.removeItem('enableCustomFontSize');
+        toggle.textContent = 'OFF';
+        toggle.style.borderColor = 'crimson';
     } else {
-        if (size === null || Number(size) < 10 || Number(size) > 32 || change) {
+        if (size === null || Number(size) < 10 || Number(size) > 32 || inputChange) {
             size = String(Math.min(Math.max(Math.trunc(Number(input.value) * 10) / 10, 10), 32));
             localStorage.setItem('fontSize', size);
         }
         body.setProperty('--font-size', `${size}px`);
         input.value = size;
+        localStorage.setItem('enableCustomFontSize', 'true');
+        toggle.textContent = 'ON';
+        toggle.style.borderColor = '';
     }
 };

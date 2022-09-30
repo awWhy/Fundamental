@@ -3,12 +3,12 @@ export interface playerType {
     stage: {
         true: number
         current: number
+        resets: number
     }
     discharge: { //Stage 1
         energyCur: number
         energyMax: number
         current: number
-        bonus: number
     }
     vaporization: { //Stage 2
         current: number
@@ -39,6 +39,9 @@ export interface playerType {
 
 export interface globalType {
     tab: string
+    subtab: {
+        settingsCurrent: string
+    }
     footer: boolean
     mobileDevice: boolean
     screenReader: boolean

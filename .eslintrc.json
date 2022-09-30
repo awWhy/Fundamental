@@ -39,6 +39,7 @@
         "no-sparse-arrays": "off",
         "operator-assignment": "warn", //Test
         "operator-linebreak": ["error", "after"],
+        "no-return-assign": "off", //I don't know how often this can help and I do need return assign
 
         "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
         "@typescript-eslint/semi": ["error", "always"],

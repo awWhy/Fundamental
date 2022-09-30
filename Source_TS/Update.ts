@@ -2,31 +2,49 @@ import { getId } from './Main';
 import { global, globalStart, player, playerStart } from './Player';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateResearchCost } from './Stage';
 
-export const switchTab = (tab = 'none') => {
-    if (global.tab !== tab) {
+export const switchTab = (tab = 'none', subtab = 'tabOnly') => {
+    const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
+    if (global.tab !== tab && subtab === 'tabOnly') {
         getId('stageTab').style.display = 'none';
         getId('stageTabBtn').style.borderColor = '';
         getId('researchTab').style.display = 'none';
         getId('researchTabBtn').style.borderColor = '';
         getId('settingsTab').style.display = 'none';
         getId('settingsTabBtn').style.borderColor = '';
-        const color = ['#e3e3e3', '#a10000'][global.theme.stage - 1];
-        const invText = getId('invisibleTab'); //For screen readers, always turned on, to let screen reader user get to settings tab easier
-        getId('specialTab').style.display = 'none';
-
-        if (tab !== 'none') {
-            global.tab = tab;
-        } else {
-            global.tab = 'stage';
-        }
+        getId('specialTab').style.display = 'none'; //For screen readers, always turned on, to let screen reader user get to settings tab easier
+        global.tab = tab !== 'none' ? tab : 'stage';
 
         getId(`${global.tab}Tab`).style.display = '';
         getId(`${global.tab}TabBtn`).style.borderColor = color;
-        invText.textContent = `Current tab: ${global.tab} tab`;
+        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab`;
+
+        /* Subtabs */
+        getId('subtabs').style.display = Object.prototype.hasOwnProperty.call(global.subtab, tab + 'Current') ? '' : 'none';
+        getId('settingsSubtabBtnsettings').style.display = global.tab === 'settings' ? '' : 'none';
+        getId('settingsSubtabBtnstats').style.display = global.tab === 'settings' ? '' : 'none';
+
+        visualUpdate();
+        numbersUpdate();
+    } else if (subtab !== 'tabOnly' && subtab !== global.subtab[tab + 'Current' as 'settingsCurrent']) {
+        //Also would work 'as keyof typeof global.subtab', but this is shorter
+        if (tab === 'settings') {
+            getId('settingsSubtabsettings').style.display = 'none';
+            getId('settingsSubtabBtnsettings').style.borderColor = '';
+            getId('settingsSubtabstats').style.display = 'none';
+            getId('settingsSubtabBtnstats').style.borderColor = '';
+        }
+        global.subtab[tab + 'Current' as 'settingsCurrent'] = subtab !== 'none' ? subtab : 'settings';
+        getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = '';
+        getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.borderColor = color;
+
+        if (global.screenReader && global.tab === tab) { getId('invisibleTab').textContent = `Current subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']} subtab`; }
         visualUpdate();
         numbersUpdate();
     }
 };
+
+//Because it's an arrow function, removing {}, allows to auto return (base + bonus)
+export const maxOfflineTime = () => global.timeSpecial.maxOffline = 3600 + 3600 * player.researchesAuto[2];
 
 export const invisibleUpdate = () => { //This is only for important or time based info
     const { stage, time, buildings, upgrades, researches, researchesExtra, researchesAuto, toggles } = player;
@@ -40,11 +58,9 @@ export const invisibleUpdate = () => { //This is only for important or time base
     }
     timeSpecial.lastSave += passedTime;
 
-    timeSpecial.maxOffline = 3600;
-    if (researchesAuto[2] > 0) { timeSpecial.maxOffline += 3600 * researchesAuto[2]; }
-    if (passedSeconds > timeSpecial.maxOffline) {
+    if (passedSeconds > maxOfflineTime()) {
         passedSeconds = timeSpecial.maxOffline;
-        console.log(`Max offline progress is ${timeSpecial.maxOffline / 3600} hours.`);
+        console.log(`Offline time was reduced to it's max of ${timeSpecial.maxOffline / 3600} hours.`);
     }
 
     if (stage.current === 1) {
@@ -140,7 +156,7 @@ export const invisibleUpdate = () => { //This is only for important or time base
 
 export const numbersUpdate = () => { //This is for relevant visual info
     const { stage, buildings, upgrades } = player;
-    const { tab } = global;
+    const { tab, subtab } = global;
 
     if (global.footer) {
         if (stage.current === 1) {
@@ -178,9 +194,16 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 getId('vaporizationReset').textContent = `Reset for ${format(global.vaporizationInfo.get)} Clouds`;
             }
         }
+
         if (lastUpgrade[0] !== null && lastUpgrade[2]) { getUpgradeDescription(lastUpgrade[0], lastUpgrade[1]); }
     } else if (tab === 'settings') {
-        if (global.timeSpecial.lastSave >= 1000) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, 0, 'time')} ago`; }
+        if (subtab.settingsCurrent === 'settings') {
+            if (global.timeSpecial.lastSave >= 1000) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, 0, 'time')} ago`; }
+        } else if (subtab.settingsCurrent === 'stats') {
+            getId('firstPlay').textContent = `${format(Date.now() - player.time.started, 0, 'time')} ago`;
+            if (stage.true > 1) { getId('stageResetsCount').textContent = String(stage.resets); }
+            getId('maxOfflineStat').textContent = `${global.timeSpecial.maxOffline / 3600} hours`;
+        }
     }
 };
 
@@ -380,8 +403,10 @@ export const stageCheck = () => {
     getId('researchTabBtn').style.display = stage.true > 1 ? '' : 'none';
     getId('stage').style.display = stage.true > 1 ? '' : 'none';
     getId('stageToggleReset').style.display = stage.true > 1 ? '' : 'none';
+    getId('stageResets').style.display = stage.true > 1 ? '' : 'none';
     getId('themeArea').style.display = stage.true > 1 || localStorage.getItem('theme') !== null ? '' : 'none';
     getId('switchTheme2').style.display = stage.true > 1 ? '' : 'none';
+    //If to move into stage1Unlock class, then only id's of 'stageToggleReset', 'switchTheme2', 'stageResets' can be removed from HTML
 
     //Add (change) unique information
     if (stage.current === 1) {

@@ -284,6 +284,7 @@ export const stageResetCheck = async() => {
     }
     if (reseted) {
         researchesAuto[1] = 0;
+        stage.resets++;
         stage.current++;
         if (stage.true < stage.current) { stage.true++; }
         reset('stage');
@@ -322,7 +323,7 @@ export const vaporizationResetCheck = async() => {
         const { vaporization } = player;
 
         let ok = true;
-        if (player.toggles[9]) {
+        if (player.toggles[3]) {
             ok = await Confirm(`Do you wish to reset buildings and upgrades for ${format(vaporizationInfo.get)} Clouds?`);
         }
         if (ok) {

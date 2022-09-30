@@ -209,65 +209,74 @@
                 <p>Next: <span id="researchCost" class="orangeText">Resource.</span></p>
             </div>
         </div>
-        <div id="settingsTab" class="insideTab">
-            <div id="resetToggles">
-                <p>Confirmation toggles</p>
-                <div id="stageToggleReset">
-                    <img src="Used_art/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder" loading="lazy">
-                    <button id="toggle2" class="toggle" aria-label="Toggle for stage reset confirmation, currently ON">ON</button>
-                </div>
-                <div id="dischargeToggleReset">
-                    <img src="Used_art/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
-                    <button id="toggle1" class="toggle" aria-label="Toggle for discharge reset confirmation, currently ON">ON</button>
-                </div>
-                <div id="vaporizationToggleReset">
-                    <img src="Used_art/Vaporization%20toggle.png" alt="Vaporization Reset Toggle" loading="lazy">
-                    <button id="toggle9" class="toggle" aria-label="Toggle for vaporization reset confirmation, currently ON">ON</button>
-                </div>
-            </div>
-            <div class="saveButtonGroup">
-                <p>Please export save file regularly</p>
-                <div>
-                    <div>
-                        <button id="save" aria-label="Save game">Save</button>
-                        <label id="load" for="file" aria-hidden="true">Load</label>
-                        <input type="file" id="file" accept=".txt" aria-label="Load from file">
+        <div id="settingsTab">
+            <div id="settingsSubtabsettings" class="insideTab">
+                <div id="resetToggles">
+                    <p>Confirmation toggles</p>
+                    <div id="stageToggleReset">
+                        <img src="Used_art/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder" loading="lazy">
+                        <button id="toggle2" class="toggle" aria-label="Toggle for stage reset confirmation, currently ON">ON</button>
                     </div>
-                    <button id="export">Export save file</button>
-                    <button id="delete">Delete save file</button>
-                </div>
-                <p class="whiteText">Last time saved: <span id="isSaved" class="mainText">Not in current session</span></p>
-            </div>
-            <div>
-                <div class="options">
-                    <p>Options</p>
-                    <ul class="whiteText">
-                        <li aria-hidden="true">Numbers update and auto speed interval <input type="number" id="mainInterval" min="20" max="1000" value="50" tabindex="-1"> ms</li>
-                        <li aria-hidden="true">Visual numbers update interval <input type="number" id="numbersInterval" min="20" max="1000" value="50" tabindex="-1"> ms</li>
-                        <li aria-hidden="true">Visual game update interval <input type="number" id="visualInterval" min="0.5" max="10" value="1" step="0.1" tabindex="-1"> s</li>
-                        <li>Game autosave interval <input type="number" id="autoSaveInterval" min="60" max="1800" value="180"> s</li>
-                        <li>Mobile device support<button id="mobileDeviceToggle" class="specialToggle" aria-label="Mobile device support is OFF">OFF</button></li>
-                        <li>Screen reader support<button id="screenReaderToggle" class="specialToggle" aria-label="Screen reader support is OFF">OFF</button></li>
-                    </ul>
-                </div>
-                <div class="options">
-                    <p>Less recommended options</p>
-                    <ul class="whiteText">
-                        <li id="pauseGame" aria-label="If you somehow can click on it, then it will pause game">Pause game</li>
-                        <li>Offline progress<button id="toggle0" class="toggle" aria-label="Toggle to receive offline progress, currently ON">ON</button></li>
-                        <li aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="toggle3" class="toggle" tabindex="-1">ON</button></li>
-                    </ul>
-                </div>
-            </div>
-            <div id="themeArea" aria-hidden="true">
-                <p>You can select different theme from here</p>
-                <div>
-                    <button id="currentTheme" tabIndex="-1">Default</button>
-                    <div>
-                        <button id="switchTheme0">Default</button>
-                        <button id="switchTheme1">Microworld</button>
-                        <button id="switchTheme2">Submerged</button>
+                    <div id="dischargeToggleReset">
+                        <img src="Used_art/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
+                        <button id="toggle1" class="toggle" aria-label="Toggle for discharge reset confirmation, currently ON">ON</button>
                     </div>
+                    <div id="vaporizationToggleReset">
+                        <img src="Used_art/Vaporization%20toggle.png" alt="Vaporization Reset Toggle" loading="lazy">
+                        <button id="toggle3" class="toggle" aria-label="Toggle for vaporization reset confirmation, currently ON">ON</button>
+                    </div>
+                </div>
+                <div class="saveButtonGroup">
+                    <p>Please export save file regularly</p>
+                    <div>
+                        <div>
+                            <button id="save" aria-label="Save game">Save</button>
+                            <label id="load" for="file" aria-hidden="true">Load</label>
+                            <input type="file" id="file" accept=".txt" aria-label="Load from file">
+                        </div>
+                        <button id="export">Export save file</button>
+                        <button id="delete">Delete save file</button>
+                    </div>
+                    <p class="whiteText">Last time saved: <span id="isSaved" class="mainText">Not in current session</span></p>
+                </div>
+                <div>
+                    <div class="options">
+                        <p>Options</p>
+                        <ul class="whiteText">
+                            <li aria-hidden="true">Numbers update and auto speed interval <input type="number" id="mainInterval" min="20" max="1000" value="50" tabindex="-1"> ms</li>
+                            <li aria-hidden="true">Visual numbers update interval <input type="number" id="numbersInterval" min="20" max="1000" value="50" tabindex="-1"> ms</li>
+                            <li aria-hidden="true">Visual game update interval <input type="number" id="visualInterval" min="0.5" max="10" value="1" step="0.1" tabindex="-1"> s</li>
+                            <li>Game autosave interval <input type="number" id="autoSaveInterval" min="60" max="1800" value="180"> s</li>
+                            <li>Mobile device support<button id="mobileDeviceToggle" class="specialToggle" aria-label="Mobile device support is OFF">OFF</button></li>
+                            <li>Screen reader support<button id="screenReaderToggle" class="specialToggle" aria-label="Screen reader support is OFF">OFF</button></li>
+                        </ul>
+                    </div>
+                    <div class="options">
+                        <p>Less recommended options</p>
+                        <ul class="whiteText">
+                            <li id="pauseGame" aria-label="If you somehow can click on it, then it will pause game">Pause game</li>
+                            <li>Offline progress<button id="toggle0" class="toggle" aria-label="Toggle to receive offline progress, currently ON">ON</button></li>
+                            <li aria-hidden="true">Custom font size (art won't scale): <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="fontSizeToggle" class="specialToggle" tabindex="-1">ON</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="themeArea" aria-hidden="true">
+                    <p>You can select different theme from here</p>
+                    <div>
+                        <button id="currentTheme" tabIndex="-1">Default</button>
+                        <div>
+                            <button id="switchTheme0">Default</button>
+                            <button id="switchTheme1">Microworld</button>
+                            <button id="switchTheme2">Submerged</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="settingsSubtabstats" class="insideTab">
+                <div id="stats">
+                    <p>Started playing: <span id="firstPlay">0 seconds ago</span> <!--(<span id="localFirstPlay">time</span>)--></p>
+                    <p id="stageResets">Stage resets: <span id="stageResetsCount">0</span></p>
+                    <p>Max offline: <span id="maxOfflineStat">1 hours</span></p>
                 </div>
             </div>
         </div>
@@ -283,9 +292,16 @@
         <label id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</label>
         <label id="invisibleBought" class="invisible" aria-live="assertive"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
         <div id="footer">
-            <div id="hideToggle" aria-hidden="true">
-                <p id="hideText">Hide</p>
-                <div id="hideArrow"></div>
+            <div>
+                <nav id="subtabs">
+                    <!-- First letter of last word must be small -->
+                    <button id="settingsSubtabBtnsettings">Settings</button>
+                    <button id="settingsSubtabBtnstats">Stats</button>
+                </nav>
+                <div id="hideToggle" aria-hidden="true">
+                    <p id="hideText">Hide</p>
+                    <div id="hideArrow"></div>
+                </div>
             </div>
             <div id="footerColor">
                 <div class="footerArea">
