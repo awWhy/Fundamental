@@ -64,7 +64,7 @@ img {
     color: white; /* Alt text color (shown if image failed to load) */
 }
 
-.interactiveImage, input[type = "image"] { cursor: pointer; }
+.interactiveImage { cursor: pointer; }
 
 .stageBorder {
     background-image: var(--border-image);
