@@ -16,6 +16,8 @@ body {
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
+    --button-tab-border: darkcyan;
+    --button-tab-active: #8b00c5;
     --button-extra-hover: #170089;
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
@@ -28,6 +30,7 @@ body {
     --gray-text-color: #8f8f8f;
     --orchid-text-color: #e14bdb;
     --darkorchid-text-color: #bd24ef;
+    --darkviolet-text-color: #8635eb;
     --red-text-color: #eb0000;
     --green-text-color: #00e900;
 
@@ -50,8 +53,9 @@ body {
 .blueText { color: var(--blue-text-color); }
 .orangeText { color: var(--orange-text-color); }
 .grayText { color: var(--gray-text-color); }
-.darkOrchidText { color: var(--darkorchid-text-color); }
 .orchidText { color: var(--orchid-text-color); }
+.darkOrchidText { color: var(--darkorchid-text-color); }
+.darkvioletText { color: var(--darkviolet-text-color); }
 .redText { color: var(--red-text-color); }
 .greenText { color: var(--green-text-color); }
 
@@ -138,7 +142,7 @@ button, input { appearance: none; }
     height: 1.6em;
     cursor: pointer;
     transition: border, background-color 100ms;
-    background-color: var(--button-main-color); /* dimgray good color for stage 3 */
+    background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
     color: #e3e3e3;
     padding: 0.075em 0.45em;
@@ -148,7 +152,7 @@ button, input { appearance: none; }
 .options ul button { font-size: 0.92em; }
 .saveButtonGroup button, #load { font-size: 1em; }
 #save, #load { width: 4.5em; }
-.buyBuldingsAll button:first-of-type:not(#buyStrict) { width: 14em; }
+#buildings button:first-of-type:not(#buyStrict) { width: 14em; }
 
 .bigButton {
     width: 9.5em;
@@ -157,12 +161,12 @@ button, input { appearance: none; }
 }
 
 .mediumButton {
-    width: 13em;
+    width: 13.5em;
     height: 1.8em;
     font-size: 0.85em;
 }
 
-.toggle, .specialToggle {
+.toggle, .toggleBuilding, .toggleAuto, .specialToggle {
     border-color: forestgreen;
     background-color: var(--background-color);
     width: 1.9em;
@@ -170,7 +174,7 @@ button, input { appearance: none; }
     padding: 0.075em 0.3em;
 }
 
-.auto {
+.toggleBuilding, .toggleAuto {
     width: 4.8em;
     height: 1.5em;
 }
@@ -181,16 +185,17 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 .toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
-    width: 3.1em;
+    width: 3.9em;
     height: 1.5em;
     background-color: var(--background-color);;
     border: 2px solid #831aa5;
     border-radius: 2px;
     color: #e3e3e3;
-    -moz-appearance: textfield; /* To remove arrows */
+    appearance: textfield; /* To remove arrows */
+    text-align: center;
 }
 
-input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
 input:invalid { border-color: crimson; }
 input { font-size: 0.84em; }
 
@@ -207,6 +212,7 @@ input { font-size: 0.84em; }
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    height: min-content;
     gap: 1.2em;
 }
 
@@ -214,7 +220,7 @@ input { font-size: 0.84em; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 15em;
+    width: 15.6em;
     padding: 1.2em 1.1em;
     row-gap: 1.2em;
     background-color: var(--window-color);
@@ -222,6 +228,12 @@ input { font-size: 0.84em; }
 }
 
 .bigWord { font-size: 1.1em; }
+
+p > img {
+    float: left; /* This is the only way to have an image inside text */
+    margin-right: 0.4em;
+    margin-top: 0.35em;
+}
 
 .buyBuilding {
     display: flex;
@@ -237,7 +249,7 @@ input { font-size: 0.84em; }
     column-gap: 0.3em;
 }
 
-.buyBuilding > div > p { width: 11em; }
+.buyBuilding > div > p { width: 12.5em; }
 .buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.5em; }
 .availableBuilding { border-color: #a90000; }
 
@@ -311,15 +323,21 @@ input { font-size: 0.84em; }
 .stage3border { border-color: #5b5b75 !important; }
 .stage4border { border-color: #f28100 !important; }
 .stage5border { border-color: #bd24ef !important; }
+.stage6border { border-color: #5300c1 !important; }
+.stage0border { border-color: #b21111 !important } /* Phaceholder name, probably will be renamed */
 
 .descriptionText {
     display: flex;
     flex-direction: column;
+    align-items: center;
     text-align: center;
     width: 100%;
     row-gap: 0.3em;
     white-space: pre-line;
 }
+
+.descriptionText > label,
+.descriptionText > p { max-width: 80%; }
 
 #resetToggles {
     display: flex;
@@ -400,6 +418,7 @@ input { font-size: 0.84em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
 #switchTheme1 { border-color: darkcyan; }
 #switchTheme2 { border-color: #427be1; }
+#switchTheme3 { border-color: #404040; }
 #themeArea > p { margin-bottom: 0.3em; }
 
 .options > p { text-align: center; }
@@ -419,7 +438,6 @@ input { font-size: 0.84em; }
 }
 
 li > input[type = "number"] {
-    text-align: center;
     height: 1.2em;
     width: 2.5em;
 }
@@ -433,7 +451,7 @@ li > input[type = "number"] {
 
 /* Make stats look decent later */
 #stats > p { margin-bottom: 0.4em; }
-#stats span { color: var(--white-text-color); }
+#stats span:not(.stageText) { color: var(--white-text-color); }
 
 #footer {
     position: fixed;
@@ -449,6 +467,7 @@ li > input[type = "number"] {
 
 .footerArea button {
     border-radius: 10px;
+    border-color: var(--button-tab-border);
     min-width: 4.8em;
     font-size: 1.01em;
     background-color: black;
@@ -461,6 +480,7 @@ li > input[type = "number"] {
     column-gap: 1em;
 }
 
+.tabActive { border-color: var(--button-tab-active) !important; }
 #footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statText {

@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, startValue } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
-import { buyBuilding, buyUpgrades, dischargeResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
+import { buyBuilding, buyUpgrades, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -13,14 +13,16 @@ export const getId = (id: string) => { //To type less and check if ID exist
     throw new TypeError(`ID "${id}" not found.`);
 };
 
-export const reLoad = async(firstLoad = false, extra = 'normal') => {
+export const getClass = (idCollection: string) => Array.from(document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>);
+
+export const reLoad = async(firstLoad = false) => {
     if (firstLoad) {
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
         if (save !== null) {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
-            if (player.toggles[0]) {
+            if (player.toggles.normal[0]) {
                 const offlineTime = Date.now() - player.time.updated;
                 Alert(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}.${offlineTime > maxOfflineTime() * 1000 ? ` (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}${global.versionInfo.changed ? `\nGame has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
             }
@@ -39,20 +41,21 @@ export const reLoad = async(firstLoad = false, extra = 'normal') => {
     }
 
     stageCheck(); //All related stage information
-    if (firstLoad || extra === 'delete') {
-        switchTab(); //Sets tab to Stage, also visual and numbers update
-        switchTab('settings', 'none'); //For each tab that has any subtabs, must be moved back (probably better to move in stageCheck();)
-        switchTheme();
-    } else if (extra === 'normal') {
-        visualUpdate();
-        numbersUpdate();
+    visualUpdate();
+    numbersUpdate();
+    for (let i = 0; i < playerStart.toggles.normal.length; i++) {
+        toggleSwap(i, 'normal'); //toggles visual
     }
-    for (let i = 0; i < playerStart.toggles.length; i++) {
-        toggleSwap(i, false); //toggles visual
+    for (let i = 1; i < playerStart.toggles.buildings.length; i++) {
+        toggleSwap(i, 'buildings');
     }
-    toggleBuy(); //Sets buildings buy toggle
+    for (let i = 0; i < playerStart.toggles.auto.length; i++) {
+        toggleSwap(i, 'auto');
+    }
+    toggleBuy();
+    switchTheme();
 
-    if (firstLoad && !player.toggles[0]) {
+    if (firstLoad && !player.toggles.normal[0]) {
         const offlineTime = Date.now() - player.time.updated;
         const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? ` (max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
         if (noOffline) { player.time.updated = Date.now(); }
@@ -60,12 +63,18 @@ export const reLoad = async(firstLoad = false, extra = 'normal') => {
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
 };
 
-void reLoad(true);
+void reLoad(true); //This will start the game
 
 /* Global */
 const { mobileDevice, screenReader } = global;
-for (let i = 0; i < playerStart.toggles.length; i++) {
-    getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i));
+for (let i = 0; i < playerStart.toggles.normal.length; i++) {
+    getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
+}
+for (let i = 1; i < playerStart.toggles.buildings.length; i++) {
+    getId(`toggleBuilding${i}`).addEventListener('click', () => toggleSwap(i, 'buildings', true));
+}
+for (let i = 0; i < playerStart.toggles.auto.length; i++) {
+    getId(`toggleAuto${i}`).addEventListener('click', () => toggleSwap(i, 'auto', true));
 }
 
 /* Stage tab */
@@ -73,17 +82,24 @@ for (let i = 1; i < playerStart.buildings.length; i++) {
     getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(i));
 }
 for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
-    getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
-    getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    if (screenReader || mobileDevice) { getId(`upgrade${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i)); }
+    getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 1));
+    getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 1));
+    if (screenReader || mobileDevice) { getId(`upgrade${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 1)); }
 }
+//Number at the end, is a prevention for impossible event (HTML element is hidden). No number (or 0) means it allowed to be called from any stage
 for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
-    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i));
-    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i));
-    if (screenReader || mobileDevice) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i)); }
+    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 2));
+    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 2));
+    if (screenReader || mobileDevice) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 2)); }
+}
+for (let i = 0; i < global.upgradesS3Info.cost.length; i++) {
+    getId(`upgradeA${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 3));
+    getId(`upgradeA${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 3));
+    if (screenReader || mobileDevice) { getId(`upgradeA${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 3)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 getId('vaporizationReset').addEventListener('click', async() => await vaporizationResetCheck());
+getId('rankReset').addEventListener('click', async() => await rankResetCheck());
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
 getId('buy1x').addEventListener('click', () => toggleBuy('1'));
 getId('buyAny').addEventListener('click', () => toggleBuy('any'));
@@ -93,19 +109,29 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Research tab */
 for (let i = 0; i < global.researchesInfo.cost.length; i++) {
-    getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
-    getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader || mobileDevice) { getId(`research${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches')); }
+    getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 1));
+    getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 1));
+    if (screenReader || mobileDevice) { getId(`research${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 1)); }
 }
 for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
-    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches'));
-    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches'));
-    if (screenReader || mobileDevice) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches')); }
+    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 2));
+    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 2));
+    if (screenReader || mobileDevice) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 2)); }
 }
 for (let i = 0; i < global.researchesExtraS2Info.cost.length; i++) {
-    getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra'));
-    getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra'));
-    if (screenReader || mobileDevice) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra')); }
+    getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 2));
+    getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 2));
+    if (screenReader || mobileDevice) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 2)); }
+}
+for (let i = 0; i < global.researchesS3Info.cost.length; i++) {
+    getId(`researchA${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 3));
+    getId(`researchA${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 3));
+    if (screenReader || mobileDevice) { getId(`researchA${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 3)); }
+}
+for (let i = 0; i < global.researchesExtraS3Info.cost.length; i++) {
+    getId(`researchRank${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 3));
+    getId(`researchRank${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 3));
+    if (screenReader || mobileDevice) { getId(`researchRank${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 3)); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
@@ -141,8 +167,7 @@ if (screenReader) {
     }
     getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
     getId('specialTabBtn').addEventListener('click', () => switchTab('special'));
-} else {
-    getId('specialTabBtn').style.display = 'none';
+    getId('specialTabBtn').style.display = '';
 }
 
 /* Footer */
@@ -209,7 +234,7 @@ async function saveLoad(type: string) {
                 changeIntervals(true);
                 updatePlayer(load);
                 const offlineTime = Date.now() - player.time.updated;
-                if (!player.toggles[0]) {
+                if (!player.toggles.normal[0]) {
                     const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? `, max is ${global.timeSpecial.maxOffline / 3600} hours` : ''}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                     if (noOffline) { player.time.updated = Date.now(); }
                 } else {
@@ -243,21 +268,24 @@ async function saveLoad(type: string) {
             break;
         }
         case 'delete': {
-            const ok = await Prompt("This will truly delete your save file!\nType 'delete' to confirm.");
+            const ok = await Prompt("This will truly delete your save file and clear local storage!\nType 'delete' to confirm.");
             if (ok?.toLowerCase() === 'delete') {
                 changeIntervals(true);
                 localStorage.clear();
-                /* This wont remove unused properties, but bellow will work if needed (or just refresh page after deleting save file)
-                for (let i in player) {
-                    if (Object.prototype.hasOwnProperty.call(player, i)) {
+                switchTab('settings', 'settings'); //Reset subtabs (it will do useless number and visual update, but it should be fine)
+                switchTab(); //Reset tab (better to be done last for screen readers)
+                for (const i in player) {
+                    if (!Object.prototype.hasOwnProperty.call(playerStart, i)) {
+                        //eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete player[i as keyof typeof player];
+                        //Remove no longer usable parts of a save file (it is save to delete, rule can be turned off for this case)
                     }
-                } */
+                }
                 Object.assign(player, startValue('p'));
                 Object.assign(global, startValue('g'));
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
-                void reLoad(false, 'delete');
+                void reLoad();
             } else if (ok !== null && ok !== '') {
                 Alert(`You wrote '${ok}', so save file wasn't deleted`);
             }
@@ -268,7 +296,7 @@ async function saveLoad(type: string) {
 
 const pauseGame = async() => {
     changeIntervals(true);
-    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)`);
+    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${maxOfflineTime() / 3600} hours)`);
     //Maybe to add when game was paused (if I can figure out how later)
     if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();

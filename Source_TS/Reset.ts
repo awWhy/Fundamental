@@ -1,9 +1,9 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
-import { calculateBuildingsCost } from './Stage';
+import { calculateBuildingsCost, calculateResearchCost } from './Stage';
 import { numbersUpdate, stageCheck, visualUpdate, visualUpdateUpgrades } from './Update';
 
-export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
+export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => {
     const { stage, buildings } = player;
 
     switch (type) {
@@ -17,6 +17,18 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
                 if (i === 1) { continue; } //Just skips that loop
                 player.upgrades[i] = 0;
                 visualUpdateUpgrades(i);
+            }
+            break;
+        case 'rank':
+            buildings[0].current = 1e-19;
+            for (let i = 0; i < player.upgrades.length; i++) {
+                player.upgrades[i] = 0;
+                visualUpdateUpgrades(i);
+            }
+            for (let i = 0; i < player.researches.length; i++) {
+                player.researches[i] = 0;
+                calculateResearchCost(i, 'researches');
+                visualUpdateUpgrades(i, 'researches');
             }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
@@ -34,7 +46,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
 
             const upgradeType = `upgrades${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
             const researchType = `researches${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
-            const researchExtraType = `researchesExtra${stage.current !== 1 ? `S${stage.current}` : ''}Info` as 'researchesExtraS2Info';
+            const researchExtraType = `researchesExtraS${stage.current}Info` as 'researchesExtraS2Info';
 
             for (let i = 0; i < global[upgradeType].cost.length; i++) {
                 upgrades[i] = 0;
@@ -42,7 +54,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
             for (let i = 0; i < global[researchType].cost.length; i++) {
                 researches[i] = 0;
             }
-            if (stage.current === 2) { //No idea if stage 1 will ever have it
+            if (stage.current !== 1) {
                 for (let i = 0; i < global[researchExtraType].cost.length; i++) {
                     researchesExtra[i] = 0;
                 }
@@ -60,9 +72,17 @@ export const reset = (type: 'discharge' | 'vaporization' | 'stage') => {
                     player.vaporization.current = 0;
                     player.vaporization.clouds = 1;
                     break;
+                case 3:
+                    if (player.accretion.rank === 0) {
+                        buildings[0].current = 5.97e27;
+                    } else {
+                        buildings[0].current = 1e-19;
+                        player.accretion.rank = 1;
+                    }
+                    break;
             }
-            buildings[0].total = buildings[0].current;
-            buildings[0].trueTotal = buildings[0].current;
+            buildings[0].total = stage.current !== 3 ? buildings[0].current : 1e-19;
+            buildings[0].trueTotal = buildings[0].total;
 
             stageCheck();
             visualUpdate();

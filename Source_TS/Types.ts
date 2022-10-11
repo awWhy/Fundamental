@@ -14,6 +14,9 @@ export interface playerType {
         current: number
         clouds: number
     }
+    accretion: { //Stage 3
+        rank: number
+    }
     time: {
         updated: number
         started: number
@@ -29,12 +32,17 @@ export interface playerType {
     researches: number[]
     researchesExtra: number[]
     researchesAuto: number[]
-    toggles: boolean[]
-    buyToggle: {
-        howMany: number
-        input: number
-        strict: boolean
+    toggles: {
+        normal: boolean[]
+        buildings: boolean[]
+        auto: boolean[]
+        shop: {
+            howMany: number
+            input: number
+            strict: boolean
+        }
     }
+    events: boolean[]
 }
 
 export interface globalType {
@@ -69,6 +77,11 @@ export interface globalType {
     vaporizationInfo: {
         get: number
     }
+    accretionInfo: {
+        rankCost: number[]
+        rankName: string[]
+        rankImage: string[]
+    }
     intervals: {
         main: number
         numbers: number
@@ -83,8 +96,9 @@ export interface globalType {
     }
     buildingsInfo: {
         name: string[]
+        type: string[]
         cost: number[]
-        increase: number
+        increase: number[]
         producing: number[]
     }
     upgradesInfo: {
@@ -118,7 +132,29 @@ export interface globalType {
     researchesExtraS2Info: {
         description: string[]
         effectText: string[][]
-        effect: [null, null, ...number[]]
+        effect: [null, ...number[]]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }
+    upgradesS3Info: {
+        description: string[]
+        effectText: string[][]
+        effect: [number, number, number, number, number, number, null, number, number, number, number, null]
+        cost: number[]
+    }
+    researchesS3Info: {
+        description: string[]
+        effectText: string[][]
+        effect: number[]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }
+    researchesExtraS3Info: {
+        description: string[]
+        effectText: string[][]
+        effect: [number, number, null, null]
         cost: number[]
         scalling: number[]
         max: number[]
@@ -132,7 +168,7 @@ export interface globalType {
         max: number[]
     }
     lastUpgrade: [number | null, 'upgrades', boolean]
-    //lastResearch: [number | null, 'researches' | 'researchesExtra' | 'researchesAuto', boolean]
+    lastResearch: [number | null, 'researches' | 'researchesExtra' | 'researchesAuto', boolean]
 }
 
 export interface saveType {

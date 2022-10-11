@@ -2,7 +2,8 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-v**0.0.1** > Stage 2 reworked, energy will be reset on load, sorry
+v**0.0.3** > Stage 3 and more (change log can be seen inside game) \
+Stage 3 might be bad and boring (maybe will be reworked)
 
 #### Should be supported by:
 1. Modern browsers,

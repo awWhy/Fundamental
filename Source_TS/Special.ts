@@ -30,8 +30,12 @@ export const switchTheme = () => {
     }
 
     /* Full reset, for easier out of order theme change */
-    getId('upgradeCost').classList.remove('orangeText', 'cyanText');
-    getId('researchCost').classList.remove('orangeText', 'cyanText');
+    //getId('upgradeText').classList.remove('whiteText');
+    getId('researchText').classList.remove('darkOrchidText', 'orangeText');
+    getId('upgradeEffect').classList.remove('blueText', 'greenText');
+    getId('researchEffect').classList.remove('blueText', 'greenText');
+    getId('upgradeCost').classList.remove('orangeText', 'cyanText', 'greenText');
+    getId('researchCost').classList.remove('orangeText', 'cyanText', 'greenText');
     body.removeProperty('--background-color');
     body.removeProperty('--window-color');
     body.removeProperty('--window-border');
@@ -39,26 +43,35 @@ export const switchTheme = () => {
     body.removeProperty('--button-main-color');
     body.removeProperty('--button-main-border');
     body.removeProperty('--button-main-hover');
+    body.removeProperty('--button-tab-border');
+    body.removeProperty('--button-tab-active');
     body.removeProperty('--button-extra-hover');
-    //body.removeProperty('--button-delete-color');
-    //body.removeProperty('--button-delete-hover');
+    body.removeProperty('--button-delete-color');
+    body.removeProperty('--button-delete-hover');
     body.removeProperty('--main-text-color');
-    //body.removeProperty('--white-text-color');
+    body.removeProperty('--white-text-color');
     //body.removeProperty('--cyan-text-color');
-    body.removeProperty('--blue-text-color');
-    //body.removeProperty('--orange-text-color');
+    //body.removeProperty('--blue-text-color');
+    body.removeProperty('--orange-text-color');
     body.removeProperty('--gray-text-color');
     //body.removeProperty('--orchid-text-color');
     //body.removeProperty('--darkorchid-text-color');
+    //body.removeProperty('--darkviolet-test-color');
     //body.removeProperty('--red-text-color');
-    //body.removeProperty('--green-text-color');
+    body.removeProperty('--green-text-color');
     /* And set new colors */
     switch (theme.stage) {
         case 1:
+            getId('researchText').classList.add('darkOrchidText');
+            getId('upgradeEffect').classList.add('blueText');
+            getId('researchEffect').classList.add('blueText');
             getId('upgradeCost').classList.add('orangeText');
             getId('researchCost').classList.add('orangeText');
             break;
         case 2:
+            getId('researchText').classList.add('darkOrchidText');
+            getId('upgradeEffect').classList.add('greenText');
+            getId('researchEffect').classList.add('greenText');
             getId('upgradeCost').classList.add('cyanText');
             getId('researchCost').classList.add('cyanText');
             body.setProperty('--background-color', '#070026');
@@ -68,23 +81,48 @@ export const switchTheme = () => {
             body.setProperty('--button-main-color', 'blue');
             body.setProperty('--button-main-border', '#427be1');
             body.setProperty('--button-main-hover', '#1515cf');
+            body.setProperty('--button-tab-border', '#376ac5');
+            body.setProperty('--button-tab-active', '#990000');
             body.setProperty('--button-extra-hover', '#2400d7');
             body.setProperty('--main-text-color', 'dodgerblue');
-            body.setProperty('--blue-text-color', '#82cb3b');
             body.setProperty('--gray-text-color', '#9b9b9b');
+            body.setProperty('--green-text-color', '#82cb3b');
+            break;
+        case 3:
+            getId('researchText').classList.add('orangeText');
+            getId('upgradeEffect').classList.add('blueText');
+            getId('researchEffect').classList.add('blueText');
+            getId('upgradeCost').classList.add('greenText');
+            getId('researchCost').classList.add('greenText');
+            body.setProperty('--background-color', '#000804');
+            body.setProperty('--window-color', '#2e1200');
+            body.setProperty('--window-border', '#31373e');
+            body.setProperty('--footer-color', '#221a00');
+            body.setProperty('--button-main-color', '#291344');
+            body.setProperty('--button-main-border', '#404040');
+            body.setProperty('--button-main-hover', '#361f52');
+            body.setProperty('--button-tab-border', '#484848');
+            body.setProperty('--button-tab-active', '#8d4c00');
+            body.setProperty('--button-extra-hover', '#624c06');
+            body.setProperty('--button-delete-color', '#891313');
+            body.setProperty('--button-delete-hover', '#a10a0a');
+            body.setProperty('--main-text-color', '#8f8f8f');
+            body.setProperty('--white-text-color', '#dfdfdf');
+            body.setProperty('--orange-text-color', '#f58600');
+            body.setProperty('--green-text-color', '#00db00');
             break;
     }
     setTimeout(() => { body.removeProperty('--transition'); }, 1000);
 };
 
 export const Alert = (text: string) => {
-    const blocker = getId('blocker');
+    const blocker = getId('blocker') as HTMLDivElement;
     if (getId('blocker').style.display === 'block') {
         return console.warn('Wasn\'t able to show another window (alert)');
     }
 
     getId('alertText').textContent = text;
-    const confirm = getId('confirmBtn');
+    const confirm = getId('confirmBtn') as HTMLButtonElement;
 
     blocker.style.display = 'block';
     const close = () => {
@@ -96,7 +134,7 @@ export const Alert = (text: string) => {
 
 export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
-        const blocker = getId('blocker');
+        const blocker = getId('blocker') as HTMLDivElement;
         if (blocker.style.display === 'block') {
             console.warn('Wasn\'t able to show another window (confirm)');
             resolve(false);
@@ -104,8 +142,8 @@ export const Confirm = async(text: string): Promise<boolean> => {
         }
 
         getId('alertText').textContent = text;
-        const cancel = getId('cancelBtn');
-        const confirm = getId('confirmBtn');
+        const cancel = getId('cancelBtn') as HTMLButtonElement;
+        const confirm = getId('confirmBtn') as HTMLButtonElement;
 
         blocker.style.display = 'block';
         cancel.style.display = 'block';
@@ -130,7 +168,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
 
 export const Prompt = async(text: string): Promise<string | null> => {
     return await new Promise((resolve) => {
-        const blocker = getId('blocker');
+        const blocker = getId('blocker') as HTMLDivElement;
         if (blocker.style.display === 'block') {
             console.warn('Wasn\'t able to show another window (prompt)');
             resolve(null);
@@ -140,8 +178,8 @@ export const Prompt = async(text: string): Promise<string | null> => {
         getId('alertText').textContent = text;
         const input = getId('inputArea') as HTMLInputElement;
         let inputValue = '';
-        const cancel = getId('cancelBtn');
-        const confirm = getId('confirmBtn');
+        const cancel = getId('cancelBtn') as HTMLButtonElement;
+        const confirm = getId('confirmBtn') as HTMLButtonElement;
 
         blocker.style.display = 'block';
         cancel.style.display = 'block';
@@ -177,11 +215,11 @@ export const Prompt = async(text: string): Promise<string | null> => {
 
 /* This is a pain, I had to remove animation for it to play again... Though I still think it's better that adding a class... */
 export const hideFooter = () => {
-    const footer = getId('footer');
-    const hide = getId('footerColor');
-    const toggle = getId('hideToggle');
-    const text = getId('hideText');
-    const arrow = getId('hideArrow');
+    const footer = getId('footer') as HTMLDivElement;
+    const hide = getId('footerColor') as HTMLDivElement;
+    const toggle = getId('hideToggle') as HTMLDivElement;
+    const text = getId('hideText') as HTMLParagraphElement;
+    const arrow = getId('hideArrow') as HTMLDivElement;
 
     global.footer = !global.footer;
     toggle.removeEventListener('click', hideFooter);
@@ -209,7 +247,7 @@ export const hideFooter = () => {
 
 export const mobileDeviceSupport = (change = false) => {
     let turnOn = Boolean(localStorage.getItem('mobile device') ?? false);
-    const toggle = getId('mobileDeviceToggle');
+    const toggle = getId('mobileDeviceToggle') as HTMLButtonElement;
 
     if (change) { turnOn = !turnOn; }
 
@@ -233,7 +271,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         case 'toggle': {
             const change = info as boolean;
             let turnOn = Boolean(localStorage.getItem('screen reader') ?? false);
-            const toggle = getId('screenReaderToggle');
+            const toggle = getId('screenReaderToggle') as HTMLButtonElement;
 
             if (change) { turnOn = !turnOn; }
             /* Its a nightmare to try and remove event listener's...
@@ -247,7 +285,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 global.screenReader = true;
                 if (special === 'reload') {
                     /* This is recommended options, being set after every reload */
-                    player.buyToggle.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
+                    player.toggles.shop.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
                     global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
                     global.intervals.numbers = 1000; //To lag less, since visual information is not important
                 }
@@ -264,7 +302,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         case 'button': {
             const index = info as number;
             const { stage } = player;
-            const invText = getId('invisibleBought');
+            const invText = getId('invisibleBought') as HTMLLabelElement;
 
             if (special === 'building') {
                 const { buildings } = player;
@@ -275,7 +313,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[extra]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles[index + 3] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[extra]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
                 if (stage.current === 1) {
