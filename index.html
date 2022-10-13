@@ -355,13 +355,60 @@
                     <p>Started playing: <span id="firstPlay">0 seconds ago</span> <!--(<span id="localFirstPlay">time</span>)--></p>
                     <p class="stage1Unlock">Stage resets: <span id="stageResetsCount">0</span></p>
                     <p>Max offline: <span id="maxOfflineStat">2 hours</span></p>
-                    <p>Stats bellow will be soon visually reworked</p>
-                    <p id="building0Stats"><span id="building0StatName" class="stageText">Quarks</span>: obtained this reset > <span id="building0StatTotal">3</span>, total > <span id="building0StatTrueTotal">3</span></p>
-                    <p id="building1Stats"><span id="building1StatName" class="stageText">Particles</span>: bought > <span id="building1StatTrue">0</span>, this reset > <span id="building1StatTotal">0</span>, total > <span id="building1StatTrueTotal">0</span></p>
-                    <p id="building2Stats"><span id="building2StatName" class="stageText">Atoms</span>: bought > <span id="building2StatTrue">0</span>, this reset > <span id="building2StatTotal">0</span>, total > <span id="building2StatTrueTotal">0</span></p>
-                    <p id="building3Stats"><span id="building3StatName" class="stageText">Molecules</span>: bought > <span id="building3StatTrue">0</span>, this reset > <span id="building3StatTotal">0</span>, total > <span id="building3StatTrueTotal">0</span></p>
-                    <p id="building4Stats"><span id="building4StatName" class="stageText">Lakes</span>: bought > <span id="building4StatTrue">0</span>, this reset > <span id="building4StatTotal">0</span>, total > <span id="building4StatTrueTotal">0</span></p>
-                    <p id="building5Stats"><span id="building5StatName" class="stageText">Seas</span>: bought > <span id="building5StatTrue">0</span>, this reset > <span id="building5StatTotal">0</span>, total > <span id="building5StatTrueTotal">0</span></p>
+                    <div id="buildingsAllStats">
+                        <div id="building0Stats">
+                            <label id="building0StatName" class="stageText bigWord">Quarks</label>
+                            <p>This reset:</p>
+                            <span id="building0StatTotal">3</span>
+                            <p>Total:</p>
+                            <span id="building0StatTrueTotal">3</span>
+                        </div>
+                        <div id="building1Stats">
+                            <label id="building1StatName" class="stageText bigWord">Particles</label>
+                            <p>Bought:</p>
+                            <span id="building1StatTrue">0</span>
+                            <p>Gained:</p>
+                            <span id="building1StatTotal">0</span>
+                            <p>Total:</p>
+                            <span id="building1StatTrueTotal">0</span>
+                        </div>
+                        <div id="building2Stats">
+                            <label id="building2StatName" class="stageText bigWord">Atoms</label>
+                            <p>Bought:</p>
+                            <span id="building2StatTrue">0</span>
+                            <p>Gained:</p>
+                            <span id="building2StatTotal">0</span>
+                            <p>Total:</p>
+                            <span id="building2StatTrueTotal">0</span>
+                        </div>
+                        <div id="building3Stats">
+                            <label id="building3StatName" class="stageText bigWord">Molecules</label>
+                            <p>Bought:</p>
+                            <span id="building3StatTrue">0</span>
+                            <p>Gained:</p>
+                            <span id="building3StatTotal">0</span>
+                            <p>Total:</p>
+                            <span id="building3StatTrueTotal">0</span>
+                        </div>
+                        <div id="building4Stats">
+                            <label id="building4StatName" class="stageText bigWord">Lakes</label>
+                            <p>Bought:</p>
+                            <span id="building4StatTrue">0</span>
+                            <p>Gained:</p>
+                            <span id="building4StatTotal">0</span>
+                            <p>Total:</p>
+                            <span id="building4StatTrueTotal">0</span>
+                        </div>
+                        <div id="building5Stats">
+                            <label id="building5StatName" class="stageText bigWord">Seas</label>
+                            <p>Bought:</p>
+                            <span id="building5StatTrue">0</span>
+                            <p>Gained:</p>
+                            <span id="building5StatTotal">0</span>
+                            <p>Total:</p>
+                            <span id="building5StatTrueTotal">0</span>
+                        </div>
+                    </div>
                     <p id="energyStats" class="orangeText stage1Only notFromStart">Most Energy at once: <span id="maxEnergyStat"></span></p>
                     <p id="dischargeStats" class="orangeText stage1Only notFromStart">Discharge goals: <span id="dischargeStat">0</span></p>
                 </div>

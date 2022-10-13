@@ -286,8 +286,8 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 if (special === 'reload') {
                     /* This is recommended options, being set after every reload */
                     player.toggles.shop.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
-                    global.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
-                    global.intervals.numbers = 1000; //To lag less, since visual information is not important
+                    player.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
+                    player.intervals.numbers = 1000; //To lag less, since visual information is not important
                 }
                 if (change) { Alert('For full support please refresh page. You will get: focus event on upgrades to get description (I need feedback on it), special tab to check progress and more.\n(For non screen readers it auto sets recommended settings on some stuff)'); }
             } else {
@@ -352,5 +352,26 @@ export const changeFontSize = (change = false, inputChange = false) => {
         localStorage.setItem('enableCustomFontSize', 'true');
         toggle.textContent = 'ON';
         toggle.style.borderColor = '';
+    }
+};
+
+export const playEvent = (event: number) => {
+    if (getId('blocker').style.display === 'block') { return; }
+    player.events[event] = true;
+
+    //If to add new event here, then don't forget to also add it into player.events
+    switch (event) {
+        case 0:
+            Alert('Since obtaining spended Energy is impossible, you will have to Discharge anytime you will spend it.\nBut for the first time, you can keep your Energy');
+            player.discharge.energyCur += 800;
+            break;
+        case 1:
+            Alert('Cloud density is too high... Getting more will be harder now');
+            break;
+        case 2:
+            Alert('Getting more Mass, seems impossible. We need to change our approach, next rank is going to be Softcapped');
+            global.accretionInfo.rankCost[4] = 5e29;
+            getId('rankReset').textContent = 'Next rank is 5e29 Mass';
+            break;
     }
 };

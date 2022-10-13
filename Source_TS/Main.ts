@@ -3,6 +3,8 @@ import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visua
 import { buyBuilding, buyUpgrades, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
 /* There might be some problems with incorect build, imports being called in wrong order. */
+//I don't like to see 'empty let', so I use var instead (because it can go outside of a block, but still inside function)
+//Unless value can change based on income of "if (condition) { var a = 1; } else { a = 2; }", while it does work, I don't want to risk it
 
 export const getId = (id: string) => { //To type less and check if ID exist
     const i = document.getElementById(id);
@@ -182,7 +184,8 @@ getId('settingsSubtabBtnstats').addEventListener('click', () => switchTab('setti
 
 /* Intervals */
 function changeIntervals(pause = false, input = '') {
-    const { intervals, intervalsId } = global;
+    const { intervals } = player;
+    const { intervalsId } = global;
     if (input !== '') {
         const mainInput = getId('mainInterval') as HTMLInputElement;
         const numberInput = getId('numbersInterval') as HTMLInputElement;
@@ -230,7 +233,7 @@ async function saveLoad(type: string) {
 
             try {
                 const load = JSON.parse(atob(text));
-                const versionCheck = load.player.version;
+                const versionCheck = Object.hasOwn(load, 'player') ? load.player.version : load.version;
                 changeIntervals(true);
                 updatePlayer(load);
                 const offlineTime = Date.now() - player.time.updated;
@@ -238,7 +241,7 @@ async function saveLoad(type: string) {
                     const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? `, max is ${global.timeSpecial.maxOffline / 3600} hours` : ''}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                     if (noOffline) { player.time.updated = Date.now(); }
                 } else {
-                    Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOfflineTime() * 1000 ? `, max offline time is ${global.timeSpecial.maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}.` : `\nSave file version is ${player.version}`}`);
+                    Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOfflineTime() * 1000 ? `, max offline time is ${global.timeSpecial.maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                 }
                 void reLoad();
             } catch {
@@ -246,26 +249,25 @@ async function saveLoad(type: string) {
             } finally {
                 id.value = ''; //Remove inputed file
             }
-            break;
+            return;
         }
         case 'save': {
-            const save = btoa(`{"player":${JSON.stringify(player)},"global":{"intervals":${JSON.stringify(global.intervals)}}}`);
+            const save = btoa(JSON.stringify(player));
             localStorage.setItem('save', save);
             getId('isSaved').textContent = 'Saved';
             global.timeSpecial.lastSave = 0;
-            break;
+            return;
         }
         case 'export': {
             await saveLoad('save');
-            const save = localStorage.getItem('save');
-            if (save === null) {
-                return Alert('Save file wasn\'t found. Even though game was saved just now...');
-            }
+            const save = btoa(JSON.stringify(player)); //In case localStorage will fail
+            if (save !== localStorage.getItem('save')) { Alert('For some reason save file in a browser and exported one are different...'); }
+            getId('isSaved').textContent = 'Exported';
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;
             a.download = 'Fundamental.txt'; //Add choice for a name, later
             a.click();
-            break;
+            return;
         }
         case 'delete': {
             const ok = await Prompt("This will truly delete your save file and clear local storage!\nType 'delete' to confirm.");
@@ -275,10 +277,8 @@ async function saveLoad(type: string) {
                 switchTab('settings', 'settings'); //Reset subtabs (it will do useless number and visual update, but it should be fine)
                 switchTab(); //Reset tab (better to be done last for screen readers)
                 for (const i in player) {
-                    if (!Object.prototype.hasOwnProperty.call(playerStart, i)) {
-                        //eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                        delete player[i as keyof typeof player];
-                        //Remove no longer usable parts of a save file (it is save to delete, rule can be turned off for this case)
+                    if (!Object.hasOwn(playerStart, i)) {
+                        delete player[i as keyof typeof player]; //This should remove old save file's object properties
                     }
                 }
                 Object.assign(player, startValue('p'));

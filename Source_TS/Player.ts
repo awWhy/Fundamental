@@ -1,9 +1,8 @@
 import { reset } from './Reset';
-import { Alert } from './Special';
-import { globalType, saveType, playerType } from './Types';
+import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.3',
+    version: 'v0.0.4',
     stage: {
         true: 1,
         current: 1,
@@ -20,6 +19,12 @@ export const player: playerType = { //Only for information that need to be saved
     },
     accretion: { //Stage 3
         rank: 0
+    },
+    intervals: {
+        main: 50,
+        numbers: 50,
+        visual: 1,
+        autoSave: 180
     },
     time: {
         updated: Date.now(),
@@ -78,7 +83,8 @@ export const player: playerType = { //Only for information that need to be saved
             strict: true
         }
     },
-    events: [false] //One time events: [0] - Accretion new rank unlocked
+    events: [false, false, false] //One time events:
+    /* [0] - Discharge explanation, [1] - Accretion new rank unlocked */
 };
 
 export const global: globalType = { //For information that doesn't need to be saved
@@ -119,12 +125,6 @@ export const global: globalType = { //For information that doesn't need to be sa
         rankName: ['Ocean world', 'Cosmic dust', 'Meteoroid', 'Asteroid', 'Planet', 'Jovian planet'], //Name of rank (also alt attribute)
         rankImage: ['Ocean%20world', 'Dust', 'Meteoroids', 'Asteroid', 'Planet', 'Giant'] //Source of image (file name and .png auto added)
     },
-    intervals: {
-        main: 50,
-        numbers: 50,
-        visual: 1,
-        autoSave: 180
-    },
     intervalsId: {
         main: 0,
         numbers: 0,
@@ -163,7 +163,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Unspent Energy boost Molecules production of themselfs 1 to 1.']
         ],
         effect: [10, 10, 5, 4, 0.2, 1.01, 0, null],
-        cost: [9, 12, 36, 300, 800, 5000, 15000, 36000]
+        cost: [9, 12, 36, 300, 800, 4000, 13000, 36000]
     },
     researchesInfo: {
         description: [
@@ -181,8 +181,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['A single building now gives ', ' times more Energy.']
         ],
         effect: [0.01, 0.01, 12, 1, 3],
-        cost: [2000, 6500, 20000, 12000, 42000],
-        scalling: [300, 1500, 1800, 0, 81456],
+        cost: [2000, 6000, 18000, 10000, 42000],
+        scalling: [250, 1000, 2000, 0, 88000],
         max: [9, 3, 9, 1, 2]
     },
     upgradesS2Info: {
@@ -234,7 +234,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Storm Clouds.'
         ],
         effectText: [
-            ['Clouds will now use total produced Drops instead, when formed. (Weaker past 1e4 Clouds)'],
+            ['Clouds will now use total produced Drops instead, when formed.'],
             ['Some Clouds will start pouring Drops themselfs. (', ' per second)'],
             ['Seas get boost based on amount of Clouds. (Equal to ', ')']
         ],
@@ -361,118 +361,117 @@ export const playerStart = structuredClone(player) as playerType;
 export const globalStart = structuredClone(global) as globalType;
 /* For cases when ID of starting values can get changed */
 export const startValue = (which: 'p' | 'g') => {
-    let value;
     if (which === 'p') {
-        value = structuredClone(playerStart);
-    } else {
-        value = structuredClone(globalStart);
+        return structuredClone(playerStart);
+    } else { //Because TS can't see that "startValue('p') type !== globalType", there will be no return types
+        return structuredClone(globalStart);
     }
-    /* Not adding type, because TS can't give to a function that has only 2 possible outcomes proper type, and NOT type1 | type2 */
-    return value;
 };
 
-export const updatePlayer = (load: saveType) => {
-    if (Object.prototype.hasOwnProperty.call(load, 'player') && Object.prototype.hasOwnProperty.call(load, 'global')) {
-        const playerCheck = startValue('p'); //If to add 'as playerType', TS will lose its mind
-        for (const i in playerStart) { //This should auto add missing information
-            if (!Object.prototype.hasOwnProperty.call(load.player, i)) {
-                if (i === 'version') {
-                    load.player[i] = '0.0.0';
-                } else {
-                    load.player[i as keyof playerType] = playerCheck[i as keyof playerType];
-                }
+export const updatePlayer = (load: playerType) => {
+    const playerCheck = startValue('p') as playerType;
+    //@ts-expect-error //Old save file format had player in it
+    if (Object.hasOwn(load, 'player')) { load = load.player; }
+    for (const i in playerStart) { //This should auto add missing information
+        if (!Object.hasOwn(load, i)) {
+            if (i === 'version') {
+                load.version = '0.0.0';
+            } else {
+                load[i as 'version'] = playerCheck[i as 'version']; //TS can't tell that player[i] of same type as player[i]
             }
         }
-        //No idea if load.player = { ...load.player, ...playerCheck }; would had been better (or even works)
+    }
+    for (const i in load) { //This should remove old save file's object properties
+        if (!Object.hasOwn(playerStart, i)) {
+            delete load[i as keyof playerType];
+        }
+    }
+    /* Next one's will auto add missing part of already existing information */
+    const upgradeType = `upgrades${load.stage.current > 1 ? `S${load.stage.current}` : ''}Info` as 'upgradesS2Info';
+    const researchType = `researches${load.stage.current > 1 ? `S${load.stage.current}` : ''}Info` as 'researchesS2Info';
+    const researchExtraType = `researchesExtraS${load.stage.current}Info` as 'researchesExtraS2Info';
 
-        /* Next one's will auto add missing part of already existing information */
-        const upgradeType = `upgrades${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'upgradesS2Info';
-        const researchType = `researches${load.player.stage.current > 1 ? `S${load.player.stage.current}` : ''}Info` as 'researchesS2Info';
-        const researchExtraType = `researchesExtraS${load.player.stage.current}Info` as 'researchesExtraS2Info';
+    if (playerStart.buildings.length > load.buildings.length) {
+        for (let i = load.buildings.length; i < playerStart.buildings.length; i++) {
+            load.buildings[i] = playerCheck.buildings[i];
+        }
+    }
+    if (global[upgradeType].cost.length > load.upgrades.length) {
+        for (let i = load.upgrades.length; i < global[upgradeType].cost.length; i++) {
+            load.upgrades[i] = 0;
+        }
+    }
+    if (global[researchType].cost.length > load.researches.length) {
+        for (let i = load.researches.length; i < global[researchType].cost.length; i++) {
+            load.researches[i] = 0;
+        }
+    }
+    if (load.stage.current !== 1) {
+        if (global[researchExtraType].cost.length > load.researchesExtra.length) {
+            for (let i = load.researchesExtra.length; i < global[researchExtraType].cost.length; i++) {
+                load.researchesExtra[i] = 0;
+            }
+        }
+    }
+    if (playerStart.researchesAuto.length > load.researchesAuto.length) {
+        for (let i = load.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
+            load.researchesAuto[i] = 0;
+        }
+    }
+    if (Object.hasOwn(load.toggles, 'normal')) {
+        if (playerStart.toggles.normal.length > load.toggles.normal.length) {
+            for (let i = load.toggles.normal.length; i < playerStart.toggles.normal.length; i++) {
+                load.toggles.normal[i] = playerCheck.toggles.normal[i];
+            }
+        }
+        if (playerStart.toggles.buildings.length > load.toggles.buildings.length) {
+            for (let i = load.toggles.buildings.length; i < playerStart.toggles.buildings.length; i++) {
+                load.toggles.buildings[i] = playerCheck.toggles.buildings[i];
+            }
+        }
+        if (playerStart.toggles.auto.length > load.toggles.auto.length) {
+            for (let i = load.toggles.auto.length; i < playerStart.toggles.auto.length; i++) {
+                load.toggles.auto[i] = playerCheck.toggles.auto[i];
+            }
+        }
+    }
+    if (playerStart.events.length > load.events.length) {
+        for (let i = load.events.length; i < playerStart.events.length; i++) {
+            load.events[i] = playerCheck.events[i];
+        }
+    }
 
-        if (playerStart.buildings.length > load.player.buildings.length) {
-            for (let i = load.player.buildings.length; i < playerStart.buildings.length; i++) {
-                load.player.buildings[i] = playerCheck.buildings[i];
-            }
-        }
-        if (global[upgradeType].cost.length > load.player.upgrades.length) {
-            for (let i = load.player.upgrades.length; i < global[upgradeType].cost.length; i++) {
-                load.player.upgrades[i] = 0;
-            }
-        }
-        if (global[researchType].cost.length > load.player.researches.length) {
-            for (let i = load.player.researches.length; i < global[researchType].cost.length; i++) {
-                load.player.researches[i] = 0;
-            }
-        }
-        if (load.player.stage.current !== 1) {
-            if (global[researchExtraType].cost.length > load.player.researchesExtra.length) {
-                for (let i = load.player.researchesExtra.length; i < global[researchExtraType].cost.length; i++) {
-                    load.player.researchesExtra[i] = 0;
-                }
-            }
-        }
-        if (playerStart.researchesAuto.length > load.player.researchesAuto.length) {
-            for (let i = load.player.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
-                load.player.researchesAuto[i] = 0;
-            }
-        }
-        if (Object.prototype.hasOwnProperty.call(load.player.toggles, 'normal')) {
-            if (playerStart.toggles.normal.length > load.player.toggles.normal.length) {
-                for (let i = load.player.toggles.normal.length; i < playerStart.toggles.normal.length; i++) {
-                    load.player.toggles.normal[i] = playerCheck.toggles.normal[i];
-                }
-            }
-            if (playerStart.toggles.buildings.length > load.player.toggles.buildings.length) {
-                for (let i = load.player.toggles.buildings.length; i < playerStart.toggles.buildings.length; i++) {
-                    load.player.toggles.buildings[i] = playerCheck.toggles.buildings[i];
-                }
-            }
-            if (playerStart.toggles.auto.length > load.player.toggles.auto.length) {
-                for (let i = load.player.toggles.auto.length; i < playerStart.toggles.auto.length; i++) {
-                    load.player.toggles.auto[i] = playerCheck.toggles.auto[i];
-                }
-            }
-        }
-        if (playerStart.events.length > load.player.events.length) {
-            for (let i = load.player.events.length; i < playerStart.events.length; i++) {
-                load.player.events[i] = playerCheck.events[i];
-            }
-        }
-
-        Object.assign(player, load.player);
-        global.intervals = load.global.intervals;
-
-        /* Version changes (and change log's) */
-        const { versionInfo } = global;
-        const oldVersion = player.version;
-        versionInfo.changed = false;
-        versionInfo.log = 'Change log:';
-        if (player.version === '0.0.0') {
-            player.version = 'v0.0.1';
-            versionInfo.log += `\n${player.version} - Stage 2 has properly came out; Your Energy has been fully reset to prevent save file corruption, sorry`;
-            if (player.stage.current === 2) {
-                reset('stage');
-                player.researchesAuto = [1, 0, 0];
-            } else if (player.stage.current === 1) {
-                if (player.upgrades[3] === 0) {
-                    reset('discharge');
-                } else { player.discharge.energyCur = 0; }
-            }
+    Object.assign(player, load);
+    /* Version changes (and change log's) */
+    const { versionInfo } = global;
+    const oldVersion = player.version;
+    versionInfo.changed = false;
+    versionInfo.log = 'Change log:';
+    if (player.version === '0.0.0') {
+        player.version = 'v0.0.1';
+        versionInfo.log += `\n${player.version} - Stage 2 has properly came out; Buildings and Energy has been reset to prevent save file corruption, sorry`;
+        if (player.stage.current === 2) {
+            reset('stage');
+            player.researchesAuto = [1, 0, 0];
+        } else if (player.stage.current === 1) {
+            reset('discharge');
             player.discharge.energyMax = 0;
         }
-        if (player.version === 'v0.0.1') {
-            player.version = 'v0.0.2';
-            versionInfo.log += `\n${player.version} - Added dynamic descriptions for upgrades, stats subtab, early Mobile device support`;
-            player.stage.resets = player.stage.current === 2 ? 1 : 0;
-        }
-        if (player.version === 'v0.0.2') {
-            player.version = 'v0.0.3';
-            versionInfo.log += `\n${player.version} - Stage 3 is out, stage 2 extended. Dynamic update for researches, new stats, full reset of toggles (sorry). Also max offline time is now 2 times bigger...`;
-            player.toggles = playerCheck.toggles;
-        }
-        if (oldVersion !== player.version) { versionInfo.changed = true; }
-    } else {
-        Alert('Save file coudn\'t be loaded as its missing important info');
     }
+    if (player.version === 'v0.0.1') {
+        player.version = 'v0.0.2';
+        versionInfo.log += `\n${player.version} - Added dynamic descriptions for upgrades, stats subtab, early Mobile device support`;
+        player.stage.resets = player.stage.current === 2 ? 1 : 0;
+    }
+    if (player.version === 'v0.0.2') {
+        player.version = 'v0.0.3';
+        versionInfo.log += `\n${player.version} - Stage 3 is out, stage 2 extended. Dynamic update for researches, new stats, full reset of toggles (sorry). Also max offline time is now 2 times bigger...`;
+        player.toggles = playerCheck.toggles;
+    }
+    if (player.version === 'v0.0.3') {
+        player.version = 'v0.0.4';
+        versionInfo.log += `\n${player.version} - All stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
+        if (player.stage.current !== 1 || player.discharge.current > 4) { player.events[0] = true; }
+    }
+    if (oldVersion !== player.version) { versionInfo.changed = true; }
 };

@@ -32,7 +32,7 @@
         "no-extra-label": "warn",
         "switch-colon-spacing": "error",
         "generator-star-spacing": "error",
-        "no-var": "off",
+        "no-var": "off", //var only allowed when need to go outside of a block (because I don't like empty let)
         "multiline-ternary": "off", //I don't like it
         //"no-case-declarations": "off", //Can be turned off
         //"no-class-assign": "off", //Can be turned off
@@ -67,6 +67,7 @@
         "@typescript-eslint/restrict-plus-operands": "off", //This is dumb
         "@typescript-eslint/restrict-template-expressions": "off", //I hate it
         "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
-        "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }] //I dont know what it means...
+        "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }], //I dont know what it means...
+        "@typescript-eslint/no-dynamic-delete": "off" //I can tell when I can delete
     }
 }

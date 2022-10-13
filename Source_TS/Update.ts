@@ -1,6 +1,6 @@
 import { getClass, getId } from './Main';
 import { global, globalStart, player, playerStart } from './Player';
-import { Alert } from './Special';
+import { playEvent } from './Special';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateResearchCost } from './Stage';
 
 export const switchTab = (tab = 'none', subtab = 'tabOnly') => {
@@ -14,7 +14,7 @@ export const switchTab = (tab = 'none', subtab = 'tabOnly') => {
         getId('invisibleTab').textContent = `Current tab is ${global.tab} tab`; //Tell's screen reader current tab for easier navigation
 
         /* Subtabs */
-        getId('subtabs').style.display = Object.prototype.hasOwnProperty.call(global.subtab, tab + 'Current') ? '' : 'none';
+        getId('subtabs').style.display = Object.hasOwn(global.subtab, tab + 'Current') ? '' : 'none';
         getId('settingsSubtabBtnsettings').style.display = global.tab === 'settings' ? '' : 'none';
         getId('settingsSubtabBtnstats').style.display = global.tab === 'settings' ? '' : 'none';
     } else if (subtab !== 'tabOnly' && subtab !== global.subtab[tab + 'Current' as 'settingsCurrent']) {
@@ -90,10 +90,11 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         if (discharge.energyMax < discharge.energyCur) { discharge.energyMax = discharge.energyCur; }
     } else if (stage.current === 2) {
         const { vaporizationInfo, upgradesS2Info, researchesExtraS2Info } = global;
+        const { vaporization } = player;
 
         if (toggles.buildings[5] && researchesAuto[1] >= 5) { buyBuilding(5, true); }
         buildingsInfo.producing[5] = 2 * buildings[5].current;
-        researchesExtraS2Info.effect[2] = player.vaporization.clouds ** 0.1;
+        researchesExtraS2Info.effect[2] = vaporization.clouds ** 0.1;
         if (researchesExtra[2] >= 1) { buildingsInfo.producing[5] *= researchesExtraS2Info.effect[2]; }
 
         if (toggles.buildings[4] && researchesAuto[1] >= 4) { buyBuilding(4, true); }
@@ -111,7 +112,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         if (upgrades[4] === 1) { buildings[2].current = buildings[2].true + buildings[3].current * upgradesS2Info.effect[4]; }
 
         if (toggles.buildings[2] && researchesAuto[1] >= 2) { buyBuilding(2, true); }
-        buildingsInfo.producing[2] = 2 * buildings[2].current * player.vaporization.clouds;
+        buildingsInfo.producing[2] = 2 * buildings[2].current * vaporization.clouds;
         upgradesS2Info.effect[2] = 0.02 + researches[2] * 0.02;
         upgradesS2Info.effect[3] = 0.02 + researches[3] * 0.03;
         if (upgrades[2] === 1 && researches[1] >= 2) {
@@ -135,18 +136,17 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         }
 
         if (toggles.buildings[1] && researchesAuto[1] >= 1) { buyBuilding(1, true); }
-        buildingsInfo.producing[1] = 0.0004 * buildings[1].current;
+        buildingsInfo.producing[1] = 0.0006 * buildings[1].current;
         if (researches[0] >= 1) { buildingsInfo.producing[1] *= 3 ** researches[0]; }
         if (upgrades[0] === 1) { buildingsInfo.producing[1] *= 1.1 ** buildings[1].true; }
         calculateGainedBuildings(0, passedSeconds);
 
-        if (researchesExtra[0] === 0) {
-            vaporizationInfo.get = buildings[1].current / 1e10;
-        } else {
-            vaporizationInfo.get = buildings[1].total / 1e10;
+        vaporizationInfo.get = (researchesExtra[0] === 0 ? buildings[1].current : buildings[1].total) / 1e10;
+        if (vaporizationInfo.get > 1) { //1e4 is softcap, game will force calculation as if you already at softcap if you reached 1e4 total clouds
+            const check = vaporizationInfo.get ** 0.6 + vaporization.clouds;
+            const calculate = (check - 1e4 > 0) ? Math.max(1e4 - vaporization.clouds, 1) : 1;
+            vaporizationInfo.get = calculate + (vaporizationInfo.get - calculate) ** (check > 1e4 ? 0.36 : 0.6);
         }
-        if (vaporizationInfo.get > 1) { vaporizationInfo.get = 1 + (vaporizationInfo.get - 1) ** 0.6; }
-        if (vaporizationInfo.get > 1e4) { vaporizationInfo.get = 1e4 + (vaporizationInfo.get - 1e4) ** 0.6; }
     } else if (stage.current === 3) {
         const { upgradesS3Info, researchesS3Info, researchesExtraS3Info } = global;
         const { accretion } = player;
@@ -171,7 +171,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         calculateGainedBuildings(1, passedSeconds);
 
         if (toggles.buildings[1] && researchesAuto[1] >= 1) { buyBuilding(1, true); }
-        buildingsInfo.producing[1] = 4e-20 * buildings[1].current;
+        buildingsInfo.producing[1] = 5e-20 * buildings[1].current;
         upgradesS3Info.effect[0] = 1.01 + 0.01 * researches[1];
         upgradesS3Info.effect[1] = buildings[1].current ** (0.05 + 0.01 * researchesExtra[3]);
         upgradesS3Info.effect[7] = 2 * 1.5 ** researches[6];
@@ -298,6 +298,8 @@ export const visualUpdate = () => { //This is everything that can be shown later
         //Stats subtab
         getId('energyStats').style.display = discharge.energyMax >= 9 ? '' : 'none';
         getId('dischargeStats').style.display = discharge.current >= 1 ? '' : 'none';
+
+        if (!player.events[0] && upgrades[4] === 1) { playEvent(0); }
     } else if (stage.current === 2) {
         const { vaporization } = player;
 
@@ -322,6 +324,8 @@ export const visualUpdate = () => { //This is everything that can be shown later
         if (buildings[1].trueTotal >= 5e22) { getId('building5').style.display = ''; }
         getId('stageReset').textContent = buildings[1].current >= 1.194e29 ? 'Enter next stage' : 'You are not ready';
         if (screenReader) { getId('invisibleGetResource1').style.display = upgrades[1] === 1 ? '' : 'none'; }
+
+        if (!player.events[1] && global.vaporizationInfo.get + vaporization.clouds > 1e4) { playEvent(1); }
     } else if (stage.current === 3) {
         const { accretion } = player;
 
@@ -353,11 +357,8 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('building3').style.display = upgrades[4] === 1 ? '' : 'none';
         getId('building4').style.display = upgrades[6] === 1 ? '' : 'none';
         getId('stageReset').textContent = buildings[0].current >= 1e32 ? 'Enter next stage' : 'You are not ready';
-        if (!player.events[0] && buildings[0].current >= 5e29 && getId('blocker').style.display !== 'block') {
-            Alert('Getting more Mass, seems impossible. We need to change our approach, next rank is going to be Softcapped');
-            player.events[0] = true;
-            updateRankInfo();
-        }
+
+        if (!player.events[2] && buildings[0].current >= 5e29) { playEvent(2); }
     }
 
     for (let i = 1; i < playerStart.buildings.length; i++) {
@@ -432,7 +433,7 @@ export const visualUpdateUpgrades = (index: number, type = 'upgrades' as 'upgrad
         upgradeHTML = getId(`upgrade${extra}${index + 1}`);
     }
 
-    if (Object.prototype.hasOwnProperty.call(global[typeInfo], 'max')) {
+    if (Object.hasOwn(global[typeInfo], 'max')) {
         upgradeHTML.textContent = format(player[type][index], 0);
         upgradeHTML.classList.remove('redText', 'orchidText', 'greenText');
         if (player[type][index] === global[typeInfo].max[index]) { //If I add as 'upgradesS2Info', TS won't realize that this code will never be done if object doesn't have property 'max'...
@@ -460,7 +461,7 @@ export const updateRankInfo = () => {
     const name = getId('rankName') as HTMLSpanElement;
 
     //Important Rank information
-    accretionInfo.rankCost[4] = player.events[0] ? 5e29 : 0;
+    accretionInfo.rankCost[4] = player.events[2] ? 5e29 : 0;
     researchesExtraS3Info.max[0] = accretion.rank <= 2 ? 12 : 29;
     getId('researchRank1Max').textContent = format(researchesExtraS3Info.max[0], 0);
     calculateResearchCost(0, 'researchesExtra');

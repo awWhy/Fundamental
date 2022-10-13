@@ -453,6 +453,22 @@ li > input[type = "number"] {
 #stats > p { margin-bottom: 0.4em; }
 #stats span:not(.stageText) { color: var(--white-text-color); }
 
+#buildingsAllStats {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    gap: 0.5em 1em;
+}
+
+#buildingsAllStats > div {
+    min-width: 5em;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    padding: 0.25em 0.5em 0.4em;
+}
+
+#buildingsAllStats > p { margin-bottom: 0.15em; }
+
 #footer {
     position: fixed;
     width: 100%;

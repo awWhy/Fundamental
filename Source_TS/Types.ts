@@ -17,6 +17,12 @@ export interface playerType {
     accretion: { //Stage 3
         rank: number
     }
+    intervals: {
+        main: number
+        numbers: number
+        visual: number
+        autoSave: number
+    }
     time: {
         updated: number
         started: number
@@ -81,12 +87,6 @@ export interface globalType {
         rankCost: number[]
         rankName: string[]
         rankImage: string[]
-    }
-    intervals: {
-        main: number
-        numbers: number
-        visual: number
-        autoSave: number
     }
     intervalsId: {
         main: number
@@ -169,9 +169,4 @@ export interface globalType {
     }
     lastUpgrade: [number | null, 'upgrades', boolean]
     lastResearch: [number | null, 'researches' | 'researchesExtra' | 'researchesAuto', boolean]
-}
-
-export interface saveType {
-    player: playerType
-    global: globalType
 }

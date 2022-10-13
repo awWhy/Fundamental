@@ -43,9 +43,8 @@ export const buyBuilding = (index: number, auto = false) => {
         let cost = buildingsInfo.cost[index];
         let total = 0;
         const howMany = auto ? -1 : shop.howMany;
-        /* I don't know better way... I looked everywhere for formula with geometric progression, haven't found it... */
+        /* I don't know better way... I looked everywhere for a formula with geometric progression, haven't found it... */
         for (var canAfford = 0; budget >= cost; canAfford++) {
-            //Yes it's a 'var', yes it goes outside of a block, no I won't use 'let'
             if (canAfford === howMany) { break; }
             total += cost;
             budget -= cost;
@@ -130,8 +129,8 @@ export const calculateGainedBuildings = (get: number, time: number) => {
     const { stage, buildings } = player;
     const { buildingsInfo } = global;
     const before = buildings[get].current; //I think it's faster this way
-    let add: number;
 
+    let add: number;
     if (stage.current === 1 && get === 3) {
         add = global.upgradesInfo.effect[6] * time;
     } else {
@@ -230,6 +229,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
 
 export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto', change = false) => {
     const { toggles } = player;
+
     let toggle: HTMLButtonElement;
     if (type === 'normal') {
         toggle = getId(`toggle${number}`) as HTMLButtonElement;
@@ -294,7 +294,7 @@ export const toggleBuy = (type = 'none') => {
 export const stageResetCheck = async() => {
     const { stage, buildings, researchesAuto, toggles } = player;
     let reseted = false;
-    const message = 'Ready to enter next stage? You might want to turn off all auto\'s first';
+    const message = 'Ready to enter next stage? Next one will be harder than current.\nYou might want to turn off all auto\'s first';
 
     if (stage.current === 1) {
         if (buildings[3].current >= 1.67e21) {
