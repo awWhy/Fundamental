@@ -434,6 +434,7 @@ export const visualUpdateUpgrades = (index: number, type = 'upgrades' as 'upgrad
     }
 
     if (Object.hasOwn(global[typeInfo], 'max')) {
+        getId(`research${extra}${index + 1}Max`).textContent = format(global[typeInfo].max[index], 0);
         upgradeHTML.textContent = format(player[type][index], 0);
         upgradeHTML.classList.remove('redText', 'orchidText', 'greenText');
         if (player[type][index] === global[typeInfo].max[index]) { //If I add as 'upgradesS2Info', TS won't realize that this code will never be done if object doesn't have property 'max'...
@@ -456,14 +457,13 @@ export const visualUpdateUpgrades = (index: number, type = 'upgrades' as 'upgrad
 
 export const updateRankInfo = () => {
     const { accretion } = player;
-    const { accretionInfo, researchesExtraS3Info } = global;
+    const { accretionInfo } = global;
     const image = getId('rankImage') as HTMLImageElement;
     const name = getId('rankName') as HTMLSpanElement;
 
     //Important Rank information
     accretionInfo.rankCost[4] = player.events[2] ? 5e29 : 0;
-    researchesExtraS3Info.max[0] = accretion.rank <= 2 ? 12 : 29;
-    getId('researchRank1Max').textContent = format(researchesExtraS3Info.max[0], 0);
+    global.researchesExtraS3Info.max[0] = accretion.rank <= 2 ? 12 : 29;
     calculateResearchCost(0, 'researchesExtra');
     visualUpdateUpgrades(0, 'researchesExtra');
 
@@ -495,12 +495,12 @@ export const format = (input: number | string, precision = typeof input === 'num
             if (!isFinite(input)) { return 'Infinity'; }
             if (input >= 1e6 || (input <= 1e-3 && input > 0)) { //Format for these cases
                 const digits = Math.floor(Math.log10(input));
-                return `${Math.round(input / 10 ** (digits - 2)) / 100}e${digits}`;
+                return `${(Math.round(input / 10 ** (digits - 2)) / 100).toLocaleString()}e${digits}`;
             } else {
                 if (precision > 0) {
-                    return String(Math.round(input * (10 ** precision)) / (10 ** precision));
+                    return (Math.round(input * (10 ** precision)) / (10 ** precision)).toLocaleString();
                 } else {
-                    return String(Math.round(input));
+                    return (Math.round(input)).toLocaleString();
                 }
             }
         case 'time': //I don't fully know how to make hours:minutes:seconds, or if even needed
@@ -626,7 +626,6 @@ export const stageCheck = () => {
         calculateResearchCost(i, 'researchesAuto');
         visualUpdateUpgrades(i, 'researchesAuto');
     }
-    getId('researchAuto2Max').textContent = format(researchesAutoInfo.max[1], 0);
 
     //Special information
     const body = document.body.style;
