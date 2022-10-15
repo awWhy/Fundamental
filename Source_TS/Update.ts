@@ -151,7 +151,8 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         const { upgradesS3Info, researchesS3Info, researchesExtraS3Info } = global;
         const { accretion } = player;
 
-        if (toggles.buildings[4] && researchesAuto[1] >= 4) { buyBuilding(4, true); }
+        //upgrades[6] === 1, can be moved into buildingsInfo.unlocked[4], if hotkeys will be added
+        if (toggles.buildings[4] && researchesAuto[1] >= 4 && upgrades[6] === 1) { buyBuilding(4, true); }
         buildingsInfo.producing[4] = (upgrades[11] === 1 ? 1.15 : 1.1) ** buildings[4].current;
 
         if (toggles.buildings[3] && researchesAuto[1] >= 3) { buyBuilding(3, true); }
@@ -295,9 +296,10 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('stageReset').textContent = buildings[3].current >= 1.67e21 ? 'Enter next stage' : 'You are not ready';
         if (screenReader) { getId('invisibleGetResource1').style.display = discharge.energyMax > 0 ? '' : 'none'; }
 
-        //Stats subtab
-        getId('energyStats').style.display = discharge.energyMax >= 9 ? '' : 'none';
-        getId('dischargeStats').style.display = discharge.current >= 1 ? '' : 'none';
+        if (global.tab === 'settings' && global.subtab.settingsCurrent === 'stats') {
+            getId('energyStats').style.display = discharge.energyMax >= 9 ? '' : 'none';
+            getId('dischargeStats').style.display = discharge.current >= 1 ? '' : 'none';
+        }
 
         if (!player.events[0] && upgrades[4] === 1) { playEvent(0); }
     } else if (stage.current === 2) {
@@ -357,6 +359,12 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('building3').style.display = upgrades[4] === 1 ? '' : 'none';
         getId('building4').style.display = upgrades[6] === 1 ? '' : 'none';
         getId('stageReset').textContent = buildings[0].current >= 1e32 ? 'Enter next stage' : 'You are not ready';
+
+        if (global.tab === 'settings' && global.subtab.settingsCurrent === 'stats') {
+            for (let i = 0; i < global.accretionInfo.rankImage.length; i++) {
+                getId(`rankStat${i}`).style.display = accretion.rank >= i ? '' : 'none';
+            }
+        }
 
         if (!player.events[2] && buildings[0].current >= 5e29) { playEvent(2); }
     }
@@ -495,7 +503,7 @@ export const format = (input: number | string, precision = typeof input === 'num
             if (!isFinite(input)) { return 'Infinity'; }
             if (input >= 1e6 || (input <= 1e-3 && input > 0)) { //Format for these cases
                 const digits = Math.floor(Math.log10(input));
-                return `${(Math.round(input / 10 ** (digits - 2)) / 100).toLocaleString()}e${digits}`;
+                return `${(Math.round(input / 10 ** (digits - 2)) / 100).toLocaleString()}e${digits}`; //I hate floats
             } else {
                 if (precision > 0) {
                     return (Math.round(input * (10 ** precision)) / (10 ** precision)).toLocaleString();

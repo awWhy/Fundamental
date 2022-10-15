@@ -115,21 +115,29 @@ export const switchTheme = () => {
     setTimeout(() => { body.removeProperty('--transition'); }, 1000);
 };
 
-export const Alert = (text: string) => {
-    const blocker = getId('blocker') as HTMLDivElement;
-    if (getId('blocker').style.display === 'block') {
-        return console.warn('Wasn\'t able to show another window (alert)');
-    }
+/* If any type of Alert is already being shown, then it will auto resolve itself (false for Confirm and null for Prompt)
+   Because to throw an Error (or any type of reject()) is a bit of a pain, and feels unnecessary */
+export const Alert = (text: string) => { void AlertWait(text); };
+const AlertWait = async(text: string): Promise<void> => { //Export if needed
+    return await new Promise((resolve) => {
+        const blocker = getId('blocker') as HTMLDivElement;
+        if (getId('blocker').style.display === 'block') {
+            console.warn('Wasn\'t able to show another window (alert)');
+            resolve();
+            return;
+        }
 
-    getId('alertText').textContent = text;
-    const confirm = getId('confirmBtn') as HTMLButtonElement;
+        getId('alertText').textContent = text;
+        const confirm = getId('confirmBtn') as HTMLButtonElement;
 
-    blocker.style.display = 'block';
-    const close = () => {
-        blocker.style.display = 'none';
-        confirm.removeEventListener('click', close);
-    };
-    confirm.addEventListener('click', close);
+        blocker.style.display = 'block';
+        const close = () => {
+            blocker.style.display = 'none';
+            confirm.removeEventListener('click', close);
+            resolve();
+        };
+        confirm.addEventListener('click', close);
+    });
 };
 
 export const Confirm = async(text: string): Promise<boolean> => {
@@ -213,7 +221,7 @@ export const Prompt = async(text: string): Promise<string | null> => {
     });
 };
 
-/* This is a pain, I had to remove animation for it to play again... Though I still think it's better that adding a class... */
+/* This is a pain, I had to remove animation for it to play again... Though I still think it's better than adding a class... */
 export const hideFooter = () => {
     const footer = getId('footer') as HTMLDivElement;
     const hide = getId('footerColor') as HTMLDivElement;

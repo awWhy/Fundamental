@@ -11,8 +11,8 @@ export const getId = (id: string) => { //To type less and check if ID exist
     if (i !== null) {
         return i;
     }
-    Alert('Some ID failed to load, game won\'t be working properly. Please refresh');
-    throw new TypeError(`ID "${id}" not found.`);
+    Alert(`ID of HTML element (${id}), failed to load, game will not work properly, please refresh. If this happens more than once, then please report it`);
+    throw new ReferenceError(`ID "${id}" not found.`);
 };
 
 export const getClass = (idCollection: string) => Array.from(document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>);
@@ -41,7 +41,6 @@ export const reLoad = async(firstLoad = false) => {
         screenReaderSupport(false, 'toggle', 'reload');
         changeFontSize();
     }
-
     stageCheck(); //All related stage information
     visualUpdate();
     numbersUpdate();

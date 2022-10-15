@@ -116,12 +116,14 @@ export const calculateResearchCost = (research: number, type: 'researches' | 're
         }
     }
 
-    //Below just makes price look nice
+    //Below will remove all but 2 digits past point (until 1e3)
     if (global[typeInfo].cost[research] < 1) {
         const digits = -Math.floor(Math.log10(global[typeInfo].cost[research])); //Because of floats, -digits will be used
-        global[typeInfo].cost[research] = Math.trunc(global[typeInfo].cost[research] * 10 ** (digits + 2)) / 10 ** (digits + 2);
+        global[typeInfo].cost[research] = Math.round(global[typeInfo].cost[research] * 10 ** (digits + 2)) / 10 ** (digits + 2);
+    } else if (global[typeInfo].cost[research] < 1e3) {
+        global[typeInfo].cost[research] = Math.round(global[typeInfo].cost[research] * 100) / 100;
     } else {
-        global[typeInfo].cost[research] = Math.trunc(global[typeInfo].cost[research]);
+        global[typeInfo].cost[research] = Math.round(global[typeInfo].cost[research]);
     }
 };
 
@@ -158,13 +160,13 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
     const { stage } = player;
     if (check !== 0 && check !== stage.current) { return; }
 
-    let price: number;
+    let currency: number;
     if (stage.current === 1) {
-        price = player.discharge.energyCur;
+        currency = player.discharge.energyCur;
     } else if (stage.current === 2) {
-        price = player.buildings[1].current;
+        currency = player.buildings[1].current;
     } else /*if (stage.current === 3)*/ {
-        price = player.buildings[0].current;
+        currency = player.buildings[0].current;
     }
 
     if (type !== 'upgrades') {
@@ -174,9 +176,9 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
         }
 
         if (type === 'researchesAuto' && stage.current === 1 && upgrade > 1) { return; }
-        if (player[type][upgrade] === global[typeInfo].max[upgrade] || price < global[typeInfo].cost[upgrade]) { return; }
+        if (player[type][upgrade] === global[typeInfo].max[upgrade] || currency < global[typeInfo].cost[upgrade]) { return; }
         player[type][upgrade]++;
-        price -= global[typeInfo].cost[upgrade];
+        currency -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
         if (stage.current === 1 && type === 'researches' && upgrade === 0) {
@@ -190,9 +192,9 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
     } else {
         const typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
 
-        if (player[type][upgrade] === 1 || price < global[typeInfo].cost[upgrade]) { return; }
+        if (player[type][upgrade] === 1 || currency < global[typeInfo].cost[upgrade]) { return; }
         player[type][upgrade] = 1;
-        price -= global[typeInfo].cost[upgrade];
+        currency -= global[typeInfo].cost[upgrade];
 
         /* Special cases */
         if (type === 'upgrades') {
@@ -215,11 +217,11 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
 
     /* Because each price can use different property, so have to do it this way... */
     if (stage.current === 1) {
-        player.discharge.energyCur = price;
+        player.discharge.energyCur = currency;
     } else if (stage.current === 2) {
-        player.buildings[1].current = price;
+        player.buildings[1].current = currency;
     } else /*if (stage.current === 3)*/ {
-        player.buildings[0].current = price;
+        player.buildings[0].current = currency;
     }
 
     numbersUpdate();
@@ -305,7 +307,7 @@ export const stageResetCheck = async() => {
                 reseted = true;
             }
         } else {
-            Alert('You will need a single Drop of water for next one');
+            return Alert('You will need a single Drop of water for next one');
         }
     } else if (stage.current === 2) {
         if (buildings[1].current >= 1.194e29) {
@@ -317,18 +319,18 @@ export const stageResetCheck = async() => {
                 reseted = true;
             }
         } else {
-            Alert('Look\'s like, it, should have even more Drops');
+            return Alert('Look\'s like, it, should have even more Drops');
         }
     } else if (stage.current === 3) {
         if (buildings[0].current >= 1e32) {
-            Alert('Not yet in game');
+            return Alert('Not yet in game');
             /*let ok = true;
             if (toggles.normal[1]) { ok = await Confirm(message); }
             if (ok) {
                 reseted = true;
             }*/
         } else {
-            Alert('Self sustaining is not yet possible, need more Mass');
+            return Alert('Self sustaining is not yet possible, need more Mass');
         }
     }
     if (reseted) {

@@ -75,7 +75,7 @@ export const player: playerType = { //Only for information that need to be saved
     toggles: { //Not all toggles are here, some are saved in local storage instead (support type and font size)
         normal: [], //Auto added for every element with a class 'toggle'
         /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4] */
-        buildings: [], //class 'toggleBuilding' ([0] is only a placeholder)
+        buildings: [], //class 'toggleBuilding' ([0] is only a placeholder, and 'undefined' is a longer word)
         auto: [], //class 'toggleAuto'
         shop: {
             howMany: 1,
@@ -253,7 +253,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Rubble pile.',
             'Satellite system.',
             'Magma ocean.',
-            'Atmospehere.',
+            'Atmosphere.',
             'Pebble accretion.',
             'Tidal force.',
             'Ring system.'
@@ -322,7 +322,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
             'Buy toggles.',
-            'Automatization for buying upgrades.', //Automatically changed every stage
+            'Automatization for buying buildings.', //Automatically changed every stage
             'Increased max offline time.'
         ],
         effectText: [

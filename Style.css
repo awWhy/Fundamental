@@ -449,8 +449,12 @@ li > input[type = "number"] {
     width: max-content; /* Without it, area where you can click will stretch */
 }
 
-/* Make stats look decent later */
-#stats > p { margin-bottom: 0.4em; }
+#stats {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.4em;
+}
+
 #stats span:not(.stageText) { color: var(--white-text-color); }
 
 #buildingsAllStats {
@@ -469,6 +473,14 @@ li > input[type = "number"] {
 }
 
 #buildingsAllStats > p { margin-bottom: 0.15em; }
+
+#rankStats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45em;
+    margin-top: 0.1em;
+}
 
 #footer {
     position: fixed;

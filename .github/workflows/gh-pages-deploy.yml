@@ -23,3 +23,7 @@ jobs:
       -  run: npm install
       -  run: npm run lint
       -  run: npm run build:map
+
+      - name: Deploy
+        run: git push origin main --force
+        # I'm so tired of this... Not a single tutorial to tell why outfile not being sended...
