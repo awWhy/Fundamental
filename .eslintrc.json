@@ -16,7 +16,7 @@
         "semi": "off", //Already in @typescript
         "space-before-function-paren": "off", //Already in @typescript
         "spaced-comment": "off",
-        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "indent": ["error", 4, { "SwitchCase": 1, "flatTernaryExpressions": true }],
         "curly": ["error", "all"],
         "object-shorthand": ["warn", "always"], //Can be turned off, if something
         "comma-dangle": ["warn", "never"],
@@ -40,6 +40,7 @@
         "operator-assignment": "warn", //Test
         "operator-linebreak": ["error", "after"],
         "no-return-assign": "off", //I don't know how often this can help and I do need return assign
+        //"eqeqeq": "off", I do allow using == if need type conversion, but eslint doesn't have an option for it
 
         "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
         "@typescript-eslint/semi": ["error", "always"],

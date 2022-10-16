@@ -2,7 +2,7 @@ import { reset } from './Reset';
 import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.4',
+    version: 'v0.0.5',
     stage: {
         true: 1,
         current: 1,
@@ -14,15 +14,18 @@ export const player: playerType = { //Only for information that need to be saved
         current: 0
     },
     vaporization: { //Stage 2
-        current: 0,
         clouds: 1
     },
     accretion: { //Stage 3
         rank: 0
     },
+    collapse: { //Stage 4
+        mass: 0.01235,
+        stars: [0, 0, 0]
+    },
     intervals: {
-        main: 50,
-        numbers: 50,
+        main: 100,
+        numbers: 100,
         visual: 1,
         autoSave: 180
     },
@@ -69,12 +72,13 @@ export const player: playerType = { //Only for information that need to be saved
     ],
     /* They are dynamicly changed in reset('stage'); Only 1 array used across all stage's */
     upgrades: [0, 0, 0, 0, 0, 0, 0, 0],
+    elements: [], //Stage 4 special
     researches: [0, 0, 0, 0, 0],
     researchesExtra: [0, 0, 0], //First appears in Stage 2
     researchesAuto: [0, 0, 0],
     toggles: { //Not all toggles are here, some are saved in local storage instead (support type and font size)
         normal: [], //Auto added for every element with a class 'toggle'
-        /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4] */
+        /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4]; Collapse confirm[5] */
         buildings: [], //class 'toggleBuilding' ([0] is only a placeholder, and 'undefined' is a longer word)
         auto: [], //class 'toggleAuto'
         shop: {
@@ -83,15 +87,16 @@ export const player: playerType = { //Only for information that need to be saved
             strict: true
         }
     },
-    events: [false, false, false] //One time events:
-    /* [0] - Discharge explanation, [1] - Accretion new rank unlocked */
+    events: [false, false, false, false] //One time events:
+    /* [0] - Discharge explanation, [1] - Clouds softcap reached, [2] - Accretion new rank unlocked, [3] - Collapse explanation */
 };
 
 export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage',
     subtab: {
         /* Tabs and subtab have to have same name as buttons (easier screen reader support this way) */
-        settingsCurrent: 'settings'
+        settingsCurrent: 'settings',
+        researchCurrent: 'researches'
     },
     footer: true,
     mobileDevice: false,
@@ -105,9 +110,9 @@ export const global: globalType = { //For information that doesn't need to be sa
         maxOffline: 7200
     },
     stageInfo: {
-        word: ['Microworld', 'Submerged', 'Accretion'],
-        priceName: ['Energy', 'Drops', 'Mass'], //On what you buy upgrades and etc.
-        resourceName: ['Energy', 'Clouds', 'Rank'] //Special stage resource
+        word: ['Microworld', 'Submerged', 'Accretion', 'Interstellar'],
+        priceName: ['Energy', 'Drops', 'Mass', 'Elements'], //On what you buy upgrades and etc.
+        resourceName: ['Energy', 'Clouds', 'Rank', 'Stars'] //Special stage resource
     },
     theme: {
         stage: 1,
@@ -125,16 +130,24 @@ export const global: globalType = { //For information that doesn't need to be sa
         rankName: ['Ocean world', 'Cosmic dust', 'Meteoroid', 'Asteroid', 'Planet', 'Jovian planet'], //Name of rank (also alt attribute)
         rankImage: ['Ocean%20world', 'Dust', 'Meteoroids', 'Asteroid', 'Planet', 'Giant'] //Source of image (file name and .png auto added)
     },
+    collapseInfo: {
+        unlockPriceB: [0, 0.01235, 0.23, 10, 40], //Buildings
+        unlockPriceU: [0.01235, 0.076, 1.3], //Upgrades
+        unlockPriceR: [0.18, 0.3, 0.8], //Researches
+        newMass: 0,
+        starCheck: [0, 0, 0]
+    },
     intervalsId: {
         main: 0,
         numbers: 0,
         visual: 0,
         autoSave: 0
     },
-    buildingsInfo: { //stageCheck(); will automaticly change name and cost (globalStart)
+    buildingsInfo: { //stageCheck(); will automaticly change name and startCost
         name: ['Quarks', 'Particles', 'Atoms', 'Molecules'],
         type: ['producing', 'producing', 'producing', 'producing'],
         cost: [0, 3, 24, 3],
+        startCost: [0, 3, 24, 3],
         increase: [1.4, 1.4, 1.4, 1.4],
         producing: [0, 0, 0, 0, 0, 0] //Extra's here, only for visual on load (not having NaN)
     },
@@ -158,7 +171,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Atoms produce ', ' times more Particles.'],
             ['Ability to reset at any time, and if you had enough Energy, production for all buildings will be boosted by ', ' times.'],
             ['Cost scalling is decreased by ', '.'],
-            ['Buildings (only bought one\'s) boost themselfs by ', ' times.'],
+            ['Buildings (only self-made one\'s) boost themselfs by ', ' times.'],
             ['Molecules produce Molecules. At a reduced rate. (', ' per second)'],
             ['Unspent Energy boost Molecules production of themselfs 1 to 1.']
         ],
@@ -175,7 +188,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Cost scalling is ', ' smaller for each level.'],
-            ['Each bought building, boost each other by additional ', '.'],
+            ['Each self-made building, boost each other by additional ', '.'],
             ['Molecules now produce themselfs ', ' times quicker.'],
             ['Discharge is now gives extra +', ' bonus per reached goal.'],
             ['A single building now gives ', ' times more Energy.']
@@ -195,7 +208,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'River. Spreads even more water.'
         ],
         effectText: [
-            ['Drops produce Moles, based on how many Drops you have bought.\n(Bought amount automatically decreases if it\'s less than current amount)'],
+            ['Drops produce Moles, based on how many Drops you have made.\n(You lose self-made one\'s automatically, if they are less than current amount)'],
             ['Gain ability to convert Drops into Clouds. (Puddles get boost equal to Cloud amount)'],
             ['Puddles get boost based on Moles. (Equal to Moles ^ ', ')'],
             ['Puddles get boost based on Drops. (Equal to Drops ^ ', ')'],
@@ -259,10 +272,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Ring system.'
         ],
         effectText: [
-            ['Through random collisions every bought Dust speeds up Accretion speed. (By ', ')'],
+            ['Through random collisions every self-made Dust speeds up Accretion speed. (By ', ')'],
             ['Accretion speed is now quicker based on current Dust amount. (', ' boost)'],
             ['Just a small meteoroid, but it will be a good base for what to come. (Also ', 'x boost to Dust)'],
-            ['Small bodies spontaneously concentrate into clumps. (Bought Planetesimals boost each other by ', ')'],
+            ['Small bodies spontaneously concentrate into clumps. (Self-made Planetesimals boost each other by ', ')'],
             ['Bodies are now massive enough to affect each other with gravity. (', 'x boost to Planetesimals)'],
             ['Shattered pieces fall back together. Mass producion is now even bigger. (By ', 'x)'],
             ['Unlocks yet another building.'],
@@ -317,7 +330,119 @@ export const global: globalType = { //For information that doesn't need to be sa
         effect: [0, 0, null, null],
         cost: [1e-18, 1e-16, 1e26, 1e-12],
         scalling: [10, 100, 0, 100],
-        max: [0, 5, 1, 20]
+        max: [12, 5, 1, 20]
+    },
+    upgradesS4Info: {
+        description: [
+            'Gravitational collapse.',
+            'Proton-proton chain.',
+            'Carbon–Nitrogen–Oxygen cycle.'
+        ],
+        effectText: [
+            ['As fuel runs out, each star will boost production in its own special way.'],
+            ['Fuse with Protium instead of Deuterium. Unlocks a new building and something else.'],
+            ['CNO cycle is now a better source of Helium and Energy. Unlocks a new building and more of something else.']
+        ],
+        effect: [null, null, null],
+        cost: [100, 1000, 1e9]
+    },
+    elementsInfo: {
+        description: [
+            '[0] Placeholder.',
+            '[1] Hydrogen.',
+            '[2] Helium.',
+            '[3] Lithium.',
+            '[4] Beryllium.',
+            '[5] Boron.',
+            '[6] Carbon.',
+            '[7] Nitrogen.',
+            '[8] Oxygen.',
+            '[9] Fluorine.',
+            '[10] Neon.',
+            '[11] Sodium.',
+            '[12] Magnesium.',
+            '[13] Aluminium.',
+            '[14] Silicon.',
+            '[15] Phosphorus.',
+            '[16] Sulfur.',
+            '[17] Chlorine.',
+            '[18] Argon.',
+            '[19] Potassium.',
+            '[20] Calcium.',
+            '[21] Scandium.',
+            '[22] Titanium.',
+            '[23] Vanadium.',
+            '[24] Chromium.',
+            '[25] Manganese.',
+            '[26] Iron.'
+        ],
+        effectText: [
+            ['Placeholder'],
+            ['Most basic element, increases Brown dwarf production by ', '.'],
+            ['Fusion reaction by product, makes everything scale ', ' less.'],
+            ['First metal, Mass per Brown dwarf lightly increased.'],
+            ['Brittle earth metal, so is brittle increase to production. (', 'x to all Stars)'],
+            ['A new color, and a new boost to Mass gain that is based on current Dwarf Stars.'],
+            ['Base for organics, boost to Main-sequence stars through Red giants is now increases to power of ', '.'],
+            ['Most abundant uncombined Element in atmospehere of some Planets, also gives you ', " extra levels to 'Star system'."],
+            ['An oxidizing agent, that will make everything scale even slower. (', ' less)'],
+            ['Highly toxic and reactive, +', " to max level of 'Planetary system'."],
+            ['A noble ', 'x boost to Mass gain.'],
+            ['Through leaching, you can get ', " extra level of 'Protoplanetary disk'."],
+            ['Star is inside you, as well Neutrons stars boost to all Stars is now increased to the decimal logarithm.'],
+            ['Has a great affinity towards oxygen and to decrease cost of all Stars by ', '.'],
+            ['Number is 14, group is 14, also 1414°C and Mass gain increased by ', '.'],
+            ['One of the fundamentals for life and to make all of your Stars boost Mass.'],
+            ['From hot area, to give you +', " max level to 'Star system'.\nResearch softcapped past 1e10."],
+            ["Extremely reactive to extend max level of 'Planetary system', by another ", ' levels.'],
+            ['Less noble boost, but bonus to Mass gain from Black holes scales a little better.'],
+            ['Don\'t forget about it and get a ', 'x boost to all Stars.'],
+            ['Make yourself stronger with ', " extra level of 'Star system'.\nEffect is weaker, after 5 levels."],
+            ['A new color and a rare bonus of ^', ' to Mass effect.'],
+            ['New alloy allowing Red giants to be added into effective amount of Neutron stars.'],
+            ['Catalyst for your production of Elements. Black holes boost all Stars to the decimal logarithm.'],
+            ['No corrosion, only ^', ' boost to all Stars based on unspent Elements.'],
+            ['Brittle element, but not the bonus - ', " more level in 'Star system'."],
+            ['Work in progress, sorry, that is the end for now...'] //Nuclear fusion no longer efficient
+        ],
+        effect: [
+            null, 2, 0.1, null, 1.1, null, 1.5, 2, 0.05, 12,
+            2, 1, null, 1e3, 1.4, null, 1, 27, null, 3,
+            1, 1.1, null, null, 0.01, 1, null
+        ],
+        cost: [
+            1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
+            1e16, 1e20, 1e24, 1e25, 1.4e27, 1e30, 1e31, 5e31, 5e33, 1e35,
+            1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50
+        ]
+    },
+    researchesS4Info: {
+        description: [
+            'Planetary system.',
+            'Star system.',
+            'Protoplanetary disk.'
+        ],
+        effectText: [
+            ['From Planetesimals to Planets, you get ', 'x boost to all Stars.'],
+            ['Each Star boost another Star. (Total to each Star is ', 'x).'],
+            ["Improve effect of 'Planetary system', as well increases its max level by +", '.']
+        ],
+        effect: [1.1, 1, 3],
+        cost: [1000, 50000, 1e8],
+        scalling: [10, 200, 1e12],
+        max: [3, 2, 1]
+    },
+    researchesExtraS4Info: {
+        description: [
+            'At the end of Star life.'
+        ],
+        effectText: [
+            ['', ' building now gives something new, upon collapse reset.']
+        ],
+        effect: ['Main sequence'],
+        cost: [1e6],
+        scalling: [1e12],
+        max: [3]
     },
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
         description: [
@@ -368,6 +493,49 @@ export const startValue = (which: 'p' | 'g') => {
     }
 };
 
+export const checkPlayerValues = () => {
+    const { stage } = player;
+    const upgradeType = `upgrades${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';
+    const researchType = `researches${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
+    const researchExtraType = `researchesExtraS${stage.current}Info` as 'researchesExtraS2Info';
+
+    //No visual update, until it can happen naturally
+    for (let i = 0; i < global[upgradeType].cost.length; i++) {
+        if (player.upgrades[i] > 1) {
+            player.upgrades[i] = 1;
+            console.error(`Upgrade (${i + 1}) had an illegal value`);
+        }
+    }
+    if (stage.current === 4) {
+        for (let i = 1; i < global.elementsInfo.cost.length; i++) {
+            if (player.elements[i] > 1) {
+                player.elements[i] = 1;
+                console.error(`Element (${i}) had an illegal value`);
+            }
+        }
+    }
+    for (let i = 0; i < global[researchType].cost.length; i++) {
+        if (player.researches[i] > global[researchType].max[i]) {
+            player.researches[i] = global[researchType].max[i];
+            console.error(`Research (${i + 1}) had level above maxium`);
+        }
+    }
+    if (stage.current !== 1) {
+        for (let i = 0; i < global[researchExtraType].cost.length; i++) {
+            if (player.researchesExtra[i] > global[researchExtraType].max[i]) {
+                player.researchesExtra[i] = global[researchExtraType].max[i];
+                console.error(`Extra research (${i + 1}) had level above maxium`);
+            }
+        }
+    }
+    for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
+        if (player.researchesAuto[i] > global.researchesAutoInfo.max[i]) {
+            player.researchesAuto[i] = global.researchesAutoInfo.max[i];
+            console.error(`Research (${i + 1}) for automatization had level above maxium`);
+        }
+    }
+};
+
 export const updatePlayer = (load: playerType) => {
     const playerCheck = startValue('p') as playerType;
     //@ts-expect-error //Old save file format had player in it
@@ -406,7 +574,7 @@ export const updatePlayer = (load: playerType) => {
             load.researches[i] = 0;
         }
     }
-    if (load.stage.current !== 1) {
+    if (load.stage.current !== 1) { //It's possible to put inside next one, but just want to be safe (against reference error's)
         if (global[researchExtraType].cost.length > load.researchesExtra.length) {
             for (let i = load.researchesExtra.length; i < global[researchExtraType].cost.length; i++) {
                 load.researchesExtra[i] = 0;
@@ -416,6 +584,11 @@ export const updatePlayer = (load: playerType) => {
     if (playerStart.researchesAuto.length > load.researchesAuto.length) {
         for (let i = load.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
             load.researchesAuto[i] = 0;
+        }
+    }
+    if (load.stage.current === 4 && global.elementsInfo.cost.length > load.elements.length) {
+        for (let i = load.elements.length; i < global.elementsInfo.cost.length; i++) {
+            load.elements[i] = 0;
         }
     }
     if (Object.hasOwn(load.toggles, 'normal')) {
@@ -472,6 +645,10 @@ export const updatePlayer = (load: playerType) => {
         player.version = 'v0.0.4';
         versionInfo.log += `\n${player.version} - All stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
         if (player.stage.current !== 1 || player.discharge.current > 4) { player.events[0] = true; }
+    }
+    if (player.version === 'v0.0.4') {
+        player.version = 'v0.0.5';
+        versionInfo.log += `\n${player.version} - First part of Stage 4 is out, also small visual changes. Screen readers support updated (I forgot about it since stage 2...). Also testing new formula for buying buildings and other minor stuff`;
     }
     if (oldVersion !== player.version) { versionInfo.changed = true; }
 };

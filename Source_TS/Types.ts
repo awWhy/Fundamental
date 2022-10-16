@@ -11,11 +11,14 @@ export interface playerType {
         current: number
     }
     vaporization: { //Stage 2
-        current: number
         clouds: number
     }
     accretion: { //Stage 3
         rank: number
+    }
+    collapse: { //Stage 4
+        mass: number
+        stars: [number, number, number]
     }
     intervals: {
         main: number
@@ -28,13 +31,19 @@ export interface playerType {
         started: number
     }
     buildings: Array<Record<string, number>>
-    /*buildings: Array<{
+    /*buildings: [{
+        current: number
+        total: number
+        trueTotal: number
+    },
+    ...{
         current: number
         true: number
         total: number
         trueTotal: number
-    }>*/ //I will deal with it later...
+    }[]]*/ //Why TS is so annoying - 'if (index !== 0) { buildings[index].true }': TS says: no you can't
     upgrades: number[]
+    elements: number[]
     researches: number[]
     researchesExtra: number[]
     researchesAuto: number[]
@@ -55,6 +64,7 @@ export interface globalType {
     tab: string
     subtab: {
         settingsCurrent: string
+        researchCurrent: string
     }
     footer: boolean
     mobileDevice: boolean
@@ -88,6 +98,13 @@ export interface globalType {
         rankName: string[]
         rankImage: string[]
     }
+    collapseInfo: {
+        unlockPriceB: number[]
+        unlockPriceU: number[]
+        unlockPriceR: number[]
+        newMass: number
+        starCheck: [number, number, number]
+    }
     intervalsId: {
         main: number
         numbers: number
@@ -98,6 +115,7 @@ export interface globalType {
         name: string[]
         type: string[]
         cost: number[]
+        startCost: number[]
         increase: number[]
         producing: number[]
     }
@@ -155,6 +173,38 @@ export interface globalType {
         description: string[]
         effectText: string[][]
         effect: [number, number, null, null]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }
+    upgradesS4Info: {
+        description: string[]
+        effectText: string[][]
+        effect: [null, null, null, ...number[]]
+        cost: number[]
+    }
+    elementsInfo: {
+        description: string[]
+        effectText: string[][]
+        effect: [
+            null, number, number, null, number, null, number, number, number, number,
+            number, number, null, number, number, null, number, number, null, number,
+            number, number, null, null, number, number, null
+        ]
+        cost: number[]
+    }
+    researchesS4Info: {
+        description: string[]
+        effectText: string[][]
+        effect: number[]
+        cost: number[]
+        scalling: number[]
+        max: number[]
+    }
+    researchesExtraS4Info: {
+        description: string[]
+        effectText: string[][]
+        effect: [string, ...number[]]
         cost: number[]
         scalling: number[]
         max: number[]
