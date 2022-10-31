@@ -1,9 +1,9 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
 import { calculateBuildingsCost, calculateResearchCost } from './Stage';
-import { numbersUpdate, stageCheck, visualUpdate, visualUpdateUpgrades } from './Update';
+import { invisibleUpdate, numbersUpdate, stageCheck, switchTab, visualUpdateUpgrades } from './Update';
 
-export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => {
+export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'stage') => {
     const { stage, buildings } = player;
 
     switch (type) {
@@ -31,8 +31,32 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => 
                 visualUpdateUpgrades(i, 'researches');
             }
             break;
+        case 'collapse':
+            buildings[0].current = 1;
+            for (let i = 1; i < player.upgrades.length; i++) {
+                if ((i === 1 || i === 2) && player.collapse.mass >= 10) { continue; } //Future plans
+                player.upgrades[i] = 0;
+                visualUpdateUpgrades(i);
+            }
+            for (let i = 1; i < player.elements.length; i++) {
+                player.elements[i] = 0;
+                visualUpdateUpgrades(i, 'elements');
+            }
+            for (let i = 0; i < player.researches.length; i++) {
+                player.researches[i] = 0;
+                calculateResearchCost(i, 'researches');
+                visualUpdateUpgrades(i, 'researches');
+            }
+            /*for (let i = 1; i < player.researchesExtra.length; i++) {
+                player.researchesExtra[i] = 0;
+                calculateResearchCost(i, 'researchesExtra');
+                visualUpdateUpgrades(i, 'researchesExtra');
+            }*/ //Future plans
+            if (player.upgrades[1] === 0 /* && global.subtab.researchCurrent === 'elements' */) { switchTab('research', 'researches'); }
+            break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
             player.upgrades = [];
+            player.elements = [];
             player.researches = [];
             player.researchesExtra = [];
             const { upgrades, researches, researchesExtra } = player;
@@ -69,7 +93,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => 
                     break;
                 case 2:
                     buildings[0].current = 0.0028;
-                    player.vaporization.current = 0;
                     player.vaporization.clouds = 1;
                     break;
                 case 3:
@@ -80,12 +103,17 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => 
                         player.accretion.rank = 1;
                     }
                     break;
+                case 4:
+                    buildings[0].current = 1;
+                    player.collapse.mass = 0.01235;
+                    for (let i = 0; i < global.elementsInfo.cost.length; i++) {
+                        player.elements[i] = 0;
+                    }
             }
             buildings[0].total = stage.current !== 3 ? buildings[0].current : 1e-19;
             buildings[0].trueTotal = buildings[0].total;
 
             stageCheck();
-            visualUpdate();
             switchTheme();
             break;
         }
@@ -99,5 +127,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'stage') => 
             calculateBuildingsCost(i);
         }
     }
+    invisibleUpdate();
     numbersUpdate();
 };

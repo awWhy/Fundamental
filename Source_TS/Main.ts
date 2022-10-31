@@ -1,6 +1,6 @@
-import { player, global, playerStart, updatePlayer, startValue } from './Player';
+import { player, global, playerStart, updatePlayer, startValue, checkPlayerValues } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
-import { buyBuilding, buyUpgrades, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
+import { buyBuilding, buyUpgrades, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
 /* There might be some problems with incorect build, imports being called in wrong order. */
 //I don't like to see 'empty let', so I use var instead (because it can go outside of a block, but still inside function)
@@ -19,6 +19,7 @@ export const getClass = (idCollection: string) => Array.from(document.getElement
 
 export const reLoad = async(firstLoad = false) => {
     if (firstLoad) {
+        console.time('Game loaded in'); //Just for fun
         const save = localStorage.getItem('save');
         const theme = localStorage.getItem('theme');
         if (save !== null) {
@@ -41,27 +42,30 @@ export const reLoad = async(firstLoad = false) => {
         screenReaderSupport(false, 'toggle', 'reload');
         changeFontSize();
     }
-    stageCheck(); //All related stage information
-    visualUpdate();
-    numbersUpdate();
-    for (let i = 0; i < playerStart.toggles.normal.length; i++) {
-        toggleSwap(i, 'normal'); //toggles visual
+    stageCheck(); //All related stage information and visualUpdate();
+    checkPlayerValues(); //Has to be done after stageCheck();
+    if (firstLoad) { //Prevent spoilers
+        getId('body').style.display = '';
+        getId('loading').style.display = 'none';
+        console.timeEnd('Game loaded in');
     }
-    for (let i = 1; i < playerStart.toggles.buildings.length; i++) {
-        toggleSwap(i, 'buildings');
-    }
-    for (let i = 0; i < playerStart.toggles.auto.length; i++) {
-        toggleSwap(i, 'auto');
-    }
-    toggleBuy();
+    //Visual appearence of toggles
+    for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
+    for (let i = 1; i < playerStart.toggles.buildings.length; i++) { toggleSwap(i, 'buildings'); }
+    for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
+    toggleBuy(); //Also numbersUpdate();
     switchTheme();
 
     if (firstLoad && !player.toggles.normal[0]) {
         const offlineTime = Date.now() - player.time.updated;
         const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? ` (max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
-        if (noOffline) { player.time.updated = Date.now(); }
+        if (noOffline) {
+            global.timeSpecial.lastSave += offlineTime;
+            player.time.updated = Date.now();
+        }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
+    invisibleUpdate(); //Just in case
 };
 
 void reLoad(true); //This will start the game
@@ -98,10 +102,16 @@ for (let i = 0; i < global.upgradesS3Info.cost.length; i++) {
     getId(`upgradeA${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 3));
     if (screenReader || mobileDevice) { getId(`upgradeA${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 3)); }
 }
+for (let i = 0; i < global.upgradesS4Info.cost.length; i++) {
+    getId(`upgradeS${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 4));
+    getId(`upgradeS${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 4));
+    if (screenReader || mobileDevice) { getId(`upgradeS${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 4)); }
+}
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 getId('vaporizationReset').addEventListener('click', async() => await vaporizationResetCheck());
 getId('rankReset').addEventListener('click', async() => await rankResetCheck());
 getId('stageReset').addEventListener('click', async() => await stageResetCheck());
+getId('collapseReset').addEventListener('click', async() => await collapseResetCheck());
 getId('buy1x').addEventListener('click', () => toggleBuy('1'));
 getId('buyAny').addEventListener('click', () => toggleBuy('any'));
 getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
@@ -134,10 +144,25 @@ for (let i = 0; i < global.researchesExtraS3Info.cost.length; i++) {
     getId(`researchRank${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 3));
     if (screenReader || mobileDevice) { getId(`researchRank${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 3)); }
 }
+for (let i = 0; i < global.researchesS4Info.cost.length; i++) {
+    getId(`researchS${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 4));
+    getId(`researchS${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 4));
+    if (screenReader || mobileDevice) { getId(`researchS${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 4)); }
+}
+for (let i = 0; i < global.researchesExtraS4Info.cost.length; i++) {
+    getId(`researchStar${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 4));
+    getId(`researchStar${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 4));
+    if (screenReader || mobileDevice) { getId(`researchStar${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 4)); }
+}
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
     getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
     getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
     if (screenReader || mobileDevice) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesAuto')); }
+}
+for (let i = 1; i < global.elementsInfo.cost.length; i++) {
+    getId(`element${i}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'elements', 4));
+    getId(`element${i}`).addEventListener('click', () => buyUpgrades(i, 'elements', 4));
+    if (screenReader || mobileDevice) { getId(`element${i}`).addEventListener('focus', () => getUpgradeDescription(i, 'elements', 4)); }
 }
 
 /* Settings tab */
@@ -178,6 +203,8 @@ getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Subtabs */
+getId('researchSubtabBtnresearches').addEventListener('click', () => switchTab('research', 'researches'));
+getId('researchSubtabBtnelements').addEventListener('click', () => switchTab('research', 'elements'));
 getId('settingsSubtabBtnsettings').addEventListener('click', () => switchTab('settings', 'settings'));
 getId('settingsSubtabBtnstats').addEventListener('click', () => switchTab('settings', 'stats'));
 
@@ -191,15 +218,15 @@ function changeIntervals(pause = false, input = '') {
         const visualInput = getId('visualInterval') as HTMLInputElement;
         const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
         if (input === 'main') {
-            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 1000);
+            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 10), 1000);
             if (intervals.main > intervals.numbers) { intervals.numbers = intervals.main; }
         } else if (input === 'numbers') {
-            const value = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 20), 1000);
-            intervals.numbers = Math.max(value, intervals.main);
+            intervals.numbers = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 10), 1000);
+            if (intervals.numbers < intervals.main) { intervals.main = intervals.numbers; }
         } else if (input === 'visual') {
-            intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.5), 10);
+            intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.2), 10);
         } else if (input === 'autoSave') {
-            intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 60), 1800);
+            intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 10), 1800);
         }
         mainInput.value = String(intervals.main);
         numberInput.value = String(intervals.numbers);
@@ -236,9 +263,14 @@ async function saveLoad(type: string) {
                 changeIntervals(true);
                 updatePlayer(load);
                 const offlineTime = Date.now() - player.time.updated;
+                getId('isSaved').textContent = 'Imported';
+                global.timeSpecial.lastSave = 0;
                 if (!player.toggles.normal[0]) {
                     const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? `, max is ${global.timeSpecial.maxOffline / 3600} hours` : ''}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
-                    if (noOffline) { player.time.updated = Date.now(); }
+                    if (noOffline) {
+                        global.timeSpecial.lastSave += offlineTime;
+                        player.time.updated = Date.now();
+                    }
                 } else {
                     Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOfflineTime() * 1000 ? `, max offline time is ${global.timeSpecial.maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                 }
@@ -273,13 +305,15 @@ async function saveLoad(type: string) {
             if (ok?.toLowerCase() === 'delete') {
                 changeIntervals(true);
                 localStorage.clear();
-                switchTab('settings', 'settings'); //Reset subtabs (it will do useless number and visual update, but it should be fine)
-                switchTab(); //Reset tab (better to be done last for screen readers)
-                for (const i in player) {
-                    if (!Object.hasOwn(playerStart, i)) {
-                        delete player[i as keyof typeof player]; //This should remove old save file's object properties
-                    }
-                }
+                /* These one's only updated on page reload */
+                mobileDeviceSupport();
+                screenReaderSupport(false, 'toggle', 'reload');
+                changeFontSize();
+                /* Reset subtabs (it will do useless number and visual update), and tab */
+                switchTab('settings', 'settings');
+                //switchTab('research', 'researches'); //Done in stageCheck();
+                switchTab();
+                /* No need to remove non existing properties, because it's done on save load anyway */
                 Object.assign(player, startValue('p'));
                 Object.assign(global, startValue('g'));
                 player.time.started = Date.now();

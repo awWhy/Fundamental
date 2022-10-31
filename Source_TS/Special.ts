@@ -30,12 +30,15 @@ export const switchTheme = () => {
     }
 
     /* Full reset, for easier out of order theme change */
-    //getId('upgradeText').classList.remove('whiteText');
-    getId('researchText').classList.remove('darkOrchidText', 'orangeText');
-    getId('upgradeEffect').classList.remove('blueText', 'greenText');
-    getId('researchEffect').classList.remove('blueText', 'greenText');
-    getId('upgradeCost').classList.remove('orangeText', 'cyanText', 'greenText');
-    getId('researchCost').classList.remove('orangeText', 'cyanText', 'greenText');
+    //getId('upgradeText').style.color = '';
+    getId('upgradeEffect').style.color = '';
+    getId('upgradeCost').style.color = '';
+    getId('researchText').style.color = '';
+    getId('researchEffect').style.color = '';
+    getId('researchCost').style.color = '';
+    getId('elementText').style.color = '';
+    getId('elementEffect').style.color = '';
+    getId('elementCost').style.color = '';
     body.removeProperty('--background-color');
     body.removeProperty('--window-color');
     body.removeProperty('--window-border');
@@ -48,32 +51,30 @@ export const switchTheme = () => {
     body.removeProperty('--button-extra-hover');
     body.removeProperty('--button-delete-color');
     body.removeProperty('--button-delete-hover');
+    body.removeProperty('--button-text-color');
+    body.removeProperty('--input-border-color');
+    body.removeProperty('--input-text-color');
+    body.removeProperty('--building-can-buy');
     body.removeProperty('--main-text-color');
     body.removeProperty('--white-text-color');
     //body.removeProperty('--cyan-text-color');
-    //body.removeProperty('--blue-text-color');
+    body.removeProperty('--blue-text-color');
     body.removeProperty('--orange-text-color');
     body.removeProperty('--gray-text-color');
     //body.removeProperty('--orchid-text-color');
     //body.removeProperty('--darkorchid-text-color');
-    //body.removeProperty('--darkviolet-test-color');
-    //body.removeProperty('--red-text-color');
+    body.removeProperty('--darkviolet-text-color');
+    body.removeProperty('--red-text-color');
     body.removeProperty('--green-text-color');
     /* And set new colors */
     switch (theme.stage) {
-        case 1:
-            getId('researchText').classList.add('darkOrchidText');
-            getId('upgradeEffect').classList.add('blueText');
-            getId('researchEffect').classList.add('blueText');
-            getId('upgradeCost').classList.add('orangeText');
-            getId('researchCost').classList.add('orangeText');
-            break;
         case 2:
-            getId('researchText').classList.add('darkOrchidText');
-            getId('upgradeEffect').classList.add('greenText');
-            getId('researchEffect').classList.add('greenText');
-            getId('upgradeCost').classList.add('cyanText');
-            getId('researchCost').classList.add('cyanText');
+            getId('upgradeEffect').style.color = 'var(--green-text-color)';
+            getId('upgradeCost').style.color = 'var(--cyan-text-color)';
+            getId('researchEffect').style.color = 'var(--green-text-color)';
+            getId('researchCost').style.color = 'var(--cyan-text-color)';
+            getId('elementEffect').style.color = 'var(--green-text-color)';
+            getId('elementCost').style.color = 'var(--cyan-text-color)';
             body.setProperty('--background-color', '#070026');
             body.setProperty('--window-color', '#000052');
             body.setProperty('--window-border', 'blue');
@@ -84,16 +85,20 @@ export const switchTheme = () => {
             body.setProperty('--button-tab-border', '#376ac5');
             body.setProperty('--button-tab-active', '#990000');
             body.setProperty('--button-extra-hover', '#2400d7');
+            body.setProperty('--input-border-color', '#4747ff');
+            body.setProperty('--input-text-color', 'dodgerblue');
             body.setProperty('--main-text-color', 'dodgerblue');
             body.setProperty('--gray-text-color', '#9b9b9b');
+            body.setProperty('--darkviolet-text-color', '#a973ff');
             body.setProperty('--green-text-color', '#82cb3b');
+            body.setProperty('--red-text-color', '#f70000');
             break;
         case 3:
-            getId('researchText').classList.add('orangeText');
-            getId('upgradeEffect').classList.add('blueText');
-            getId('researchEffect').classList.add('blueText');
-            getId('upgradeCost').classList.add('greenText');
-            getId('researchCost').classList.add('greenText');
+            getId('upgradeCost').style.color = 'var(--green-text-color)';
+            getId('researchText').style.color = 'var(--orange-text-color)';
+            getId('researchCost').style.color = 'var(--green-text-color)';
+            getId('elementText').style.color = 'var(--orange-text-color)';
+            getId('elementCost').style.color = 'var(--green-text-color)';
             body.setProperty('--background-color', '#000804');
             body.setProperty('--window-color', '#2e1200');
             body.setProperty('--window-border', '#31373e');
@@ -103,13 +108,47 @@ export const switchTheme = () => {
             body.setProperty('--button-main-hover', '#361f52');
             body.setProperty('--button-tab-border', '#484848');
             body.setProperty('--button-tab-active', '#8d4c00');
-            body.setProperty('--button-extra-hover', '#624c06');
+            body.setProperty('--button-extra-hover', '#5a2100');
             body.setProperty('--button-delete-color', '#891313');
             body.setProperty('--button-delete-hover', '#a10a0a');
+            body.setProperty('--input-border-color', '#8b4a00');
+            body.setProperty('--input-text-color', '#e77e00');
             body.setProperty('--main-text-color', '#8f8f8f');
             body.setProperty('--white-text-color', '#dfdfdf');
             body.setProperty('--orange-text-color', '#f58600');
             body.setProperty('--green-text-color', '#00db00');
+            break;
+        case 4:
+            getId('upgradeEffect').style.color = 'var(--green-text-color)';
+            getId('upgradeCost').style.color = 'var(--cyan-text-color)';
+            getId('researchText').style.color = 'var(--blue-text-color)';
+            getId('researchEffect').style.color = 'var(--green-text-color)';
+            getId('researchCost').style.color = 'var(--cyan-text-color)';
+            getId('elementText').style.color = 'var(--blue-text-color)';
+            getId('elementEffect').style.color = 'var(--green-text-color)';
+            getId('elementCost').style.color = 'var(--cyan-text-color)';
+            body.setProperty('--background-color', '#140e04');
+            body.setProperty('--window-color', '#4e0000');
+            body.setProperty('--window-border', '#894800');
+            body.setProperty('--footer-color', '#4e0505');
+            body.setProperty('--button-main-color', '#6a3700');
+            body.setProperty('--button-main-border', '#9f6700');
+            body.setProperty('--button-main-hover', '#914b00');
+            body.setProperty('--button-tab-border', '#af5d00');
+            body.setProperty('--button-tab-active', '#008297');
+            body.setProperty('--button-extra-hover', '#605100');
+            body.setProperty('--button-delete-color', '#8f0000');
+            body.setProperty('--button-delete-hover', '#ad0000');
+            body.setProperty('--button-text-color', '#d9d900');
+            body.setProperty('--input-border-color', '#008399');
+            body.setProperty('--input-text-color', '#05c3c3');
+            body.setProperty('--building-can-buy', '#007f95');
+            body.setProperty('--main-text-color', 'darkorange');
+            body.setProperty('--white-text-color', '#e5e500');
+            body.setProperty('--blue-text-color', '#2694ff');
+            body.setProperty('--gray-text-color', '#8b8b8b');
+            body.setProperty('--darkviolet-text-color', '#9859ff');
+            body.setProperty('--red-text-color', 'red');
             break;
     }
     setTimeout(() => { body.removeProperty('--transition'); }, 1000);
@@ -121,7 +160,7 @@ export const Alert = (text: string) => { void AlertWait(text); };
 const AlertWait = async(text: string): Promise<void> => { //Export if needed
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (getId('blocker').style.display === 'block') {
+        if (getId('blocker').style.display === '') {
             console.warn('Wasn\'t able to show another window (alert)');
             resolve();
             return;
@@ -130,7 +169,7 @@ const AlertWait = async(text: string): Promise<void> => { //Export if needed
         getId('alertText').textContent = text;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
 
-        blocker.style.display = 'block';
+        blocker.style.display = '';
         const close = () => {
             blocker.style.display = 'none';
             confirm.removeEventListener('click', close);
@@ -143,7 +182,7 @@ const AlertWait = async(text: string): Promise<void> => { //Export if needed
 export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (blocker.style.display === 'block') {
+        if (blocker.style.display === '') {
             console.warn('Wasn\'t able to show another window (confirm)');
             resolve(false);
             return;
@@ -153,8 +192,8 @@ export const Confirm = async(text: string): Promise<boolean> => {
         const cancel = getId('cancelBtn') as HTMLButtonElement;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
 
-        blocker.style.display = 'block';
-        cancel.style.display = 'block';
+        blocker.style.display = '';
+        cancel.style.display = '';
         const yes = async() => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
@@ -177,7 +216,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
 export const Prompt = async(text: string): Promise<string | null> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (blocker.style.display === 'block') {
+        if (blocker.style.display === '') {
             console.warn('Wasn\'t able to show another window (prompt)');
             resolve(null);
             return;
@@ -189,9 +228,9 @@ export const Prompt = async(text: string): Promise<string | null> => {
         const cancel = getId('cancelBtn') as HTMLButtonElement;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
 
-        blocker.style.display = 'block';
-        cancel.style.display = 'block';
-        input.style.display = 'block';
+        blocker.style.display = '';
+        cancel.style.display = '';
+        input.style.display = '';
         const getValue = () => {
             inputValue = input.value;
         };
@@ -241,7 +280,7 @@ export const hideFooter = () => {
         footer.style.animation = 'hide 1s backwards';
         arrow.style.animation = 'rotate 1s backwards';
         text.textContent = 'Show';
-        setTimeout(() => {
+        setTimeout(() => { //While forwards would work, I'm lazy to pause animation
             hide.style.display = 'none';
             arrow.style.transform = 'rotate(180deg)';
         }, 1000);
@@ -261,12 +300,14 @@ export const mobileDeviceSupport = (change = false) => {
 
     if (turnOn) {
         toggle.textContent = 'ON';
+        toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
         localStorage.setItem('mobile device', 'true');
         global.mobileDevice = true;
         if (change) { Alert('For full support please refresh page. This will add focus event for upgrades, to get description (more can be added if anyone using it)'); }
     } else {
         toggle.textContent = 'OFF';
+        toggle.style.color = '';
         toggle.style.borderColor = '';
         localStorage.removeItem('mobile device');
         global.mobileDevice = false;
@@ -287,19 +328,19 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                Also I'm super confused on how tabindex works... */
             if (turnOn) {
                 toggle.textContent = 'ON';
+                toggle.style.color = 'var(--red-text-color)';
                 toggle.style.borderColor = 'crimson';
                 toggle.setAttribute('aria-label', 'Screen reader support is ON');
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
                 if (special === 'reload') {
                     /* This is recommended options, being set after every reload */
-                    player.toggles.shop.strict = false; //Having it on would be confusing (also there is no indication if can afford more than 1, but less than inputted)
-                    player.intervals.main = 100; //To lag less, 100 because speed of auto buying is part of it
-                    player.intervals.numbers = 1000; //To lag less, since visual information is not important
+                    player.toggles.shop.strict = false; //Want to decrease amount of items you can tab into
                 }
                 if (change) { Alert('For full support please refresh page. You will get: focus event on upgrades to get description (I need feedback on it), special tab to check progress and more.\n(For non screen readers it auto sets recommended settings on some stuff)'); }
             } else {
                 toggle.textContent = 'OFF';
+                toggle.style.color = '';
                 toggle.style.borderColor = '';
                 toggle.setAttribute('aria-label', 'Screen reader support is OFF');
                 localStorage.removeItem('screen reader');
@@ -315,19 +356,22 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
             if (special === 'building') {
                 const { buildings } = player;
                 const { buildingsInfo } = global;
+
                 let extra = index - 1;
-                if (stage.current === 2 && index > 2) { extra = 1; }
+                if (stage.current === 4) { extra = 0; }
 
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, next one will cost ${format(buildingsInfo.cost[index])} ${buildingsInfo.name[extra]}, they are producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, they are ${buildingsInfo.type[index] === 'producing' ? `producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second` : `improving producion of ${buildingsInfo.name[extra]} by ${format(buildingsInfo.producing[index])}`}${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
                 }
             } else {
                 if (stage.current === 1) {
-                    invText.textContent = `You have ${player.discharge.energyCur} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
+                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
                 } else if (stage.current === 2) {
-                    invText.textContent = `You have ${player.vaporization.clouds} Clouds`;
+                    invText.textContent = `You have ${format(player.vaporization.clouds)} Clouds${global.vaporizationInfo.get > 1 ? `, you can get +${format(global.vaporizationInfo.get)} if you reset now` : ''}`;
+                } else if (stage.current === 4) {
+                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
                 }
             }
             break;
@@ -349,6 +393,7 @@ export const changeFontSize = (change = false, inputChange = false) => {
         localStorage.removeItem('fontSize');
         localStorage.removeItem('enableCustomFontSize');
         toggle.textContent = 'OFF';
+        toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
     } else {
         if (size === null || Number(size) < 10 || Number(size) > 32 || inputChange) {
@@ -359,27 +404,30 @@ export const changeFontSize = (change = false, inputChange = false) => {
         input.value = size;
         localStorage.setItem('enableCustomFontSize', 'true');
         toggle.textContent = 'ON';
+        toggle.style.color = '';
         toggle.style.borderColor = '';
     }
 };
 
 export const playEvent = (event: number) => {
-    if (getId('blocker').style.display === 'block') { return; }
+    if (getId('blocker').style.display === '') { return; }
     player.events[event] = true;
 
     //If to add new event here, then don't forget to also add it into player.events
     switch (event) {
         case 0:
-            Alert('Since obtaining spended Energy is impossible, you will have to Discharge anytime you will spend it.\nBut for the first time, you can keep your Energy');
+            Alert('Since you can\'t get back Energy that you had spend, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
             player.discharge.energyCur += 800;
             break;
         case 1:
             Alert('Cloud density is too high... Getting more will be harder now');
             break;
         case 2:
-            Alert('Getting more Mass, seems impossible. We need to change our approach, next rank is going to be Softcapped');
+            Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
             global.accretionInfo.rankCost[4] = 5e29;
             getId('rankReset').textContent = 'Next rank is 5e29 Mass';
             break;
+        case 3:
+            Alert('Any Collapse reset from now on will give extra rewards, but you can only Collapse when can get more or equal Mass.\nEach reward effect will be hidden to you for now');
     }
 };

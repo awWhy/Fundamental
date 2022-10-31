@@ -1,7 +1,7 @@
 /* CSS lint will never be installed, because it was only gettin in a way without proving any help */
 * {
     font-family: Inter, serif;
-    box-sizing: content-box;
+    box-sizing: border-box;
     margin: 0;
     transition: var(--transition);
     font-size: var(--font-size);
@@ -21,7 +21,10 @@ body {
     --button-extra-hover: #170089;
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
-    --stage-text-color: #03d3d3;
+    --button-text-color: #e3e3e3;
+    --input-border-color: #831aa5;
+    --input-text-color: #cf71ff;
+    --building-can-buy: #a90000;
     --main-text-color: #03d3d3;
     --white-text-color: white;
     --cyan-text-color: #03d3d3;
@@ -36,6 +39,7 @@ body {
 
     /* Special */
     --transition: 0s;
+    --stage-text-color: var(--cyan-text-color);
     --border-image: url(Used_art/Stage1%20border.png);
     --border-stage: #008b8b;
     --font-size: 16px;
@@ -49,7 +53,7 @@ body {
 .stageText { color: var(--stage-text-color); }
 .mainText { color: var(--main-text-color); }
 .whiteText { color: var(--white-text-color); }
-.cyanText { color: var(--cyan-text-color); }
+/* .cyanText { color: var(--cyan-text-color); } */
 .blueText { color: var(--blue-text-color); }
 .orangeText { color: var(--orange-text-color); }
 .grayText { color: var(--gray-text-color); }
@@ -66,6 +70,13 @@ img {
     width: 32px;
     height: 32px;
     color: white; /* Alt text color (shown if image failed to load) */
+    border-radius: 2px;
+}
+
+.statFoot img,
+.researchSection input[type = "image"] {
+    border-radius: 3px; /* Yes 1 pixel difference... */
+    z-index: 0; /* Text has -2.5px margin (because round corners), so image should be on top */
 }
 
 .interactiveImage { cursor: pointer; }
@@ -81,28 +92,38 @@ img {
     clip-path: circle(0);
 }
 
-#blocker {
+/* Too lazy to make it look decent */
+a { color: red; }
+#loading > p { padding: 0.6em 2em; }
+h1 { font-weight: normal; }
+
+#loading, #blocker {
     position: fixed;
-    display: none;
-    z-index: 1;
     width: 100%;
-    height: 101%;
-    margin-top: -2vh;
-    background-color: #00000050
+    height: 100%;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#blocker {
+    z-index: 1;
+    background-color: #00000050;
 }
 
 #alertPopUp {
-    position: fixed;
     display: flex;
     flex-direction: column;
-    top: calc(50% - min(max(9em, 7vh), 40vh));
-    height: clamp(14vh, 18em, 80vh);
-    left: calc(50% - min(max(11em, 12vw), 30vw));
-    width: clamp(24vw, 22em, 60vw);
+    width: clamp(24vw, 23.8em, 80vw);
+    height: clamp(18vh, 20em, 90vh);
+    left: 50%;
+    top: 50%;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
-    text-align: center;
     white-space: pre-line;
     padding: 0.7em 0.8em 0.9em;
     row-gap: 0.7em;
@@ -119,85 +140,80 @@ img {
 }
 
 #alertPopUp button {
-    width: 6em;
+    width: 7em;
     border-radius: 7px;
 }
 
-#cancelBtn { display: none; }
-
 #inputArea {
     width: 100%;
+    height: 2em;
     margin: 0 1em;
-    height: 1.6em;
+    padding: 0 0.25em;
     background-color: black;
-    border: 2px solid #831aa5;
-    border-radius: 2px;
-    color: #e3e3e3;
-    display: none;
 }
 
 button, input { appearance: none; }
 
 #load, button {
-    height: 1.6em;
+    height: 2.08em;
     cursor: pointer;
     transition: border, background-color 100ms;
     background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
-    color: #e3e3e3;
+    color: var(--button-text-color);
     padding: 0.075em 0.45em;
     font-size: 0.84em;
 }
 
-.options ul button { font-size: 0.92em; }
-.saveButtonGroup button, #load { font-size: 1em; }
-#save, #load { width: 4.5em; }
-#buildings button:first-of-type:not(#buyStrict) { width: 14em; }
-
 .bigButton {
-    width: 9.5em;
-    height: 1.8em;
+    width: 10.6em;
+    height: 2.2em;
     font-size: 1.05em;
 }
 
 .mediumButton {
-    width: 13.5em;
-    height: 1.8em;
-    font-size: 0.85em;
+    width: 15.3em;
+    height: 2.2em;
+    font-size: 0.86em;
 }
 
 .toggle, .toggleBuilding, .toggleAuto, .specialToggle {
+    color: var(--green-text-color);
     border-color: forestgreen;
     background-color: var(--background-color);
-    width: 1.9em;
-    height: 1.2em;
+    width: 2.8em;
+    height: 1.63em;
     padding: 0.075em 0.3em;
 }
 
 .toggleBuilding, .toggleAuto {
-    width: 4.8em;
-    height: 1.5em;
+    width: 5.8em;
+    height: 1.95em;
 }
 
+/* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
 .footerArea button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 .toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
-    width: 3.9em;
-    height: 1.5em;
+    width: 5.4em;
+    height: 1.85em;
     background-color: var(--background-color);;
-    border: 2px solid #831aa5;
-    border-radius: 2px;
-    color: #e3e3e3;
     appearance: textfield; /* To remove arrows */
     text-align: center;
 }
 
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
 input:invalid { border-color: crimson; }
-input { font-size: 0.84em; }
+
+input[type = "number"], input[type = "text"] {
+    border: 2px solid var(--input-border-color);
+    border-radius: 2px;
+    color: var(--input-text-color);
+    font-size: 0.84em;
+}
 
 .insideTab { /* If tab has subtabs, then it should be placed ONLY on subtabs */
     margin-top: min(2vh, 1.2em);
@@ -205,10 +221,10 @@ input { font-size: 0.84em; }
     flex-flow: row wrap;
     justify-content: center;
     margin-bottom: 6em;
-    gap: 2.2em;
+    gap: 1.6em;
 }
 
-.resets {
+#resets {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -220,13 +236,14 @@ input { font-size: 0.84em; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 15.6em;
-    padding: 1.2em 1.1em;
-    row-gap: 1.2em;
+    width: 18em;
+    padding: 0.95em 1.05em 1.05em;
+    row-gap: 1.05em;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
 }
 
+.reset .mediumButton { margin-top: 0.4em; }
 .bigWord { font-size: 1.1em; }
 
 p > img {
@@ -235,23 +252,67 @@ p > img {
     margin-top: 0.35em;
 }
 
+#buildings {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.44em;
+}
+
 .buyBuilding {
     display: flex;
     align-items: center;
-    margin-bottom: 0.1em;
-    height: 2.4em;
     column-gap: 0.6em;
 }
 
-.buyBuilding > div {
+.buyBuilding > div:first-of-type {
     display: flex;
     flex-direction: row;
     column-gap: 0.3em;
 }
 
-.buyBuilding > div > p { width: 12.5em; }
-.buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.5em; }
-.availableBuilding { border-color: #a90000; }
+.buyBuilding > div:last-of-type {
+    display: grid;
+    grid-template-areas: "buy button toggle";
+    align-items: center;
+}
+
+.buyBuilding p { color: var(--stage-text-color); }
+.buyBuilding > div > p:first-of-type { width: 13.5em; }
+.buyBuilding > div > p:last-of-type { width: 10.5em; }
+.buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.25em; }
+
+.buyBuilding > div > div {
+    grid-area: buy;
+    display: flex;
+    align-items: center;
+}
+
+.buyBuilding > div > div > p {
+    width: 5.6em;
+    font-size: 0.92em;
+    text-align: end;
+}
+
+.buyBuilding > div > div > div {
+    width: 1em;
+    height: 1.4em;
+    clip-path: polygon(100% 100%, 90% 100%, 90% 75%, 0% 50%, 90% 25%, 60% 50%, 90% 75%, 90% 0%, 100% 0%);
+    background-color: var(--button-main-border);
+    margin: 0 0.3em;
+}
+
+.buyBuilding button:first-of-type {
+    grid-area: button;
+    width: 16em;
+}
+
+.buyBuilding .toggleBuilding {
+    grid-area: toggle;
+    margin-left: 0.4em;
+}
+
+.availableBuilding button:first-of-type { border-color: var(--building-can-buy); }
+.availableBuilding > div > div > div { background-color: var(--building-can-buy); }
 
 #toggleBuy {
     display: flex;
@@ -261,13 +322,33 @@ p > img {
 }
 
 #toggleBuy > img { height: 22px; }
-#buyAnyInput { margin: 0 0.3em 0; }
+#buyAnyInput { margin: 0 0.3em; }
 
 #buyStrict {
     background-color: var(--background-color);
     border-color: forestgreen;
-    padding: 0 0.4em;
+    color: var(--green-text-color);
+    padding: 0 0.5em;
+    height: 1.92em;
     font-size: 0.85em;
+}
+
+#starsSpecial {
+    display: flex;
+    justify-content: space-around;
+}
+
+.specialStar {
+    display: flex;
+    align-items: center;
+    column-gap: 0.6em;
+}
+
+.specialStar p {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.3em;
+    font-size: 0.92em;
 }
 
 #upgrades {
@@ -307,24 +388,24 @@ p > img {
 .researchSection > div > div > p {
     border: 2px solid var(--border-stage);
     border-left: none;
-    height: 28px;
     line-height: 28px;
     text-align: center;
-    padding: 0 0.25em;
+    padding: 0 0.25em 0 calc(0.25em + 2.5px);
     background-color: var(--background-color);
+    margin-left: -2.5px;
 }
 
 .researchSection > div > div { display: flex; }
 #researchTab .descriptionText { margin-top: -0.5em; }
 
-/* If !important need to be removed then remove .class and do #id instead */
+/* I could try and use @layer, but no idea how much will need to be added (or how well supported) */
 .stage1border { border-color: #008b8b !important; } 
 .stage2border { border-color: #1460a8 !important; }
 .stage3border { border-color: #5b5b75 !important; }
-.stage4border { border-color: #f28100 !important; }
-.stage5border { border-color: #bd24ef !important; }
+.stage4border { border-color: #e87400 !important; }
+.stage5border { border-color: #b324e2 !important; }
 .stage6border { border-color: #5300c1 !important; }
-.stage0border { border-color: #b21111 !important } /* Phaceholder name, probably will be renamed */
+.stage0border { border-color: #b21111 !important; } /* Phaceholder name, probably will be renamed */
 
 .descriptionText {
     display: flex;
@@ -338,6 +419,26 @@ p > img {
 
 .descriptionText > label,
 .descriptionText > p { max-width: 80%; }
+
+#elementsGrid {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 0.25em;
+    padding: 0.4em;
+    border: 2px solid darkgreen;
+}
+
+#elementsGrid[class = "Elements10App"] { grid-template-columns: repeat(8, 1fr); }
+
+#elementsGrid .interactiveImage {
+    width: 38px;
+    height: 38px;
+    border-radius: 0;
+}
+
+#element2 { grid-column: 18; }
+.Elements10App #element2 { grid-column: 8; }
+#elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
 
 #resetToggles {
     display: flex;
@@ -377,6 +478,13 @@ p > img {
     column-gap: 0.2em;
 }
 
+.saveButtonGroup button, #load { font-size: 1em; }
+
+#save, #load {
+    width: 5.65em;
+    height: 2em;
+}
+
 #file {
     position: absolute;
     clip-path: circle(0); /* Important for screen readers */
@@ -389,13 +497,13 @@ p > img {
 }
 
 #export {
-    height: 1.8em;
+    height: 2.1em;
     font-size: 1.2em;
 }
 
 #delete {
     background-color: var(--button-delete-color);
-    height: 1.3em;
+    height: 1.74em;
     font-size: 0.9em;
 }
 
@@ -414,11 +522,12 @@ p > img {
 #themeArea { text-align: center; }
 #themeArea > div:focus-within > div { display: block; }
 #themeArea > div:focus-within > button { clip-path: circle(0); } /* Just makes button invisible without removing focus from it */
-#themeArea button { width: 6em; }
+#themeArea button { width: 7em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
 #switchTheme1 { border-color: darkcyan; }
 #switchTheme2 { border-color: #427be1; }
 #switchTheme3 { border-color: #404040; }
+#switchTheme4 { border-color: #9f6700; }
 #themeArea > p { margin-bottom: 0.3em; }
 
 .options > p { text-align: center; }
@@ -427,7 +536,7 @@ p > img {
 .options ul {
     display: flex;
     flex-direction: column;
-    row-gap: 0.16em;
+    row-gap: 0.18em;
     margin-top: 0.2em;
     margin-left: -1em;
 }
@@ -438,10 +547,11 @@ p > img {
 }
 
 li > input[type = "number"] {
-    height: 1.2em;
-    width: 2.5em;
+    height: 1.7em;
+    width: 3.15em;
 }
 
+.options ul button { font-size: 0.92em; }
 .options ul button, p button { margin-left: 0.4em; }
 
 #pauseGame {
@@ -465,7 +575,7 @@ li > input[type = "number"] {
 }
 
 #buildingsAllStats > div {
-    min-width: 5em;
+    min-width: 6.3em;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 0.5em;
@@ -497,7 +607,9 @@ li > input[type = "number"] {
 .footerArea button {
     border-radius: 10px;
     border-color: var(--button-tab-border);
-    min-width: 4.8em;
+    padding: 0 0.7em;
+    min-width: 5em;
+    height: 2em;
     font-size: 1.01em;
     background-color: black;
 }
@@ -513,8 +625,7 @@ li > input[type = "number"] {
 #footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statText {
-    width: 8.8em;
-    height: 28px;
+    width: 10em;
     line-height: 28px;
     text-align: center;
     border: 2px solid var(--border-stage);
@@ -522,27 +633,22 @@ li > input[type = "number"] {
     border-radius: 0 6px 6px 0;
     background-color: black;
     color: var(--stage-text-color);
+    margin-left: -2.5px;
+    padding-left: 2.5px;
 }
 
 #footer img { background-color: black; }
 .statFoot { display: flex; }
 
-#energy {
-    color: var(--orange-text-color);
-    border-color: #f28100;
-}
-
-#clouds {
-    color: var(--gray-text-color);
-    border-color: #5b5b75;
-}
-
+#energy { color: var(--orange-text-color); }
+#clouds { color: var(--gray-text-color); }
 #water { color: #3099ff; }
+#solarMass { color: var(--cyan-text-color); }
 
 #footer > div:first-child {
     display: flex;
     align-items: flex-end;
-    height: 0; /* Temprorary solution to be able to click behind it */
+    height: 0; /* To be able to click behind it */
 }
 
 #subtabs {
@@ -554,10 +660,10 @@ li > input[type = "number"] {
 }
 
 #subtabs button {
-    min-width: 4.8em;
+    min-width: 5.5em;
     background-color: var(--background-color);
-    font-size: 0.84em;
     border-radius: 2px;
+    padding: 0 0.6em;
 }
 
 #hideToggle {
@@ -585,23 +691,16 @@ li > input[type = "number"] {
 }
 
 @keyframes hide {
-    from {
-        bottom: 0;
-    }
-    to {
-        bottom: calc(-1 * (min(4.5vh, 2.6em) + 32px + 1.6em)); /* There is minor issue that some vh is missing... */
-    }
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
 }
 
 @keyframes rotate {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(180deg);
-    }
+    from { transform: rotate(0); }
+    to { transform: rotate(180deg); }
 }
 
+/* I wonder, if using @container would be better. But I don't like it removing width and/or height... */
 @media screen and (max-width: 55em) {
     .insideTab {
         flex-direction: column;
@@ -610,17 +709,42 @@ li > input[type = "number"] {
         margin-top: min(1vh, 0.6em);
     }
 
-    .buyBuilding { height: 2.6em; }
+    #buildings { row-gap: 0.2em; }
+    .buyBuilding, .specialStar { column-gap: 0.45em; }
+    .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
 
-    .buyBuilding > div {
-        flex-direction: column;
+    .buyBuilding > div:last-of-type {
+        row-gap: 0.16em;
+        margin-left: -0.45em;
+        grid-template-areas: "button button" "buy toggle";
     }
 
-    #themeArea > div > div {
-        width: max-content;
+    .buyBuilding > div > div > p {
+        line-height: calc(1.78em - 4px);
+        text-align: center;
+        border: 2px solid var(--button-main-border);
+        border-radius: 3px;
+        margin-right: 0;
     }
 
-    #subtabs {
-        flex-direction: column-reverse;
+    .buyBuilding > div > div > div { display: none; }
+    .buyBuilding .toggleBuilding { margin-left: auto; }
+    .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
+
+    #researchTab .descriptionText { margin-top: -0.25em; }
+    
+    #elementsGrid {
+        gap: 0.15em;
+        padding: 0.25em;
     }
+
+    #elementsGrid .interactiveImage {
+        width: 32px;
+        height: 32px;
+        object-fit: scale-down;
+    }
+
+    #themeArea > div > div { width: max-content; }
+
+    #subtabs { flex-direction: column-reverse; }
 }
