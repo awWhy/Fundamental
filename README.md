@@ -2,8 +2,8 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-v**0.0.3** > Stage 3 and more (change log can be seen inside game) \
-Stage 3 might be bad and boring (maybe will be reworked)
+v**0.0.5** > First part of Stage 4 and more (change log can be seen inside game) \
+Stage 4 might be really really slow (sorry)
 
 #### Should be supported by:
 1. Modern browsers,
