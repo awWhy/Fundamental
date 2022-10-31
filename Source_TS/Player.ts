@@ -2,7 +2,7 @@ import { reset } from './Reset';
 import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.5',
+    version: 'v0.0.5', //'v0.0.6',
     stage: {
         true: 1,
         current: 1,
@@ -21,7 +21,8 @@ export const player: playerType = { //Only for information that need to be saved
     },
     collapse: { //Stage 4
         mass: 0.01235,
-        stars: [0, 0, 0]
+        stars: [0, 0, 0],
+        show: -1
     },
     intervals: {
         main: 100,
@@ -410,7 +411,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             2, 1, null, 1e3, 1.4, null, 1, 27, null, 3,
             1, 1.1, null, null, 0.01, 1, null
         ],
-        cost: [
+        cost: [ //player.collapse.show uses highest bought element to tell if you ever had it (so cost of all next one's has to be higher)
             1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
             1e16, 1e20, 1e24, 1e25, 1.4e27, 1e30, 1e31, 5e31, 5e33, 1e35,
             1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50
@@ -607,6 +608,8 @@ export const updatePlayer = (load: playerType) => {
                 load.toggles.auto[i] = playerCheck.toggles.auto[i];
             }
         }
+    } else {
+        load.toggles = playerCheck.toggles;
     }
     if (playerStart.events.length > load.events.length) {
         for (let i = load.events.length; i < playerStart.events.length; i++) {
@@ -639,7 +642,6 @@ export const updatePlayer = (load: playerType) => {
     if (player.version === 'v0.0.2') {
         player.version = 'v0.0.3';
         versionInfo.log += `\n${player.version} - Stage 3 is out, stage 2 extended. Dynamic update for researches, new stats, full reset of toggles (sorry). Also max offline time is now 2 times bigger...`;
-        player.toggles = playerCheck.toggles;
     }
     if (player.version === 'v0.0.3') {
         player.version = 'v0.0.4';
@@ -650,5 +652,12 @@ export const updatePlayer = (load: playerType) => {
         player.version = 'v0.0.5';
         versionInfo.log += `\n${player.version} - First part of Stage 4 is out, also small visual changes. Screen readers support updated (I forgot about it since stage 2...). Also testing new formula for buying buildings and other minor stuff`;
     }
+    /*if (player.version === 'v0.0.5') {
+        player.version = 'v0.0.6';
+        versionInfo.log += `\n${player.version} - Fixed transition when theme changed`;*/
+    if (player.collapse.show === undefined) { //Temprorary until I finish update
+        player.collapse.show = -1;
+    }
+    //}
     if (oldVersion !== player.version) { versionInfo.changed = true; }
 };

@@ -515,7 +515,7 @@ export const getUpgradeDescription = (index: number, type = 'upgrades' as 'upgra
         const typeInfo = 'elementsInfo' as const;
 
         getId('elementText').textContent = global[typeInfo].description[index];
-        getId('elementEffect').textContent = player[type][index] === 1 ? `${global[typeInfo].effectText[index][0]}${format(global[typeInfo].effect[index] ?? '')}${global[typeInfo].effect[index] !== null ? `${global[typeInfo].effectText[index][1]}` : ''}` : 'Effect is not yet known.';
+        getId('elementEffect').textContent = player[type][index] === 1 || player.collapse.show >= index ? `${global[typeInfo].effectText[index][0]}${format(global[typeInfo].effect[index] ?? '')}${global[typeInfo].effect[index] !== null ? `${global[typeInfo].effectText[index][1]}` : ''}` : 'Effect is not yet known.';
         getId('elementCost').textContent = player[type][index] === 1 ? 'Obtained.' : `${format(global[typeInfo].cost[index])} ${global.stageInfo.priceName[player.stage.current - 1]}.`;
     } else {
         const typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info';

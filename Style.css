@@ -1,10 +1,12 @@
 /* CSS lint will never be installed, because it was only gettin in a way without proving any help */
-* {
+body *, body {
     font-family: Inter, serif;
     box-sizing: border-box;
     margin: 0;
-    transition: var(--transition);
     font-size: var(--font-size);
+
+    /* No text color, because it's really awkwardly behind... */
+    transition: background-color var(--transition-all), border-color var(--transition-all);
 }
 
 body {
@@ -38,7 +40,8 @@ body {
     --green-text-color: #00e900;
 
     /* Special */
-    --transition: 0s;
+    --transition-all: 0s;
+    --transition-buttons: 100ms; /* I'm tired, I have no better idea how to do it. I tryed .insertRule(), adding <style> and etc. */
     --stage-text-color: var(--cyan-text-color);
     --border-image: url(Used_art/Stage1%20border.png);
     --border-stage: #008b8b;
@@ -157,7 +160,7 @@ button, input { appearance: none; }
 #load, button {
     height: 2.08em;
     cursor: pointer;
-    transition: border, background-color 100ms;
+    transition: border-color var(--transition-buttons), background-color var(--transition-buttons);
     background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
     color: var(--button-text-color);

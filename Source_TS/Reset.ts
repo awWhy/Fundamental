@@ -106,6 +106,8 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 case 4:
                     buildings[0].current = 1;
                     player.collapse.mass = 0.01235;
+                    player.collapse.stars = [0, 0, 0];
+                    player.collapse.show = -1;
                     for (let i = 0; i < global.elementsInfo.cost.length; i++) {
                         player.elements[i] = 0;
                     }

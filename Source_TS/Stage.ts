@@ -175,12 +175,12 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
             typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'researchesS2Info';
         }
 
-        if (type === 'researchesAuto') {
+        if (player[type][upgrade] === global[typeInfo].max[upgrade] || currency < global[typeInfo].cost[upgrade]) {
+            return; //Must be on top
+        } else if (type === 'researchesAuto') {
             if (upgrade === 2 && stage.current !== 2) {
                 return;
             } //0 only for 1, 3 only for 3, 4 only for 4
-        } else if (player[type][upgrade] === global[typeInfo].max[upgrade] || currency < global[typeInfo].cost[upgrade]) {
-            return;
         } else if (type === 'researches' && stage.current === 4 && global.collapseInfo.unlockPriceR[upgrade] > player.collapse.mass) {
             return;
         }
@@ -203,7 +203,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
         if (type !== 'elements') { typeInfo = `${type}${stage.current > 1 ? `S${stage.current}` : ''}Info` as 'upgradesS2Info'; }
 
         if (player[type][upgrade] === 1 || currency < global[typeInfo].cost[upgrade]) {
-            return;
+            return; //Must be on top
         } else if (type === 'upgrades' && stage.current === 4 && global.collapseInfo.unlockPriceU[upgrade] > player.collapse.mass) {
             return;
         }
@@ -224,6 +224,7 @@ export const buyUpgrades = (upgrade: number, type = 'upgrades' as 'upgrades' | '
                 calculateBuildingsCost(4);
             }
         } else if (type === 'elements') {
+            if (player.collapse.show < upgrade) { player.collapse.show = upgrade; } //Lazy way of remembering bought elements
             if (upgrade === 2 || upgrade === 8 || upgrade === 13) {
                 for (let i = 1; i < global.buildingsInfo.name.length; i++) {
                     calculateBuildingsCost(i);

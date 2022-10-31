@@ -19,6 +19,7 @@ export interface playerType {
     collapse: { //Stage 4
         mass: number
         stars: [number, number, number]
+        show: number
     }
     intervals: {
         main: number

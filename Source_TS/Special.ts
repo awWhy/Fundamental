@@ -21,7 +21,6 @@ export const switchTheme = () => {
     const { stageInfo, theme } = global;
     const body = document.body.style;
 
-    body.setProperty('--transition', '1s'); //Buttons are ignored
     if (theme.default) {
         theme.stage = stage.current;
         getId('currentTheme').textContent = 'Default';
@@ -30,6 +29,8 @@ export const switchTheme = () => {
     }
 
     /* Full reset, for easier out of order theme change */
+    body.setProperty('--transition-all', '1s');
+    body.setProperty('--transition-buttons', '700ms');
     //getId('upgradeText').style.color = '';
     getId('upgradeEffect').style.color = '';
     getId('upgradeCost').style.color = '';
@@ -151,7 +152,10 @@ export const switchTheme = () => {
             body.setProperty('--red-text-color', 'red');
             break;
     }
-    setTimeout(() => { body.removeProperty('--transition'); }, 1000);
+    setTimeout(() => {
+        body.removeProperty('--transition-all');
+        body.removeProperty('--transition-buttons');
+    }, 1000);
 };
 
 /* If any type of Alert is already being shown, then it will auto resolve itself (false for Confirm and null for Prompt)
