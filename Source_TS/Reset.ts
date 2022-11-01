@@ -1,7 +1,7 @@
 import { global, player, playerStart } from './Player';
 import { switchTheme } from './Special';
 import { calculateBuildingsCost, calculateResearchCost } from './Stage';
-import { invisibleUpdate, numbersUpdate, stageCheck, switchTab, visualUpdateUpgrades } from './Update';
+import { invisibleUpdate, numbersUpdate, stageCheck, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'stage') => {
     const { stage, buildings } = player;
@@ -52,7 +52,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 calculateResearchCost(i, 'researchesExtra');
                 visualUpdateUpgrades(i, 'researchesExtra');
             }*/ //Future plans
-            if (player.upgrades[1] === 0 /* && global.subtab.researchCurrent === 'elements' */) { switchTab('research', 'researches'); }
             break;
         case 'stage': { //Checks what stage is right now and resets parts that are only used in that stage
             player.upgrades = [];
@@ -114,6 +113,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             }
             buildings[0].total = stage.current !== 3 ? buildings[0].current : 1e-19;
             buildings[0].trueTotal = buildings[0].total;
+            player.events = stage.true > stage.current ? [true] : [false];
 
             stageCheck();
             switchTheme();

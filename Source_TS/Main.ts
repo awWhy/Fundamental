@@ -2,9 +2,8 @@ import { player, global, playerStart, updatePlayer, startValue, checkPlayerValue
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
 import { buyBuilding, buyUpgrades, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
+import { detectHotkey } from './Hotkeys';
 /* There might be some problems with incorect build, imports being called in wrong order. */
-//I don't like to see 'empty let', so I use var instead (because it can go outside of a block, but still inside function)
-//Unless value can change based on income of "if (condition) { var a = 1; } else { a = 2; }", while it does work, I don't want to risk it
 
 export const getId = (id: string) => { //To type less and check if ID exist
     const i = document.getElementById(id);
@@ -72,6 +71,7 @@ void reLoad(true); //This will start the game
 
 /* Global */
 const { mobileDevice, screenReader } = global;
+document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
 for (let i = 0; i < playerStart.toggles.normal.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
 }
@@ -312,7 +312,7 @@ async function saveLoad(type: string) {
                 /* Reset subtabs (it will do useless number and visual update), and tab */
                 switchTab('settings', 'settings');
                 //switchTab('research', 'researches'); //Done in stageCheck();
-                switchTab();
+                switchTab('stage');
                 /* No need to remove non existing properties, because it's done on save load anyway */
                 Object.assign(player, startValue('p'));
                 Object.assign(global, startValue('g'));

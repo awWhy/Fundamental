@@ -1,24 +1,38 @@
+import { checkTab } from './Check';
 import { getClass, getId } from './Main';
 import { global, globalStart, player, playerStart } from './Player';
 import { playEvent } from './Special';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateMaxLevel } from './Stage';
 
-export const switchTab = (tab = 'none', subtab = 'tabOnly') => {
+export const switchTab = (tab: string, subtab = 'tabOnly') => {
     if (global.tab !== tab && subtab === 'tabOnly') {
         /* First remove current tab, then show new tab */
         getId(`${global.tab}Tab`).style.display = 'none';
         getId(`${global.tab}TabBtn`).classList.remove('tabActive');
-        global.tab = tab !== 'none' ? tab : 'stage';
-        getId(`${global.tab}Tab`).style.display = '';
-        getId(`${global.tab}TabBtn`).classList.add('tabActive');
-        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab${Object.hasOwn(global.subtab, tab + 'Current') && globalStart.subtab[tab + 'Current' as 'settingsCurrent'] !== global.subtab[tab + 'Current' as 'settingsCurrent'] ? `, but subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
+        if (Object.hasOwn(global.subtab, global.tab + 'Current')) {
+            for (const inside of global.tabList[global.tab + 'Subtabs']) {
+                getId(`${global.tab}SubtabBtn${inside}`).style.display = 'none';
+            }
+        }
 
-        /* Subtabs */ //Clean up later
-        getId('subtabs').style.display = global.tab === 'settings' || (global.tab === 'research' && player.stage.current === 4 && player.upgrades[1] === 1) ? '' : 'none';
-        getId('settingsSubtabBtnsettings').style.display = global.tab === 'settings' ? '' : 'none';
-        getId('settingsSubtabBtnstats').style.display = global.tab === 'settings' ? '' : 'none';
-        getId('researchSubtabBtnresearches').style.display = global.tab === 'research' ? '' : 'none';
-        getId('researchSubtabBtnelements').style.display = global.tab === 'research' /* && player.stage.current === 4 */ ? '' : 'none';
+        global.tab = tab;
+        let subtabAmount = 0;
+        getId(`${tab}Tab`).style.display = '';
+        getId(`${tab}TabBtn`).classList.add('tabActive');
+        if (Object.hasOwn(global.subtab, tab + 'Current')) {
+            for (const inside of global.tabList[tab + 'Subtabs']) {
+                if (checkTab(tab, inside)) {
+                    getId(`${tab}SubtabBtn${inside}`).style.display = '';
+                    subtabAmount++;
+                } else {
+                    if (global.subtab[tab + 'Current' as keyof typeof global.subtab] === inside) {
+                        switchTab(tab, globalStart.subtab[tab + 'Current' as keyof typeof global.subtab]);
+                    }
+                }
+            }
+        }
+        getId('subtabs').style.display = subtabAmount >= 2 ? '' : 'none';
+        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab${Object.hasOwn(global.subtab, tab + 'Current') && globalStart.subtab[tab + 'Current' as 'settingsCurrent'] !== global.subtab[tab + 'Current' as 'settingsCurrent'] ? `, but subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
     } else if (subtab !== 'tabOnly' && subtab !== global.subtab[tab + 'Current' as 'settingsCurrent']) {
         getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = 'none';
         getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).classList.remove('tabActive');
@@ -409,7 +423,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('stageReset').textContent = buildings[1].current >= 1.194e29 ? 'Enter next stage' : 'You are not ready';
         if (screenReader) { getId('invisibleGetResource1').style.display = upgrades[1] === 1 ? '' : 'none'; }
 
-        if (!player.events[1] && global.vaporizationInfo.get + vaporization.clouds > 1e4) { playEvent(1); }
+        if (!player.events[0] && global.vaporizationInfo.get + vaporization.clouds > 1e4) { playEvent(1); }
     } else if (stage.current === 3) {
         const { accretion } = player;
 
@@ -448,7 +462,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
             }
         }
 
-        if (!player.events[2] && buildings[0].current >= 5e29) { playEvent(2); }
+        if (!player.events[0] && buildings[0].current >= 5e29) { playEvent(2); }
     } else if (stage.current === 4) {
         const { collapse, researchesExtra } = player;
 
@@ -471,7 +485,7 @@ export const visualUpdate = () => { //This is everything that can be shown later
         getId('building2').style.display = upgrades[1] === 1 ? '' : 'none';
         getId('building3').style.display = upgrades[2] === 1 ? '' : 'none';
         getId('building4').style.display = collapse.mass >= 10 ? '' : 'none';
-        if (!player.events[3] && researchesExtra[0] >= 1) { playEvent(3); }
+        if (!player.events[0] && researchesExtra[0] >= 1) { playEvent(3); }
         if (screenReader) { getId('invisibleGetResource1').style.display = upgrades[0] === 1 ? '' : 'none'; }
     }
 
@@ -611,7 +625,7 @@ export const updateRankInfo = () => {
     const name = getId('rankName') as HTMLSpanElement;
 
     //Important Rank information
-    accretionInfo.rankCost[4] = player.events[2] ? 5e29 : 0;
+    accretionInfo.rankCost[4] = player.events[0] ? 5e29 : 0;
 
     //Visuals
     getId('rankMessage').textContent = accretion.rank === 0 ?

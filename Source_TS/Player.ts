@@ -88,16 +88,22 @@ export const player: playerType = { //Only for information that need to be saved
             strict: true
         }
     },
-    events: [false, false, false, false] //One time events:
-    /* [0] - Discharge explanation, [1] - Clouds softcap reached, [2] - Accretion new rank unlocked, [3] - Collapse explanation */
+    events: [false] //One time events, being set on stage reset
 };
 
 export const global: globalType = { //For information that doesn't need to be saved
-    tab: 'stage',
+    tab: 'stage', //Tabs and subtab have same name as buttons (for easier screen reader support)
     subtab: {
-        /* Tabs and subtab have to have same name as buttons (easier screen reader support this way) */
+        /* Subtab format must be: [subtabName] + 'Current' */
         settingsCurrent: 'settings',
         researchCurrent: 'researches'
+        //Starting subtab name must be unlocked at same time as tab its part of (or change switchTab() logic)
+    },
+    tabList: { //Tabs and subtab need to be in same order as in footer
+        /* Subtabs format must be: [subtabName] + 'Subtabs' */
+        tabs: ['stage', 'research', 'settings', 'special'],
+        settingsSubtabs: ['settings', 'stats'],
+        researchSubtabs: ['researches', 'elements']
     },
     footer: true,
     mobileDevice: false,
@@ -611,11 +617,6 @@ export const updatePlayer = (load: playerType) => {
     } else {
         load.toggles = playerCheck.toggles;
     }
-    if (playerStart.events.length > load.events.length) {
-        for (let i = load.events.length; i < playerStart.events.length; i++) {
-            load.events[i] = playerCheck.events[i];
-        }
-    }
 
     Object.assign(player, load);
     /* Version changes (and change log's) */
@@ -646,7 +647,7 @@ export const updatePlayer = (load: playerType) => {
     if (player.version === 'v0.0.3') {
         player.version = 'v0.0.4';
         versionInfo.log += `\n${player.version} - All stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
-        if (player.stage.current !== 1 || player.discharge.current > 4) { player.events[0] = true; }
+        if (player.stage.current !== 1 || player.discharge.current > 4) { player.events = [true]; } //Remove later
     }
     if (player.version === 'v0.0.4') {
         player.version = 'v0.0.5';
@@ -654,9 +655,12 @@ export const updatePlayer = (load: playerType) => {
     }
     /*if (player.version === 'v0.0.5') {
         player.version = 'v0.0.6';
-        versionInfo.log += `\n${player.version} - Fixed transition when theme changed`;*/
+        versionInfo.log += `\n${player.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked`;*/
     if (player.collapse.show === undefined) { //Temprorary until I finish update
         player.collapse.show = -1;
+    }
+    if (player.events.length > 1) {
+        player.events = [false];
     }
     //}
     if (oldVersion !== player.version) { versionInfo.changed = true; }

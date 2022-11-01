@@ -413,25 +413,24 @@ export const changeFontSize = (change = false, inputChange = false) => {
     }
 };
 
-export const playEvent = (event: number) => {
+export const playEvent = (event: number, index = 0) => {
     if (getId('blocker').style.display === '') { return; }
-    player.events[event] = true;
+    player.events[index] = true;
 
-    //If to add new event here, then don't forget to also add it into player.events
     switch (event) {
-        case 0:
+        case 0: //Discharge explanation
             Alert('Since you can\'t get back Energy that you had spend, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
             player.discharge.energyCur += 800;
             break;
-        case 1:
+        case 1: //Clouds softcap
             Alert('Cloud density is too high... Getting more will be harder now');
             break;
-        case 2:
+        case 2: //Accretion new rank unlocked
             Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
             global.accretionInfo.rankCost[4] = 5e29;
             getId('rankReset').textContent = 'Next rank is 5e29 Mass';
             break;
-        case 3:
+        case 3: //Collapse explanation
             Alert('Any Collapse reset from now on will give extra rewards, but you can only Collapse when can get more or equal Mass.\nEach reward effect will be hidden to you for now');
     }
 };

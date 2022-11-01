@@ -67,6 +67,7 @@ export interface globalType {
         settingsCurrent: string
         researchCurrent: string
     }
+    tabList: Record<string, string[]>
     footer: boolean
     mobileDevice: boolean
     screenReader: boolean
