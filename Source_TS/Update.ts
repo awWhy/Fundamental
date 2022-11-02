@@ -82,7 +82,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         if (upgrades[5] === 1) { buildingsInfo.producing[3] *= upgradesInfo.effect[5] ** buildings[3].true; }
         calculateGainedBuildings(2, passedSeconds);
 
-        upgradesInfo.effect[5] = Math.trunc((1.02 + 0.01 * researches[1]) * 100) / 100;
+        upgradesInfo.effect[5] = Math.trunc((1.02 + 0.01 * researches[1]) * 100) / 100; //Replace Math.trunc to Math.round
         upgradesInfo.effect[3] = 4 + 1 * researches[3];
         upgradesInfo.effect[6] = 0;
         if (buildingsInfo.producing[3] > 1) { //Because Math.log(0) === -infinity and Math.log(1) === 0

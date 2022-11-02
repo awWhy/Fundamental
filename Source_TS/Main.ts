@@ -7,9 +7,7 @@ import { detectHotkey } from './Hotkeys';
 
 export const getId = (id: string) => { //To type less and check if ID exist
     const i = document.getElementById(id);
-    if (i !== null) {
-        return i;
-    }
+    if (i !== null) { return i; }
     Alert(`ID of HTML element (${id}), failed to load, game will not work properly, please refresh. If this happens more than once, then please report it`);
     throw new ReferenceError(`ID "${id}" not found.`);
 };
@@ -252,9 +250,7 @@ async function saveLoad(type: string) {
         case 'load': {
             const id = getId('file') as HTMLInputElement;
             const saveFile = id.files;
-            if (saveFile === null) {
-                return Alert('Loaded file wasn\'t found, somehow');
-            }
+            if (saveFile === null) { return Alert('Loaded file wasn\'t found, somehow'); }
             const text = await saveFile[0].text();
 
             try {
@@ -275,18 +271,23 @@ async function saveLoad(type: string) {
                     Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOfflineTime() * 1000 ? `, max offline time is ${global.timeSpecial.maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
                 }
                 void reLoad();
-            } catch {
-                Alert('Incorrect save file format');
+            } catch (error) {
+                changeIntervals(); //Unpause game, in case it there was an issue before reLoad();
+                Alert(`Incorrect save file format.\nFull error is: '${error}'`);
             } finally {
                 id.value = ''; //Remove inputed file
             }
             return;
         }
         case 'save': {
-            const save = btoa(JSON.stringify(player));
-            localStorage.setItem('save', save);
-            getId('isSaved').textContent = 'Saved';
-            global.timeSpecial.lastSave = 0;
+            try {
+                const save = btoa(JSON.stringify(player));
+                localStorage.setItem('save', save);
+                getId('isSaved').textContent = 'Saved';
+                global.timeSpecial.lastSave = 0;
+            } catch (error) {
+                Alert(`Failed to save file.\nFull error is: '${error}'`);
+            }
             return;
         }
         case 'export': {

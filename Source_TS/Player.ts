@@ -545,8 +545,13 @@ export const checkPlayerValues = () => {
 
 export const updatePlayer = (load: playerType) => {
     const playerCheck = startValue('p') as playerType;
+
     //@ts-expect-error //Old save file format had player in it
     if (Object.hasOwn(load, 'player')) { load = load.player; }
+    if (!Object.hasOwn(load, 'discharge')) {
+        throw new ReferenceError('This save file is missing important information and is most likely not from this game');
+    }
+
     for (const i in playerStart) { //This should auto add missing information
         if (!Object.hasOwn(load, i)) {
             if (i === 'version') {

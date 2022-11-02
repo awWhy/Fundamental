@@ -81,8 +81,9 @@ export const calculateBuildingsCost = (index: number) => {
     const { buildingsInfo } = global;
 
     if (stage.current === 1) {
-        global.upgradesInfo.effect[4] = Math.round((0.2 + researches[0] * 0.01) * 100) / 100;
-        buildingsInfo.increase[index] = Math.round((1.4 - (upgrades[4] === 1 ? global.upgradesInfo.effect[4] : 0)) * 100) / 100;
+        /* I hate floats... I have to rework almost entire stage 1 because of them, I need to change Math.trunc to Math.round */
+        global.upgradesInfo.effect[4] = Math.trunc((0.2 + researches[0] * 0.01) * 100) / 100;
+        buildingsInfo.increase[index] = Math.trunc((1.4 - (upgrades[4] === 1 ? global.upgradesInfo.effect[4] : 0)) * 100) / 100;
         if (index === 1) { buildingsInfo.startCost[1] = globalStart.buildingsInfo.startCost[1] / (upgrades[0] === 1 ? 10 : 1); }
     } else if (stage.current === 3 && index === 4) {
         buildingsInfo.increase[4] = upgrades[10] === 1 ? 5 : 10;
