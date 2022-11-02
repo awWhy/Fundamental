@@ -1,3 +1,4 @@
+import { checkBuilding } from './Check';
 import { getId } from './Main';
 import { global, globalStart, player } from './Player';
 import { reset } from './Reset';
@@ -8,8 +9,7 @@ export const buyBuilding = (index: number, auto = false) => {
     const { stage, buildings } = player;
     const { buildingsInfo, screenReader } = global;
 
-    //Special
-    if (stage.current === 4 && player.collapse.mass < global.collapseInfo.unlockPriceB[index]) { return; }
+    if (!checkBuilding(index)) { return; }
 
     if (!isFinite(buildingsInfo.cost[index])) {
         if (screenReader && !auto) {
@@ -404,7 +404,7 @@ export const stageResetCheck = async() => {
 export const dischargeResetCheck = async() => {
     const { dischargeInfo } = global;
 
-    if (player.upgrades[3] === 1 && player.buildings[1].true > 0 && player.stage.current === 1) {
+    if (player.upgrades[3] === 1 && player.buildings[1].true > 0) {
         const { discharge } = player;
 
         let ok = true;
@@ -431,7 +431,7 @@ export const dischargeResetCheck = async() => {
 export const vaporizationResetCheck = async() => {
     const { vaporizationInfo } = global;
 
-    if (player.upgrades[1] === 1 && vaporizationInfo.get >= 1 && player.stage.current === 2) {
+    if (player.upgrades[1] === 1 && vaporizationInfo.get >= 1) {
         const { vaporization } = player;
 
         let ok = true;
@@ -450,7 +450,7 @@ export const rankResetCheck = async() => {
     const { accretionInfo } = global;
     const { accretion } = player;
 
-    if (player.buildings[0].current >= accretionInfo.rankCost[accretion.rank] && accretionInfo.rankCost[accretion.rank] !== 0 && player.stage.current === 3) {
+    if (player.buildings[0].current >= accretionInfo.rankCost[accretion.rank] && accretionInfo.rankCost[accretion.rank] !== 0) {
         let ok = true;
         if (player.toggles.normal[4] && accretion.rank !== 0) {
             ok = await Confirm('Increasing Rank will reset buildings, upgrades, stage researches. But you will get closer to your goal');
@@ -469,7 +469,7 @@ export const collapseResetCheck = async() => {
     const { collapseInfo } = global;
     const { collapse } = player;
 
-    if (collapseInfo.newMass >= collapse.mass && player.stage.current === 4) {
+    if (collapseInfo.newMass >= collapse.mass) {
         const { researchesExtra } = player;
 
         let ok = true;

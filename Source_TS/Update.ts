@@ -4,6 +4,7 @@ import { global, globalStart, player, playerStart } from './Player';
 import { playEvent } from './Special';
 import { buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateMaxLevel } from './Stage';
 
+//No tab checking, because if someone will use HTML to enable button, they can do same for insides
 export const switchTab = (tab: string, subtab = 'tabOnly') => {
     if (global.tab !== tab && subtab === 'tabOnly') {
         /* First remove current tab, then show new tab */
@@ -25,21 +26,20 @@ export const switchTab = (tab: string, subtab = 'tabOnly') => {
                     getId(`${tab}SubtabBtn${inside}`).style.display = '';
                     subtabAmount++;
                 } else {
-                    if (global.subtab[tab + 'Current' as keyof typeof global.subtab] === inside) {
-                        switchTab(tab, globalStart.subtab[tab + 'Current' as keyof typeof global.subtab]);
-                    }
+                    if (global.subtab[tab + 'Current' as 'settingsCurrent'] === inside) {
+                        switchTab(tab, globalStart.subtab[tab + 'Current' as 'settingsCurrent']);
+                    } //While 'keyof typeof global.subtab' would work, this is shorter and easier to read
                 }
             }
         }
         getId('subtabs').style.display = subtabAmount >= 2 ? '' : 'none';
-        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab${Object.hasOwn(global.subtab, tab + 'Current') && globalStart.subtab[tab + 'Current' as 'settingsCurrent'] !== global.subtab[tab + 'Current' as 'settingsCurrent'] ? `, but subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
+        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab${subtabAmount >= 2 ? ` and its subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
     } else if (subtab !== 'tabOnly' && subtab !== global.subtab[tab + 'Current' as 'settingsCurrent']) {
         getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = 'none';
         getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).classList.remove('tabActive');
         global.subtab[tab + 'Current' as 'settingsCurrent'] = subtab;
         getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = '';
         getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).classList.add('tabActive');
-        //Also 'as keyof typeof global.subtab' would work as well, but this is shorter
         if (global.screenReader && global.tab === tab) { getId('invisibleTab').textContent = `Current subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}, part of ${tab} tab`; }
     }
     /* Update tab information (tab can be clicked to update sooner) */
@@ -167,17 +167,16 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         const { upgradesS3Info, researchesS3Info, researchesExtraS3Info } = global;
         const { accretion } = player;
 
-        //If hotkeys will be added, don't forget to add checks for upgrade 2, 4, 6
-        if (toggles.buildings[4] && researchesAuto[1] >= 4 && upgrades[6] === 1) { buyBuilding(4, true); }
+        if (toggles.buildings[4] && researchesAuto[1] >= 4) { buyBuilding(4, true); }
         buildingsInfo.producing[4] = (upgrades[11] === 1 ? 1.15 : 1.1) ** buildings[4].current;
 
-        if (toggles.buildings[3] && researchesAuto[1] >= 3 && upgrades[4] === 1) { buyBuilding(3, true); }
+        if (toggles.buildings[3] && researchesAuto[1] >= 3) { buyBuilding(3, true); }
         buildingsInfo.producing[3] = 0.1 * buildings[3].current;
         if (upgrades[4] === 1 && researchesExtra[2] > 0) { buildingsInfo.producing[3] *= 2; }
         if (buildingsInfo.producing[4] > 1) { buildingsInfo.producing[3] *= buildingsInfo.producing[4]; }
         calculateGainedBuildings(2, passedSeconds);
 
-        if (toggles.buildings[2] && researchesAuto[1] >= 2 && upgrades[2] === 1) { buyBuilding(2, true); }
+        if (toggles.buildings[2] && researchesAuto[1] >= 2) { buyBuilding(2, true); }
         buildingsInfo.producing[2] = 0.1 * buildings[2].current;
         researchesS3Info.effect[5] = buildings[0].current ** (0.025 * researches[5]);
         if (upgrades[3] === 1) { buildingsInfo.producing[2] *= 1.02 ** buildings[2].true; }
@@ -235,12 +234,12 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         calculateGainedBuildings(3, passedSeconds);
 
         //If hotkeys will be added, don't forget to add checks for upgrade 1, 2
-        if (toggles.buildings[3] && researchesAuto[1] >= 3 && upgrades[2] === 1) { buyBuilding(3, true); }
+        if (toggles.buildings[3] && researchesAuto[1] >= 3) { buyBuilding(3, true); }
         buildingsInfo.producing[3] = 2e7 * buildings[3].current * totalMultiplier;
         calculateGainedBuildings(2, passedSeconds);
 
-        if (toggles.buildings[2] && researchesAuto[1] >= 2 && upgrades[1] === 1) { buyBuilding(2, true); }
-        buildingsInfo.producing[2] = 220 * buildings[2].current * redGiantEffect * totalMultiplier;
+        if (toggles.buildings[2] && researchesAuto[1] >= 2) { buyBuilding(2, true); }
+        buildingsInfo.producing[2] = 240 * buildings[2].current * redGiantEffect * totalMultiplier;
         calculateGainedBuildings(1, passedSeconds);
 
         if (toggles.buildings[1] && researchesAuto[1] >= 1) { buyBuilding(1, true); }

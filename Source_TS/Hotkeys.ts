@@ -1,15 +1,27 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
+import { buyBuilding } from './Stage';
+import { getId } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
+    if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown
     const key = player.toggles.normal[6] ? check.code.toLowerCase() : check.key.toLowerCase();
+
+    //These one's can be holded down
+    if (!isNaN(Number(key.replace('digit', '')))) {
+        const numberKey = Number(key.replace('digit', ''));
+
+        //Buildings
+        if (numberKey === 0 || numberKey >= global.buildingsInfo.name.length) { return; }
+        buyBuilding(numberKey); //Check is already inside
+    }
 
     if (!check.repeat) {
         if (key === 'arrowleft' || key === 'arrowright') {
             const { tabs } = global.tabList;
             let index = tabs.indexOf(global.tab);
-            if (index === -1) { return; }
+            if (index === -1) { return; } //Just in case
 
             if (key === 'arrowleft') {
                 do {
@@ -33,8 +45,8 @@ export const detectHotkey = (check: KeyboardEvent) => {
         } else if (key === 'arrowdown' || key === 'arrowup') {
             if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
             const subtabs = global.tabList[global.tab + 'Subtabs'];
-            let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as keyof typeof global.subtab]);
-            if (index === -1) { return; }
+            let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
+            if (index === -1) { return; } //Just in case
 
             if (key === 'arrowdown') {
                 do {

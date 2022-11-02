@@ -198,6 +198,7 @@
                         <p>Cost: <span id="upgradeCost" class="orangeText">Resource.</span></p>
                     </div>
                 </div>
+                <p class="invisible">Use left or right arrow keys to navigate through tabs. Up or down arrows to navigate through subtabs (when there are any). Can check other hotkeys in settings.</p>
             </section>
             <section id="researchTab" style="display: none;">
                 <section id="researchSubtabresearches" class="insideTab">
@@ -560,12 +561,12 @@
             <label id="invisibleBought" class="invisible" aria-live="assertive"></label> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
             <footer id="footer">
                 <div>
-                    <nav id="subtabs" style="display: none;">
+                    <nav id="subtabs" style="display: none;" aria-hidden="true">
                         <!-- For it to work it has to be: [tabName] + 'SubtabBtn' + [subtabName] -->
-                        <button id="settingsSubtabBtnsettings" class="tabActive" style="display: none;">Settings</button>
-                        <button id="settingsSubtabBtnstats" style="display: none;">Stats</button>
-                        <button id="researchSubtabBtnresearches" class="tabActive" style="display: none;">Researches</button>
-                        <button id="researchSubtabBtnelements" style="display: none;">Elements</button>
+                        <button id="settingsSubtabBtnsettings" class="tabActive" tabindex="-1" style="display: none;">Settings</button>
+                        <button id="settingsSubtabBtnstats" tabindex="-1" style="display: none;">Stats</button>
+                        <button id="researchSubtabBtnresearches" class="tabActive" tabindex="-1" style="display: none;">Researches</button>
+                        <button id="researchSubtabBtnelements" tabindex="-1" style="display: none;">Elements</button>
                     </nav>
                     <aside id="hideToggle" aria-hidden="true">
                         <p id="hideText">Hide</p>
@@ -608,12 +609,11 @@
                         </div>
                     </div>
                     <div class="footerArea">
-                        <nav>
-                            <!-- If hotkeys for switching tabs will be added, then add tabindex="-1" and aria-hidden="true" for every button inside nav -->
-                            <button id="stageTabBtn" class="tabActive">Stage</button>
-                            <button id="researchTabBtn" class="stage1Unlock">Research</button>
-                            <button id="settingsTabBtn">Settings</button>
-                            <button id="specialTabBtn" class="invisible" style="display: none;">Special</button>
+                        <nav aria-hidden="true">
+                            <button id="stageTabBtn" class="tabActive" tabindex="-1">Stage</button>
+                            <button id="researchTabBtn" class="stage1Unlock" tabindex="-1">Research</button>
+                            <button id="settingsTabBtn" tabindex="-1">Settings</button>
+                            <button id="specialTabBtn" class="invisible" tabindex="-1" style="display: none;">Special</button>
                         </nav>
                     </div>
                 </div>

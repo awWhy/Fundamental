@@ -16,6 +16,7 @@ export const setTheme = (themeNumber: number, initial = false) => {
     switchTheme();
 };
 
+//While most of it can be set with CSS, I think it's better not, because it might slow down page load
 export const switchTheme = () => {
     const { stage } = player;
     const { stageInfo, theme } = global;
@@ -164,7 +165,7 @@ export const Alert = (text: string) => { void AlertWait(text); };
 const AlertWait = async(text: string): Promise<void> => { //Export if needed
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (getId('blocker').style.display === '') {
+        if (blocker.style.display === '') {
             console.warn('Wasn\'t able to show another window (alert)');
             resolve();
             return;
@@ -172,13 +173,20 @@ const AlertWait = async(text: string): Promise<void> => { //Export if needed
 
         getId('alertText').textContent = text;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
-
         blocker.style.display = '';
+
+        const key = async(button: KeyboardEvent) => {
+            if (button.key === 'Escape' || button.key === 'Enter') {
+                close();
+            }
+        };
         const close = () => {
             blocker.style.display = 'none';
+            document.removeEventListener('keydown', key);
             confirm.removeEventListener('click', close);
             resolve();
         };
+        document.addEventListener('keydown', key);
         confirm.addEventListener('click', close);
     });
 };
@@ -195,23 +203,27 @@ export const Confirm = async(text: string): Promise<boolean> => {
         getId('alertText').textContent = text;
         const cancel = getId('cancelBtn') as HTMLButtonElement;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
-
         blocker.style.display = '';
         cancel.style.display = '';
-        const yes = async() => {
+
+        const yes = () => { close(true); };
+        const no = () => { close(false); };
+        const key = (button: KeyboardEvent) => {
+            if (button.key === 'Escape') {
+                no();
+            } else if (button.key === 'Enter') {
+                yes();
+            }
+        };
+        const close = (result: boolean) => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
+            document.removeEventListener('keydown', key);
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
-            resolve(true);
+            resolve(result);
         };
-        const no = async() => {
-            blocker.style.display = 'none';
-            cancel.style.display = 'none';
-            confirm.removeEventListener('click', yes);
-            cancel.removeEventListener('click', no);
-            resolve(false);
-        };
+        document.addEventListener('keydown', key);
         confirm.addEventListener('click', yes);
         cancel.addEventListener('click', no);
     });
@@ -228,39 +240,35 @@ export const Prompt = async(text: string): Promise<string | null> => {
 
         getId('alertText').textContent = text;
         const input = getId('inputArea') as HTMLInputElement;
-        let inputValue = '';
         const cancel = getId('cancelBtn') as HTMLButtonElement;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
-
+        input.value = '';
         blocker.style.display = '';
         cancel.style.display = '';
         input.style.display = '';
-        const getValue = () => {
-            inputValue = input.value;
+        input.focus();
+
+        const yes = () => { close(input.value); };
+        const no = () => { close(null); };
+        const key = (button: KeyboardEvent) => {
+            if (button.key === 'Escape') {
+                no();
+            } else if (button.key === 'Enter') {
+                yes();
+            }
         };
-        const yes = async() => {
+        const close = (result: string | null) => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
             input.style.display = 'none';
-            input.value = '';
+            document.removeEventListener('keydown', key);
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
-            input.removeEventListener('blur', getValue);
-            resolve(inputValue);
+            resolve(result);
         };
-        const no = async() => {
-            blocker.style.display = 'none';
-            cancel.style.display = 'none';
-            input.style.display = 'none';
-            input.value = '';
-            confirm.removeEventListener('click', yes);
-            cancel.removeEventListener('click', no);
-            input.removeEventListener('blur', getValue);
-            resolve(null);
-        };
+        document.addEventListener('keydown', key);
         confirm.addEventListener('click', yes);
         cancel.addEventListener('click', no);
-        input.addEventListener('blur', getValue);
     });
 };
 
@@ -414,7 +422,7 @@ export const changeFontSize = (change = false, inputChange = false) => {
 };
 
 export const playEvent = (event: number, index = 0) => {
-    if (getId('blocker').style.display === '') { return; }
+    if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown, event should be called later again (if not then will need to setTimeout())
     player.events[index] = true;
 
     switch (event) {
