@@ -194,15 +194,15 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Gain more Energy from buying a building.'
         ],
         effectText: [
-            ['Cost scalling is ', ' smaller for each level.'],
+            ['Cost scaling is ', ' smaller for each level.'],
             ['Each self-made building, boost each other by additional ', '.'],
-            ['Molecules now produce themselfs ', ' times quicker.'],
+            ['Molecules now produce themselves ', ' times quicker.'],
             ['Discharge is now gives extra +', ' bonus per reached goal.'],
             ['A single building now gives ', ' times more Energy.']
         ],
         effect: [0.01, 0.01, 12, 1, 3],
         cost: [2000, 6000, 18000, 10000, 42000],
-        scalling: [250, 1000, 2000, 0, 88000],
+        scalling: [250, 1000, 2000, 0, 88000], // I won't bother correcting misspellings of variable names. No one will see this, and i don't know where this variable is used. - Noobly Walker
         max: [9, 3, 9, 1, 2]
     },
     upgradesS2Info: {
@@ -255,7 +255,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Clouds will now use total produced Drops instead, when formed.'],
-            ['Some Clouds will start pouring Drops themselfs. (', ' per second)'],
+            ['Some Clouds will start pouring Drops themselves. (', ' per second)'],
             ['Seas get boost based on amount of Clouds. (Equal to ', ')']
         ],
         effect: [null, 0, 0],
@@ -289,7 +289,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Core melted, Accretion speed increased. (Mass production increased by ', ')'],
             ['Accretion speed increased again (because of drag and escape velocity), by ', '.'],
             ['Accretion speed greatly increased by ', '.'],
-            ['Satellites scalling cost is now ', ' times smaller.'],
+            ['Satellites scaling cost is now ', ' times smaller.'],
             ['Satellites effect is increased.']
         ],
         effect: [1.01, 0, 2, 1.1, 4, 3, null, 2, 2, 10, 2, null],
@@ -355,7 +355,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     elementsInfo: {
         description: [
-            '[0] Placeholder.',
+            '[0] Placeholder.', // neutronium? >:P - Noobly Walker
             '[1] Hydrogen.',
             '[2] Helium.',
             '[3] Lithium.',
@@ -384,7 +384,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             '[26] Iron.'
         ],
         effectText: [
-            ['Placeholder'],
+            ['Placeholder'], // a single neutron, unstable by itself, multiplies neutron star production by 0? >:P - Noobly Walker
             ['Most basic element, increases Brown dwarf production by ', '.'],
             ['Fusion reaction by product, makes everything scale ', ' less.'],
             ['First metal, Mass per Brown dwarf lightly increased.'],
@@ -411,6 +411,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['No corrosion, only ^', ' boost to all Stars based on unspent Elements.'],
             ['Brittle element, but not the bonus - ', " more level in 'Star system'."],
             ['Work in progress, sorry, that is the end for now...'] //Nuclear fusion no longer efficient
+            // Cobalt and Nickel are produced in nuclear fusion to some amount. Heavier elements are produced by supernovae, and the heaviest by neutron star collisions. - NW
         ],
         effect: [
             null, 2, 0.1, null, 1.1, null, 1.5, 2, 0.05, 12,
