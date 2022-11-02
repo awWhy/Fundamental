@@ -132,7 +132,7 @@ export interface globalType {
         effectText: string[][]
         effect: number[]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     upgradesS2Info: {
@@ -146,7 +146,7 @@ export interface globalType {
         effectText: string[][]
         effect: [number, null, ...number[]]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     researchesExtraS2Info: {
@@ -154,7 +154,7 @@ export interface globalType {
         effectText: string[][]
         effect: [null, ...number[]]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     upgradesS3Info: {
@@ -168,7 +168,7 @@ export interface globalType {
         effectText: string[][]
         effect: number[]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     researchesExtraS3Info: {
@@ -176,7 +176,7 @@ export interface globalType {
         effectText: string[][]
         effect: [number, number, null, null]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     upgradesS4Info: {
@@ -200,7 +200,7 @@ export interface globalType {
         effectText: string[][]
         effect: number[]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     researchesExtraS4Info: {
@@ -208,7 +208,7 @@ export interface globalType {
         effectText: string[][]
         effect: [string, ...number[]]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     researchesAutoInfo: {
@@ -216,7 +216,7 @@ export interface globalType {
         effectText: string[][]
         effect: [null, string, ...number[]]
         cost: number[]
-        scalling: number[]
+        scaling: number[]
         max: number[]
     }
     lastUpgrade: [number | null, 'upgrades', boolean]

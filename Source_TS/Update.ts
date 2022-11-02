@@ -718,7 +718,7 @@ export const stageCheck = () => {
         buildingsInfo.increase = [0, 1.4, 1.4, 1.4];
         globalStart.buildingsInfo.startCost = [0, 3, 24, 3];
         globalStart.researchesAutoInfo.cost[1] = 3000;
-        researchesAutoInfo.scalling[1] = 5000;
+        researchesAutoInfo.scaling[1] = 5000;
         global.dischargeInfo.next = Math.round(10 ** player.discharge.current); //Calculate stage specific part's
     } else if (stage.current === 2) {
         buildingsInfo.name = ['Moles', 'Drops', 'Puddles', 'Ponds', 'Lakes', 'Seas'];
@@ -726,14 +726,14 @@ export const stageCheck = () => {
         buildingsInfo.increase = [0, 1.2, 1.2, 1.2, 1.2, 1.2];
         globalStart.buildingsInfo.startCost = [0, 0.0028, 100, 1e7, 1e18, 1e23];
         globalStart.researchesAutoInfo.cost[1] = 1e10;
-        researchesAutoInfo.scalling[1] = 1000;
+        researchesAutoInfo.scaling[1] = 1000;
     } else if (stage.current === 3) {
         buildingsInfo.name = ['Mass', 'Cosmic dust', 'Planetesimals', 'Protoplanets', 'Satellites'];
         buildingsInfo.type = ['producing', 'producing', 'producing', 'producing', 'improves'];
         buildingsInfo.increase = [0, 1.15, 1.15, 1.15, 10];
         globalStart.buildingsInfo.startCost = [0, 1e-19, 1e-9, 1e21, 1e17];
         globalStart.researchesAutoInfo.cost[1] = 1e-7;
-        researchesAutoInfo.scalling[1] = 1e17;
+        researchesAutoInfo.scaling[1] = 1e17;
         updateRankInfo();
     } else if (stage.current === 4) {
         buildingsInfo.name = ['Elements', 'Brown dwarfs', 'Main sequence', 'Red supergiants', 'Blue hypergiants'];
@@ -741,7 +741,7 @@ export const stageCheck = () => {
         buildingsInfo.increase = [0, 1.4, 1.55, 1.70, 1.85];
         globalStart.buildingsInfo.startCost = [0, 1, 1e5, 1e16, 1e31];
         globalStart.researchesAutoInfo.cost[1] = 1e6;
-        researchesAutoInfo.scalling[1] = 1e11;
+        researchesAutoInfo.scaling[1] = 1e11;
         for (let i = 1; i < global.elementsInfo.cost.length; i++) { visualUpdateUpgrades(i, 'elements'); }
     }
 

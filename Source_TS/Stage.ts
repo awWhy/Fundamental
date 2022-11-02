@@ -105,9 +105,9 @@ export const calculateResearchCost = (research: number, type: 'researches' | 're
     if (player[type][research] === global[typeInfo].max[research]) { return; }
 
     if (stage.current === 1) {
-        global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] + global[typeInfo].scalling[research] * player[type][research];
+        global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] + global[typeInfo].scaling[research] * player[type][research];
     } else {
-        global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] * global[typeInfo].scalling[research] ** player[type][research];
+        global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] * global[typeInfo].scaling[research] ** player[type][research];
         if (typeInfo === 'researchesAutoInfo' && research === 1) {
             if (stage.current === 2 && player.researchesAuto[1] >= 3) {
                 global[typeInfo].cost[research] *= player.researchesAuto[1] >= 4 ? 1e4 : 1e2;

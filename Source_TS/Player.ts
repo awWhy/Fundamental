@@ -177,10 +177,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Particles produce ', ' times more Quarks.'],
             ['Atoms produce ', ' times more Particles.'],
             ['Ability to reset at any time, and if you had enough Energy, production for all buildings will be boosted by ', ' times.'],
-            ['Cost scalling is decreased by ', '.'],
-            ['Buildings (only self-made one\'s) boost themselfs by ', ' times.'],
+            ['Cost scaling is decreased by ', '.'],
+            ['Buildings (only self-made one\'s) boost themselves by ', ' times.'],
             ['Molecules produce Molecules. At a reduced rate. (', ' per second)'],
-            ['Unspent Energy boost Molecules production of themselfs 1 to 1.']
+            ['Unspent Energy boost Molecules production of themselves 1 to 1.']
         ],
         effect: [10, 10, 5, 4, 0.2, 1.01, 0, null],
         cost: [9, 12, 36, 300, 800, 4000, 13000, 36000]
@@ -194,15 +194,15 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Gain more Energy from buying a building.'
         ],
         effectText: [
-            ['Cost scalling is ', ' smaller for each level.'],
+            ['Cost scaling is ', ' smaller for each level.'],
             ['Each self-made building, boost each other by additional ', '.'],
-            ['Molecules now produce themselfs ', ' times quicker.'],
+            ['Molecules now produce themselves ', ' times quicker.'],
             ['Discharge is now gives extra +', ' bonus per reached goal.'],
             ['A single building now gives ', ' times more Energy.']
         ],
         effect: [0.01, 0.01, 12, 1, 3],
         cost: [2000, 6000, 18000, 10000, 42000],
-        scalling: [250, 1000, 2000, 0, 88000],
+        scaling: [250, 1000, 2000, 0, 88000],
         max: [9, 3, 9, 1, 2]
     },
     upgradesS2Info: {
@@ -244,7 +244,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: [3, null, 0.02, 0.03, 1, 1],
         cost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
-        scalling: [1.2, 1000, 1000, 10000, 1000, 100],
+        scaling: [1.2, 1000, 1000, 10000, 1000, 100],
         max: [9, 2, 3, 3, 2, 2]
     },
     researchesExtraS2Info: {
@@ -255,12 +255,12 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Clouds will now use total produced Drops instead, when formed.'],
-            ['Some Clouds will start pouring Drops themselfs. (', ' per second)'],
+            ['Some Clouds will start pouring Drops themselves. (', ' per second)'],
             ['Seas get boost based on amount of Clouds. (Equal to ', ')']
         ],
         effect: [null, 0, 0],
         cost: [1e16, 1e13, 1e26],
-        scalling: [0, 100, 0],
+        scaling: [0, 100, 0],
         max: [1, 4, 1]
     },
     upgradesS3Info: {
@@ -289,7 +289,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Core melted, Accretion speed increased. (Mass production increased by ', ')'],
             ['Accretion speed increased again (because of drag and escape velocity), by ', '.'],
             ['Accretion speed greatly increased by ', '.'],
-            ['Satellites scalling cost is now ', ' times smaller.'],
+            ['Satellites scaling cost is now ', ' times smaller.'],
             ['Satellites effect is increased.']
         ],
         effect: [1.01, 0, 2, 1.1, 4, 3, null, 2, 2, 10, 2, null],
@@ -318,7 +318,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: [3, 0.01, 3, 2, 5, 0, 1.5, 3],
         cost: [1e-14, 1e-15, 1e-5, 1e5, 1e10, 1e15, 1e13, 1e12],
-        scalling: [11, 111, 22, 10, 100, 10, 100000, 1000],
+        scaling: [11, 111, 22, 10, 100, 10, 100000, 1000],
         max: [7, 3, 9, 4, 2, 5, 3, 3]
     },
     researchesExtraS3Info: {
@@ -336,7 +336,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: [0, 0, null, null],
         cost: [1e-18, 1e-16, 1e26, 1e-12],
-        scalling: [10, 100, 0, 100],
+        scaling: [10, 100, 0, 100],
         max: [12, 5, 1, 20]
     },
     upgradesS4Info: {
@@ -436,7 +436,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: [1.1, 1, 3],
         cost: [1000, 50000, 1e8],
-        scalling: [10, 200, 1e12],
+        scaling: [10, 200, 1e12],
         max: [3, 2, 1]
     },
     researchesExtraS4Info: {
@@ -448,7 +448,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: ['Main sequence'],
         cost: [1e6],
-        scalling: [1e12],
+        scaling: [1e12],
         max: [3]
     },
     researchesAutoInfo: { //If new one added, don't forget to add into player (only for this one)
@@ -464,7 +464,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effect: [null, 'Particles', 2],
         cost: [300, 3000, 1e9],
-        scalling: [0, 5000, 0],
+        scaling: [0, 5000, 0],
         max: [1, 3, 1]
     },
     lastUpgrade: [null, 'upgrades', false], //Allows to auto update last looked upgrade description
