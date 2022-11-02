@@ -2,8 +2,7 @@ name: Deploy to github pages
 
 on:
   push:
-    branches:
-      - main
+    branches: main
 
 jobs:
 
@@ -15,15 +14,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Use Node.js
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
-
-      -  run: npm install
-      -  run: npm run lint
-      -  run: npm run build:map
-
-      - name: Deploy
-        run: git push origin main --force
-        # I'm so tired of this... Not a single tutorial to tell why outfile not being sended...
+          node-version: 16
+          cache: npm
+      - name: Install dependancies
+        run: |
+          npm install
+      - name: Lint
+        run: |
+          npm run lint
+      - name: Build
+        run: |
+          npm run build:map
+      - name: Prepare deploy branch
+        run: |
+          rm -rf targetdir
+          mkdir -p targetdir
+          mv Code.js Code.js.map index.html Style.css Used_art targetdir/
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: targetdir
