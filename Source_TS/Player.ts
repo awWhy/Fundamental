@@ -176,11 +176,11 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Particle cost is ', ' times cheaper.'],
             ['Particles produce ', ' times more Quarks.'],
             ['Atoms produce ', ' times more Particles.'],
-            ['Ability to reset at any time, and if you had enough Energy, production for all buildings will be boosted by ', ' times.'],
-            ['Cost scalling is decreased by ', '.'],
-            ['Buildings (only self-made one\'s) boost themselfs by ', ' times.'],
+            ['Ability to reset at any time, and if you have enough Energy, production for all buildings will be boosted by ', ' times.'],
+            ['Cost scaling is decreased by ', '.'],
+            ['Buildings (only self-made ones) boost themselves by ', ' times.'],
             ['Molecules produce Molecules. At a reduced rate. (', ' per second)'],
-            ['Unspent Energy boost Molecules production of themselfs 1 to 1.']
+            ['Unspent Energy boosts Molecules production of themselves 1 to 1.']
         ],
         effect: [10, 10, 5, 4, 0.2, 1.01, 0, null],
         cost: [9, 12, 36, 300, 800, 4000, 13000, 36000]
