@@ -1,5 +1,6 @@
 export interface playerType {
     version: string
+    fileName: string
     stage: {
         true: number
         current: number

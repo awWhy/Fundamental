@@ -267,17 +267,17 @@ export const numbersUpdate = () => { //This is for relevant visual info
 
     if (global.footer) {
         if (stage.current === 1) {
-            getId('quarks').textContent = `Quarks: ${format(buildings[0].current)}`;
-            if (player.discharge.energyMax >= 9) { getId('energy').textContent = `Energy: ${format(player.discharge.energyCur, 0)}`; }
+            getId('quarks').textContent = format(buildings[0].current);
+            if (player.discharge.energyMax >= 9) { getId('energy').textContent = format(player.discharge.energyCur, 0); }
         } else if (stage.current === 2) {
-            getId('water').textContent = `Moles: ${format(buildings[0].current)}`;
-            if (tab !== 'stage') { getId('drops').textContent = `Drops: ${format(buildings[1].current)}`; }
-            if (upgrades[1] === 1) { getId('clouds').textContent = `Clouds: ${format(player.vaporization.clouds)}`; }
+            getId('water').textContent = format(buildings[0].current);
+            if (tab !== 'stage') { getId('drops').textContent = format(buildings[1].current); }
+            if (upgrades[1] === 1) { getId('clouds').textContent = format(player.vaporization.clouds); }
         } else if (stage.current === 3) {
-            getId('mass').textContent = `Mass: ${format(buildings[0].current)}`;
+            getId('mass').textContent = format(buildings[0].current);
         } else if (stage.current === 4) {
-            getId('solarMass').textContent = `Mass: ${format(player.collapse.mass)}`;
-            getId('elements').textContent = `Elements: ${format(buildings[0].current)}`;
+            getId('solarMass').textContent = format(player.collapse.mass);
+            getId('elements').textContent = format(buildings[0].current);
         }
     }
     if (tab === 'stage') {

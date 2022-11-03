@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, startValue, checkPlayerValues } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
 import { buyBuilding, buyUpgrades, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport, removeTextMovement } from './Special';
 import { detectHotkey } from './Hotkeys';
 /* There might be some problems with incorect build, imports being called in wrong order. */
 
@@ -38,6 +38,7 @@ export const reLoad = async(firstLoad = false) => {
         mobileDeviceSupport();
         screenReaderSupport(false, 'toggle', 'reload');
         changeFontSize();
+        if (localStorage.getItem('textMove') !== null) { removeTextMovement(); }
     }
     stageCheck(); //All related stage information and visualUpdate();
     checkPlayerValues(); //Has to be done after stageCheck();
@@ -172,11 +173,13 @@ getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
 for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
+getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
 getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'main'));
 getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
 getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
 getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 'autoSave'));
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
+getId('noMovement').addEventListener('click', () => removeTextMovement(true));
 getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
 getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
 
@@ -297,7 +300,7 @@ async function saveLoad(type: string) {
             getId('isSaved').textContent = 'Exported';
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;
-            a.download = 'Fundamental.txt'; //Add choice for a name, later
+            a.download = player.fileName + '.txt';
             a.click();
             return;
         }
@@ -327,6 +330,32 @@ async function saveLoad(type: string) {
         }
     }
 }
+
+const changeSaveFileName = () => {
+    const input = getId('saveFileNameInput') as HTMLInputElement;
+    const preview = getId('saveFileNamePreview') as HTMLParagraphElement;
+
+    let newValue: string; //Max allowed string length is 255 (35) (?)
+    if (input.value.length > 4) {
+        newValue = input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
+    } else {
+        const check = input.value.replace(/[1-9]/, '').toLowerCase(); //No idea if I should check for these
+        if (input.value.length < 4 || (input.value.length === 4 && (check === 'com' || check === 'lpt'))) {
+            newValue = playerStart.fileName;
+        } else {
+            newValue = input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
+        }
+    }
+
+    try {
+        btoa(newValue);
+        preview.textContent = newValue + '.txt';
+        input.value = newValue;
+        player.fileName = newValue;
+    } catch (error) {
+        Alert(`Save file name is not allowed.\nFull error is: '${error}'`);
+    }
+};
 
 const pauseGame = async() => {
     changeIntervals(true);

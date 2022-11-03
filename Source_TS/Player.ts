@@ -3,6 +3,7 @@ import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     version: 'v0.0.6',
+    fileName: 'Fundamental',
     stage: {
         true: 1,
         current: 1,
@@ -658,7 +659,7 @@ export const updatePlayer = (load: playerType) => {
     }
     if (player.version === 'v0.0.5') {
         player.version = 'v0.0.6';
-        versionInfo.log += `\n${player.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked`;
+        versionInfo.log += `\n${player.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked, save file names and others`;
         player.events = player.stage.current === 1 && player.discharge.current > 4 ? [true] : [false];
         player.collapse.show = -1;
     }

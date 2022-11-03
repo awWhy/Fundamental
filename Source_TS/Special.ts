@@ -1,4 +1,4 @@
-import { getId } from './Main';
+import { getClass, getId } from './Main';
 import { global, player } from './Player';
 import { format } from './Update';
 
@@ -68,6 +68,8 @@ export const switchTheme = () => {
     body.removeProperty('--darkviolet-text-color');
     body.removeProperty('--red-text-color');
     body.removeProperty('--green-text-color');
+    getId('dropStat').style.color = '';
+    getId('waterStat').style.color = '';
     /* And set new colors */
     switch (theme.stage) {
         case 2:
@@ -94,6 +96,8 @@ export const switchTheme = () => {
             body.setProperty('--darkviolet-text-color', '#a973ff');
             body.setProperty('--green-text-color', '#82cb3b');
             body.setProperty('--red-text-color', '#f70000');
+            getId('dropStat').style.color = '#3099ff';
+            getId('waterStat').style.color = '#3099ff';
             break;
         case 3:
             getId('upgradeCost').style.color = 'var(--green-text-color)';
@@ -119,6 +123,8 @@ export const switchTheme = () => {
             body.setProperty('--white-text-color', '#dfdfdf');
             body.setProperty('--orange-text-color', '#f58600');
             body.setProperty('--green-text-color', '#00db00');
+            getId('dropStat').style.color = '#3099ff';
+            getId('waterStat').style.color = '#3099ff';
             break;
         case 4:
             getId('upgradeEffect').style.color = 'var(--green-text-color)';
@@ -418,6 +424,24 @@ export const changeFontSize = (change = false, inputChange = false) => {
         toggle.textContent = 'ON';
         toggle.style.color = '';
         toggle.style.borderColor = '';
+    }
+};
+
+export const removeTextMovement = (change = false) => {
+    const add = getClass('statFoot');
+
+    if (change) {
+        if (localStorage.getItem('textMove') === null) {
+            localStorage.setItem('textMove', 'false');
+        } else {
+            localStorage.removeItem('textMove');
+        }
+    }
+
+    for (const i of add) {
+        i.classList.contains('noMove') ?
+            i.classList.remove('noMove') :
+            i.classList.add('noMove');
     }
 };
 

@@ -43,6 +43,7 @@
         "no-return-assign": "off", //I don't know how often this can help and I do need return assign
         "eqeqeq": "warn", //Using ===, won't be slower than == (even if need type conversion)
         "no-loop-func": "warn", //Test
+        "prefer-object-has-own": "warn", //No 'in' as well (because it's not actually quicker, sad...)
 
         "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
         "@typescript-eslint/semi": ["error", "always"],
