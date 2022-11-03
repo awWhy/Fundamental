@@ -581,7 +581,7 @@ li button, p button { margin-left: 0.4em; }
 }
 
 .windowPopUp:focus-within > button:not([class = "listButton"]):not(:focus) ~ div,
-.windowPopUp > .listButton:hover ~ div { display: grid; }
+.windowPopUp > .listButton:hover ~ div, .windowPopUp > .listButton:focus ~ div { display: grid; }
 
 #saveFileNameInput {
     width: 17.2em;
