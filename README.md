@@ -1,2 +1,2 @@
 # Fundamental
-## Only what inside with repository is being published
+#### Only what inside within this repository is being published
