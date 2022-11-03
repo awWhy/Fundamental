@@ -1,0 +1,780 @@
+/* CSS lint will never be installed, because it was only gettin in a way without proving any help */
+body *, body {
+    font-family: Inter, serif;
+    box-sizing: border-box;
+    margin: 0;
+    font-size: var(--font-size);
+
+    /* No text color, because it's really awkwardly behind... */
+    transition: background-color var(--transition-all), border-color var(--transition-all);
+}
+
+body {
+    /* Colors */
+    --background-color: #030012;
+    --window-color: #12121c;
+    --window-border: cornflowerblue;
+    --footer-color: darkblue;
+    --button-main-color: mediumblue;
+    --button-main-border: darkcyan;
+    --button-main-hover: #2626ff;
+    --button-tab-border: darkcyan;
+    --button-tab-active: #8b00c5;
+    --button-extra-hover: #170089;
+    --button-delete-color: firebrick;
+    --button-delete-hover: #ce0000;
+    --button-text-color: #e3e3e3;
+    --input-border-color: #831aa5;
+    --input-text-color: #cf71ff;
+    --building-can-buy: #a90000;
+    --main-text-color: #03d3d3;
+    --white-text-color: white;
+    --cyan-text-color: #03d3d3;
+    --blue-text-color: dodgerblue;
+    --orange-text-color: darkorange;
+    --gray-text-color: #8f8f8f;
+    --orchid-text-color: #e14bdb;
+    --darkorchid-text-color: #bd24ef;
+    --darkviolet-text-color: #8635eb;
+    --red-text-color: #eb0000;
+    --green-text-color: #00e900;
+
+    /* Special */
+    --transition-all: 0s;
+    --transition-buttons: 100ms; /* I'm tired, I have no better idea how to do it. I tryed .insertRule(), adding <style> and etc. */
+    --stage-text-color: var(--cyan-text-color);
+    --border-image: url(Used_art/Stage1%20border.png);
+    --border-stage: #008b8b;
+    --font-size: 16px;
+}
+
+.customColors {
+    color: var(--main-text-color);
+    background-color: var(--background-color);
+}
+
+.stageText { color: var(--stage-text-color); }
+.mainText { color: var(--main-text-color); }
+.whiteText { color: var(--white-text-color); }
+/* .cyanText { color: var(--cyan-text-color); } */
+.blueText { color: var(--blue-text-color); }
+.orangeText { color: var(--orange-text-color); }
+.grayText { color: var(--gray-text-color); }
+.orchidText { color: var(--orchid-text-color); }
+.darkOrchidText { color: var(--darkorchid-text-color); }
+.darkvioletText { color: var(--darkviolet-text-color); }
+.redText { color: var(--red-text-color); }
+.greenText { color: var(--green-text-color); }
+
+input[type = "image"],
+img {
+    background-color: var(--background-color);
+    object-fit: none;
+    width: 32px;
+    height: 32px;
+    color: white; /* Alt text color (shown if image failed to load) */
+    border-radius: 2px;
+}
+
+.statFoot img,
+.researchSection input[type = "image"] {
+    border-radius: 3px; /* Yes 1 pixel difference... */
+    z-index: 0; /* Text has -2.5px margin (because round corners), so image should be on top */
+}
+
+.interactiveImage { cursor: pointer; }
+
+.stageBorder {
+    background-image: var(--border-image);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.invisible { /* For screen readers */
+    position: absolute;
+    clip-path: circle(0);
+}
+
+/* Too lazy to make it look decent */
+a { color: red; }
+#loading > p { padding: 0.6em 2em; }
+h1 { font-weight: normal; }
+
+#loading, #blocker {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#blocker {
+    z-index: 1;
+    background-color: #00000050;
+}
+
+#alertPopUp {
+    display: flex;
+    flex-direction: column;
+    width: clamp(24vw, 23.8em, 80vw);
+    height: clamp(18vh, 20em, 90vh);
+    left: 50%;
+    top: 50%;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 10px;
+    white-space: pre-line;
+    padding: 0.7em 0.8em 0.9em;
+    row-gap: 0.7em;
+}
+
+#alertText { overflow: clip auto; }
+
+#alertPopUp > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: auto;
+    gap: 0.8em 10%;
+}
+
+#alertPopUp button {
+    width: 7em;
+    border-radius: 7px;
+}
+
+#inputArea {
+    width: 100%;
+    height: 2em;
+    margin: 0 1em;
+    padding: 0 0.25em;
+    background-color: black;
+}
+
+button, input { appearance: none; }
+
+#load, button {
+    height: 2.08em;
+    cursor: pointer;
+    transition: border-color var(--transition-buttons), background-color var(--transition-buttons);
+    background-color: var(--button-main-color);
+    border: 2px solid var(--button-main-border);
+    color: var(--button-text-color);
+    padding: 0 0.45em;
+    font-size: 0.84em;
+}
+
+.bigButton {
+    width: 10.6em;
+    height: 2.2em;
+    font-size: 1.05em;
+}
+
+.mediumButton {
+    width: 15.3em;
+    height: 2.2em;
+    font-size: 0.86em;
+}
+
+.toggle, .toggleBuilding, .toggleAuto, .specialToggle {
+    color: var(--green-text-color);
+    border-color: forestgreen;
+    background-color: var(--background-color);
+    width: 2.8em;
+    height: 1.63em;
+    padding: 0 0.3em;
+}
+
+.toggleBuilding, .toggleAuto {
+    width: 5.8em;
+    height: 1.95em;
+}
+
+/* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
+.footerArea button:hover { background-color: #181818; }
+button:hover, #load:hover { background-color: var(--button-main-hover); }
+#delete:hover { background-color: var(--button-delete-hover); }
+.toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
+
+input[type = "number"] {
+    width: 5.4em;
+    height: 1.85em;
+    background-color: var(--background-color);;
+    appearance: textfield; /* To remove arrows */
+    text-align: center;
+}
+
+input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
+input:invalid { border-color: crimson; }
+
+input[type = "number"], input[type = "text"] {
+    border: 2px solid var(--input-border-color);
+    border-radius: 2px;
+    color: var(--input-text-color);
+    font-size: 0.84em;
+}
+
+.insideTab { /* If tab has subtabs, then it should be placed ONLY on subtabs */
+    margin-top: min(2vh, 1.2em);
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    margin-bottom: 6em;
+    gap: 1.6em;
+}
+
+#resets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    height: min-content;
+    gap: 1.2em;
+}
+
+.reset {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 18em;
+    padding: 0.95em 1.05em 1.05em;
+    row-gap: 1.05em;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+}
+
+.reset .mediumButton { margin-top: 0.4em; }
+.bigWord { font-size: 1.1em; }
+
+p > img {
+    float: left; /* This is the only way to have an image inside text */
+    margin-right: 0.4em;
+    margin-top: 0.35em;
+}
+
+#buildings {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.44em;
+}
+
+.buyBuilding {
+    display: flex;
+    align-items: center;
+    column-gap: 0.6em;
+}
+
+.buyBuilding > div:first-of-type {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.3em;
+}
+
+.buyBuilding > div:last-of-type {
+    display: grid;
+    grid-template-areas: "buy button toggle";
+    align-items: center;
+}
+
+.buyBuilding p { color: var(--stage-text-color); }
+.buyBuilding > div > p:first-of-type { width: 13.5em; }
+.buyBuilding > div > p:last-of-type { width: 10.5em; }
+.buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.25em; }
+
+.buyBuilding > div > div {
+    grid-area: buy;
+    display: flex;
+    align-items: center;
+}
+
+.buyBuilding > div > div > p {
+    width: 5.6em;
+    font-size: 0.92em;
+    text-align: end;
+}
+
+.buyBuilding > div > div > div {
+    width: 1em;
+    height: 1.4em;
+    clip-path: polygon(100% 100%, 90% 100%, 90% 75%, 0% 50%, 90% 25%, 60% 50%, 90% 75%, 90% 0%, 100% 0%);
+    background-color: var(--button-main-border);
+    margin: 0 0.3em;
+}
+
+.buyBuilding button:first-of-type {
+    grid-area: button;
+    width: 16em;
+}
+
+.buyBuilding .toggleBuilding {
+    grid-area: toggle;
+    margin-left: 0.4em;
+}
+
+.availableBuilding button:first-of-type { border-color: var(--building-can-buy); }
+.availableBuilding > div > div > div { background-color: var(--building-can-buy); }
+
+#toggleBuy {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    column-gap: 0.3em;
+}
+
+#toggleBuy > img { height: 22px; }
+#buyAnyInput { margin: 0 0.3em; }
+
+#buyStrict {
+    background-color: var(--background-color);
+    border-color: forestgreen;
+    color: var(--green-text-color);
+    padding: 0 0.5em;
+    height: 1.92em;
+    font-size: 0.85em;
+}
+
+#starsSpecial {
+    display: flex;
+    justify-content: space-around;
+}
+
+.specialStar {
+    display: flex;
+    align-items: center;
+    column-gap: 0.6em;
+}
+
+.specialStar p {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.3em;
+    font-size: 0.92em;
+}
+
+#upgrades {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    row-gap: 0.45em;
+}
+
+#upgrades > div:first-of-type {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+}
+
+#upgrades > a { margin-bottom: 0.25em; }
+
+.researchSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.researchSection > div {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px solid var(--border-stage);
+    border-left-width: 1px;
+    border-radius: 4px;
+    padding: 0.25em;
+    margin-left: -1px;
+    gap: 0.5em;
+    background-color: var(--window-color);
+}
+
+.researchSection > div > div > p {
+    border: 2px solid var(--border-stage);
+    border-left: none;
+    line-height: 28px;
+    text-align: center;
+    padding: 0 0.25em 0 calc(0.25em + 2.5px);
+    background-color: var(--background-color);
+    margin-left: -2.5px;
+}
+
+.researchSection > div > div { display: flex; }
+#researchTab .descriptionText { margin-top: -0.5em; }
+
+/* I could try and use @layer, but no idea how much will need to be added (or how well supported) */
+.stage1border { border-color: #008b8b !important; } 
+.stage2border { border-color: #1460a8 !important; }
+.stage3border { border-color: #5b5b75 !important; }
+.stage4border { border-color: #e87400 !important; }
+.stage5border { border-color: #b324e2 !important; }
+.stage6border { border-color: #5300c1 !important; }
+.stage0border { border-color: #b21111 !important; } /* Phaceholder name, probably will be renamed */
+
+.descriptionText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    row-gap: 0.3em;
+    white-space: pre-line;
+}
+
+.descriptionText > label,
+.descriptionText > p { max-width: 80%; }
+
+#elementsGrid {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 0.25em;
+    padding: 0.4em;
+    border: 2px solid darkgreen;
+}
+
+#elementsGrid[class = "Elements10App"] { grid-template-columns: repeat(8, 1fr); }
+
+#elementsGrid .interactiveImage {
+    width: 38px;
+    height: 38px;
+    border-radius: 0;
+}
+
+#element2 { grid-column: 18; }
+.Elements10App #element2 { grid-column: 8; }
+#elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
+
+#resetToggles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    height: min-content;
+    gap: 0.3em 0.6em;
+}
+
+#resetToggles > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.3em;
+}
+
+#resetToggles > label { width: 100%; }
+
+.saveButtonGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    row-gap: 0.3em;
+}
+
+.saveButtonGroup > div {
+    display: flex;
+    flex-direction: column;
+    width: min-content;
+    row-gap: 0.2em;
+}
+
+.saveButtonGroup > div > div {
+    display: flex;
+    column-gap: 0.2em;
+}
+
+.saveButtonGroup button, #load { font-size: 1em; }
+
+#save, #load {
+    width: 5.65em;
+    height: 2em;
+}
+
+#file {
+    position: absolute;
+    clip-path: circle(0); /* Important for screen readers */
+}
+
+#load {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#export {
+    height: 2.1em;
+    font-size: 1.2em;
+}
+
+#delete {
+    background-color: var(--button-delete-color);
+    height: 1.74em;
+    font-size: 0.9em;
+}
+
+#themeArea > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#themeArea > div > div {
+    position: absolute;
+    width: min-content;
+    display: none;
+}
+
+#themeArea { text-align: center; }
+#themeArea > div:focus-within > div { display: block; }
+#themeArea > div:focus-within > button { clip-path: circle(0); } /* Just makes button invisible without removing focus from it */
+#themeArea button { width: 7em; }
+#themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
+#switchTheme1 { border-color: darkcyan; }
+#switchTheme2 { border-color: #427be1; }
+#switchTheme3 { border-color: #404040; }
+#switchTheme4 { border-color: #9f6700; }
+#themeArea > p { margin-bottom: 0.3em; }
+
+.options > label {
+    display: block;
+    text-align: center;
+}
+
+.options:not(:last-of-type) { margin-bottom: 0.5em; }
+
+.options ul {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.18em;
+    margin-top: 0.2em;
+    margin-left: -1em;
+}
+
+.options li {
+    font-size: 0.92em;
+    list-style-type: ">  ";
+}
+
+li > input[type = "number"] {
+    height: 1.7em;
+    width: 3.15em;
+}
+
+.listButton {
+    height: 1.77em;
+    padding: 0 0.45em;
+    background-color: var(--background-color);
+}
+
+li button { font-size: 0.92em; }
+li button, p button { margin-left: 0.4em; }
+
+#hotkeysArea > div {
+    display: none;
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    width: min(22em, 80vw);
+    padding: 0.6em 0.7em 0.7em;
+    margin-top: 0.5em;
+    row-gap: 0.3em;
+}
+
+/* I don't know if bellow works the way I think, I wanted to give SR ability to read a pop up
+#hotkeysArea > .listButton:focus ~ div; This is a backup if wont work */
+#hotkeysArea:focus-within > button:first-of-type:not(:focus) ~ div { display: grid; }
+
+#pauseGame {
+    cursor: pointer;
+    width: max-content; /* Without it, area where you can click will stretch */
+}
+
+#stats {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.4em;
+}
+
+#stats span:not(.stageText) { color: var(--white-text-color); }
+
+#buildingsAllStats {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    gap: 0.5em 1em;
+}
+
+#buildingsAllStats > div {
+    min-width: 6.3em;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 0.5em;
+    padding: 0.4em 0.6em 0.5em;
+}
+
+#buildingsAllStats > p { margin-bottom: 0.15em; }
+
+#rankStats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45em;
+    margin-top: 0.1em;
+}
+
+#footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+#footerColor {
+    background-color: var(--footer-color);
+    padding: min(1.3vh, 0.8em) 2vw;
+    overflow-x: overlay;
+}
+
+.footerArea button {
+    border-radius: 10px;
+    border-color: var(--button-tab-border);
+    padding: 0 0.7em;
+    min-width: 5em;
+    height: 2em;
+    font-size: 1.01em;
+    background-color: black;
+}
+
+.footerArea, .footerArea > nav, #subtabs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    column-gap: 1em;
+}
+
+.tabActive { border-color: var(--button-tab-active) !important; }
+#footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
+
+.statText {
+    width: 10em;
+    line-height: 28px;
+    text-align: center;
+    border: 2px solid var(--border-stage);
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    background-color: black;
+    color: var(--stage-text-color);
+    margin-left: -2.5px;
+    padding-left: 2.5px;
+}
+
+#footer img { background-color: black; }
+.statFoot { display: flex; }
+
+#energy { color: var(--orange-text-color); }
+#clouds { color: var(--gray-text-color); }
+#water { color: #3099ff; }
+#solarMass { color: var(--cyan-text-color); }
+
+#footer > div:first-child {
+    display: flex;
+    align-items: flex-end;
+    height: 0; /* To be able to click behind it */
+}
+
+#subtabs {
+    display: flex;
+    flex-direction: row;
+    margin-left: 3.5%;
+    margin-bottom: min(0.6vh, 0.8em);
+    gap: min(0.3vh, 0.4em) min(0.6vh, 0.8em);
+}
+
+#subtabs button {
+    min-width: 5.5em;
+    background-color: var(--background-color);
+    border-radius: 2px;
+    padding: 0 0.6em;
+}
+
+#hideToggle {
+    margin-left: auto;
+    margin-right: 2.5%;
+    height: min-content;
+    width: min-content;
+    display: flex;
+    align-items: center;
+    column-gap: 0.25em;
+    background-color: var(--footer-color);
+    border: min(0.5vh, 0.3em) solid var(--footer-color);
+    border-right-width: min(3vw, 0.6em);
+    border-left-width: min(3vw, 0.6em);
+    border-bottom: none;
+    border-radius: 15px 15px 0 0;
+    cursor: pointer;
+}
+
+#hideArrow {
+    background-color: var(--main-text-color);
+    width: 0.8em;
+    height: 0.8em;
+    clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
+}
+
+@keyframes hide {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0); }
+    to { transform: rotate(180deg); }
+}
+
+/* I wonder, if using @container would be better. But I don't like it removing width and/or height... */
+@media screen and (max-width: 55em) {
+    .insideTab {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2em;
+        margin-top: min(1vh, 0.6em);
+    }
+
+    #buildings { row-gap: 0.2em; }
+    .buyBuilding, .specialStar { column-gap: 0.45em; }
+    .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
+
+    .buyBuilding > div:last-of-type {
+        row-gap: 0.16em;
+        margin-left: -0.45em;
+        grid-template-areas: "button button" "buy toggle";
+    }
+
+    .buyBuilding > div > div > p {
+        line-height: calc(1.78em - 4px);
+        text-align: center;
+        border: 2px solid var(--button-main-border);
+        border-radius: 3px;
+        margin-right: 0;
+    }
+
+    .buyBuilding > div > div > div { display: none; }
+    .buyBuilding .toggleBuilding { margin-left: auto; }
+    .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
+
+    #researchTab .descriptionText { margin-top: -0.25em; }
+    
+    #elementsGrid {
+        gap: 0.15em;
+        padding: 0.25em;
+    }
+
+    #elementsGrid .interactiveImage {
+        width: 32px;
+        height: 32px;
+        object-fit: scale-down;
+    }
+
+    #themeArea > div > div { width: max-content; }
+
+    #subtabs { flex-direction: column-reverse; }
+}
