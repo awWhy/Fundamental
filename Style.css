@@ -164,7 +164,7 @@ button, input { appearance: none; }
     background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
     color: var(--button-text-color);
-    padding: 0.075em 0.45em;
+    padding: 0 0.45em;
     font-size: 0.84em;
 }
 
@@ -186,7 +186,7 @@ button, input { appearance: none; }
     background-color: var(--background-color);
     width: 2.8em;
     height: 1.63em;
-    padding: 0.075em 0.3em;
+    padding: 0 0.3em;
 }
 
 .toggleBuilding, .toggleAuto {
@@ -459,7 +459,7 @@ p > img {
     row-gap: 0.3em;
 }
 
-#resetToggles > p { width: 100%; }
+#resetToggles > label { width: 100%; }
 
 .saveButtonGroup {
     display: flex;
@@ -533,7 +533,11 @@ p > img {
 #switchTheme4 { border-color: #9f6700; }
 #themeArea > p { margin-bottom: 0.3em; }
 
-.options > p { text-align: center; }
+.options > label {
+    display: block;
+    text-align: center;
+}
+
 .options:not(:last-of-type) { margin-bottom: 0.5em; }
 
 .options ul {
@@ -554,8 +558,31 @@ li > input[type = "number"] {
     width: 3.15em;
 }
 
-.options ul button { font-size: 0.92em; }
-.options ul button, p button { margin-left: 0.4em; }
+.listButton {
+    height: 1.77em;
+    padding: 0 0.45em;
+    background-color: var(--background-color);
+}
+
+li button { font-size: 0.92em; }
+li button, p button { margin-left: 0.4em; }
+
+#hotkeysArea > div {
+    display: none;
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    width: min(22em, 80vw);
+    padding: 0.6em 0.7em 0.7em;
+    margin-top: 0.5em;
+    row-gap: 0.3em;
+}
+
+/* I don't know if bellow works the way I think, I wanted to give SR ability to read a pop up
+#hotkeysArea > .listButton:focus ~ div; This is a backup if wont work */
+#hotkeysArea:focus-within > button:first-of-type:not(:focus) ~ div { display: grid; }
 
 #pauseGame {
     cursor: pointer;

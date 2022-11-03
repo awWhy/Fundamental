@@ -20,10 +20,22 @@ jobs:
         with:
           node-version: '16.x'
 
-      -  run: npm install
-      -  run: npm run lint
-      -  run: npm run build:map
+      - name: Prepare for deploy
+        run: |
+          npm install
+          npm run lint
+          npm run build:map
+
+      - name: Move into a folder
+        run: | # Please, I don't know anymore
+          mkdir -p please
+          mv index.html Style.css Used_art Code.js Code.js.map please/
 
       - name: Deploy
-        run: git push origin main --force
-        # I'm so tired of this... Not a single tutorial to tell why outfile not being sended...
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: please
+          clean: true
+          clean-exclude: README.md
+          # Default settings should be fine (I think)
+

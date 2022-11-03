@@ -2,7 +2,7 @@ import { reset } from './Reset';
 import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.5', //'v0.0.6',
+    version: 'v0.0.6',
     stage: {
         true: 1,
         current: 1,
@@ -79,7 +79,8 @@ export const player: playerType = { //Only for information that need to be saved
     researchesAuto: [0, 0, 0],
     toggles: { //Not all toggles are here, some are saved in local storage instead (support type and font size)
         normal: [], //Auto added for every element with a class 'toggle'
-        /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4]; Collapse confirm[5] */
+        /* Offline progress[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4]; Collapse confirm[5]
+           Hotkeys type[6] */
         buildings: [], //class 'toggleBuilding' ([0] is only a placeholder, and 'undefined' is a longer word)
         auto: [], //class 'toggleAuto'
         shop: {
@@ -396,10 +397,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Highly toxic and reactive, +', " to max level of 'Planetary system'."],
             ['A noble ', 'x boost to Mass gain.'],
             ['Through leaching, you can get ', " extra level of 'Protoplanetary disk'."],
-            ['Star is inside you, as well Neutrons stars boost to all Stars is now increased to the decimal logarithm.'],
+            ['Stars are inside you, as well Neutrons stars boost to all Stars is now increased to the decimal logarithm.'],
             ['Has a great affinity towards oxygen and to decrease cost of all Stars by ', '.'],
-            ['Number is 14, group is 14, also 1414°C and Mass gain increased by ', '.'],
-            ['One of the fundamentals for life and to make all of your Stars boost Mass.'],
+            ['Number is 14, group is 14, also 1414°C and so is Mass gain increased by ', '.'],
+            ['One of the fundamentals of life and to make all of your Stars boost Mass.'],
             ['From hot area, to give you +', " max level to 'Star system'.\nResearch softcapped past 1e10."],
             ["Extremely reactive to extend max level of 'Planetary system', by another ", ' levels.'],
             ['Less noble boost, but bonus to Mass gain from Black holes scales a little better.'],
@@ -619,9 +620,7 @@ export const updatePlayer = (load: playerType) => {
                 load.toggles.auto[i] = playerCheck.toggles.auto[i];
             }
         }
-    } else {
-        load.toggles = playerCheck.toggles;
-    }
+    } else { load.toggles = playerCheck.toggles; } //At some point all toggles were split
 
     Object.assign(player, load);
     /* Version changes (and change log's) */
@@ -652,21 +651,16 @@ export const updatePlayer = (load: playerType) => {
     if (player.version === 'v0.0.3') {
         player.version = 'v0.0.4';
         versionInfo.log += `\n${player.version} - All stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
-        if (player.stage.current !== 1 || player.discharge.current > 4) { player.events = [true]; } //Remove later
     }
     if (player.version === 'v0.0.4') {
         player.version = 'v0.0.5';
         versionInfo.log += `\n${player.version} - First part of Stage 4 is out, also small visual changes. Screen readers support updated (I forgot about it since stage 2...). Also testing new formula for buying buildings and other minor stuff`;
     }
-    /*if (player.version === 'v0.0.5') {
+    if (player.version === 'v0.0.5') {
         player.version = 'v0.0.6';
-        versionInfo.log += `\n${player.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked`;*/
-    if (player.collapse.show === undefined) { //Temprorary until I finish update
+        versionInfo.log += `\n${player.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked`;
+        player.events = player.stage.current === 1 && player.discharge.current > 4 ? [true] : [false];
         player.collapse.show = -1;
     }
-    if (player.events.length > 1) {
-        player.events = [false];
-    }
-    //}
     if (oldVersion !== player.version) { versionInfo.changed = true; }
 };

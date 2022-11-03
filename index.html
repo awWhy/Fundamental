@@ -404,7 +404,7 @@
             <section id="settingsTab" style="display: none;">
                 <section id="settingsSubtabsettings" class="insideTab">
                     <div id="resetToggles" class="stage1Unlock">
-                        <p>Confirmation toggles</p>
+                        <label>Confirmation toggles</label>
                         <div class="stage1Unlock">
                             <img src="Used_art/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorder" loading="lazy">
                             <button id="toggle1" class="toggle" aria-label="Toggle for stage reset confirmation, currently ON">ON</button>
@@ -427,7 +427,7 @@
                         </div>
                     </div>
                     <div class="saveButtonGroup">
-                        <p>Please export save file regularly</p>
+                        <label>Please export save file regularly</label>
                         <div>
                             <div>
                                 <button id="save" aria-label="Save game">Save</button>
@@ -441,7 +441,7 @@
                     </div>
                     <div>
                         <div class="options">
-                            <p>Options</p>
+                            <label>Options</label>
                             <ul class="whiteText">
                                 <li>Numbers update and auto speed interval <input type="number" id="mainInterval" aria-label="How often game should calculate resources (in miliseconds, default is 100 miliseconds)" min="10" max="1000" value="100" tabindex="-1"> ms</li>
                                 <li>Visual numbers update interval <input type="number" id="numbersInterval" aria-label="How often game should update numbers (in miliseconds, default is 100 miliseconds)" min="10" max="1000" value="100" tabindex="-1"> ms</li>
@@ -449,10 +449,19 @@
                                 <li>Game autosave interval <input type="number" id="autoSaveInterval" aria-label="How often game should auto save (in seconds, default is 180 seconds)" min="10" max="1800" value="180"> s</li>
                                 <li>Mobile device support<button id="mobileDeviceToggle" class="specialToggle" aria-label="Mobile device support is OFF">OFF</button></li>
                                 <li>Screen reader support<button id="screenReaderToggle" class="specialToggle" aria-label="Screen reader support is OFF">OFF</button></li>
+                                <li id="hotkeysArea">Language dependent hotkeys<button id="toggle6" class="toggle" aria-label="Language dependent hotkeys, currently ON">ON</button><button class="listButton" aria-label="Check hotkey list">Check</button>
+                                    <div>
+                                        <p class="mainText">Arrow left and arrow right - <span class="whiteText">change tab</span></p>
+                                        <p class="mainText">Arrow down and arrow up - <span class="whiteText">change subtab</span></p>
+                                        <p class="mainText">Numbers - <span class="whiteText">buy buildings</span></p>
+                                        <p class="mainText">Enter - <span class="whiteText">confirm close Alert</span></p>
+                                        <p class="mainText">Escape - <span class="whiteText">cancel close Alert</span></p>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                         <div class="options">
-                            <p>Less recommended options</p>
+                            <label>Less recommended options</label>
                             <ul class="whiteText">
                                 <li id="pauseGame" aria-hidden="true">Pause game</li>
                                 <li>Offline progress<button id="toggle0" class="toggle" aria-label="Toggle to receive offline progress, currently ON">ON</button></li>

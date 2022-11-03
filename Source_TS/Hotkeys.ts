@@ -6,7 +6,7 @@ import { getId } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
     if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown
-    const key = player.toggles.normal[6] ? check.code.toLowerCase() : check.key.toLowerCase();
+    const key = player.toggles.normal[6] ? check.key.toLowerCase() : check.code.toLowerCase();
 
     //These one's can be holded down
     if (!isNaN(Number(key.replace('digit', '')))) {
@@ -15,7 +15,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
         //Buildings
         if (numberKey === 0 || numberKey >= global.buildingsInfo.name.length) { return; }
         buyBuilding(numberKey); //Check is already inside
-    }
+    } //else if (key.replace('key', '').length === 1) {} //Maybe this could work same as a-z regex
 
     if (!check.repeat) {
         if (key === 'arrowleft' || key === 'arrowright') {

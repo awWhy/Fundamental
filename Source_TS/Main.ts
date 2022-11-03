@@ -24,7 +24,7 @@ export const reLoad = async(firstLoad = false) => {
             updatePlayer(load);
             if (player.toggles.normal[0]) {
                 const offlineTime = Date.now() - player.time.updated;
-                Alert(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}.${offlineTime > maxOfflineTime() * 1000 ? ` (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}${global.versionInfo.changed ? `\nGame has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
+                Alert(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}.${offlineTime > maxOfflineTime() * 1000 ? ` (Max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
             }
         } else {
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
@@ -55,7 +55,7 @@ export const reLoad = async(firstLoad = false) => {
 
     if (firstLoad && !player.toggles.normal[0]) {
         const offlineTime = Date.now() - player.time.updated;
-        const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? ` (max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? `\nAlso game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
+        const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOfflineTime() * 1000 ? ` (max offline time is ${global.timeSpecial.maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? ` Also game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
         if (noOffline) {
             global.timeSpecial.lastSave += offlineTime;
             player.time.updated = Date.now();
