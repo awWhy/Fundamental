@@ -12,7 +12,7 @@ export const getId = (id: string) => { //To type less and check if ID exist
     throw new ReferenceError(`ID "${id}" not found.`);
 };
 
-export const getClass = (idCollection: string) => Array.from(document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>);
+export const getClass = (idCollection: string) => [...document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>];
 
 export const reLoad = async(firstLoad = false) => {
     if (firstLoad) {
@@ -41,13 +41,15 @@ export const reLoad = async(firstLoad = false) => {
         if (localStorage.getItem('textMove') !== null) { removeTextMovement(); }
     }
     stageCheck(); //All related stage information and visualUpdate();
-    checkPlayerValues(); //Has to be done after stageCheck();
     if (firstLoad) { //Prevent spoilers
         getId('body').style.display = '';
         getId('loading').style.display = 'none';
         console.timeEnd('Game loaded in');
     }
-    //Visual appearence of toggles
+    checkPlayerValues(); //Has to be done after stageCheck();
+    //Visual appearence
+    const fileName = getId('saveFileNameInput') as HTMLInputElement;
+    fileName.value = player.fileName;
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
     for (let i = 1; i < playerStart.toggles.buildings.length; i++) { toggleSwap(i, 'buildings'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
@@ -174,6 +176,8 @@ for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
 getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
+getId('saveFileHoverButton').addEventListener('mouseover', () => updateSaveFilePreview());
+getId('saveFileHoverButton').addEventListener('focus', () => updateSaveFilePreview());
 getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'main'));
 getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
 getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
@@ -333,7 +337,6 @@ async function saveLoad(type: string) {
 
 const changeSaveFileName = () => {
     const input = getId('saveFileNameInput') as HTMLInputElement;
-    const preview = getId('saveFileNamePreview') as HTMLParagraphElement;
 
     let newValue: string; //Max allowed string length is 255 (35) (?)
     if (input.value.length > 4) {
@@ -349,13 +352,15 @@ const changeSaveFileName = () => {
 
     try {
         btoa(newValue);
-        preview.textContent = newValue + '.txt';
-        input.value = newValue;
         player.fileName = newValue;
+        input.value = newValue;
     } catch (error) {
         Alert(`Save file name is not allowed.\nFull error is: '${error}'`);
     }
 };
+
+//It in it's own function for possible future reasons
+const updateSaveFilePreview = () => { getId('saveFileNamePreview').textContent = player.fileName + '.txt'; };
 
 const pauseGame = async() => {
     changeIntervals(true);

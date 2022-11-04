@@ -2,10 +2,10 @@ import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
 import { buyBuilding } from './Stage';
-import { getId } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
-    if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown
+    const checkEl = document.activeElement as HTMLInputElement;
+    if (checkEl.type === 'text' || checkEl.type === 'number') { return; } //Return if any inputs are focused
     const key = player.toggles.normal[6] ? check.key.toLowerCase() : check.code.toLowerCase();
 
     //These one's can be holded down
@@ -21,7 +21,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
         if (key === 'arrowleft' || key === 'arrowright') {
             const { tabs } = global.tabList;
             let index = tabs.indexOf(global.tab);
-            if (index === -1) { return; } //Just in case
+            if (index === -1) { return console.error(`Tab '${global.tab}' wasn't found in the list`); }
 
             if (key === 'arrowleft') {
                 do {
@@ -46,7 +46,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
             if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
             const subtabs = global.tabList[global.tab + 'Subtabs'];
             let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
-            if (index === -1) { return; } //Just in case
+            if (index === -1) { return console.error(`Subtab '${global.subtab[global.tab + 'Current' as 'settingsCurrent']}' wasn't found in the list`); }
 
             if (key === 'arrowdown') {
                 do {

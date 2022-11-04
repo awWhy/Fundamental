@@ -788,7 +788,7 @@ li button, p button { margin-left: 0.4em; }
         object-fit: scale-down;
     }
 
-    #themeArea > div > div { width: max-content; }
+    #themeArea > div > div { width: 80vw; }
 
     #subtabs { flex-direction: column-reverse; }
 }

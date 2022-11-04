@@ -512,35 +512,35 @@ export const checkPlayerValues = () => {
     for (let i = 0; i < global[upgradeType].cost.length; i++) {
         if (player.upgrades[i] > 1) {
             player.upgrades[i] = 1;
-            console.error(`Upgrade (${i + 1}) had an illegal value`);
+            console.warn(`Upgrade (${i + 1}) had an illegal value`);
         }
     }
     if (stage.current === 4) {
         for (let i = 1; i < global.elementsInfo.cost.length; i++) {
             if (player.elements[i] > 1) {
                 player.elements[i] = 1;
-                console.error(`Element (${i}) had an illegal value`);
+                console.warn(`Element (${i}) had an illegal value`);
             }
         }
     }
     for (let i = 0; i < global[researchType].cost.length; i++) {
         if (player.researches[i] > global[researchType].max[i]) {
             player.researches[i] = global[researchType].max[i];
-            console.error(`Research (${i + 1}) had level above maxium`);
+            console.warn(`Research (${i + 1}) had level above maxium`);
         }
     }
     if (stage.current !== 1) {
         for (let i = 0; i < global[researchExtraType].cost.length; i++) {
             if (player.researchesExtra[i] > global[researchExtraType].max[i]) {
                 player.researchesExtra[i] = global[researchExtraType].max[i];
-                console.error(`Extra research (${i + 1}) had level above maxium`);
+                console.warn(`Extra research (${i + 1}) had level above maxium`);
             }
         }
     }
     for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
         if (player.researchesAuto[i] > global.researchesAutoInfo.max[i]) {
             player.researchesAuto[i] = global.researchesAutoInfo.max[i];
-            console.error(`Research (${i + 1}) for automatization had level above maxium`);
+            console.warn(`Research (${i + 1}) for automatization had level above maxium`);
         }
     }
 };
