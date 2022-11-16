@@ -2,12 +2,12 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-v**0.0.5** > First part of Stage 4 and more (change log can be seen inside game) \
-Stage 4 might be really really slow (sorry)
+v**0.0.7** > Stage 1 reworked. Stage 5 started, \
+It's probably even more slow (sorry...)
 
 #### Should be supported by:
 1. Modern browsers,
-2. Mobile devices (partial, can be improved if needed),
+2. Mobile devices (to some amount),
 3. Screen readers (need feedback)
 
 ---
@@ -18,7 +18,7 @@ Stage 4 might be really really slow (sorry)
 
 ## Special NPM commands: (Configure first)
 1. `npm build` - to convert all .ts files into a single .js (browsers cant use .ts).
-2. `npm watch` - same as build, but will convert automaticly, when detects any changes.
+2. `npm watch` - same as build, but will convert automatically, when detects any changes.
 ##### You can add `:map` if you need to see from which file and line, error has came from in a browser.
 3. `npm lint` - to check if there are any obvious mistakes in .ts file, also helps to keep same style.
 4. `npm fix` - will auto fix lint for you that it can by itself.

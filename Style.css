@@ -3,7 +3,7 @@ body *, body {
     font-family: Inter, serif;
     box-sizing: border-box;
     margin: 0;
-    font-size: var(--font-size);
+    font-size: inherit;
 
     /* No text color, because it's really awkwardly behind... */
     transition: background-color var(--transition-all), border-color var(--transition-all);
@@ -18,15 +18,15 @@ body {
     --button-main-color: mediumblue;
     --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
+    --building-can-buy: #a90000;
     --button-tab-border: darkcyan;
     --button-tab-active: #8b00c5;
     --button-extra-hover: #170089;
     --button-delete-color: firebrick;
     --button-delete-hover: #ce0000;
-    --button-text-color: #e3e3e3;
     --input-border-color: #831aa5;
     --input-text-color: #cf71ff;
-    --building-can-buy: #a90000;
+    --button-text-color: #e3e3e3;
     --main-text-color: #03d3d3;
     --white-text-color: white;
     --cyan-text-color: #03d3d3;
@@ -38,6 +38,7 @@ body {
     --darkviolet-text-color: #8635eb;
     --red-text-color: #eb0000;
     --green-text-color: #00e900;
+    --yellow-text-color: #fafa00;
 
     /* Special */
     --transition-all: 0s;
@@ -45,12 +46,13 @@ body {
     --stage-text-color: var(--cyan-text-color);
     --border-image: url(Used_art/Stage1%20border.png);
     --border-stage: #008b8b;
-    --font-size: 16px;
+    --font-size: 1rem;
 }
 
 .customColors {
     color: var(--main-text-color);
     background-color: var(--background-color);
+    font-size: var(--font-size);
 }
 
 .stageText { color: var(--stage-text-color); }
@@ -61,10 +63,15 @@ body {
 .orangeText { color: var(--orange-text-color); }
 .grayText { color: var(--gray-text-color); }
 .orchidText { color: var(--orchid-text-color); }
-.darkOrchidText { color: var(--darkorchid-text-color); }
+.darkorchidText { color: var(--darkorchid-text-color); }
 .darkvioletText { color: var(--darkviolet-text-color); }
 .redText { color: var(--red-text-color); }
 .greenText { color: var(--green-text-color); }
+.yellowText { color: var(--yellow-text-color); }
+
+/* Right now it works only with keyboard tab button */
+body:not(.outlineOnFocus) button:focus-visible,
+body:not(.outlineOnFocus) input:focus-visible { outline: none; }
 
 input[type = "image"],
 img {
@@ -77,6 +84,7 @@ img {
 }
 
 .statFoot img,
+#strangenessResearch input[type = "image"],
 .researchSection input[type = "image"] {
     border-radius: 3px; /* Yes 1 pixel difference... */
     z-index: 0; /* Text has -2.5px margin (because round corners), so image should be on top */
@@ -163,8 +171,8 @@ button, input { appearance: none; }
     background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
     color: var(--button-text-color);
-    padding: 0 0.45em;
     font-size: 0.84em;
+    padding: 0;
 }
 
 .bigButton {
@@ -185,19 +193,25 @@ button, input { appearance: none; }
     background-color: var(--background-color);
     width: 2.8em;
     height: 1.63em;
-    padding: 0 0.3em;
 }
 
-.toggleBuilding, .toggleAuto {
+.toggleBuilding {
     width: 5.8em;
     height: 1.95em;
 }
+
+.toggleAuto {
+    width: 5.4em;
+    height: 1.75em;
+}
+
+.extraHover { background-color: var(--background-color); }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
 .footerArea button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
-.toggle:hover, .specialToggle:hover, .interactiveImage:hover, #buyStrict:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
+.toggle:hover, .toggleBuilding:hover, .toggleAuto:hover, .specialToggle:hover, .interactiveImage:hover, .extraHover:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
     width: 5.4em;
@@ -248,6 +262,7 @@ input[type = "number"], input[type = "text"] {
 
 .reset .mediumButton { margin-top: 0.4em; }
 .bigWord { font-size: 1.1em; }
+.biggerWord { font-size: 1.2em; }
 
 p > img {
     float: left; /* This is the only way to have an image inside text */
@@ -261,6 +276,7 @@ p > img {
     row-gap: 0.44em;
 }
 
+.buyStrange,
 .buyBuilding {
     display: flex;
     align-items: center;
@@ -279,8 +295,8 @@ p > img {
     align-items: center;
 }
 
-.buyBuilding p { color: var(--stage-text-color); }
-.buyBuilding > div > p:first-of-type { width: 13.5em; }
+.buyBuilding p { color: inherit; }
+.buyBuilding > div > p:first-of-type { width: 19em; }
 .buyBuilding > div > p:last-of-type { width: 10.5em; }
 .buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.25em; }
 
@@ -328,7 +344,6 @@ p > img {
 #buyAnyInput { margin: 0 0.3em; }
 
 #buyStrict {
-    background-color: var(--background-color);
     border-color: forestgreen;
     color: var(--green-text-color);
     padding: 0 0.5em;
@@ -359,7 +374,7 @@ p > img {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    row-gap: 0.45em;
+    row-gap: 0.5em;
 }
 
 #upgrades > div:first-of-type {
@@ -368,7 +383,7 @@ p > img {
     gap: 0.3em;
 }
 
-#upgrades > a { margin-bottom: 0.25em; }
+#upgrades > p { margin-bottom: 0.05em; }
 
 .researchSection {
     display: flex;
@@ -402,13 +417,14 @@ p > img {
 #researchTab .descriptionText { margin-top: -0.5em; }
 
 /* I could try and use @layer, but no idea how much will need to be added (or how well supported) */
+.stage0border { border-color: #006400 !important; }
 .stage1border { border-color: #008b8b !important; } 
 .stage2border { border-color: #1460a8 !important; }
 .stage3border { border-color: #5b5b75 !important; }
 .stage4border { border-color: #e87400 !important; }
 .stage5border { border-color: #b324e2 !important; }
 .stage6border { border-color: #5300c1 !important; }
-.stage0border { border-color: #b21111 !important; } /* Phaceholder name, probably will be renamed */
+.stage7border { border-color: #b21111 !important; }
 
 .descriptionText {
     display: flex;
@@ -429,6 +445,7 @@ p > img {
     gap: 0.25em;
     padding: 0.4em;
     border: 2px solid darkgreen;
+    background-color: var(--window-color);
 }
 
 #elementsGrid[class = "Elements10App"] { grid-template-columns: repeat(8, 1fr); }
@@ -443,23 +460,82 @@ p > img {
 .Elements10App #element2 { grid-column: 8; }
 #elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
 
-#resetToggles {
+.strangeWelcome {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+    row-gap: 0.3em;
+}
+
+#strangenessResearch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid darkgreen;
+    border-radius: 4px;
+    background-color: var(--window-color);
+    padding: 0.5em 0.25em;
+    margin-top: -1px;
+}
+
+#strangenessResearch > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 2px solid;
+    width: 100%;
+    padding: 0.5em 0.5em;
+    gap: 0.5em;
+}
+
+#strangenessResearch > div > div {
+    display: flex;
+    align-items: center;
+}
+
+#strangenessResearch > div > div > p {
+    border: 2px solid;
+    border-left: none;
+    line-height: 28px;
+    text-align: center;
+    padding: 0 0.25em 0 calc(2.5px + 0.25em);
+    background-color: var(--background-color);
+    margin-left: -2.5px;
+} 
+
+#strangenessResearch .interactiveImage {
+    border-radius: 3px;
+    z-index: 1;
+}
+
+#resetToggles > div > div > .toggleAuto {
+    width: 5.2em;
+    height: 1.85em;
+    font-size: 0.77em;
+}
+
+.miniButton {
+    width: 1.5em;
+    height: 1.63em;
+}
+
+#resetToggles > div {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     text-align: center;
     height: min-content;
-    gap: 0.3em 0.6em;
+    column-gap: 0.6em;
+    margin-top: 0.3em;
 }
 
-#resetToggles > div {
+#resetToggles > div > div {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 0.3em;
 }
-
-#resetToggles > label { width: 100%; }
 
 .saveButtonGroup {
     display: flex;
@@ -531,7 +607,22 @@ p > img {
 #switchTheme2 { border-color: #427be1; }
 #switchTheme3 { border-color: #404040; }
 #switchTheme4 { border-color: #9f6700; }
+#switchTheme5 { border-color: #9d0054; }
 #themeArea > p { margin-bottom: 0.3em; }
+
+#autoTogglesUpgrades {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.8em;
+    row-gap: 0.5em;
+}
+
+#autoTogglesUpgrades > div {
+    display: flex;
+    align-items: center;
+    column-gap: 0.4em;
+}
 
 .options > label {
     display: block;
@@ -561,14 +652,16 @@ li > input[type = "number"] {
 .listButton {
     height: 1.77em;
     padding: 0 0.45em;
-    background-color: var(--background-color);
 }
 
 li button { font-size: 0.92em; }
 li button, p button { margin-left: 0.4em; }
 
+.windowPopUp { display: inline; }
+
 .windowPopUp > div {
     display: none;
+    flex-direction: column;
     position: absolute;
     right: 50%;
     transform: translateX(50%);
@@ -580,8 +673,23 @@ li button, p button { margin-left: 0.4em; }
     row-gap: 0.3em;
 }
 
-.windowPopUp:focus-within > button:not([class = "listButton"]):not(:focus) ~ div,
-.windowPopUp > .listButton:hover ~ div, .windowPopUp > .listButton:focus ~ div { display: grid; }
+.windowPopUp > div > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3em;
+}
+
+.windowPopUp > div > div,
+#windowText { text-align: center; }
+
+.windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
+.windowPopUp:focus-within > div { display: flex; }
+
+.miniInput {
+    width: 1.3em;
+    height: 1.6em;
+    text-align: center;
+}
 
 #saveFileNameInput {
     width: 17.2em;
@@ -599,8 +707,6 @@ li button, p button { margin-left: 0.4em; }
     flex-direction: column;
     row-gap: 0.4em;
 }
-
-#stats span:not(.stageText) { color: var(--white-text-color); }
 
 #buildingsAllStats {
     display: flex;
@@ -628,6 +734,7 @@ li button, p button { margin-left: 0.4em; }
 }
 
 #footer {
+    /* Fixed position and any inputs causes text to become darker (for unknown reasons...) */
     position: fixed;
     width: 100%;
     bottom: 0;
@@ -639,7 +746,7 @@ li button, p button { margin-left: 0.4em; }
     overflow-x: overlay;
 }
 
-.footerArea button {
+.footerArea > nav > button {
     border-radius: 10px;
     border-color: var(--button-tab-border);
     padding: 0 0.7em;
@@ -649,6 +756,9 @@ li button, p button { margin-left: 0.4em; }
     background-color: black;
 }
 
+.tabActive { border-color: var(--button-tab-active) !important; }
+#strangenessTabBtn.tabActive { border-color: #00b100 !important; }
+
 .footerArea, .footerArea > nav, #subtabs {
     display: flex;
     flex-direction: row;
@@ -656,7 +766,6 @@ li button, p button { margin-left: 0.4em; }
     column-gap: 1em;
 }
 
-.tabActive { border-color: var(--button-tab-active) !important; }
 #footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statFoot > p {
@@ -754,8 +863,14 @@ li button, p button { margin-left: 0.4em; }
     }
 
     #buildings { row-gap: 0.2em; }
-    .buyBuilding, .specialStar { column-gap: 0.45em; }
+    .buyBuilding, .specialStar, .buyStrange { column-gap: 0.45em; }
     .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
+    .buyBuilding > div > p:first-of-type { width: 13.5em; }
+
+    .buyBuilding > div > p:first-of-type > span:last-of-type {
+        display: block;
+        margin-left: 0;
+    }
 
     .buyBuilding > div:last-of-type {
         row-gap: 0.16em;
@@ -771,8 +886,8 @@ li button, p button { margin-left: 0.4em; }
         margin-right: 0;
     }
 
-    .buyBuilding > div > div > div { display: none; }
     .buyBuilding .toggleBuilding { margin-left: auto; }
+    .buyBuilding > div > div > div { display: none; }
     .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
 
     #researchTab .descriptionText { margin-top: -0.25em; }

@@ -1,6 +1,6 @@
 import { getClass, getId } from './Main';
 import { global, player } from './Player';
-import { format } from './Update';
+import { format, stageCheck } from './Update';
 
 export const setTheme = (themeNumber: number, initial = false) => {
     const { theme } = global;
@@ -11,7 +11,7 @@ export const setTheme = (themeNumber: number, initial = false) => {
     } else {
         theme.default = false;
         theme.stage = themeNumber;
-        localStorage.setItem('theme', String(themeNumber));
+        localStorage.setItem('theme', `${themeNumber}`);
     }
     switchTheme();
 };
@@ -32,15 +32,12 @@ export const switchTheme = () => {
     /* Full reset, for easier out of order theme change */
     body.setProperty('--transition-all', '1s');
     body.setProperty('--transition-buttons', '700ms');
-    //getId('upgradeText').style.color = '';
-    getId('upgradeEffect').style.color = '';
-    getId('upgradeCost').style.color = '';
-    getId('researchText').style.color = '';
-    getId('researchEffect').style.color = '';
-    getId('researchCost').style.color = '';
-    getId('elementText').style.color = '';
-    getId('elementEffect').style.color = '';
-    getId('elementCost').style.color = '';
+    for (const text of ['upgrade', 'research', 'element']) {
+        getId(`${text}Effect`).style.color = '';
+        getId(`${text}Cost`).style.color = '';
+        if (text === 'upgrade') { continue; } //Not changed anywhere
+        getId(`${text}Text`).style.color = '';
+    }
     body.removeProperty('--background-color');
     body.removeProperty('--window-color');
     body.removeProperty('--window-border');
@@ -48,37 +45,36 @@ export const switchTheme = () => {
     body.removeProperty('--button-main-color');
     body.removeProperty('--button-main-border');
     body.removeProperty('--button-main-hover');
+    body.removeProperty('--building-can-buy');
     body.removeProperty('--button-tab-border');
     body.removeProperty('--button-tab-active');
     body.removeProperty('--button-extra-hover');
     body.removeProperty('--button-delete-color');
     body.removeProperty('--button-delete-hover');
-    body.removeProperty('--button-text-color');
     body.removeProperty('--input-border-color');
     body.removeProperty('--input-text-color');
-    body.removeProperty('--building-can-buy');
+    body.removeProperty('--button-text-color');
     body.removeProperty('--main-text-color');
     body.removeProperty('--white-text-color');
     //body.removeProperty('--cyan-text-color');
     body.removeProperty('--blue-text-color');
     body.removeProperty('--orange-text-color');
     body.removeProperty('--gray-text-color');
-    //body.removeProperty('--orchid-text-color');
-    //body.removeProperty('--darkorchid-text-color');
+    body.removeProperty('--orchid-text-color');
+    body.removeProperty('--darkorchid-text-color');
     body.removeProperty('--darkviolet-text-color');
     body.removeProperty('--red-text-color');
     body.removeProperty('--green-text-color');
+    body.removeProperty('--yellow-text-color');
     getId('dropStat').style.color = '';
     getId('waterStat').style.color = '';
     /* And set new colors */
     switch (theme.stage) {
         case 2:
-            getId('upgradeEffect').style.color = 'var(--green-text-color)';
-            getId('upgradeCost').style.color = 'var(--cyan-text-color)';
-            getId('researchEffect').style.color = 'var(--green-text-color)';
-            getId('researchCost').style.color = 'var(--cyan-text-color)';
-            getId('elementEffect').style.color = 'var(--green-text-color)';
-            getId('elementCost').style.color = 'var(--cyan-text-color)';
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = 'var(--green-text-color)';
+                getId(`${text}Cost`).style.color = 'var(--cyan-text-color)';
+            }
             body.setProperty('--background-color', '#070026');
             body.setProperty('--window-color', '#000052');
             body.setProperty('--window-border', 'blue');
@@ -93,6 +89,7 @@ export const switchTheme = () => {
             body.setProperty('--input-text-color', 'dodgerblue');
             body.setProperty('--main-text-color', 'dodgerblue');
             body.setProperty('--gray-text-color', '#9b9b9b');
+            body.setProperty('--darkorchid-text-color', '#c71bff');
             body.setProperty('--darkviolet-text-color', '#a973ff');
             body.setProperty('--green-text-color', '#82cb3b');
             body.setProperty('--red-text-color', '#f70000');
@@ -100,11 +97,11 @@ export const switchTheme = () => {
             getId('waterStat').style.color = '#3099ff';
             break;
         case 3:
-            getId('upgradeCost').style.color = 'var(--green-text-color)';
-            getId('researchText').style.color = 'var(--orange-text-color)';
-            getId('researchCost').style.color = 'var(--green-text-color)';
-            getId('elementText').style.color = 'var(--orange-text-color)';
-            getId('elementCost').style.color = 'var(--green-text-color)';
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Cost`).style.color = 'var(--green-text-color)';
+                if (text === 'upgrade') { continue; }
+                getId(`${text}Text`).style.color = 'var(--orange-text-color)';
+            }
             body.setProperty('--background-color', '#000804');
             body.setProperty('--window-color', '#2e1200');
             body.setProperty('--window-border', '#31373e');
@@ -127,14 +124,12 @@ export const switchTheme = () => {
             getId('waterStat').style.color = '#3099ff';
             break;
         case 4:
-            getId('upgradeEffect').style.color = 'var(--green-text-color)';
-            getId('upgradeCost').style.color = 'var(--cyan-text-color)';
-            getId('researchText').style.color = 'var(--blue-text-color)';
-            getId('researchEffect').style.color = 'var(--green-text-color)';
-            getId('researchCost').style.color = 'var(--cyan-text-color)';
-            getId('elementText').style.color = 'var(--blue-text-color)';
-            getId('elementEffect').style.color = 'var(--green-text-color)';
-            getId('elementCost').style.color = 'var(--cyan-text-color)';
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = 'var(--green-text-color)';
+                getId(`${text}Cost`).style.color = 'var(--cyan-text-color)';
+                if (text === 'upgrade') { continue; }
+                getId(`${text}Text`).style.color = 'var(--blue-text-color)';
+            }
             body.setProperty('--background-color', '#140e04');
             body.setProperty('--window-color', '#4e0000');
             body.setProperty('--window-border', '#894800');
@@ -142,22 +137,54 @@ export const switchTheme = () => {
             body.setProperty('--button-main-color', '#6a3700');
             body.setProperty('--button-main-border', '#9f6700');
             body.setProperty('--button-main-hover', '#914b00');
+            body.setProperty('--building-can-buy', '#007f95');
             body.setProperty('--button-tab-border', '#af5d00');
             body.setProperty('--button-tab-active', '#008297');
             body.setProperty('--button-extra-hover', '#605100');
             body.setProperty('--button-delete-color', '#8f0000');
             body.setProperty('--button-delete-hover', '#ad0000');
-            body.setProperty('--button-text-color', '#d9d900');
             body.setProperty('--input-border-color', '#008399');
             body.setProperty('--input-text-color', '#05c3c3');
-            body.setProperty('--building-can-buy', '#007f95');
+            body.setProperty('--button-text-color', '#d9d900');
             body.setProperty('--main-text-color', 'darkorange');
             body.setProperty('--white-text-color', '#e5e500');
             body.setProperty('--blue-text-color', '#2694ff');
             body.setProperty('--gray-text-color', '#8b8b8b');
+            body.setProperty('--darkorchid-text-color', '#c71bff');
             body.setProperty('--darkviolet-text-color', '#9859ff');
             body.setProperty('--red-text-color', 'red');
+            body.setProperty('--green-text-color', '#00e600');
+            body.setProperty('--yellow-text-color', 'var(--green-text-color)');
             break;
+        case 5:
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = 'var(--green-text-color)';
+                getId(`${text}Cost`).style.color = 'var(--red-text-color)';
+                if (text === 'upgrade') { continue; }
+                getId(`${text}Text`).style.color = 'var(--orange-text-color)';
+            }
+            body.setProperty('--background-color', '#1f001f');
+            body.setProperty('--window-color', '#001d42');
+            body.setProperty('--window-border', '#35466e');
+            body.setProperty('--footer-color', '#390052');
+            body.setProperty('--button-main-color', '#4a008f');
+            body.setProperty('--button-main-border', '#8a0049');
+            body.setProperty('--button-main-hover', '#6800d6');
+            body.setProperty('--building-can-buy', '#8603ff');
+            body.setProperty('--button-tab-border', '#9d0054');
+            body.setProperty('--button-tab-active', '#8500ff');
+            body.setProperty('--button-extra-hover', '#3b0080');
+            body.setProperty('--button-delete-color', '#800000');
+            body.setProperty('--button-delete-hover', '#9b1212');
+            body.setProperty('--input-border-color', '#3656a1');
+            body.setProperty('--input-text-color', '#6a88cd');
+            body.setProperty('--button-text-color', '#fc9cfc');
+            body.setProperty('--main-text-color', '#c000ff');
+            body.setProperty('--white-text-color', '#ff79ff');
+            body.setProperty('--orchid-text-color', '#ff00f4');
+            body.setProperty('--darkorchid-text-color', '#c000ff');
+            body.setProperty('--darkviolet-text-color', '#9f52ff');
+            body.setProperty('--yellow-text-color', 'var(--darkviolet-text-color)');
     }
     setTimeout(() => {
         body.removeProperty('--transition-all');
@@ -322,7 +349,7 @@ export const mobileDeviceSupport = (change = false) => {
         toggle.style.borderColor = 'crimson';
         localStorage.setItem('mobile device', 'true');
         global.mobileDevice = true;
-        if (change) { Alert('For full support please refresh page. This will add focus event for upgrades, to get description (more can be added if anyone using it)'); }
+        if (change) { Alert('For full support please refresh the page. This will add on touch start check upgrade and touch end create an upgrade.\n(For non mobile device this will cause issues)'); }
     } else {
         toggle.textContent = 'OFF';
         toggle.style.color = '';
@@ -333,7 +360,7 @@ export const mobileDeviceSupport = (change = false) => {
     if (global.screenReader) { toggle.setAttribute('aria-label', `Mobile device support is ${toggle.textContent}`); }
 };
 
-export const screenReaderSupport = (info = false as boolean | number, type = 'toggle', special = 'building') => {
+export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource' | 'strange') => {
     switch (type) {
         case 'toggle': {
             const change = info as boolean;
@@ -355,7 +382,8 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                     /* This is recommended options, being set after every reload */
                     player.toggles.shop.strict = false; //Want to decrease amount of items you can tab into
                 }
-                if (change) { Alert('For full support please refresh page. You will get: focus event on upgrades to get description (I need feedback on it), special tab to check progress and more.\n(For non screen readers it auto sets recommended settings on some stuff)'); }
+                stageCheck('soft'); //Update related information instanly
+                if (change) { Alert('You will get: focus event on upgrades to get description (Refresh page to get it, also I need feedback on it), special tab to check progress and more.\n(For non screen readers this will cause issues)'); }
             } else {
                 toggle.textContent = 'OFF';
                 toggle.style.color = '';
@@ -376,21 +404,23 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 const { buildingsInfo } = global;
 
                 let extra = index - 1;
-                if (stage.current === 4) { extra = 0; }
+                if (stage.current >= 4) { extra = 0; }
 
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}, they are ${buildingsInfo.type[index] === 'producing' ? `producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second` : `improving producion of ${buildingsInfo.name[extra]} by ${format(buildingsInfo.producing[index])}`}${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}${buildings[index].current !== buildings[index].true ? `, out of them ${format(buildings[index].true, 0)} are self-made ones` : ''}, they are ${buildingsInfo.type[index] === 'producing' ? `producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second` : `improving production of ${buildingsInfo.name[extra]} by ${format(buildingsInfo.producing[index])}`}${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
                 }
-            } else {
+            } else if (special === 'resource') {
                 if (stage.current === 1) {
-                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy` : ''}`;
+                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[0][2] >= 1 ? `, you also have +${format(player.strangeness[0][2], 0)} free goals.` : ''}`;
                 } else if (stage.current === 2) {
                     invText.textContent = `You have ${format(player.vaporization.clouds)} Clouds${global.vaporizationInfo.get > 1 ? `, you can get +${format(global.vaporizationInfo.get)} if you reset now` : ''}`;
-                } else if (stage.current === 4) {
-                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
+                } else if (stage.current >= 4) {
+                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0], 0)} Red giants` : ''}${player.researchesExtra[0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1], 0)} Neutron stars` : ''}${player.researchesExtra[0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2], 0)} Black holes` : ''}`;
                 }
+            } else if (special === 'strange') {
+                invText.textContent = `You have ${format(player.strange[0].true, 0)} Strange quarks${global.strangeInfo.producing[0] > 0 ? ` they are boosting production by ${format(global.strangeInfo.producing[0])}` : ''}, you will gain ${format(global.strangeInfo.stageGain, 0)} on Stage reset`;
             }
             break;
         }
@@ -407,7 +437,7 @@ export const changeFontSize = (change = false, inputChange = false) => {
     if (change) { enable = !enable; }
 
     if (!enable) {
-        body.setProperty('--font-size', '1em');
+        body.removeProperty('--font-size');
         localStorage.removeItem('fontSize');
         localStorage.removeItem('enableCustomFontSize');
         toggle.textContent = 'OFF';
@@ -415,7 +445,7 @@ export const changeFontSize = (change = false, inputChange = false) => {
         toggle.style.borderColor = 'crimson';
     } else {
         if (size === null || Number(size) < 10 || Number(size) > 32 || inputChange) {
-            size = String(Math.min(Math.max(Math.trunc(Number(input.value) * 10) / 10, 10), 32));
+            size = `${Math.min(Math.max(Math.trunc(Number(input.value) * 10) / 10, 10), 32)}`;
             localStorage.setItem('fontSize', size);
         }
         body.setProperty('--font-size', `${size}px`);
@@ -424,6 +454,22 @@ export const changeFontSize = (change = false, inputChange = false) => {
         toggle.textContent = 'ON';
         toggle.style.color = '';
         toggle.style.borderColor = '';
+    }
+};
+
+export const changeFormat = (point: boolean) => {
+    const htmlInput = point ?
+        getId('decimalPoint') as HTMLInputElement :
+        getId('thousandSeparator') as HTMLInputElement;
+    const allowed = ['.', ',', ' ', '_', '^', '"', "'", '`', '|'].includes(htmlInput.value);
+    if (!allowed || (point && (player.separator[0] === htmlInput.value || htmlInput.value.length === 0)) || (!point && player.separator[1] === htmlInput.value)) {
+        htmlInput.value = point ? '.' : '';
+        return;
+    }
+    if (point) {
+        player.separator[1] = htmlInput.value;
+    } else {
+        player.separator[0] = htmlInput.value;
     }
 };
 
@@ -450,19 +496,21 @@ export const playEvent = (event: number, index = 0) => {
     player.events[index] = true;
 
     switch (event) {
-        case 0: //Discharge explanation
-            Alert('Since you can\'t get back Energy that you had spend, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
-            player.discharge.energyCur += 800;
+        case 0: //[0] Discharge explanation
+            Alert('Since you can\'t get back Energy that you had spent, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
+            if (player.stage.true === 1) { player.discharge.energyCur += 800; }
             break;
-        case 1: //Clouds softcap
+        case 1: //[0] Clouds softcap
             Alert('Cloud density is too high... Getting more will be harder now');
             break;
-        case 2: //Accretion new rank unlocked
+        case 2: //[0] Accretion new rank unlocked
             Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
-            global.accretionInfo.rankCost[4] = 5e29;
-            getId('rankReset').textContent = 'Next rank is 5e29 Mass';
+            if (player.accretion.rank === 4) {
+                global.accretionInfo.rankCost[4] = 5e29;
+                getId('rankReset').textContent = 'Next rank is 5e29 Mass';
+            }
             break;
-        case 3: //Collapse explanation
+        case 3: //[0] Collapse explanation
             Alert('Any Collapse reset from now on will give extra rewards, but you can only Collapse when can get more or equal Mass.\nEach reward effect will be hidden to you for now');
     }
 };

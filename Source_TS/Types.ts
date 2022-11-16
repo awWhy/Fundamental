@@ -1,10 +1,13 @@
 export interface playerType {
     version: string
     fileName: string
+    separator: string[]
     stage: {
         true: number
         current: number
         resets: number
+        export: number
+        input: number
     }
     discharge: { //Stage 1
         energyCur: number
@@ -13,6 +16,7 @@ export interface playerType {
     }
     vaporization: { //Stage 2
         clouds: number
+        input: number
     }
     accretion: { //Stage 3
         rank: number
@@ -21,6 +25,8 @@ export interface playerType {
         mass: number
         stars: [number, number, number]
         show: number
+        inputM: number
+        inputS: number
     }
     intervals: {
         main: number
@@ -44,11 +50,16 @@ export interface playerType {
         total: number
         trueTotal: number
     }[]]*/ //Why TS is so annoying - 'if (index !== 0) { buildings[index].true }': TS says: no you can't
+    strange: Array<{
+        true: number
+        total: number
+    }>
     upgrades: number[]
     elements: number[]
     researches: number[]
     researchesExtra: number[]
     researchesAuto: number[]
+    strangeness: number[][]
     toggles: {
         normal: boolean[]
         buildings: boolean[]
@@ -82,8 +93,16 @@ export interface globalType {
     }
     stageInfo: {
         word: string[]
-        priceName: string[]
-        resourceName: string[]
+        textColor: string[]
+        borderColor: string[]
+        priceName: string
+        resourceName: string
+        autoStage: number[]
+    }
+    automatization: {
+        autoU: number[][]
+        autoR: number[][]
+        autoE: number[][]
     }
     theme: {
         stage: number
@@ -91,20 +110,25 @@ export interface globalType {
     }
     dischargeInfo: {
         energyType: number[]
+        base: number
+        step: number
         next: number
     }
     vaporizationInfo: {
         get: number
     }
     accretionInfo: {
+        rankU: number[]
+        rankR: number[]
+        rankE: number[]
         rankCost: number[]
         rankName: string[]
         rankImage: string[]
     }
     collapseInfo: {
-        unlockPriceB: number[]
-        unlockPriceU: number[]
-        unlockPriceR: number[]
+        unlockB: number[]
+        unlockU: number[]
+        unlockR: number[]
         newMass: number
         starCheck: [number, number, number]
     }
@@ -122,6 +146,10 @@ export interface globalType {
         increase: number[]
         producing: number[]
     }
+    strangeInfo: {
+        stageGain: number
+        producing: number[]
+    }
     upgradesInfo: {
         description: string[]
         effectText: string[][]
@@ -131,7 +159,7 @@ export interface globalType {
     researchesInfo: {
         description: string[]
         effectText: string[][]
-        effect: number[]
+        effect: [number, number, number, number, number, null]
         cost: number[]
         scaling: number[]
         max: number[]
@@ -183,7 +211,7 @@ export interface globalType {
     upgradesS4Info: {
         description: string[]
         effectText: string[][]
-        effect: [null, null, null, ...number[]]
+        effect: [null, null, null, null]
         cost: number[]
     }
     elementsInfo: {
@@ -192,7 +220,7 @@ export interface globalType {
         effect: [
             null, number, number, null, number, null, number, number, number, number,
             number, number, null, number, number, null, number, number, null, number,
-            number, number, null, null, number, number, null
+            number, number, null, null, ...number[]
         ]
         cost: number[]
     }
@@ -207,7 +235,7 @@ export interface globalType {
     researchesExtraS4Info: {
         description: string[]
         effectText: string[][]
-        effect: [string, ...number[]]
+        effect: [string, null]
         cost: number[]
         scaling: number[]
         max: number[]
@@ -215,11 +243,19 @@ export interface globalType {
     researchesAutoInfo: {
         description: string[]
         effectText: string[][]
-        effect: [null, string, ...number[]]
+        effect: [null, string, number, null]
         cost: number[]
         scaling: number[]
         max: number[]
     }
+    strangenessInfo: Array<{
+        description: string[]
+        effectText: string[][]
+        effect: Array<number | string | null> //At some point will have to manually write every null/string...
+        cost: number[]
+        scaling: number[]
+        max: number[]
+    }>
     lastUpgrade: [number | null, 'upgrades', boolean]
     lastResearch: [number | null, 'researches' | 'researchesExtra' | 'researchesAuto', boolean]
 }

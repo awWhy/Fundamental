@@ -1,9 +1,12 @@
 import { player, global, playerStart, updatePlayer, startValue, checkPlayerValues } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime } from './Update';
-import { buyBuilding, buyUpgrades, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport, removeTextMovement } from './Special';
+import { autoBuyUpgrades, buyBuilding, buyUpgrades, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleBuy, toggleSwap, vaporizationResetCheck } from './Stage';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, switchTheme, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat } from './Special';
 import { detectHotkey } from './Hotkeys';
-/* There might be some problems with incorect build, imports being called in wrong order. */
+/* There can be a problem with incorrect build, imports can be called in a wrong order */
+/* Small notes for myself: (tested with many, many loops) */
+//Optimizing visualUpdate() by using if...else... won't change anything (using a = b = c, will slow it down)
+//Removing decostructing ({ a } = b), in most cases will slow down code
 
 export const getId = (id: string) => { //To type less and check if ID exist
     const i = document.getElementById(id);
@@ -40,7 +43,7 @@ export const reLoad = async(firstLoad = false) => {
         changeFontSize();
         if (localStorage.getItem('textMove') !== null) { removeTextMovement(); }
     }
-    stageCheck(); //All related stage information and visualUpdate();
+    stageCheck('reload'); //All related stage information and visualUpdate(), also calculateStageInformation();
     if (firstLoad) { //Prevent spoilers
         getId('body').style.display = '';
         getId('loading').style.display = 'none';
@@ -50,8 +53,20 @@ export const reLoad = async(firstLoad = false) => {
     //Visual appearence
     const fileName = getId('saveFileNameInput') as HTMLInputElement;
     fileName.value = player.fileName;
+    const separator = getId('thousandSeparator') as HTMLInputElement;
+    const point = getId('decimalPoint') as HTMLInputElement;
+    separator.value = player.separator[0];
+    point.value = player.separator[1];
+    const stageGain = getId('stageInput') as HTMLInputElement;
+    stageGain.value = `${player.stage.input}`;
+    const vapInput = getId('vaporizationInput') as HTMLInputElement;
+    vapInput.value = `${player.vaporization.input}`;
+    const collMInput = getId('collapseMassInput') as HTMLInputElement;
+    const collSInput = getId('collapseStarsInput') as HTMLInputElement;
+    collMInput.value = `${player.collapse.inputM}`;
+    collSInput.value = `${player.collapse.inputS}`;
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
-    for (let i = 1; i < playerStart.toggles.buildings.length; i++) { toggleSwap(i, 'buildings'); }
+    for (let i = 0; i < playerStart.toggles.buildings.length; i++) { toggleSwap(i, 'buildings'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
     toggleBuy(); //Also numbersUpdate();
     switchTheme();
@@ -65,7 +80,6 @@ export const reLoad = async(firstLoad = false) => {
         }
     }
     changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
-    invisibleUpdate(); //Just in case
 };
 
 void reLoad(true); //This will start the game
@@ -73,10 +87,14 @@ void reLoad(true); //This will start the game
 /* Global */
 const { mobileDevice, screenReader } = global;
 document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
+const textInputs = [...document.querySelectorAll('input[type="text"]'), ...document.querySelectorAll('input[type="number"]')] as HTMLInputElement[];
+for (const text of textInputs) {
+    text.addEventListener('focus', () => document.body.classList.add('outlineOnFocus'));
+}
 for (let i = 0; i < playerStart.toggles.normal.length; i++) {
     getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
 }
-for (let i = 1; i < playerStart.toggles.buildings.length; i++) {
+for (let i = 0; i < playerStart.toggles.buildings.length; i++) {
     getId(`toggleBuilding${i}`).addEventListener('click', () => toggleSwap(i, 'buildings', true));
 }
 for (let i = 0; i < playerStart.toggles.auto.length; i++) {
@@ -88,25 +106,45 @@ for (let i = 1; i < playerStart.buildings.length; i++) {
     getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(i));
 }
 for (let i = 0; i < global.upgradesInfo.cost.length; i++) {
-    getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 1));
-    getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 1));
-    if (screenReader || mobileDevice) { getId(`upgrade${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 1)); }
+    if (!mobileDevice) {
+        getId(`upgrade${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 1));
+        getId(`upgrade${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 1));
+    } else {
+        getId(`upgrade${i + 1}`).addEventListener('touchstart', () => getUpgradeDescription(i, 'upgrades', 1));
+        getId(`upgrade${i + 1}`).addEventListener('touchend', () => buyUpgrades(i, 'upgrades', 1));
+    }
+    if (screenReader) { getId(`upgrade${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 1)); }
 }
 //Number at the end, is a prevention for impossible event (HTML element is hidden). No number (or 0) means it allowed to be called from any stage
 for (let i = 0; i < global.upgradesS2Info.cost.length; i++) {
-    getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 2));
-    getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 2));
-    if (screenReader || mobileDevice) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 2)); }
+    if (!mobileDevice) {
+        getId(`upgradeW${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 2));
+        getId(`upgradeW${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 2));
+    } else {
+        getId(`upgradeW${i + 1}`).addEventListener('touchstart', () => getUpgradeDescription(i, 'upgrades', 2));
+        getId(`upgradeW${i + 1}`).addEventListener('touchend', () => buyUpgrades(i, 'upgrades', 2));
+    }
+    if (screenReader) { getId(`upgradeW${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 2)); }
 }
 for (let i = 0; i < global.upgradesS3Info.cost.length; i++) {
-    getId(`upgradeA${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 3));
-    getId(`upgradeA${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 3));
-    if (screenReader || mobileDevice) { getId(`upgradeA${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 3)); }
+    if (!mobileDevice) {
+        getId(`upgradeA${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 3));
+        getId(`upgradeA${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 3));
+    } else {
+        getId(`upgradeA${i + 1}`).addEventListener('touchstart', () => getUpgradeDescription(i, 'upgrades', 3));
+        getId(`upgradeA${i + 1}`).addEventListener('touchend', () => buyUpgrades(i, 'upgrades', 3));
+    }
+    if (screenReader) { getId(`upgradeA${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 3)); }
 }
 for (let i = 0; i < global.upgradesS4Info.cost.length; i++) {
-    getId(`upgradeS${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 4));
-    getId(`upgradeS${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 4));
-    if (screenReader || mobileDevice) { getId(`upgradeS${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 4)); }
+    if (!mobileDevice) {
+        getId(`upgradeS${i + 1}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'upgrades', 4));
+        getId(`upgradeS${i + 1}`).addEventListener('click', () => buyUpgrades(i, 'upgrades', 4));
+    } else {
+        getId(`upgradeS${i + 1}`).addEventListener('touchstart', () => getUpgradeDescription(i, 'upgrades', 4));
+        getId(`upgradeS${i + 1}`).addEventListener('touchend', () => buyUpgrades(i, 'upgrades', 4));
+    }
+    if (screenReader) { getId(`upgradeS${i + 1}`).addEventListener('focus', () => getUpgradeDescription(i, 'upgrades', 4)); }
 }
 getId('dischargeReset').addEventListener('click', async() => await dischargeResetCheck());
 getId('vaporizationReset').addEventListener('click', async() => await vaporizationResetCheck());
@@ -121,52 +159,131 @@ getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
 /* Research tab */
 for (let i = 0; i < global.researchesInfo.cost.length; i++) {
-    getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 1));
-    getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 1));
-    if (screenReader || mobileDevice) { getId(`research${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 1)); }
+    if (!mobileDevice) {
+        getId(`research${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 1));
+        getId(`research${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 1));
+    } else {
+        getId(`research${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researches', 1));
+        getId(`research${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researches', 1));
+    }
+    if (screenReader) { getId(`research${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 1)); }
 }
 for (let i = 0; i < global.researchesS2Info.cost.length; i++) {
-    getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 2));
-    getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 2));
-    if (screenReader || mobileDevice) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 2)); }
+    if (!mobileDevice) {
+        getId(`researchW${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 2));
+        getId(`researchW${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 2));
+    } else {
+        getId(`researchW${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researches', 2));
+        getId(`researchW${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researches', 2));
+    }
+    if (screenReader) { getId(`researchW${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 2)); }
 }
 for (let i = 0; i < global.researchesExtraS2Info.cost.length; i++) {
-    getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 2));
-    getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 2));
-    if (screenReader || mobileDevice) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 2)); }
+    if (!mobileDevice) {
+        getId(`researchClouds${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 2));
+        getId(`researchClouds${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 2));
+    } else {
+        getId(`researchClouds${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researchesExtra', 2));
+        getId(`researchClouds${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researchesExtra', 2));
+    }
+    if (screenReader) { getId(`researchClouds${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 2)); }
 }
 for (let i = 0; i < global.researchesS3Info.cost.length; i++) {
-    getId(`researchA${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 3));
-    getId(`researchA${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 3));
-    if (screenReader || mobileDevice) { getId(`researchA${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 3)); }
+    if (!mobileDevice) {
+        getId(`researchA${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 3));
+        getId(`researchA${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 3));
+    } else {
+        getId(`researchA${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researches', 3));
+        getId(`researchA${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researches', 3));
+    }
+    if (screenReader) { getId(`researchA${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 3)); }
 }
 for (let i = 0; i < global.researchesExtraS3Info.cost.length; i++) {
-    getId(`researchRank${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 3));
-    getId(`researchRank${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 3));
-    if (screenReader || mobileDevice) { getId(`researchRank${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 3)); }
+    if (!mobileDevice) {
+        getId(`researchRank${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 3));
+        getId(`researchRank${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 3));
+    } else {
+        getId(`researchRank${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researchesExtra', 3));
+        getId(`researchRank${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researchesExtra', 3));
+    }
+    if (screenReader) { getId(`researchRank${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 3)); }
 }
 for (let i = 0; i < global.researchesS4Info.cost.length; i++) {
-    getId(`researchS${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 4));
-    getId(`researchS${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 4));
-    if (screenReader || mobileDevice) { getId(`researchS${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 4)); }
+    if (!mobileDevice) {
+        getId(`researchS${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researches', 4));
+        getId(`researchS${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researches', 4));
+    } else {
+        getId(`researchS${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researches', 4));
+        getId(`researchS${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researches', 4));
+    }
+    if (screenReader) { getId(`researchS${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researches', 4)); }
 }
 for (let i = 0; i < global.researchesExtraS4Info.cost.length; i++) {
-    getId(`researchStar${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 4));
-    getId(`researchStar${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 4));
-    if (screenReader || mobileDevice) { getId(`researchStar${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 4)); }
+    if (!mobileDevice) {
+        getId(`researchStar${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesExtra', 4));
+        getId(`researchStar${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesExtra', 4));
+    } else {
+        getId(`researchStar${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researchesExtra', 4));
+        getId(`researchStar${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researchesExtra', 4));
+    }
+    if (screenReader) { getId(`researchStar${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesExtra', 4)); }
 }
 for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
-    getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
-    getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
-    if (screenReader || mobileDevice) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesAuto')); }
+    if (!mobileDevice) {
+        getId(`researchAuto${i + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'researchesAuto'));
+        getId(`researchAuto${i + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'researchesAuto'));
+    } else {
+        getId(`researchAuto${i + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'researchesAuto'));
+        getId(`researchAuto${i + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'researchesAuto'));
+    }
+    if (screenReader) { getId(`researchAuto${i + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'researchesAuto')); }
 }
 for (let i = 1; i < global.elementsInfo.cost.length; i++) {
-    getId(`element${i}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'elements', 4));
-    getId(`element${i}`).addEventListener('click', () => buyUpgrades(i, 'elements', 4));
-    if (screenReader || mobileDevice) { getId(`element${i}`).addEventListener('focus', () => getUpgradeDescription(i, 'elements', 4)); }
+    if (!mobileDevice) {
+        getId(`element${i}`).addEventListener('mouseover', () => getUpgradeDescription(i, 'elements', 4));
+        getId(`element${i}`).addEventListener('click', () => buyUpgrades(i, 'elements', 4));
+    } else {
+        getId(`element${i}`).addEventListener('touchstart', () => getUpgradeDescription(i, 'elements', 4));
+        getId(`element${i}`).addEventListener('touchend', () => buyUpgrades(i, 'elements', 4));
+    }
+    if (screenReader) { getId(`element${i}`).addEventListener('focus', () => getUpgradeDescription(i, 'elements', 4)); }
+}
+
+/* Strangeness tab */
+for (let s = 0; s < global.strangenessInfo.length; s++) {
+    for (let i = 0; i < global.strangenessInfo[s].cost.length; i++) {
+        if (!mobileDevice) {
+            getId(`strange${i + 1}Stage${s + 1}Image`).addEventListener('mouseover', () => getUpgradeDescription(i, 'strangeness', s));
+            getId(`strange${i + 1}Stage${s + 1}Image`).addEventListener('click', () => buyUpgrades(i, 'strangeness', s));
+        } else {
+            getId(`strange${i + 1}Stage${s + 1}Image`).addEventListener('touchstart', () => getUpgradeDescription(i, 'strangeness', s));
+            getId(`strange${i + 1}Stage${s + 1}Image`).addEventListener('touchend', () => buyUpgrades(i, 'strangeness', s));
+        }
+        if (screenReader) { getId(`strange${i + 1}Stage${s + 1}Image`).addEventListener('focus', () => getUpgradeDescription(i, 'strangeness', s)); }
+    }
 }
 
 /* Settings tab */
+getId('vaporizationInput').addEventListener('blur', () => {
+    const input = getId('vaporizationInput') as HTMLInputElement;
+    input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+    player.vaporization.input = Number(input.value);
+});
+getId('collapseMassInput').addEventListener('blur', () => {
+    const input = getId('collapseMassInput') as HTMLInputElement;
+    input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+    player.collapse.inputM = Number(input.value);
+});
+getId('collapseStarsInput').addEventListener('blur', () => {
+    const input = getId('collapseStarsInput') as HTMLInputElement;
+    input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+    player.collapse.inputS = Number(input.value);
+});
+getId('stageInput').addEventListener('blur', () => {
+    const input = getId('stageInput') as HTMLInputElement;
+    input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+    player.stage.input = Number(input.value);
+});
 getId('save').addEventListener('click', async() => await saveLoad('save'));
 getId('file').addEventListener('change', async() => await saveLoad('load'));
 getId('export').addEventListener('click', async() => await saveLoad('export'));
@@ -175,6 +292,15 @@ getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
 for (let i = 1; i <= global.stageInfo.word.length; i++) {
     getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
 }
+getId('toggleAuto5').addEventListener('click', () => {
+    if (player.toggles.auto[5]) { autoBuyUpgrades('upgrades', true); }
+});
+getId('toggleAuto6').addEventListener('click', () => {
+    if (player.toggles.auto[6]) { autoBuyUpgrades('researches', true); }
+});
+getId('toggleAuto7').addEventListener('click', () => {
+    if (player.toggles.auto[7]) { autoBuyUpgrades('researchesExtra', true); }
+});
 getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
 getId('saveFileHoverButton').addEventListener('mouseover', () => updateSaveFilePreview());
 getId('saveFileHoverButton').addEventListener('focus', () => updateSaveFilePreview());
@@ -182,6 +308,8 @@ getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'mai
 getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
 getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
 getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 'autoSave'));
+getId('thousandSeparator').addEventListener('blur', () => changeFormat(false));
+getId('decimalPoint').addEventListener('blur', () => changeFormat(true));
 getId('pauseGame').addEventListener('click', async() => await pauseGame());
 getId('noMovement').addEventListener('click', () => removeTextMovement(true));
 getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
@@ -197,14 +325,14 @@ if (screenReader) {
         getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i, 'button'));
     }
     getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
-    getId('specialTabBtn').addEventListener('click', () => switchTab('special'));
-    getId('specialTabBtn').style.display = '';
+    getId('invisibleGetResource2').addEventListener('click', () => screenReaderSupport(0, 'button', 'strange'));
 }
 
 /* Footer */
 getId('hideToggle').addEventListener('click', hideFooter);
 getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
 getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
+getId('strangenessTabBtn').addEventListener('click', () => switchTab('strangeness'));
 getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
 /* Subtabs */
@@ -223,20 +351,20 @@ function changeIntervals(pause = false, input = '') {
         const visualInput = getId('visualInterval') as HTMLInputElement;
         const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
         if (input === 'main') {
-            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 10), 1000);
+            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 1000);
             if (intervals.main > intervals.numbers) { intervals.numbers = intervals.main; }
         } else if (input === 'numbers') {
-            intervals.numbers = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 10), 1000);
+            intervals.numbers = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 20), 1000);
             if (intervals.numbers < intervals.main) { intervals.main = intervals.numbers; }
         } else if (input === 'visual') {
             intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.2), 10);
         } else if (input === 'autoSave') {
             intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 10), 1800);
         }
-        mainInput.value = String(intervals.main);
-        numberInput.value = String(intervals.numbers);
-        visualInput.value = String(intervals.visual);
-        autoSaveInput.value = String(intervals.autoSave);
+        mainInput.value = `${intervals.main}`;
+        numberInput.value = `${intervals.numbers}`;
+        visualInput.value = `${intervals.visual}`;
+        autoSaveInput.value = `${intervals.autoSave}`;
     }
     clearInterval(intervalsId.main);
     clearInterval(intervalsId.numbers);
@@ -289,6 +417,7 @@ async function saveLoad(type: string) {
         case 'save': {
             try {
                 const save = btoa(JSON.stringify(player));
+                //If Infinity will be needed inside, then can anything alike 'btoa(JSON.stringify(player), (k, v) => v === Infinity ? `${v}` : v)'
                 localStorage.setItem('save', save);
                 getId('isSaved').textContent = 'Saved';
                 global.timeSpecial.lastSave = 0;
@@ -306,6 +435,11 @@ async function saveLoad(type: string) {
             a.href = 'data:text/plain;charset=utf-8,' + save;
             a.download = player.fileName + '.txt';
             a.click();
+
+            const strangeGain = Math.trunc(player.stage.export);
+            player.strange[0].true += strangeGain;
+            player.strange[0].total += strangeGain;
+            player.stage.export -= strangeGain;
             return;
         }
         case 'delete': {
