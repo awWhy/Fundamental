@@ -584,6 +584,7 @@ export const autoBuyUpgrades = (type: 'upgrades' | 'researches' | 'researchesExt
     }
     const { automatization } = global;
     const typeInfo = getUpgradeType(type) as 'researchesS2Info';
+    let sort = false;
     if (setArray) {
         if (whichAdd === 'all') {
             automatization[auto] = [];
@@ -592,19 +593,20 @@ export const autoBuyUpgrades = (type: 'upgrades' | 'researches' | 'researchesExt
                     automatization[auto].push([i, global[typeInfo].cost[i]]);
                 }
             }
+            sort = true;
         } else { //type !== 'upgrades'
             if (!automatization[auto].some((a) => a[0] === whichAdd)) {
                 automatization[auto].push([whichAdd, global[typeInfo].cost[whichAdd]]);
+                sort = true;
             }
         }
     } else {
-        automatization[auto].sort((a, b) => a[1] - b[1]);
         for (let i = 0; i < automatization[auto].length; i++) {
-            const index = automatization[auto][i][0];
+            const index = automatization[auto][i][0]; //Faster this way
 
             if (!checkUpgrade(index, type)) { continue; }
-
-            buyUpgrades(index, type);
+            buyUpgrades(index, type); //Some upgrades inside can get inserted into old index spot
+            if (index !== automatization[auto][i][0]) { continue; }
 
             if (player[type][index] === (type === 'upgrades' ? 1 : global[typeInfo].max[index])) {
                 automatization[auto].splice(i, 1);
@@ -613,10 +615,12 @@ export const autoBuyUpgrades = (type: 'upgrades' | 'researches' | 'researchesExt
                     break;
                 } else {
                     automatization[auto][i][1] = global[typeInfo].cost[index];
+                    sort = true;
                 }
             }
         }
     }
+    if (sort) { automatization[auto].sort((a, b) => a[1] - b[1]); }
 };
 
 export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto', change = false) => {
