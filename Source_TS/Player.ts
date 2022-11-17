@@ -2,7 +2,7 @@ import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     version: 'v0.0.7',
-    fileName: 'Fundamental',
+    fileName: 'Fundamental, [stage], [date] [time]',
     separator: ['', '.'], //[0] every 3 numbers, [1] point
     stage: {
         true: 1,

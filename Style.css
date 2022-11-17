@@ -69,6 +69,8 @@ body {
 .greenText { color: var(--green-text-color); }
 .yellowText { color: var(--yellow-text-color); }
 
+.center { text-align: center; }
+
 /* Right now it works only with keyboard tab button */
 body:not(.outlineOnFocus) button:focus-visible,
 body:not(.outlineOnFocus) input:focus-visible { outline: none; }
@@ -624,11 +626,7 @@ p > img {
     column-gap: 0.4em;
 }
 
-.options > label {
-    display: block;
-    text-align: center;
-}
-
+.options > label { display: block; }
 .options:not(:last-of-type) { margin-bottom: 0.5em; }
 
 .options ul {
@@ -678,9 +676,6 @@ li button, p button { margin-left: 0.4em; }
     grid-template-columns: 1fr 1fr;
     gap: 0.3em;
 }
-
-.windowPopUp > div > div,
-#windowText { text-align: center; }
 
 .windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
 .windowPopUp:focus-within > div { display: flex; }

@@ -543,7 +543,7 @@ export const format = (input: number | string, digits = 'auto' as 'auto' | numbe
                 const endValue = Math.round(input / 10 ** (digits - 2)) / 100; //I feel like I am losing my mind to floats
                 if (type === 'input') { return `${endValue}e${digits}`; }
                 return `${(`${endValue}`).replace('.', player.separator[1])}e${digits}`;
-            } else { //Regex will fail if input >= 1e6 (add g to regex to fix it) or input < 1000 while precision > 3 (split string in that case)
+            } else { //Regex will fail if input >= 1e6 (add g to regex to fix it) or input <= 1000 while precision >= 3 (split('.') string in that case)
                 if (precision > 0) {
                     const endValue = Math.round(input * (10 ** precision)) / (10 ** precision);
                     if (type === 'input') { return `${endValue}`; }
@@ -555,7 +555,7 @@ export const format = (input: number | string, digits = 'auto' as 'auto' | numbe
                     return (`${Math.round(input)}`).replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]);
                 }
             }
-        case 'time': //I don't fully know how to make hours:minutes:seconds, or if even needed
+        case 'time':
             if (input >= 172800000) {
                 return `${Math.trunc(input / 86400000)} days`;
             } else if (input >= 7200000) {

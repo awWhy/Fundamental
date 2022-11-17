@@ -426,7 +426,7 @@ async function saveLoad(type: string) {
             getId('isSaved').textContent = 'Exported';
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;
-            a.download = player.fileName + '.txt';
+            a.download = replaceSaveFileSpecials();
             a.click();
 
             const strangeGain = Math.trunc(player.stage.export);
@@ -478,7 +478,7 @@ const changeSaveFileName = () => {
     }
 
     try {
-        btoa(newValue);
+        btoa(newValue); //Test for any illegal characters
         player.fileName = newValue;
         input.value = newValue;
     } catch (error) {
@@ -486,8 +486,46 @@ const changeSaveFileName = () => {
     }
 };
 
+const replaceSaveFileSpecials = (): string => {
+    let realName = player.fileName;
+    const special = [
+        '[stage]',
+        '[true]',
+        '[date]',
+        '[time]'
+    ];
+    const replaceWith = [
+        global.stageInfo.word[player.stage.current - 1],
+        global.stageInfo.word[player.stage.true - 1],
+        getDate('dateDMY'),
+        getDate('timeHMS')
+    ];
+    for (let i = 0; i < special.length; i++) {
+        realName = realName.replaceAll(special[i], replaceWith[i]);
+    }
+    return realName + '.txt';
+};
+
+const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
+    const current = new Date();
+    let result: string;
+    switch (type) {
+        case 'dateDMY':
+            result = `${current.getDate()}.${current.getMonth() + 1}.${current.getFullYear()}`;
+            break;
+        case 'timeHMS': {
+            let minutes = `${current.getMinutes()}`;
+            if (minutes.length === 1) { minutes = '0' + minutes; }
+            let seconds = `${current.getSeconds()}`;
+            if (seconds.length === 1) { seconds = '0' + seconds; }
+            result = `${current.getHours()}-${minutes}-${seconds}`;
+        }
+    }
+    return result;
+};
+
 //It in it's own function for possible future reasons
-const updateSaveFilePreview = () => { getId('saveFileNamePreview').textContent = player.fileName + '.txt'; };
+const updateSaveFilePreview = () => { getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(); };
 
 const pauseGame = async() => {
     changeIntervals(true);
