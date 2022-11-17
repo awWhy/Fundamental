@@ -1,14 +1,14 @@
 import { globalType, playerType } from './Types';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.7',
+    version: 'v0.0.8',
     fileName: 'Fundamental, [stage], [date] [time]',
     separator: ['', '.'], //[0] every 3 numbers, [1] point
     stage: {
         true: 1,
         current: 1,
         resets: 0,
-        export: 0,
+        export: 1,
         input: 1
     },
     discharge: { //Stage 1
@@ -393,7 +393,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['As fuel runs out, each star will boost production in its own special way.'],
             ['Fuse with Protium instead of Deuterium. Unlocks a new building and something else.'],
             ['CNO cycle is now a better source of Helium and Energy. Unlocks a new building and more of something else.'],
-            ['Through Triple-alpha and then Alpha process, yes, unlock a few more elements.']
+            ['Through Triple-alpha and then Alpha process, unlock a few more elements.']
         ],
         effect: [null, null, null, null],
         cost: [100, 1000, 1e9, 1e50]
@@ -581,7 +581,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Automatization for Upgrades.'
         ],
         effectText: [
-            ['Accretion speed is, ', ' times faster. (Affected by softcap)'],
+            ['Accretion speed is ', ' times faster. (Affected by softcap)'],
             ['All Accretion buildings that produce another buildings now do it ', ' times faster.'],
             ['Some Rank researches receive extra Max level.'],
             ['Satellites now improve all Accretion buildings.'],
@@ -846,9 +846,12 @@ export const updatePlayer = (load: playerType) => {
         player.vaporization.input = 10;
         player.collapse.inputM = 4;
         player.collapse.inputS = 2;
-        player.stage.export = 0;
         player.stage.input = 1;
-        //player.events[1] = false;
     }
+    if (player.version === 'v0.0.7') {
+        player.version = 'v0.0.8';
+        versionInfo.log += `\n${player.version} - Minor speed up to other Stage's, also new save file name options (I would recommend 'Fundamental, [stage], [date] [time]')`;
+    }
+    if (player.strangeness[3][7] === 0) { player.stage.export = 1; }
     if (oldVersion !== player.version) { versionInfo.changed = true; }
 };

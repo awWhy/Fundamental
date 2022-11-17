@@ -295,8 +295,12 @@ getId('toggleAuto7').addEventListener('click', () => {
     if (player.toggles.auto[7]) { autoBuyUpgrades('researchesExtra', true); }
 });
 getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
-getId('saveFileHoverButton').addEventListener('mouseover', () => updateSaveFilePreview());
-getId('saveFileHoverButton').addEventListener('focus', () => updateSaveFilePreview());
+getId('saveFileHoverButton').addEventListener('mouseover', () => {
+    getId('saveFileNamePreview').textContent = replaceSaveFileSpecials();
+});
+getId('saveFileHoverButton').addEventListener('focus', () => {
+    getId('saveFileNamePreview').textContent = replaceSaveFileSpecials();
+});
 getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'main'));
 getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
 getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
@@ -429,10 +433,12 @@ async function saveLoad(type: string) {
             a.download = replaceSaveFileSpecials();
             a.click();
 
-            const strangeGain = Math.trunc(player.stage.export);
-            player.strange[0].true += strangeGain;
-            player.strange[0].total += strangeGain;
-            player.stage.export -= strangeGain;
+            if (player.strangeness[3][7] >= 1) {
+                const strangeGain = Math.trunc(player.stage.export);
+                player.strange[0].true += strangeGain;
+                player.strange[0].total += strangeGain;
+                player.stage.export -= strangeGain;
+            }
             return;
         }
         case 'delete': {
@@ -523,9 +529,6 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
     }
     return result;
 };
-
-//It in it's own function for possible future reasons
-const updateSaveFilePreview = () => { getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(); };
 
 const pauseGame = async() => {
     changeIntervals(true);

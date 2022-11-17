@@ -69,7 +69,7 @@ export const calculateStageInformation = () => {
         upgradesS2Info.effect[4] = 1 + researches[4];
         if (upgrades[4] === 1) { buildings[2].current = buildings[2].true + buildings[3].current * upgradesS2Info.effect[4]; }
 
-        buildingsInfo.producing[2] = 2 * buildings[2].current * vaporization.clouds;
+        buildingsInfo.producing[2] = 3 * buildings[2].current * vaporization.clouds;
         upgradesS2Info.effect[2] = 0.02 + researches[2] * 0.02;
         upgradesS2Info.effect[3] = 0.02 + researches[3] * 0.03;
         if (upgrades[2] === 1 && researches[1] >= 2) {
@@ -99,7 +99,7 @@ export const calculateStageInformation = () => {
         if (strangeness[1][0] >= 1) { buildingsInfo.producing[1] *= 2 ** strangeness[1][0]; }
 
         vaporizationInfo.get = (researchesExtra[0] === 0 ? buildings[1].current : buildings[1].total) / 1e10;
-        if (strangeness[1][3] >= 1) { vaporizationInfo.get *= 5 ** strangeness[1][3]; }
+        if (strangeness[1][3] >= 1) { vaporizationInfo.get *= 3 ** strangeness[1][3]; }
         if (vaporizationInfo.get > 1) { //1e4 is softcap, game will force calculation as if you already at softcap if you reached 1e4 total clouds
             const check = vaporizationInfo.get ** 0.6 + vaporization.clouds;
             const calculate = (check - 1e4 > 0) ? Math.max(1e4 - vaporization.clouds, 1) : 1;
@@ -126,7 +126,7 @@ export const calculateStageInformation = () => {
         if (strangeness[2][1] >= 1) { buildingsInfo.producing[2] *= 2 ** strangeness[2][1]; }
         if (strangeness[2][3] >= 1) { buildingsInfo.producing[2] *= buildingsInfo.producing[4]; }
 
-        buildingsInfo.producing[1] = 5e-20 * buildings[1].current;
+        buildingsInfo.producing[1] = 1e-19 * buildings[1].current;
         upgradesS3Info.effect[0] = 1.01 + 0.01 * researches[1];
         upgradesS3Info.effect[1] = buildings[1].current ** (0.05 + 0.01 * researchesExtra[3]);
         upgradesS3Info.effect[7] = 2 * 1.5 ** researches[6];
@@ -169,15 +169,15 @@ export const calculateStageInformation = () => {
         if (elements[26] === 1) { totalMultiplier *= 2; }
         if (strangeness[3][0] >= 1) { totalMultiplier *= 1.5 ** strangeness[3][0]; }
 
-        buildingsInfo.producing[4] = 1.4e9 * buildings[4].current * totalMultiplier;
+        buildingsInfo.producing[4] = 1.5e9 * buildings[4].current * totalMultiplier;
 
-        buildingsInfo.producing[3] = 2e7 * buildings[3].current * totalMultiplier;
+        buildingsInfo.producing[3] = 2.2e7 * buildings[3].current * totalMultiplier;
 
-        buildingsInfo.producing[2] = 240 * buildings[2].current * redGiantEffect * totalMultiplier;
+        buildingsInfo.producing[2] = 260 * buildings[2].current * redGiantEffect * totalMultiplier;
         if (researches[3] >= 1) { buildingsInfo.producing[2] *= 10; }
         if (researchesExtra[1] >= 1) { buildingsInfo.producing[2] *= collapse.stars[0] + 1; }
 
-        buildingsInfo.producing[1] = 16 * buildings[1].current * totalMultiplier;
+        buildingsInfo.producing[1] = 18 * buildings[1].current * totalMultiplier;
         if (elements[1] === 1) { buildingsInfo.producing[1] *= 2; }
 
         let massGain = 0.004;
@@ -305,7 +305,7 @@ export const calculateResearchCost = (research: number, type: 'researches' | 're
             global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] * global[typeInfo].scaling[research] ** player[type][research];
             if (typeInfo === 'researchesAutoInfo' && research === 1) {
                 if (stage.current === 2 && player.researchesAuto[1] >= 3) {
-                    global[typeInfo].cost[research] *= player.researchesAuto[1] >= 4 ? 1e4 : 1e2;
+                    global[typeInfo].cost[research] *= player.researchesAuto[1] >= 4 ? 1e6 : 1e5;
                 } else if (stage.current === 3 && player.researchesAuto[1] >= 2) {
                     global[typeInfo].cost[research] = player.researchesAuto[1] >= 3 ? 2e30 : 5e29;
                 }
