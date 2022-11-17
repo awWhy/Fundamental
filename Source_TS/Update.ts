@@ -531,7 +531,7 @@ export const updateRankInfo = () => {
     }
 };
 
-export const format = (input: number | string, digits = 'auto' as 'auto' | number, type = 'number' as 'number' | 'input' | 'time') => {
+export const format = (input: number | string, digits = 'auto' as 'auto' | number, type = 'number' as 'number' | 'input' | 'time'): string => {
     if (typeof input !== 'number') { return input; } //String's are being send here (for a reason)
     const precision = digits === 'auto' ? (input < 1e3 ? (input < 1 ? 4 : 2) : 0) : digits;
     switch (type) { //toLocaleString() is banned, I don't want that slowness and weird behavior

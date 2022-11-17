@@ -15,21 +15,20 @@ export const detectHotkey = (check: KeyboardEvent) => {
     if (check.ctrlKey || check.altKey) { return; } //No buttons are using it
 
     const shift = check.shiftKey;
-    const isNumber = !isNaN(Number(check.code.replace('Digit', '')));
+    const isNumber = !isNaN(Number(check.code.slice(-1)));
     const key = !player.toggles.normal[6] || (isNumber && shift) ?
-        check.code.replace('Digit', '').replace('Key', '') :
-        check.key;
+        check.code : check.key;
 
     //These one's can be holded down
     if (isNumber) {
-        const numberKey = Number(key);
+        const numberKey = Number(key.slice(-1));
 
         //Buildings
         if (numberKey > 0 && numberKey < global.buildingsInfo.name.length && !shift) {
             buyBuilding(numberKey); //Check is already inside
         }
-    } else if (key.length === 1) { //Maybe this could work same as a-z regex
-        const stringKey = key.toLowerCase();
+    } else if (check.key.length === 1) { //Maybe this could work same as a-z regex
+        const stringKey = key.slice(-1).toLowerCase();
 
         //Resets
         if (!shift) {

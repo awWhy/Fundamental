@@ -8,7 +8,7 @@ import { detectHotkey } from './Hotkeys';
 //Optimizing visualUpdate() by using if...else... won't change anything (using a = b = c, will slow it down)
 //Removing decostructing ({ a } = b), in most cases will slow down code
 
-export const getId = (id: string) => { //To type less and check if ID exist
+export const getId = (id: string): HTMLElement => { //To type less and check if ID exist
     const i = document.getElementById(id);
     if (i !== null) { return i; }
     Alert(`ID of HTML element (${id}), failed to load, game will not work properly, please refresh. If this happens more than once, then please report it`);
@@ -51,20 +51,13 @@ export const reLoad = async(firstLoad = false) => {
     }
     checkPlayerValues(); //Has to be done after stageCheck();
     //Visual appearence
-    const fileName = getId('saveFileNameInput') as HTMLInputElement;
-    fileName.value = player.fileName;
-    const separator = getId('thousandSeparator') as HTMLInputElement;
-    const point = getId('decimalPoint') as HTMLInputElement;
-    separator.value = player.separator[0];
-    point.value = player.separator[1];
-    const stageGain = getId('stageInput') as HTMLInputElement;
-    stageGain.value = `${player.stage.input}`;
-    const vapInput = getId('vaporizationInput') as HTMLInputElement;
-    vapInput.value = `${player.vaporization.input}`;
-    const collMInput = getId('collapseMassInput') as HTMLInputElement;
-    const collSInput = getId('collapseStarsInput') as HTMLInputElement;
-    collMInput.value = `${player.collapse.inputM}`;
-    collSInput.value = `${player.collapse.inputS}`;
+    (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
+    (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
+    (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];
+    (getId('stageInput') as HTMLInputElement).value = `${player.stage.input}`;
+    (getId('vaporizationInput') as HTMLInputElement).value = `${player.vaporization.input}`;
+    (getId('collapseMassInput') as HTMLInputElement).value = `${player.collapse.inputM}`;
+    (getId('collapseStarsInput') as HTMLInputElement).value = `${player.collapse.inputS}`;
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
     for (let i = 0; i < playerStart.toggles.buildings.length; i++) { toggleSwap(i, 'buildings'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
