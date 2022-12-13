@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
-import { buyBuilding, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, vaporizationResetCheck } from './Stage';
+import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, vaporizationAsyncReset } from './Stage';
 
 export const detectHotkey = (check: KeyboardEvent) => {
     const checkEl = document.activeElement as HTMLInputElement;
@@ -24,26 +24,28 @@ export const detectHotkey = (check: KeyboardEvent) => {
         const numberKey = Number(key.slice(-1));
 
         //Buildings
-        if (numberKey > 0 && numberKey < global.buildingsInfo.name.length && !shift) {
+        if (numberKey > 0 && numberKey < player.buildings[player.stage.active].length && !shift) {
             buyBuilding(numberKey); //Check is already inside
         }
+        return;
     } else if (check.key.length === 1) { //Maybe this could work same as a-z regex
         const stringKey = key.slice(-1).toLowerCase();
 
         //Resets
         if (!shift) {
             if (stringKey === 's') {
-                void stageResetCheck();
+                void stageAsyncReset();
             } else if (stringKey === 'd') {
-                void dischargeResetCheck();
+                void dischargeAsyncReset();
             } else if (stringKey === 'v') {
-                void vaporizationResetCheck();
+                void vaporizationAsyncReset();
             } else if (stringKey === 'r') {
-                void rankResetCheck();
+                void rankAsyncReset();
             } else if (stringKey === 'c') {
-                void collapseResetCheck();
+                void collapseAsyncReset();
             }
         }
+        return;
     }
 
     if (!check.repeat) {
@@ -73,7 +75,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
             }
         } else if (key === 'ArrowDown' || key === 'ArrowUp') {
             if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
-            const subtabs = global.tabList[global.tab + 'Subtabs'];
+            const subtabs = global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs'];
             let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
             if (index === -1) { return console.error(`Subtab '${global.subtab[global.tab + 'Current' as 'settingsCurrent']}' wasn't found in the list`); }
 

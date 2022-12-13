@@ -12,7 +12,7 @@ body *, body {
 body {
     /* Colors */
     --background-color: #030012;
-    --window-color: #12121c;
+    --window-color: #12121c; /* ! Shares colors with .stage1window ! */
     --window-border: cornflowerblue;
     --footer-color: darkblue;
     --button-main-color: mediumblue;
@@ -42,10 +42,10 @@ body {
 
     /* Special */
     --transition-all: 0s;
-    --transition-buttons: 100ms; /* I'm tired, I have no better idea how to do it. I tryed .insertRule(), adding <style> and etc. */
+    --transition-buttons: 100ms;
     --stage-text-color: var(--cyan-text-color);
     --border-image: url(Used_art/Stage1%20border.png);
-    --border-stage: #008b8b;
+    --border-stage: #008b8b; /* Based on image border */
     --font-size: 1rem;
 }
 
@@ -53,6 +53,7 @@ body {
     color: var(--main-text-color);
     background-color: var(--background-color);
     font-size: var(--font-size);
+    height: 98vh; /* some browsers don't auto stretch to full height without it */
 }
 
 .stageText { color: var(--stage-text-color); }
@@ -69,8 +70,6 @@ body {
 .greenText { color: var(--green-text-color); }
 .yellowText { color: var(--yellow-text-color); }
 
-.center { text-align: center; }
-
 /* Right now it works only with keyboard tab button */
 body:not(.outlineOnFocus) button:focus-visible,
 body:not(.outlineOnFocus) input:focus-visible { outline: none; }
@@ -81,15 +80,19 @@ img {
     object-fit: none;
     width: 32px;
     height: 32px;
-    color: white; /* Alt text color (shown if image failed to load) */
     border-radius: 2px;
+    /* box-sizing: content-box; */ /* If need to change padding */
+
+    /* Alt text color (shown if image failed to load) */
+    color: white;
+    font-size: 0.66em;
 }
 
 .statFoot img,
 #strangenessResearch input[type = "image"],
 .researchSection input[type = "image"] {
     border-radius: 3px; /* Yes 1 pixel difference... */
-    z-index: 0; /* Text has -2.5px margin (because round corners), so image should be on top */
+    z-index: 2; /* Text has -2.5px margin (because round corners), so image should be on top */
 }
 
 .interactiveImage { cursor: pointer; }
@@ -105,10 +108,15 @@ img {
     clip-path: circle(0);
 }
 
-/* Too lazy to make it look decent */
 a { color: red; }
+.center { text-align: center; }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    cursor: default;
+}
+
 #loading > p { padding: 0.6em 2em; }
-h1 { font-weight: normal; }
 
 #loading, #blocker {
     position: fixed;
@@ -123,7 +131,7 @@ h1 { font-weight: normal; }
 }
 
 #blocker {
-    z-index: 1;
+    z-index: 10;
     background-color: #00000050;
 }
 
@@ -213,7 +221,9 @@ button, input { appearance: none; }
 .footerArea button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
-.toggle:hover, .toggleBuilding:hover, .toggleAuto:hover, .specialToggle:hover, .interactiveImage:hover, .extraHover:hover, #subtabs button:hover { background-color: var(--button-extra-hover); }
+.toggle:hover, .toggleBuilding:hover, .toggleAuto:hover,
+.specialToggle:hover, .interactiveImage:hover, .extraHover:hover,
+#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
     width: 5.4em;
@@ -374,7 +384,6 @@ p > img {
 #upgrades {
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 100%;
     row-gap: 0.5em;
 }
@@ -382,10 +391,11 @@ p > img {
 #upgrades > div:first-of-type {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.3em;
 }
 
-#upgrades > p { margin-bottom: 0.05em; }
+#upgrades > h3 { margin-bottom: 0.05em; }
 
 .researchSection {
     display: flex;
@@ -406,7 +416,8 @@ p > img {
 }
 
 .researchSection > div > div > p {
-    border: 2px solid var(--border-stage);
+    border: 2px solid;
+    border-color: inherit;
     border-left: none;
     line-height: 28px;
     text-align: center;
@@ -427,6 +438,7 @@ p > img {
 .stage5border { border-color: #b324e2 !important; }
 .stage6border { border-color: #5300c1 !important; }
 .stage7border { border-color: #b21111 !important; }
+.stageAllBorder { border-color: var(--border-stage) !important; }
 
 .descriptionText {
     display: flex;
@@ -438,7 +450,7 @@ p > img {
     white-space: pre-line;
 }
 
-.descriptionText > label,
+.descriptionText > h3,
 .descriptionText > p { max-width: 80%; }
 
 #elementsGrid {
@@ -462,18 +474,12 @@ p > img {
 .Elements10App #element2 { grid-column: 8; }
 #elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
 
-.strangeWelcome {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    width: 100%;
-    row-gap: 0.3em;
-}
+.strangeWelcome { width: 100%; }
+.strangeWelcome > p { margin-top: 0.3em; }
 
 #strangenessResearch {
     display: flex;
     flex-direction: column;
-    align-items: center;
     border: 2px solid darkgreen;
     border-radius: 4px;
     background-color: var(--window-color);
@@ -487,7 +493,7 @@ p > img {
     justify-content: center;
     border-bottom: 2px solid;
     width: 100%;
-    padding: 0.5em 0.5em;
+    padding: 0.5em;
     gap: 0.5em;
 }
 
@@ -508,7 +514,55 @@ p > img {
 
 #strangenessResearch .interactiveImage {
     border-radius: 3px;
-    z-index: 1;
+    z-index: 2;
+}
+
+.stage1window { background-color: #12121c; } 
+.stage2window { background-color: #000052; }
+.stage3window { background-color: #2e1200; }
+/* .stage4window { background-color: #4e0000; } */
+/* .stage5window { background-color: #001d42; } */
+
+#milestones {
+    display: flex;
+    flex-wrap: wrap;
+    border-right: 3px solid darkgreen;
+    border-left: 3px solid darkgreen;
+    padding: 0.5em 0;
+    row-gap: 0.5em;
+}
+
+#milestones > div {
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid;
+    border-top: 2px solid;
+    padding: 0.5em 0.4em;
+    flex-grow: 1;
+}
+
+#milestones > div > img {
+    cursor: help;
+    border-radius: 3px;
+}
+
+#resetToggles > h3 { text-align: center; }
+
+#resetToggles > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    height: min-content;
+    column-gap: 0.6em;
+    margin-top: 0.4em;
+}
+
+#resetToggles > div > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.3em;
 }
 
 #resetToggles > div > div > .toggleAuto {
@@ -520,23 +574,6 @@ p > img {
 .miniButton {
     width: 1.5em;
     height: 1.63em;
-}
-
-#resetToggles > div {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    text-align: center;
-    height: min-content;
-    column-gap: 0.6em;
-    margin-top: 0.3em;
-}
-
-#resetToggles > div > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    row-gap: 0.3em;
 }
 
 .saveButtonGroup {
@@ -610,7 +647,7 @@ p > img {
 #switchTheme3 { border-color: #404040; }
 #switchTheme4 { border-color: #9f6700; }
 #switchTheme5 { border-color: #9d0054; }
-#themeArea > p { margin-bottom: 0.3em; }
+#themeArea > h3 { margin-bottom: 0.3em; }
 
 #autoTogglesUpgrades {
     display: flex;
@@ -626,7 +663,6 @@ p > img {
     column-gap: 0.4em;
 }
 
-.options > label { display: block; }
 .options:not(:last-of-type) { margin-bottom: 0.5em; }
 
 .options ul {
@@ -655,7 +691,7 @@ li > input[type = "number"] {
 li button { font-size: 0.92em; }
 li button, p button { margin-left: 0.4em; }
 
-.windowPopUp { display: inline; }
+.windowPopUp { display: inline-block; }
 
 .windowPopUp > div {
     display: none;
@@ -720,7 +756,7 @@ li button, p button { margin-left: 0.4em; }
 
 #buildingsAllStats > p { margin-bottom: 0.15em; }
 
-#rankStats {
+.imageList {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -775,12 +811,14 @@ li button, p button { margin-left: 0.4em; }
     margin-left: -2.5px;
     padding-left: 2.5px;
     white-space: nowrap;
+
+    /* For some reason text losing color without it, when not on first tab */
+    z-index: 1;
 }
 
 #footer img { background-color: black; }
 .statFoot { display: flex; }
 
-/* Work in progress, against text movement in footer... */
 .noMove > p {
     width: unset;
     padding-left: calc(2.5px + 0.5em);
@@ -792,11 +830,11 @@ li button, p button { margin-left: 0.4em; }
     width: 5em;
 }
 
-
 #footer > div:first-child {
     display: flex;
-    align-items: flex-end;
-    height: 0; /* To be able to click behind it */
+    align-items: end;
+    height: 0; /* Next one wont work, because of footer
+    pointer-events: none; */
 }
 
 #subtabs {
@@ -813,6 +851,37 @@ li button, p button { margin-left: 0.4em; }
     border-radius: 2px;
     padding: 0 0.6em;
 }
+
+#stageSelect {
+    display: flex;
+    align-items: end;
+    margin-bottom: min(0.6vh, 0.8em);
+
+    /* No idea how to centralize without doing that... It's also causing area behind to be non clickable */
+    position: absolute;
+    width: 100%;
+    justify-content: center;
+    pointer-events: none;
+}
+
+#stageSelect button {
+    background-color: var(--background-color);
+    border-radius: 10px;
+    padding: 0 0.45em;
+    font-size: 0.92em;
+    pointer-events: auto;
+}
+
+#stageSelect > div {
+    display: none;
+    position: absolute;
+    flex-direction: row;
+    gap: min(0.5vh, 0.4em);
+    pointer-events: auto; /* Just in case, to prevent gaps being clickable */
+}
+
+#stageSelect:focus-within > button { clip-path: circle(0); }
+#stageSelect:focus-within > div { display: flex; }
 
 #hideToggle {
     margin-left: auto;
@@ -900,5 +969,5 @@ li button, p button { margin-left: 0.4em; }
 
     #themeArea > div > div { width: 80vw; }
 
-    #subtabs { flex-direction: column-reverse; }
+    #stageSelect > div, #subtabs { flex-direction: column-reverse; }
 }

@@ -23,10 +23,10 @@ export const switchTheme = () => {
     const body = document.body.style;
 
     if (theme.default) {
-        theme.stage = stage.current;
+        theme.stage = stage.active;
         getId('currentTheme').textContent = 'Default';
     } else {
-        getId('currentTheme').textContent = stageInfo.word[theme.stage - 1];
+        getId('currentTheme').textContent = stageInfo.word[theme.stage];
     }
 
     /* Full reset, for easier out of order theme change */
@@ -69,6 +69,7 @@ export const switchTheme = () => {
     getId('dropStat').style.color = '';
     getId('waterStat').style.color = '';
     /* And set new colors */
+    //--window-color shares color with class "stage2window", so need to be changed in both places
     switch (theme.stage) {
         case 2:
             for (const text of ['upgrade', 'research', 'element']) {
@@ -207,6 +208,7 @@ const AlertWait = async(text: string): Promise<void> => { //Export if needed
         getId('alertText').textContent = text;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
         blocker.style.display = '';
+        confirm.focus();
 
         const key = async(button: KeyboardEvent) => {
             if (button.key === 'Escape' || button.key === 'Enter') {
@@ -238,6 +240,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
         const confirm = getId('confirmBtn') as HTMLButtonElement;
         blocker.style.display = '';
         cancel.style.display = '';
+        confirm.focus();
 
         const yes = () => { close(true); };
         const no = () => { close(false); };
@@ -357,10 +360,9 @@ export const mobileDeviceSupport = (change = false) => {
         localStorage.removeItem('mobile device');
         global.mobileDevice = false;
     }
-    if (global.screenReader) { toggle.setAttribute('aria-label', `Mobile device support is ${toggle.textContent}`); }
 };
 
-export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource' | 'strange') => {
+export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource') => {
     switch (type) {
         case 'toggle': {
             const change = info as boolean;
@@ -375,7 +377,6 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.textContent = 'ON';
                 toggle.style.color = 'var(--red-text-color)';
                 toggle.style.borderColor = 'crimson';
-                toggle.setAttribute('aria-label', 'Screen reader support is ON');
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
                 if (special === 'reload') {
@@ -388,7 +389,6 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.textContent = 'OFF';
                 toggle.style.color = '';
                 toggle.style.borderColor = '';
-                toggle.setAttribute('aria-label', 'Screen reader support is OFF');
                 localStorage.removeItem('screen reader');
                 global.screenReader = false;
             }
@@ -396,33 +396,32 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         }
         case 'button': {
             const index = info as number;
-            const { stage } = player;
             const invText = getId('invisibleBought') as HTMLLabelElement;
 
             if (special === 'building') {
                 const { buildings } = player;
                 const { buildingsInfo } = global;
+                const active = player.stage.active;
 
                 let extra = index - 1;
-                if (stage.current >= 4) { extra = 0; }
+                if (active >= 4) { extra = 0; }
 
                 if (index === 0) {
-                    invText.textContent = `You have ${format(buildings[0].current)} ${buildingsInfo.name[0]}`;
+                    invText.textContent = `You have ${format(buildings[active][0].current)} ${buildingsInfo.name[active][0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[index].current)} ${buildingsInfo.name[index]}${buildings[index].current !== buildings[index].true ? `, out of them ${format(buildings[index].true, 0)} are self-made ones` : ''}, they are ${buildingsInfo.type[index] === 'producing' ? `producing ${format(buildingsInfo.producing[index])} ${buildingsInfo.name[extra]} per second` : `improving production of ${buildingsInfo.name[extra]} by ${format(buildingsInfo.producing[index])}`}${player.researchesAuto[1] >= index ? `, auto is ${player.toggles.buildings[index] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${format(buildings[active][index].current)} ${buildingsInfo.name[active][index]}${buildings[active][index].current !== buildings[active][index].true ? `, out of them ${format(buildings[active][index].true, 0)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${format(buildingsInfo.producing[active][index])} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${format(buildingsInfo.producing[active][index])}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
                 }
             } else if (special === 'resource') {
-                if (stage.current === 1) {
-                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[0][2] >= 1 ? `, you also have +${format(player.strangeness[0][2], 0)} free goals.` : ''}`;
-                } else if (stage.current === 2) {
+                if (index === 1) {
+                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[1][3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2], 0)} free goals.` : ''}`;
+                } else if (index === 2) {
                     invText.textContent = `You have ${format(player.vaporization.clouds)} Clouds${global.vaporizationInfo.get > 1 ? `, you can get +${format(global.vaporizationInfo.get)} if you reset now` : ''}`;
-                } else if (stage.current >= 4) {
-                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0], 0)} Red giants` : ''}${player.researchesExtra[0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1], 0)} Neutron stars` : ''}${player.researchesExtra[0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2], 0)} Black holes` : ''}`;
+                } else if (index === 4) {
+                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0], 0)} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1], 0)} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2], 0)} Black holes` : ''}`;
+                } else if (index === 0) {
+                    invText.textContent = `You have ${format(player.strange[0].true, 0)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.stageGain + (player.stage.active >= 4 ? global.strangeInfo.extraGain : 0, 0))} on Stage reset`;
                 }
-            } else if (special === 'strange') {
-                invText.textContent = `You have ${format(player.strange[0].true, 0)} Strange quarks${global.strangeInfo.producing[0] > 0 ? ` they are boosting production by ${format(global.strangeInfo.producing[0])}` : ''}, you will gain ${format(global.strangeInfo.stageGain, 0)} on Stage reset`;
             }
-            break;
         }
     }
 };
@@ -491,6 +490,7 @@ export const removeTextMovement = (change = false) => {
     }
 };
 
+//It's here, because mostly not important for gameplay
 export const playEvent = (event: number, index = 0) => {
     if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown, event should be called later again (if not then will need to setTimeout())
     player.events[index] = true;

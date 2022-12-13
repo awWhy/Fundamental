@@ -40,7 +40,7 @@
         "no-sparse-arrays": "off",
         "operator-assignment": "warn", //Test
         "operator-linebreak": ["error", "after"],
-        "no-return-assign": "off", //I don't know how often this can help and I do need return assign
+        //"no-return-assign": "off",
         "eqeqeq": "warn", //Using ===, won't be slower than == (even if need type conversion)
         "no-loop-func": "warn", //Test
         "prefer-object-has-own": "warn", //No 'in' as well (because it's not actually quicker, sad...)
@@ -73,5 +73,6 @@
         "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
         "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }], //I dont know what it means...
         "@typescript-eslint/no-dynamic-delete": "off" //I can tell when I can delete
+        //"@typescript-eslint/array-type": ["error", { "default": "array" }] //I rather just to turn it off
     }
 }
