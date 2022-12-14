@@ -70,7 +70,7 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
 };
 
 //Only checks if Upgrade is unlocked
-export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'elements' | 'strangeness'): boolean => {
+export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness'): boolean => {
     if (type !== 'strangeness') {
         if (stageIndex === 1 && type !== 'researchesAuto') { return true; }
         if (stageIndex === 3 && player.accretion.rank === 0) { return false; }
@@ -110,6 +110,8 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             break;
         case 'researchesAuto': //Other cases are handled by max level being 0
             return stageIndex === global.researchesAutoInfo.autoStage[upgrade];
+        case 'ASR':
+            return true;
         case 'elements':
             if (player.stage.current < 4) { return false; }
             if (upgrade >= 27) {

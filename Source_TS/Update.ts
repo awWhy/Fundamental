@@ -65,6 +65,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         if (passedTime < 0) { return console.warn('Negative passed time detected.'); }
         passedSeconds = passedTime / 1000;
         global.timeSpecial.lastSave += passedTime;
+        player.stage.export = Math.min(player.stage.export + passedSeconds, maxExportTime());
     } else {
         passedSeconds = timeLeft;
     }
@@ -81,7 +82,6 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
     } else if (timeLeft !== 0) {
         timeLeft = 0;
     }
-    player.stage.export = Math.min(player.stage.export + passedSeconds, maxExportTime());
 
     const { buildingsInfo, automatization } = global;
 

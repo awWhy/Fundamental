@@ -77,8 +77,7 @@ export const reLoad = async(firstLoad = false) => {
 void reLoad(true); //This will start the game
 
 /* Global */
-//eslint-disable-next-line no-lone-blocks
-{ //Eslint being buggy... This block is not redundant as there const inside (Also I don't want const inside to be global)
+{
     const { mobileDevice, screenReader } = global;
     document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
     const textInputs = [...document.querySelectorAll('input[type="text"]'), ...document.querySelectorAll('input[type="number"]')] as HTMLInputElement[];
@@ -155,7 +154,6 @@ void reLoad(true); //This will start the game
         }
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(i, 'auto', 'researchesAuto')); }
     }
-    //eslint-disable-next-line no-lone-blocks
     { //Part of researchesAuto
         const image = getId('ASRImage') as HTMLInputElement;
         if (!mobileDevice) {

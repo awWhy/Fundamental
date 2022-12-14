@@ -367,11 +367,8 @@ export const calculateGainedBuildings = (get: number, stageIndex: number, time: 
 
 export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness', auto = false) => {
     if (stageIndex === 'auto') { stageIndex = player.stage.active; }
-    if (type === 'ASR') {
-        upgrade = stageIndex;
-    } else {
-        if (!checkUpgrade(upgrade, stageIndex, type)) { return; }
-    }
+    if (type === 'ASR') { upgrade = stageIndex; }
+    if (!checkUpgrade(upgrade, stageIndex, type)) { return; }
 
     let currency: number;
     if (type === 'strangeness') {
@@ -710,7 +707,6 @@ export const autoUpgradesSet = (type: 'upgrades' | 'researches' | 'researchesExt
     }
 };
 
-//Auto should never buy ASR
 export const autoUpgradesBuy = (type: 'upgrades' | 'researches' | 'researchesExtra', stageIndex: number) => {
     const auto = autoUpgradesType(type);
     if (auto === null) { return; }

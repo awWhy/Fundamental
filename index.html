@@ -487,14 +487,14 @@
                         <p class="whiteText">For every reached Milestone, you will earn <span class="greenText">Strange quarks</span> and maybe more</p>
                     </div>
                     <div id="milestones">
-                        <div class="stage1border stage1window"><img src="Used_art/Infinity.png" alt="Infinity" id="milestone1Stage1" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage1border stage1window"><img src="Used_art/Energy+.png" alt="Energy+" id="milestone2Stage1" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage2border stage2window"><img src="Used_art/Drop.png" alt="Drop of water" id="milestone1Stage2" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage2border stage2window"><img src="Used_art/Puddle%20big.png" alt="Big Puddle" id="milestone2Stage2" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage3border stage3window"><img src="Used_art/Mass.png" alt="Mass" id="milestone1Stage3" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage3border stage3window"><img src="Used_art/Natural%20satellite.png" alt="Moon" id="milestone2Stage3" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage4border stage4window"><img src="Used_art/Main_sequence%20mass.png" alt="Solar mass" id="milestone1Stage4" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
-                        <div class="stage4border stage4window"><img src="Used_art/Black%20hole.png" alt="Black hole" id="milestone2Stage4" tabindex="1" loading="lazy" aria-labelledby="milestoneText milestoneEffect milestoneCost"></div>
+                        <div class="stage1border stage1window"><img src="Used_art/Infinity.png" alt="Infinity" id="milestone1Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage1border stage1window"><img src="Used_art/Energy+.png" alt="Energy+" id="milestone2Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage2border stage2window"><img src="Used_art/Drop.png" alt="Drop of water" id="milestone1Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage2border stage2window"><img src="Used_art/Puddle%20big.png" alt="Big Puddle" id="milestone2Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage3border stage3window"><img src="Used_art/Mass.png" alt="Mass" id="milestone1Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage3border stage3window"><img src="Used_art/Natural%20satellite.png" alt="Moon" id="milestone2Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage4border stage4window"><img src="Used_art/Main_sequence%20mass.png" alt="Solar mass" id="milestone1Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
+                        <div class="stage4border stage4window"><img src="Used_art/Black%20hole.png" alt="Black hole" id="milestone2Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost"></div>
                     </div>
                     <div class="descriptionText">
                         <h3 class="darkorchidText">Stage: <span id="milestonesStage"></span><span id="milestonesText" class="greenText">Hover to see.</span></h3>
@@ -641,7 +641,7 @@
                                 <div>
                                     <button id="switchTheme0">Default</button>
                                     <button id="switchTheme1">Microworld</button>
-                                    <button id="switchTheme2">Submerged</button>
+                                    <button id="switchTheme2" class="stage2Unlock">Submerged</button>
                                     <button id="switchTheme3" class="stage3Unlock">Accretion</button>
                                     <button id="switchTheme4" class="stage4Unlock">Interstellar</button>
                                     <button id="switchTheme5" class="stage5Unlock">Intergalactic</button>
@@ -823,7 +823,7 @@
                             <button id="researchTabBtn" class="stage2Unlock" tabindex="-1">Research</button>
                             <button id="strangenessTabBtn" class="stage5Unlock" tabindex="-1">Strangeness</button>
                             <button id="settingsTabBtn" tabindex="-1">Settings</button>
-                            <!-- Useless. Kept only for ID --> <button id="specialTabBtn" style="display: none;"></button>
+                            <!-- Useless. Kept only for ID --> <span id="specialTabBtn" style="display: none;"></span>
                         </nav>
                     </div>
                 </div>
