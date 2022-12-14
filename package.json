@@ -23,15 +23,15 @@
     "watch:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch"
   },
   "dependencies": {
-    "esbuild": "^0.15.5"
+    "esbuild": "^0.15.18"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
-    "eslint": "^8.22.0",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "eslint": "^8.29.0",
     "eslint-config-standard-with-typescript": "^22.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.4",
-    "eslint-plugin-promise": "^6.0.0",
-    "typescript": "^4.7.4"
+    "eslint-plugin-n": "^15.6.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^4.9.4"
   }
 }
