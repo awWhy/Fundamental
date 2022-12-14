@@ -1005,12 +1005,12 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 ['All Stars produce ', ' times more Elements.'], //Effect here only needs format
                 ['Stars are 2 times cheaper.'],
-                ['Unlock a new Upgrade.\nMaybe it will give you extra Strange quarks.'],
+                ['Unlock a new Upgrade.\nMaybe it will give you extra Strange quarks, if you are strong enough.'],
                 ['25% of Brown dwarfs will turn into Red giants now.'],
                 ['Elements will be preserved through Collapse reset.'],
                 ['Stars will Collapse automatically.'],
                 ['You start with auto for ', '.'],
-                ['You get 1 Strange quarks per day if you export save file.\n(Can only claim full numbers)'],
+                ['You get +1 Strange quarks per day, when you export save file.\n(Can only claim full numbers)'],
                 ['Unclaimed Strange quarks max storage is now 1 day longer.'],
                 ['Unspend Strange quarks will boost this stage. (All Stars production)']
             ],
@@ -1193,19 +1193,19 @@ Object.assign(player, {
         createArray(global.milestonesInfo[2].need.length, 'upgrade'),
         createArray(global.milestonesInfo[3].need.length, 'upgrade'),
         createArray(global.milestonesInfo[4].need.length, 'upgrade')
+    ]
+});
+Object.assign(player.toggles, { //To prevent properties from being removed, it will be done separatly
+    normal: createArray(document.getElementsByClassName('toggle').length, 'toggle'),
+    buildings: [
+        [],
+        createArray(player.buildings[1].length, 'toggleAuto'),
+        createArray(player.buildings[2].length, 'toggleAuto'),
+        createArray(player.buildings[3].length, 'toggleAuto'),
+        createArray(player.buildings[4].length, 'toggleAuto'),
+        createArray(player.buildings[5].length, 'toggleAuto')
     ],
-    toggles: {
-        normal: createArray(document.getElementsByClassName('toggle').length, 'toggle'),
-        buildings: [
-            [],
-            createArray(player.buildings[1].length, 'toggleAuto'),
-            createArray(player.buildings[2].length, 'toggleAuto'),
-            createArray(player.buildings[3].length, 'toggleAuto'),
-            createArray(player.buildings[4].length, 'toggleAuto'),
-            createArray(player.buildings[5].length, 'toggleAuto')
-        ],
-        auto: createArray(document.getElementsByClassName('toggleAuto').length, 'toggleAuto')
-    }
+    auto: createArray(document.getElementsByClassName('toggleAuto').length, 'toggleAuto')
 });
 
 //player.example = playerStart.example; not allowed, instead iterate or create clone

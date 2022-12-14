@@ -2,8 +2,9 @@
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
 (Work in Progress)\
-v**0.0.7** > Stage 1 reworked. Stage 5 started, \
-It's probably even more slow (sorry...)
+**v0.0.9** > Stage 4 speed up. Stage 5 second part, some balance changes, \
+There was a bug when launching game for the **first time**, buildings weren't producing, \
+Only way to fix it on your side, is by deleting game Cookies (Local storage)
 
 #### Should be supported by:
 1. Modern browsers,
