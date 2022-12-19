@@ -72,7 +72,7 @@ body {
 
 /* Right now it works only with keyboard tab button */
 body:not(.outlineOnFocus) button:focus-visible,
-body:not(.outlineOnFocus) input:focus-visible { outline: none; }
+body:not(.outlineOnFocus) input:not(input[type="text"], input[type="number"]):focus-visible { outline: none; }
 
 input[type = "image"],
 img {

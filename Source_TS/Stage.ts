@@ -2,7 +2,7 @@ import { checkBuilding, checkUpgrade, milestoneCheck } from './Check';
 import { getId } from './Main';
 import { global, globalStart, player } from './Player';
 import { reset } from './Reset';
-import { Alert, Confirm } from './Special';
+import { Alert, Confirm, playEvent } from './Special';
 import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdateUpgrades } from './Update';
 
 export const calculateStageInformation = () => {
@@ -14,6 +14,7 @@ export const calculateStageInformation = () => {
         const { dischargeInfo } = global;
         const { discharge } = player;
 
+        //dischargeInfo.bonus = strangeness[1][2];
         dischargeInfo.base = 4 + strangeness[1][0];
         upgradesInfo[1].effect[3] = dischargeInfo.base * 2 ** researches[1][4];
         upgradesInfo[1].effect[5] = Math.round((1.02 + 0.01 * researches[1][1]) * 100) / 100;
@@ -344,12 +345,7 @@ export const calculateGainedBuildings = (get: number, stageIndex: number, time: 
 
     if (add === 0) { return; }
     if (stageIndex === 4) { get = 0; }
-    if (stageIndex === 3 && player.accretion.rank < 5 && buildings[3][0].current + add > 1e30) {
-        buildings[3][0].current = 1e30;
-        return;
-    }
 
-    if (buildings[stageIndex][get].current >= 1e308) { return; } //Just === would be better, but this allows to detect bugs
     let check = buildings[stageIndex][get].current + add;
     buildings[stageIndex][get].current = isFinite(check) ? check : 1e308;
 
@@ -361,6 +357,9 @@ export const calculateGainedBuildings = (get: number, stageIndex: number, time: 
 
     //Milestones that are based on gained amount
     if (stageIndex === 3) {
+        if (player.accretion.rank < 5 && buildings[3][0].current + add > 1e30) {
+            buildings[3][0].current = 1e30;
+        }
         if (get === 0) { milestoneCheck(0, 3); }
     }
 };
@@ -855,7 +854,7 @@ export const stageResetCheck = (stageIndex: number, auto = false): boolean => {
 
 export const stageAsyncReset = async() => {
     const { stage } = player;
-    const active = stage.active === 4 && stage.current >= 5 ? stage.current : stage.active;
+    const active = stage.active === 4 && stage.current === 5 && player.events[1] ? 5 : stage.active;
 
     if (!stageResetCheck(active)) {
         switch (active) {
@@ -957,10 +956,7 @@ const stageNoReset = () => {
     const { stage } = player;
 
     stage.current++;
-    if (stage.true === 4) {
-        Alert('There doesn\'t seem to be anything left, so let\'s try going back instead');
-        stage.true++;
-    }
+    stage.true = Math.max(stage.current, stage.true);
     stageCheck('soft');
 };
 
@@ -968,6 +964,8 @@ export const switchStage = (stage: number) => {
     if (player.stage.active === stage || !global.stageInfo.activeAll.includes(stage)) { return; }
     player.stage.active = stage;
     stageCheck();
+
+    if (!player.events[1] && player.stage.active === 5) { playEvent(4, 1); }
 };
 
 export const dischargeResetCheck = (auto = 'false' as 'false' | 'interval' | 'upgrade'): boolean => {

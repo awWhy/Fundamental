@@ -12,7 +12,8 @@ export const detectHotkey = (check: KeyboardEvent) => {
             document.body.classList.add('outlineOnFocus') :
             document.body.classList.remove('outlineOnFocus');
     }
-    if (check.ctrlKey || check.altKey) { return; } //No buttons are using it
+
+    if (check.ctrlKey || check.altKey || check.code[0] === 'F') { return; } //No buttons are using it
 
     const shift = check.shiftKey;
     const isNumber = !isNaN(Number(check.code.slice(-1)));

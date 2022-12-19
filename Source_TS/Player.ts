@@ -400,9 +400,9 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Blue%20hypergiant', 'Blue hypergiant']
             ],
             [
-                ['Missing', 'Missing'],
-                ['Missing', 'Missing'],
-                ['Missing', 'Missing']
+                ['Nebula', 'Nebula'],
+                ['Star%20cluster', 'Star cluster'],
+                ['Galaxy', 'Galaxy']
             ]
         ],
         longestUpgrade: 12,
@@ -1265,6 +1265,7 @@ export const checkPlayerValues = () => {
 
 export const updatePlayer = (load: playerType) => {
     if (Object.hasOwn(load, 'player')) { load = load['player' as keyof unknown]; } //Old save had it
+
     if (!Object.hasOwn(load, 'discharge')) {
         throw new ReferenceError('This save file is missing important information and is most likely not from this game');
     }
@@ -1366,6 +1367,10 @@ export const updatePlayer = (load: playerType) => {
         load.ASR[a] = load.researchesAuto.splice(1, 1)[0];
     }
     versionInfo.changed = oldVersion !== load.version;
+
+    if (load.version !== playerStart.version) {
+        throw new ReferenceError('Save file version is higher than game version');
+    }
 
     /* Next one's will auto add missing part of already existing information */
     for (let s = 1; s < playerStart.buildings.length; s++) {

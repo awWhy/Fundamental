@@ -7,11 +7,12 @@ export const checkTab = (tab: string, subtab = 'none'): boolean => {
     let subUnl = false;
 
     switch (tab) {
-        case 'settings':
-            subUnl = true; //'Settings' || 'Stats'
-            //Falls through, just for lint
         case 'stage':
             tabUnl = true;
+            break;
+        case 'settings':
+            tabUnl = true;
+            subUnl = true; //'Settings' || 'Stats'
             break;
         case 'research':
             if (player.stage.true > 1 || player.discharge.current >= 4) {
@@ -26,11 +27,7 @@ export const checkTab = (tab: string, subtab = 'none'): boolean => {
         case 'strangeness':
             if (player.strange[0].total > 0) {
                 tabUnl = true;
-                if (subtab === 'Matter') {
-                    subUnl = true;
-                } else if (subtab === 'Milestones') {
-                    subUnl = player.stage.resets >= 6;
-                }
+                subUnl = true; //'Matter' || 'Milestones'
             }
             break;
         case 'special':
@@ -71,14 +68,14 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
 
 //Only checks if Upgrade is unlocked
 export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness'): boolean => {
-    if (type !== 'strangeness') {
-        if (stageIndex === 1 && type !== 'researchesAuto') { return true; }
-        if (stageIndex === 3 && player.accretion.rank === 0) { return false; }
-    }
+    if (stageIndex === 3 && player.accretion.rank === 0 && type !== 'strangeness') { return false; }
 
     switch (type) {
         case 'upgrades':
-            if (stageIndex === 2) {
+            if (stageIndex === 1) {
+                if (upgrade > 3) { return player.discharge.current >= 3; }
+                return true;
+            } else if (stageIndex === 2) {
                 if (upgrade === 6 && player.strangeness[2][2] < 3) { return false; }
                 return true;
             } else if (stageIndex === 3) {
@@ -89,7 +86,9 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             break;
         case 'researches':
-            if (stageIndex === 2) {
+            if (stageIndex === 1) {
+                return player.upgrades[1][3] === 1;
+            } else if (stageIndex === 2) {
                 return true;
             } else if (stageIndex === 3) {
                 return player.accretion.rank >= global.accretionInfo.rankR[upgrade];
@@ -99,7 +98,9 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             break;
         case 'researchesExtra':
-            if (stageIndex === 2) {
+            /*if (stageIndex === 1) {
+                return false;
+            } else*/ if (stageIndex === 2) {
                 return true;
             } else if (stageIndex === 3) {
                 return player.accretion.rank >= global.accretionInfo.rankE[upgrade];
@@ -109,11 +110,13 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             break;
         case 'researchesAuto': //Other cases are handled by max level being 0
+            if (stageIndex === 1 && player.upgrades[1][3] < 1) { return false; }
             return stageIndex === global.researchesAutoInfo.autoStage[upgrade];
         case 'ASR':
+            if (stageIndex === 1 && player.upgrades[1][3] < 1) { return false; }
             return true;
         case 'elements':
-            if (player.stage.current < 4) { return false; }
+            if (!global.stageInfo.activeAll.includes(4)) { return false; }
             if (upgrade >= 27) {
                 return player.upgrades[4][3] === 1;
             } else if (upgrade >= 11) {
@@ -153,7 +156,7 @@ export const checkUpgradeReset = (upgrade: number, stageIndex: number, type: 'up
 //Check and award Milestone reward
 export const milestoneCheck = (index: number, stageIndex: number) => {
     const need = global.milestonesInfo[stageIndex].need[index][player.milestones[stageIndex][index]];
-    if (need === undefined || player.stage.resets < 6) { return; }
+    if (need === undefined || player.strange[0].total < 1) { return; }
     let award = false;
 
     if (stageIndex === 1) {

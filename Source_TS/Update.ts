@@ -267,7 +267,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (tab === 'special') {
                 getId('invisibleGetResource1').style.display = discharge.energyMax > 0 ? '' : 'none';
             }
-            if (!player.events[0] && upgrades[1][4] === 1) { playEvent(0); } //Not outside because can only happen once
+            if (!player.events[0] && upgrades[1][4] === 1) { playEvent(0, 0); } //Not outside because can only happen once
         }
     }
     if (activeAll.includes(2)) {
@@ -310,7 +310,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (tab === 'special') {
                 getId('invisibleGetResource2').style.display = upgrades[2][1] === 1 ? '' : 'none';
             }
-            if (!player.events[0] && global.vaporizationInfo.get + vaporization.clouds > 1e4) { playEvent(1); }
+            if (!player.events[0] && global.vaporizationInfo.get + vaporization.clouds > 1e4) { playEvent(1, 0); }
         }
     }
     if (activeAll.includes(3)) {
@@ -363,14 +363,14 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                     }
                 }
             }
-            if (!player.events[0] && buildings[3][0].current >= 5e29) { playEvent(2); }
+            if (!player.events[0] && buildings[3][0].current >= 5e29) { playEvent(2, 0); }
         }
     }
     if (activeAll.includes(4)) {
         const { collapse, researchesExtra } = player;
 
         if (tab === 'stage') {
-            if (active >= 4) { getId('stageReset').textContent = stage.current === 5 ? 'Return back to start' : 'You are not ready'; }
+            if (active >= 4) { getId('stageReset').textContent = player.events[1] && stage.current === 5 ? 'Return back to start' : 'You are not ready'; }
         } else if (tab === 'research') {
             if (subtab.researchCurrent === 'Elements') {
                 const grid = getId('elementsGrid') as HTMLDivElement;
@@ -415,7 +415,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (tab === 'special') {
                 getId('invisibleGetResource4').style.display = upgrades[4][0] === 1 ? '' : 'none';
             }
-            if (!player.events[0] && researchesExtra[4][0] >= 1) { playEvent(3); }
+            if (!player.events[0] && researchesExtra[4][0] >= 1) { playEvent(3, 0); }
         }
     }
     if (stage.true >= 5) {

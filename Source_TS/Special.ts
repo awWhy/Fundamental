@@ -491,7 +491,7 @@ export const removeTextMovement = (change = false) => {
 };
 
 //It's here, because mostly not important for gameplay
-export const playEvent = (event: number, index = 0) => {
+export const playEvent = (event: number, index: number) => {
     if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown, event should be called later again (if not then will need to setTimeout())
     player.events[index] = true;
 
@@ -512,5 +512,8 @@ export const playEvent = (event: number, index = 0) => {
             break;
         case 3: //[0] Collapse explanation
             Alert('Any Collapse reset from now on will give extra rewards, but you can only Collapse when can get more or equal Mass.\nEach reward effect will be hidden to you for now');
+            break;
+        case 4: //[1] Entering intergalactic
+            Alert('There doesn\'t seem to be anything here. Let\'s try going back to start and find what is missing');
     }
 };

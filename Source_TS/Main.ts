@@ -80,10 +80,6 @@ void reLoad(true); //This will start the game
 {
     const { mobileDevice, screenReader } = global;
     document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
-    const textInputs = [...document.querySelectorAll('input[type="text"]'), ...document.querySelectorAll('input[type="number"]')] as HTMLInputElement[];
-    for (const text of textInputs) {
-        text.addEventListener('focus', () => document.body.classList.add('outlineOnFocus'));
-    }
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
         getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
     }
