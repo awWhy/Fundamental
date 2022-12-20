@@ -142,12 +142,6 @@ export const numbersUpdate = () => { //This is for relevant visual info
             getId(`building${i}True`).textContent = `[${format(buildings[active][i].true, 0)}]`;
             getId(`building${i}Cur`).textContent = format(buildings[active][i].current);
             getId(`building${i}Prod`).textContent = format(buildingsInfo.producing[active][i]);
-            let e = i - 1;
-            if (active === 2 && i !== 1) {
-                e = 1; //Drops
-            } else if (active >= 3) {
-                e = 0; //Mass || Elements
-            }
 
             if (active === 4 && player.collapse.mass < global.collapseInfo.unlockB[i]) {
                 getId(`building${i}`).classList.remove('availableBuilding');
@@ -156,25 +150,33 @@ export const numbersUpdate = () => { //This is for relevant visual info
                 continue;
             }
 
+            let e = i - 1;
+            if (active === 2 && i !== 1) {
+                e = 1; //Drops
+            } else if (active >= 3) {
+                e = 0; //Mass || Elements
+            }
+            const extra = active === 5 ? 4 : active;
+
             let totalCost: number;
             let totalBuy: number;
-            if (player.researchesAuto[0] === 0 || shop.howMany === 1 || (buildingsInfo.cost[active][i] > buildings[active][e].current && (!shop.strict || shop.howMany === -1))) {
+            if (player.researchesAuto[0] === 0 || shop.howMany === 1 || (buildingsInfo.cost[active][i] > buildings[extra][e].current && (!shop.strict || shop.howMany === -1))) {
                 totalCost = buildingsInfo.cost[active][i];
                 totalBuy = 1;
             } else {
                 const totalBefore = buildingsInfo.startCost[active][i] * ((buildingsInfo.increase[active][i] ** buildings[active][i].true - 1) / (buildingsInfo.increase[active][i] - 1));
-                const maxAfford = shop.strict && shop.howMany !== -1 ? 1 : Math.trunc(Math.log((totalBefore + buildings[active][e].current) * (buildingsInfo.increase[active][i] - 1) / buildingsInfo.startCost[active][i] + 1) / Math.log(buildingsInfo.increase[active][i])) - buildings[active][i].true;
+                const maxAfford = shop.strict && shop.howMany !== -1 ? 1 : Math.trunc(Math.log((totalBefore + buildings[extra][e].current) * (buildingsInfo.increase[active][i] - 1) / buildingsInfo.startCost[active][i] + 1) / Math.log(buildingsInfo.increase[active][i])) - buildings[active][i].true;
                 totalBuy = shop.howMany === -1 ? maxAfford : shop.strict ? shop.howMany : Math.min(maxAfford, shop.howMany);
                 totalCost = buildingsInfo.startCost[active][i] * ((buildingsInfo.increase[active][i] ** (totalBuy + buildings[active][i].true) - 1) / (buildingsInfo.increase[active][i] - 1)) - totalBefore;
             }
 
-            if (totalCost <= buildings[active][e].current) {
+            if (totalCost <= buildings[extra][e].current) {
                 getId(`building${i}`).classList.add('availableBuilding');
-                getId(`building${i}Btn`).textContent = `Make for: ${format(totalCost)} ${buildingsInfo.name[active][e]}`;
+                getId(`building${i}Btn`).textContent = `Make for: ${format(totalCost)} ${buildingsInfo.name[extra][e]}`;
                 getId(`building${i}BuyX`).textContent = format(totalBuy);
             } else {
                 getId(`building${i}`).classList.remove('availableBuilding');
-                getId(`building${i}Btn`).textContent = `Need: ${format(totalCost)} ${buildingsInfo.name[active][e]}`;
+                getId(`building${i}Btn`).textContent = `Need: ${format(totalCost)} ${buildingsInfo.name[extra][e]}`;
                 getId(`building${i}BuyX`).textContent = format(totalBuy);
             }
         }
@@ -559,7 +561,8 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
 
             getId('milestonesEffect').textContent = level === global[typeInfo as 'milestonesInfo'][stageIndex].need[index].length ?
                 `You reached all milestones.\n${global[typeInfo as 'milestonesInfo'][stageIndex].rewardText[index]}` :
-                `You will gain ${format(global[typeInfo as 'milestonesInfo'][stageIndex].quarks[index][level], 0)} Strange quarks for reaching this milestone.${level >= global[typeInfo as 'milestonesInfo'][stageIndex].unlock[index] ? `\n${global[typeInfo as 'milestonesInfo'][stageIndex].rewardText[index]}` : ''}`;
+                `You will gain ${format(global[typeInfo as 'milestonesInfo'][stageIndex].quarks[index][level], 0)} Strange quarks for reaching this milestone.${level >= global[typeInfo as 'milestonesInfo'][stageIndex].unlock[index] ?
+                    `\n${global[typeInfo as 'milestonesInfo'][stageIndex].rewardText[index]}` : `\nUnlock a special reward after completing this Milestone ${global[typeInfo as 'milestonesInfo'][stageIndex].unlock[index] - level} times more.`}`;
             getId('milestonesCost').textContent = level === global[typeInfo as 'milestonesInfo'][stageIndex].need[index].length ? 'All reached.' :
                 global[typeInfo as 'milestonesInfo'][stageIndex].needText[index][0] + format(global[typeInfo as 'milestonesInfo'][stageIndex].need[index][player[type][stageIndex][index]]) + global[typeInfo as 'milestonesInfo'][stageIndex].needText[index][1];
         }
@@ -799,8 +802,8 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     if (active !== 3) { getId('buildings').style.display = ''; }
     if (active === 5) {
         getId('elementStat').style.display = '';
-        getId('building1').style.display = 'none'; //player.milestones[2][0] >= 3 ? '' : 'none';
-        getId('building2').style.display = 'none'; //player.milestones[3][0] >= 3 ? '' : 'none';
+        getId('building1').style.display = player.milestones[2][0] >= 3 ? '' : 'none';
+        getId('building2').style.display = player.milestones[3][0] >= 3 ? '' : 'none';
         getId('building3').style.display = 'none';
         getId('upgrades').style.display = 'none';
         getId('stageResearch').style.display = 'none';

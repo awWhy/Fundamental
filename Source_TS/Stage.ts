@@ -242,12 +242,14 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     } else if (stageIndex >= 3) {
         extra = 0; //Mass || Elements
     }
-    let keep = 2;
-    if (buildings[stageIndex][index].true === 0 || buildings[stageIndex][extra].current > 1e300) { keep = 1; }
+    const stageExtra = stageIndex === 5 ? 4 : stageIndex;
 
-    if (buildings[stageIndex][extra].current / (auto ? keep : 1) < buildingsInfo.cost[stageIndex][index]) {
+    let keep = 2;
+    if (buildings[stageIndex][index].true === 0 || buildings[stageExtra][extra].current > 1e300) { keep = 1; }
+
+    if (buildings[stageExtra][extra].current / (auto ? keep : 1) < buildingsInfo.cost[stageIndex][index]) {
         if (global.screenReader && !auto) {
-            getId('invisibleBought').textContent = `Coudn't make '${buildingsInfo.name[stageIndex][index]}', because didn't had enough of '${buildingsInfo.name[stageIndex][extra]}'`;
+            getId('invisibleBought').textContent = `Coudn't make '${buildingsInfo.name[stageIndex][index]}', because didn't had enough of '${buildingsInfo.name[stageExtra][extra]}'`;
         }
         return;
     }
@@ -259,7 +261,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
 
     if (howMany !== 1 && player.researchesAuto[0] > 0) {
         //Increase must be > 1 (if < 1, then use (1 - increase) and (1 - increase ** levels))
-        let budget = buildings[stageIndex][extra].current / (auto ? keep : 1); //How much need to spend
+        let budget = buildings[stageExtra][extra].current / (auto ? keep : 1); //How much need to spend
         const totalBefore = buildingsInfo.startCost[stageIndex][index] * ((buildingsInfo.increase[stageIndex][index] ** buildings[stageIndex][index].true - 1) / (buildingsInfo.increase[stageIndex][index] - 1)); //How much already payed for
         const maxAfford = Math.trunc(Math.log((totalBefore + budget) * (buildingsInfo.increase[stageIndex][index] - 1) / buildingsInfo.startCost[stageIndex][index] + 1) / Math.log(buildingsInfo.increase[stageIndex][index])) - buildings[stageIndex][index].true; //Max amount that can be afforded
         if (shop.strict && maxAfford < howMany && howMany !== -1) { return; }
@@ -275,7 +277,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
             }
         }
 
-        buildings[stageIndex][extra].current -= total;
+        buildings[stageExtra][extra].current -= total;
         buildings[stageIndex][index].current += canAfford;
         buildings[stageIndex][index].true += canAfford;
         buildings[stageIndex][index].total += canAfford;
@@ -286,7 +288,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
             getId('invisibleBought').textContent = `Maded ${format(canAfford)} '${buildingsInfo.name[stageIndex][index]}'${microworld ? `, gained ${format(global.dischargeInfo.energyType[index] * canAfford)} Energy` : ''}`;
         }
     } else {
-        buildings[stageIndex][extra].current -= buildingsInfo.cost[stageIndex][index];
+        buildings[stageExtra][extra].current -= buildingsInfo.cost[stageIndex][index];
         buildings[stageIndex][index].current++;
         buildings[stageIndex][index].true++;
         buildings[stageIndex][index].total++;
