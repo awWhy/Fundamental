@@ -576,6 +576,25 @@ p > img {
     height: 1.63em;
 }
 
+#logoLinks {
+    display: flex;
+    align-items: end;
+}
+
+#logoLinks > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.18em;
+    text-decoration: none;
+    color: var(--main-text-color);
+}
+
+#logoLinks > a > img {
+    object-fit: scale-down;
+    height: unset;
+}
+
 .saveButtonGroup {
     display: flex;
     flex-direction: column;
