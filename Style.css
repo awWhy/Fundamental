@@ -566,10 +566,12 @@ p > img {
 }
 
 #resetToggles > div > div > .toggleAuto {
-    width: 5.2em;
+    width: 5.1em;
     height: 1.85em;
     font-size: 0.77em;
 }
+
+#resetToggles > div > div > div > .windowPopUp { margin-left: 0.3em; }
 
 .miniButton {
     width: 1.5em;
