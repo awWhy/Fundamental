@@ -566,14 +566,40 @@ p > img {
 }
 
 #resetToggles > div > div > .toggleAuto {
-    width: 5.2em;
+    width: 5.1em;
     height: 1.85em;
     font-size: 0.77em;
 }
 
+#resetToggles > div > div > div > .windowPopUp { margin-left: 0.3em; }
+
 .miniButton {
     width: 1.5em;
     height: 1.63em;
+}
+
+#logoLinks {
+    display: flex;
+    align-items: end;
+}
+
+#logoLinks > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.18em;
+    border: 2px solid var(--button-main-border);
+    border-radius: 10px;
+    background-color: var(--window-color);
+    padding: 0.4em 0.3em 0.2em;
+    color: var(--main-text-color);
+    text-decoration: none;
+}
+
+#logoLinks > a > img {
+    background-color: inherit;
+    object-fit: scale-down;
+    height: unset;
 }
 
 .saveButtonGroup {

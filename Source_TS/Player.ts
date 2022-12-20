@@ -1287,90 +1287,92 @@ export const updatePlayer = (load: playerType) => {
     }
 
     /* Version changes (and change log's) */
-    const { versionInfo } = global;
-    const oldVersion = load.version;
-    versionInfo.log = 'Change log:';
-    if (load.version === '0.0.0') {
-        load.version = 'v0.0.1';
-        versionInfo.log += `\n${load.version} - Stage 2 has properly came out; Structures and Energy has been reset to prevent save file corruption, sorry`;
-        for (let i = 1; i <= 3; i++) { (load.buildings[i] as unknown as typeof load.buildings[1][1]).true = 0; }
-        load.discharge.energyCur = 0;
-        load.discharge.energyMax = 0;
-    }
-    if (load.version === 'v0.0.1') {
-        load.version = 'v0.0.2';
-        versionInfo.log += `\n${load.version} - Added dynamic descriptions for upgrades, stats subtab, early Mobile device support`;
-        load.stage.resets = load.stage.current === 2 ? 1 : 0;
-    }
-    if (load.version === 'v0.0.2') {
-        load.version = 'v0.0.3';
-        versionInfo.log += `\n${load.version} - Stage 3 is out, Stage 2 extended. Dynamic update for researches, new stats, full reset of toggles (sorry). Also max offline time is now 2 times bigger...`;
-        load.toggles = check.toggles;
-    }
-    if (load.version === 'v0.0.3') {
-        load.version = 'v0.0.4';
-        versionInfo.log += `\n${load.version} - All Stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
-    }
-    if (load.version === 'v0.0.4') {
-        load.version = 'v0.0.5';
-        versionInfo.log += `\n${load.version} - First part of Stage 4 is out, also small visual changes. Screen reader support updated (I forgot about it since stage 2...). Also testing new formula for making structures and other minor stuff`;
-    }
-    if (load.version === 'v0.0.5') {
-        load.version = 'v0.0.6';
-        versionInfo.log += `\n${load.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked, save file names and others`;
-        load.events = [load.stage.current === 1 && load.discharge.current > 4];
-        load.collapse.show = -1;
-    }
-    if (load.version === 'v0.0.6') {
-        load.version = 'v0.0.7';
-        versionInfo.log += `\n${load.version} - Stage 1 full rework, Stage 4 finished and early Stage 5 (it will be really slow, until next versions). Mobile device support updated. More hotkeys. Self-made structures are now displayed outside of stat subtab`;
-        if (load.stage.current === 4) { load.elements[26] = 0; }
-        load.vaporization.input = 10;
-        load.collapse.inputM = 4;
-        load.collapse.inputS = 2;
-        load.stage.input = 1;
-    }
-    if (load.version === 'v0.0.7') {
-        load.version = 'v0.0.8';
-        versionInfo.log += `\n${load.version} - Minor speed up to other Stage's, also new save file name options (I would recommend 'Fundamental, [stage], [date] [time]')`;
-    }
-    if (load.version === 'v0.0.8') {
-        load.version = 'v0.0.9';
-        versionInfo.log += `\n${load.version} - Stage 4 and 5 speed up, second part of Stage 5. Auto toggles reset. Some inside logic changes, also save file size increased... This version might be buggy`;
-        load.stage.active = Math.min(load.stage.current, 4);
-        const a = load.stage.active;
-        const oldB = load.buildings as unknown as typeof player.buildings[0];
-        load.buildings = check.buildings;
-        load.buildings[a] = oldB;
-        if (load.buildings[a].length > playerStart.buildings[a].length) {
-            for (let i = load.buildings[a].length; i > playerStart.buildings[a].length; i--) {
-                load.buildings[a].splice(i - 1, 1); //Just saves some save file space
-            }
-        }
-        const oldU = load.upgrades as unknown as typeof player.upgrades[0];
-        load.upgrades = check.upgrades;
-        load.upgrades[a] = oldU;
-        const oldR = load.researches as unknown as typeof player.researches[0];
-        load.researches = check.researches;
-        load.researches[a] = oldR;
-        if (a !== 1) {
-            const oldE = load.researchesExtra as unknown as typeof player.researchesExtra[0];
-            load.researchesExtra = check.researchesExtra;
-            load.researchesExtra[a] = oldE;
-        }
-        if (load.strangeness.length < 5) { load.strangeness.unshift([]); }
-        if (load.stage.export === undefined) {
-            load.stage.export = 86400;
-        } else {
-            load.stage.export *= 86400;
-        }
-        load.ASR[a] = load.researchesAuto.splice(1, 1)[0];
-    }
-    versionInfo.changed = oldVersion !== load.version;
-
     if (load.version !== playerStart.version) {
-        throw new ReferenceError('Save file version is higher than game version');
-    }
+        const { versionInfo } = global;
+        versionInfo.log = 'Change log:';
+
+        if (load.version === '0.0.0') {
+            load.version = 'v0.0.1';
+            versionInfo.log += `\n${load.version} - Stage 2 has properly came out; Structures and Energy has been reset to prevent save file corruption, sorry`;
+            for (let i = 1; i <= 3; i++) { (load.buildings[i] as unknown as typeof load.buildings[1][1]).true = 0; }
+            load.discharge.energyCur = 0;
+            load.discharge.energyMax = 0;
+        }
+        if (load.version === 'v0.0.1') {
+            load.version = 'v0.0.2';
+            versionInfo.log += `\n${load.version} - Added dynamic descriptions for upgrades, stats subtab, early Mobile device support`;
+            load.stage.resets = load.stage.current === 2 ? 1 : 0;
+        }
+        if (load.version === 'v0.0.2') {
+            load.version = 'v0.0.3';
+            versionInfo.log += `\n${load.version} - Stage 3 is out, Stage 2 extended. Dynamic update for researches, new stats, full reset of toggles (sorry). Also max offline time is now 2 times bigger...`;
+            load.toggles = check.toggles;
+        }
+        if (load.version === 'v0.0.3') {
+            load.version = 'v0.0.4';
+            versionInfo.log += `\n${load.version} - All Stage's are now quicker (because too many people complain, but there isn't much of a content currently...), save file size decreased, small visual changes`;
+        }
+        if (load.version === 'v0.0.4') {
+            load.version = 'v0.0.5';
+            versionInfo.log += `\n${load.version} - First part of Stage 4 is out, also small visual changes. Screen reader support updated (I forgot about it since stage 2...). Also testing new formula for making structures and other minor stuff`;
+        }
+        if (load.version === 'v0.0.5') {
+            load.version = 'v0.0.6';
+            versionInfo.log += `\n${load.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked, save file names and others`;
+            load.events = [load.stage.current === 1 && load.discharge.current > 4];
+            load.collapse.show = -1;
+        }
+        if (load.version === 'v0.0.6') {
+            load.version = 'v0.0.7';
+            versionInfo.log += `\n${load.version} - Stage 1 full rework, Stage 4 finished and early Stage 5 (it will be really slow, until next versions). Mobile device support updated. More hotkeys. Self-made structures are now displayed outside of stat subtab`;
+            if (load.stage.current === 4) { load.elements[26] = 0; }
+            load.vaporization.input = 10;
+            load.collapse.inputM = 4;
+            load.collapse.inputS = 2;
+            load.stage.input = 1;
+        }
+        if (load.version === 'v0.0.7') {
+            load.version = 'v0.0.8';
+            versionInfo.log += `\n${load.version} - Minor speed up to other Stage's, also new save file name options (I would recommend 'Fundamental, [stage], [date] [time]')`;
+        }
+        if (load.version === 'v0.0.8') {
+            load.version = 'v0.0.9';
+            versionInfo.log += `\n${load.version} - Stage 4 and 5 speed up, second part of Stage 5. Auto toggles reset. Some inside logic changes, also save file size increased... This version might be buggy`;
+            load.stage.active = Math.min(load.stage.current, 4);
+            const a = load.stage.active;
+            const oldB = load.buildings as unknown as typeof player.buildings[0];
+            load.buildings = check.buildings;
+            load.buildings[a] = oldB;
+            if (load.buildings[a].length > playerStart.buildings[a].length) {
+                for (let i = load.buildings[a].length; i > playerStart.buildings[a].length; i--) {
+                    load.buildings[a].splice(i - 1, 1); //Just saves some save file space
+                }
+            }
+            const oldU = load.upgrades as unknown as typeof player.upgrades[0];
+            load.upgrades = check.upgrades;
+            load.upgrades[a] = oldU;
+            const oldR = load.researches as unknown as typeof player.researches[0];
+            load.researches = check.researches;
+            load.researches[a] = oldR;
+            if (a !== 1) {
+                const oldE = load.researchesExtra as unknown as typeof player.researchesExtra[0];
+                load.researchesExtra = check.researchesExtra;
+                load.researchesExtra[a] = oldE;
+            }
+            if (load.strangeness.length < 5) { load.strangeness.unshift([]); }
+            if (load.stage.export === undefined) {
+                load.stage.export = 86400;
+            } else {
+                load.stage.export *= 86400;
+            }
+            load.ASR[a] = load.researchesAuto.splice(1, 1)[0];
+        }
+
+        if (load.version !== playerStart.version) {
+            throw new ReferenceError('Save file version is higher than game version');
+        }
+        versionInfo.changed = true;
+    } else { global.versionInfo.changed = false; }
 
     /* Next one's will auto add missing part of already existing information */
     for (let s = 1; s < playerStart.buildings.length; s++) {
