@@ -5,14 +5,14 @@ import { playEvent, switchTheme } from './Special';
 import { autoUpgradesBuy, autoUpgradesSet, buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateMaxLevel, calculateResearchCost, calculateStageInformation, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleSwap, vaporizationResetCheck } from './Stage';
 
 //No tab checking, because if someone will use HTML to enable button, they can do same for insides
-export const switchTab = (tab: string, subtab = 'tabOnly') => {
-    if (global.tab !== tab && subtab === 'tabOnly') {
-        /* First remove current tab, then show new tab */
-        getId(`${global.tab}Tab`).style.display = 'none';
-        getId(`${global.tab}TabBtn`).classList.remove('tabActive');
-        if (Object.hasOwn(global.subtab, global.tab + 'Current')) {
-            for (const inside of global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs']) {
-                getId(`${global.tab}SubtabBtn${inside}`).style.display = 'none';
+export const switchTab = (tab: string, subtab = null as null | string) => {
+    if (subtab === null) {
+        const oldTab = global.tab;
+        getId(`${oldTab}Tab`).style.display = 'none';
+        getId(`${oldTab}TabBtn`).classList.remove('tabActive');
+        if (Object.hasOwn(global.subtab, oldTab + 'Current')) {
+            for (const inside of global.tabList[oldTab + 'Subtabs' as 'settingsSubtabs']) {
+                getId(`${oldTab}SubtabBtn${inside}`).style.display = 'none';
             }
         }
 
@@ -28,21 +28,23 @@ export const switchTab = (tab: string, subtab = 'tabOnly') => {
                 } else {
                     if (global.subtab[tab + 'Current' as 'settingsCurrent'] === inside) {
                         switchTab(tab, globalStart.subtab[tab + 'Current' as 'settingsCurrent']);
-                    } //While 'keyof typeof global.subtab' would work, this is shorter and easier to read
+                    }
                 }
             }
         }
-        getId('subtabs').style.display = subtabAmount >= 2 ? '' : 'none';
-        getId('invisibleTab').textContent = `Current tab is ${global.tab} tab${subtabAmount >= 2 ? ` and its subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
-    } else if (subtab !== 'tabOnly' && subtab !== global.subtab[tab + 'Current' as 'settingsCurrent']) {
-        getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = 'none';
-        getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).classList.remove('tabActive');
+        getId('subtabs').style.display = subtabAmount > 1 ? '' : 'none';
+        getId('invisibleTab').textContent = `Current tab is ${tab} tab${subtabAmount > 1 ? ` and its subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}` : ''}`; //Tell's screen reader current tab for easier navigation
+    } else {
+        const oldSubtab = global.subtab[tab + 'Current' as 'settingsCurrent'];
+        getId(`${tab}Subtab${oldSubtab}`).style.display = 'none';
+        getId(`${tab}SubtabBtn${oldSubtab}`).classList.remove('tabActive');
+
         global.subtab[tab + 'Current' as 'settingsCurrent'] = subtab;
-        getId(`${tab}Subtab${global.subtab[tab + 'Current' as 'settingsCurrent']}`).style.display = '';
-        getId(`${tab}SubtabBtn${global.subtab[tab + 'Current' as 'settingsCurrent']}`).classList.add('tabActive');
-        if (global.screenReader && global.tab === tab) { getId('invisibleTab').textContent = `Current subtab is ${global.subtab[tab + 'Current' as 'settingsCurrent']}, part of ${tab} tab`; }
+        getId(`${tab}Subtab${subtab}`).style.display = '';
+        getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
+        if (global.screenReader) { getId('invisibleTab').textContent = `Current subtab is ${subtab}, part of ${tab} tab`; }
     }
-    /* Update tab information (tab can be clicked to update sooner) */
+
     visualUpdate();
     numbersUpdate();
 };
@@ -110,7 +112,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
     if (timeLeft > 0) { invisibleUpdate(timeLeft); }
 };
 
-export const numbersUpdate = () => { //This is for relevant visual info
+export const numbersUpdate = () => { //This is for relevant visual info (can be done async)
     const { buildings } = player;
     const { tab, subtab } = global;
     const active = player.stage.active;
@@ -229,7 +231,7 @@ export const numbersUpdate = () => { //This is for relevant visual info
     }
 };
 
-export const visualUpdate = () => { //This is what can appear/disappear when inside Stage
+export const visualUpdate = () => { //This is what can appear/disappear when inside Stage (can be done async)
     const { stage, buildings, upgrades, researchesAuto, ASR, strangeness } = player;
     const { tab, subtab } = global;
     const activeAll = global.stageInfo.activeAll;
@@ -718,14 +720,6 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     const { stage } = player;
     const { stageInfo, HTMLSpecial, buildingsInfo } = global;
 
-    const tab = global.tab; //Cheap way to deal with unallowed tabs/subtabs
-    if (!checkTab(tab)) {
-        switchTab(globalStart.tab);
-    } else if (Object.hasOwn(global.subtab, tab + 'Current')) {
-        switchTab(globalStart.tab);
-        switchTab(tab);
-    }
-
     stageInfo.activeAll = stage.current === 5 ? [4, 5] : [stage.current];
     for (let i = 1; i <= player.strangeness[5][1]; i++) {
         if (stage.current !== i) { stageInfo.activeAll.unshift(i); }
@@ -903,6 +897,8 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         getId('invisibleGetResource2').style.display = active === 2 ? '' : 'none';
         getId('invisibleGetResource4').style.display = active === 4 ? '' : 'none';
     }
-    visualUpdate();
+
+    //Includes visualUpdate();
+    switchTab(checkTab(global.tab) ? global.tab : 'stage'); //Cheap way to deal with unallowed tabs/subtabs
     if (global.theme.default || extra === 'reload') { switchTheme(); }
 };

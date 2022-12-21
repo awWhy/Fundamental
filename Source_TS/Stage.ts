@@ -793,7 +793,7 @@ export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto'
     }
 };
 
-export const toggleBuy = (type = 'none') => {
+export const toggleBuy = (type = null as string | null) => {
     const { shop } = player.toggles;
     const input = getId('buyAnyInput') as HTMLInputElement;
 

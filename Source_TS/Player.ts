@@ -331,7 +331,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['', 'producing', 'producing', 'improves', 'improves', 'improves'],
             ['', 'producing', 'producing', 'producing', 'improves'],
             ['', 'producing', 'producing', 'producing', 'producing'],
-            ['', 'improves', 'producing', 'producing']
+            ['', 'producing', 'improves', 'producing']
         ],
         cost: [
             [],

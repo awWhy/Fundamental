@@ -2,7 +2,7 @@ import { global, player } from './Player';
 import { getUpgradeDescription } from './Update';
 
 //Only checks if Tab/Subtab is unlocked
-export const checkTab = (tab: string, subtab = 'none'): boolean => {
+export const checkTab = (tab: string, subtab = null as null | string): boolean => {
     let tabUnl = false;
     let subUnl = false;
 
@@ -34,7 +34,7 @@ export const checkTab = (tab: string, subtab = 'none'): boolean => {
             tabUnl = global.screenReader;
     }
 
-    return subtab !== 'none' ? subUnl : tabUnl;
+    return subtab !== null ? subUnl : tabUnl;
 };
 
 //Only checks if Building is unlocked
