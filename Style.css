@@ -566,12 +566,11 @@ p > img {
 }
 
 #resetToggles > div > div > .toggleAuto {
-    width: 5.1em;
+    width: 5.1275em; /* instead of using 100% and :has() */
     height: 1.85em;
     font-size: 0.77em;
+    margin-top: 0.1em;
 }
-
-#resetToggles > div > div > div > .windowPopUp { margin-left: 0.3em; }
 
 .miniButton {
     width: 1.5em;
@@ -691,7 +690,7 @@ p > img {
 
 .options:not(:last-of-type) { margin-bottom: 0.5em; }
 
-.options ul {
+.options > ul {
     display: flex;
     flex-direction: column;
     row-gap: 0.18em;
@@ -709,13 +708,15 @@ li > input[type = "number"] {
     width: 3.15em;
 }
 
-.listButton {
+li > .windowPopUp > button {
     height: 1.77em;
     padding: 0 0.45em;
 }
 
-li button { font-size: 0.92em; }
-li button, p button { margin-left: 0.4em; }
+li button {
+    font-size: 0.92em;
+    margin-left: 0.4em;
+}
 
 .windowPopUp { display: inline-block; }
 
@@ -741,6 +742,7 @@ li button, p button { margin-left: 0.4em; }
 
 .windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
 .windowPopUp:focus-within > div { display: flex; }
+.windowPopUp > button { margin-left: 0.4em; } /* Put comments on separate lines, because white space */
 
 .miniInput {
     width: 1.3em;

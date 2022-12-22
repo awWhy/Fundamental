@@ -50,7 +50,7 @@ export const switchTab = (tab: string, subtab = null as null | string) => {
 };
 
 //In seconds
-export const maxOfflineTime = (): number => (7200 + 7200 * player.researchesAuto[1]) * maxOfflineMultiplier();
+export const maxOfflineTime = (): number => (14400 + 14400 * player.researchesAuto[1]) * maxOfflineMultiplier();
 const maxOfflineMultiplier = (): number => 1 + player.strangeness[2][7];
 
 const maxExportTime = (): number => 86400 * (1 + player.strangeness[4][8]);

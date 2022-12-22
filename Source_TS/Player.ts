@@ -804,7 +804,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             ['Unlock ability to make multiple structures at same time.'],
-            ['Research this to make max offline timer +2 hours longer.'],
+            ['Research this to make max offline timer +4 hours longer.'],
             ['This is going to create all upgrades for you automatically. Each level increases highest type of upgrades to create.']
         ],
         effect: [null, null, null],
@@ -962,8 +962,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effect: [null, null, null, null, null, 'Drops', null, null, null],
             cost: [1, 2, 2, 1, 3, 2, 1, 8, 5],
-            scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.25, 4, 0],
-            max: [9, 6, 3, 3, 1, 5, 10, 2, 1]
+            scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.75, 4, 0],
+            max: [9, 6, 3, 3, 1, 5, 4, 2, 1]
         }, { //Stage 3
             description: [
                 'Accretion speed increase.',
