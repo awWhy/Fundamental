@@ -603,15 +603,18 @@ export const calculateResearchCost = (research: number, stageIndex: number, type
     }
 };
 
-export const calculateMaxLevel = (research: number, stageIndex: number, type: 'researches' | 'researchesExtra' | 'researchesAuto') => {
-    if (type === 'researchesAuto') {
-        //Auto doesn't need stageIndex (sended as 0 here), but if something it can be easily added (global has autoStage for that reason)
+export const calculateMaxLevel = (research: number, stageIndex: number, type: 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR') => {
+    if (type === 'researchesAuto') { //No need for stageIndex (but autoStage can be used if needed)
         if (research === 0) {
             global.researchesAutoInfo.max[0] = player.strangeness[1][7] + 1;
         } else if (research === 1) {
             global.researchesAutoInfo.max[1] = player.strangeness[2][6] + 1;
         } else if (research === 2) {
             global.researchesAutoInfo.max[2] = player.strangeness[3][6];
+        }
+    } else if (type === 'ASR') { //No need for research here
+        if (stageIndex === 5) {
+            global.ASRInfo.max[5] = 0; //Add later
         }
     } else if (type === 'researches') {
         if (stageIndex === 2) {

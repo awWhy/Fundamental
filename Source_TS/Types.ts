@@ -190,8 +190,6 @@ export interface globalType {
         autoStage: number[]
     }
     ASRInfo: {
-        description: string
-        effectText: string[]
         cost: number[]
         costRange: number[][]
         max: number[]

@@ -479,12 +479,12 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
 
 const pauseGame = async() => {
     changeIntervals(true);
-    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. If you want you can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${maxOfflineTime() / 3600} hours)`);
+    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. Can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${maxOfflineTime() / 3600} hours)`);
     //Maybe to add when game was paused (if I can figure out how later)
     if (offline?.toLowerCase() === 'nooffline') {
         player.time.updated = Date.now();
     } else if (offline !== null && offline !== '') {
-        Alert(`You wrote '${offline}', so you gained offline time`);
+        Alert(`You wrote '${offline}', so offline time was gained`);
     }
     changeIntervals();
 };

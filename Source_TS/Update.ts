@@ -514,8 +514,8 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         const autoIndex = Math.min(player.ASR[stageIndex] + 1, global.ASRInfo.max[stageIndex]);
         global.lastResearch = [index, false, type];
 
-        getId('researchText').textContent = global.ASRInfo.description;
-        getId('researchEffect').textContent = global.ASRInfo.effectText[0] + format(player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)') + global.ASRInfo.effectText[1];
+        getId('researchText').textContent = 'Automatization for making structures.';
+        getId('researchEffect').textContent = `Will automatically make ${format(player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)')}.\n(Can make them only when have 2 times of the structure cost)`;
         getId('researchCost').textContent = player.ASR[stageIndex] === global.ASRInfo.max[stageIndex] ? 'Maxed.' :
             `${format(global.ASRInfo.cost[stageIndex])} ${stageInfo.priceName}.`;
     } else if (type === 'elements') {
@@ -657,7 +657,7 @@ export const updateRankInfo = () => {
     //Visuals
     getId('rankMessage').textContent = accretion.rank === 0 ?
         'Might need more than just water... You can increase rank with Mass.' :
-        'You can increase it with Mass. (Return back to Dust, but unlock something new)';
+        'Increase it with Mass. (Return back to Dust, but unlock something new)';
     getId('rankReset').textContent = accretionInfo.rankCost[accretion.rank] === 0 ?
         'Max rank achieved' : `Next rank is ${format(accretionInfo.rankCost[accretion.rank])} Mass`;
     image.src = `Used_art/${accretionInfo.rankImage[accretion.rank]}.png`;
@@ -743,15 +743,15 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
             calculateStageInformation();
             for (let s = 1; s < global.strangenessInfo.length; s++) {
                 for (let i = 0; i < global.strangenessInfo[s].cost.length; i++) {
-                    calculateResearchCost(i, s, 'strangeness');
-                    visualUpdateUpgrades(i, s, 'strangeness');
+                    calculateResearchCost(i, s, 'strangeness'); //Can be changed into calculateMaxLevel();
+                    visualUpdateUpgrades(i, s, 'strangeness'); //If max level will dynamicly change
                 }
             }
             autoUpgradesSet('upgrades');
             autoUpgradesSet('researches');
             autoUpgradesSet('researchesExtra');
-            for (const s of stageInfo.activeAll) {
-                calculateResearchCost(0, s, 'ASR');
+            for (const s of stageInfo.activeAll) { //Does useless visualUpdateUpgrades();
+                calculateMaxLevel(0, s, 'ASR');
                 for (let i = 1; i < buildingsInfo.name[s].length; i++) { calculateBuildingsCost(i, s); }
                 for (let i = 0; i < global.researchesInfo[s].cost.length; i++) { calculateMaxLevel(i, s, 'researches'); }
                 for (let i = 0; i < global.researchesExtraInfo[s].cost.length; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }

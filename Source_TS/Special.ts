@@ -164,10 +164,10 @@ export const switchTheme = () => {
                 if (text === 'upgrade') { continue; }
                 getId(`${text}Text`).style.color = 'var(--orange-text-color)';
             }
-            body.setProperty('--background-color', '#1f001f');
+            body.setProperty('--background-color', '#060010');
             body.setProperty('--window-color', '#001d42');
             body.setProperty('--window-border', '#35466e');
-            body.setProperty('--footer-color', '#390052');
+            body.setProperty('--footer-color', '#320061');
             body.setProperty('--button-main-color', '#4a008f');
             body.setProperty('--button-main-border', '#8a0049');
             body.setProperty('--button-main-hover', '#6800d6');
