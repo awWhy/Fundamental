@@ -69,7 +69,8 @@ export const switchTheme = () => {
     getId('dropStat').style.color = '';
     getId('waterStat').style.color = '';
     /* And set new colors */
-    //--window-color shares color with class "stage2window", so need to be changed in both places
+    //--window-color shares color with classes like "stage2windowBackground", so need to be changed in both places
+    //--button-main-color shares color with classes like "stage2borderButton", so need to be changed in both places
     switch (theme.stage) {
         case 2:
             for (const text of ['upgrade', 'research', 'element']) {

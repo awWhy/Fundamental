@@ -87,7 +87,6 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
 
     const { buildingsInfo, automatization } = global;
 
-    calculateStageInformation();
     for (const s of global.stageInfo.activeAll) {
         if (toggles.auto[0]) { stageResetCheck(s, true); }
 
@@ -99,6 +98,7 @@ export const invisibleUpdate = (timeLeft = 0) => { //This is only for important 
         if (automatization.autoE[s].length !== 0) { autoUpgradesBuy('researchesExtra', s); }
         if (automatization.autoR[s].length !== 0) { autoUpgradesBuy('researches', s); }
         if (automatization.autoU[s].length !== 0) { autoUpgradesBuy('upgrades', s); }
+        calculateStageInformation();
 
         for (let i = buildingsInfo.name[s].length - 1; i >= 1; i--) {
             if (toggles.buildings[s][i] && player.ASR[s] >= i) { buyBuilding(i, s, true); }
@@ -232,11 +232,12 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
 };
 
 export const visualUpdate = () => { //This is what can appear/disappear when inside Stage (can be done async)
-    const { stage, buildings, upgrades, researchesAuto, ASR, strangeness } = player;
+    const { stage, buildings, upgrades, researchesAuto, ASR, strangeness, milestones } = player;
     const { tab, subtab } = global;
     const activeAll = global.stageInfo.activeAll;
     const active = stage.active;
 
+    /* I might clean it up later (only to read easier) */
     if (activeAll.includes(1)) {
         const { discharge } = player;
 
@@ -336,10 +337,11 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('upgrade6').style.display = accretion.rank >= 4 || upgrades[3][4] === 1 ? '' : 'none';
                 getId('upgrade7').style.display = accretion.rank >= 4 ? '' : 'none';
                 getId('upgrade8').style.display = accretion.rank >= 4 ? '' : 'none';
-                getId('upgrade9').style.display = accretion.rank >= 4 ? '' : 'none';
-                getId('upgrade10').style.display = accretion.rank >= 5 ? '' : 'none';
+                getId('upgrade9').style.display = accretion.rank >= 4 && strangeness[3][2] >= 3 ? '' : 'none';
+                getId('upgrade10').style.display = accretion.rank >= 4 ? '' : 'none';
                 getId('upgrade11').style.display = accretion.rank >= 5 ? '' : 'none';
                 getId('upgrade12').style.display = accretion.rank >= 5 ? '' : 'none';
+                getId('upgrade13').style.display = accretion.rank >= 5 ? '' : 'none';
                 getId('upgrade4').style.display = buildings[3][2].trueTotal >= 1 ? '' : 'none';
                 getId('building2').style.display = upgrades[3][2] === 1 ? '' : 'none';
                 getId('building3').style.display = upgrades[3][4] === 1 ? '' : 'none';
@@ -422,6 +424,21 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             if (!player.events[0] && researchesExtra[4][0] >= 1) { playEvent(3, 0); }
         }
     }
+    if (activeAll.includes(5)) { //Not inside stage.true >= 5, just in case
+        if (active === 5) {
+            if (tab === 'stage') {
+                getId('buildings').style.display = milestones[2][0] >= 3 || milestones[3][0] >= 3 ? '' : 'none';
+                getId('building1').style.display = milestones[2][0] >= 3 ? '' : 'none';
+                getId('building2').style.display = milestones[3][0] >= 3 ? '' : 'none';
+                getId('building3').style.display = 'none';
+                getId('upgrades').style.display = 'none'; //milestones[2][0] >= 3 || milestones[3][0] >= 3 ? '' : 'none';
+            } else if (tab === 'research') {
+                if (subtab.researchCurrent === 'Researches') {
+                    getId('stageResearch').style.display = 'none'; //milestones[2][0] >= 3 || milestones[3][0] >= 3 ? '' : 'none';
+                }
+            }
+        }
+    }
     if (stage.true >= 5) {
         if (tab === 'stage') {
             getId('toggleBuilding0').style.display = ASR[active] >= 1 && researchesAuto[0] >= 2 ? '' : 'none';
@@ -431,13 +448,13 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             }
         } else if (tab === 'strangeness') {
             if (subtab.strangenessCurrent === 'Matter') {
-                getId('strange9Stage1').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strange8Stage2').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strange9Stage2').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strange8Stage3').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strange9Stage4').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strange10Stage4').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
-                getId('strangenessSection5').style.display = player.milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange9Stage1').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange8Stage2').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange9Stage2').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange8Stage3').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange9Stage4').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strange10Stage4').style.display = milestones[4][0] >= 3 ? '' : 'none';
+                getId('strangenessSection5').style.display = milestones[4][0] >= 3 ? '' : 'none';
             }
         } else if (tab === 'settings') {
             if (subtab.settingsCurrent === 'Settings') {
@@ -446,8 +463,6 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('autoToggle7').style.display = researchesAuto[2] >= 3 ? '' : 'none';
                 getId('exportSpecial').style.display = strangeness[4][7] >= 1 ? '' : 'none';
             } else if (subtab.settingsCurrent === 'Stats') {
-                const { milestones } = player;
-
                 getId('maxExportStats').style.display = strangeness[4][7] >= 1 ? '' : 'none';
                 getId('unknownStructures').style.display = milestones[1][0] >= 5 ||
                     milestones[2][1] >= 4 || milestones[3][1] >= 5 || milestones[4][1] >= 5 ? '' : 'none';
@@ -791,21 +806,12 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         }
     }
 
-    //These one's are not handled in visual update (for different reasons)
-    if (active === 1) { getId('extraResearch').style.display = 'none'; }
-    if (active !== 3) { getId('buildings').style.display = ''; }
-    if (active === 5) {
-        getId('elementStat').style.display = '';
-        getId('building1').style.display = player.milestones[2][0] >= 3 ? '' : 'none';
-        getId('building2').style.display = player.milestones[3][0] >= 3 ? '' : 'none';
-        getId('building3').style.display = 'none';
-        getId('upgrades').style.display = 'none';
-        getId('stageResearch').style.display = 'none';
-        getId('extraResearch').style.display = 'none';
-    } else {
-        getId('building1').style.display = '';
-        getId('stageResearch').style.display = '';
-    }
+    //Special cases (mostly against errors with visualUpdate() being interupted)
+    getId('buildings').style.display = '';
+    getId('building1').style.display = '';
+    getId('stageResearch').style.display = '';
+    getId('extraResearch').style.display = 'none';
+    if (active === 5) { getId('elementStat').style.display = ''; }
     if (localStorage.getItem('theme') !== null) { getId('themeArea').style.display = ''; }
 
     if (stage.true >= 5) {
@@ -875,13 +881,15 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     stageWord.textContent = stageInfo.word[stage.current];
     stageWord.style.color = stageInfo.textColor[stage.current];
     if (stage.current === 1) {
-        body.removeProperty('--border-image');
-        body.removeProperty('--border-stage');
         body.removeProperty('--stage-text-color');
+        body.removeProperty('--stage-button-border');
+        body.removeProperty('--image-border-main');
+        body.removeProperty('--image-stage-outer');
     } else {
-        body.setProperty('--border-image', `url(Used_art/Stage${active}%20border.png)`);
-        body.setProperty('--border-stage', stageInfo.borderColor[active]);
         body.setProperty('--stage-text-color', stageInfo.textColor[active]);
+        body.setProperty('--stage-button-border', stageInfo.buttonBorderColor[active]);
+        body.setProperty('--image-border-main', `url(Used_art/Stage${active}%20border.png)`);
+        body.setProperty('--image-stage-outer', stageInfo.imageBorderColor[active]);
     }
     getId('currentSwitch').textContent = stageInfo.word[active];
     if (global.screenReader) {

@@ -91,7 +91,8 @@ export interface globalType {
     stageInfo: {
         word: string[]
         textColor: string[]
-        borderColor: string[]
+        buttonBorderColor: string[]
+        imageBorderColor: string[]
         priceName: string
         activeAll: number[]
     }

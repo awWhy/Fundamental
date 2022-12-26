@@ -252,7 +252,8 @@ export const global: globalType = { //For information that doesn't need to be sa
     stageInfo: {
         word: ['', 'Microworld', 'Submerged', 'Accretion', 'Interstellar', 'Intergalactic'], //Stage amount is based on lenght
         textColor: ['', 'var(--cyan-text-color)', 'var(--blue-text-color)', 'var(--gray-text-color)', 'var(--orange-text-color)', 'var(--darkorchid-text-color)'],
-        borderColor: ['', '#008b8b', '#1460a8', '#5b5b75', '#e87400', '#b324e2'],
+        buttonBorderColor: ['', 'darkcyan', '#427be1', '#404040', '#9f6700', '#9d0054'],
+        imageBorderColor: ['', '#008b8b', '#1460a8', '#5b5b75', '#e87400', '#b324e2'],
         priceName: 'Energy', //On what you buy upgrades and etc.
         activeAll: [1] //All stages that should be calculated
     },
@@ -296,7 +297,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         get: 0
     },
     accretionInfo: {
-        rankU: [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5], //Upgrades
+        rankU: [1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5], //Upgrades
         rankR: [1, 1, 2, 2, 3, 3, 4, 5], //Researches
         rankE: [2, 3, 4, 5], //Researches Extra
         rankCost: [5.97e27, 1e-7, 1e10, 1e24, 0, 0], //[4] is 5e29
@@ -405,7 +406,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Galaxy', 'Galaxy']
             ]
         ],
-        longestUpgrade: 12,
+        longestUpgrade: 13,
         upgradeHTML: [
             [],
             [
@@ -435,11 +436,12 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['UpgradeA5', 'Gravity'],
                 ['UpgradeA6', 'Pile'],
                 ['UpgradeA7', 'Orbit'],
-                ['UpgradeA8', 'Magma'],
-                ['UpgradeA9', 'Atmosphere'],
-                ['UpgradeA10', 'Pebble'],
-                ['UpgradeA11', 'Tidal force'],
-                ['UpgradeA12', 'Ring']
+                ['UpgradeA8', 'Equilibrium'],
+                ['UpgradeA9', 'Magma'],
+                ['UpgradeA10', 'Atmosphere'],
+                ['UpgradeA11', 'Pebble'],
+                ['UpgradeA12', 'Tidal force'],
+                ['UpgradeA13', 'Ring']
             ],
             [
                 ['UpgradeS1', 'Collapse'],
@@ -453,36 +455,36 @@ export const global: globalType = { //For information that doesn't need to be sa
         researchHTML: [
             [],
             [
-                ['Research1', 'Protium+', 'stage1border'],
-                ['Research2', 'Deuterium+', 'stage1border'],
-                ['Research3', 'Tritium+', 'stage1border'],
-                ['Research4', 'Discharge-', 'stage4border'],
-                ['Research5', 'Discharge+', 'stage4border'],
-                ['Research6', 'Discharge++', 'stage4border']
+                ['Research1', 'Protium+', 'stage1borderImage'],
+                ['Research2', 'Deuterium+', 'stage1borderImage'],
+                ['Research3', 'Tritium+', 'stage1borderImage'],
+                ['Research4', 'Discharge-', 'stage4borderImage'],
+                ['Research5', 'Discharge+', 'stage4borderImage'],
+                ['Research6', 'Discharge++', 'stage4borderImage']
             ],
             [
-                ['ResearchW1', 'Moles+', 'stage2border'],
-                ['ResearchW2', 'Moles++', 'stage2border'],
-                ['ResearchW3', 'Tension+', 'stage2border'],
-                ['ResearchW4', 'Stress+', 'stage2border'],
-                ['ResearchW5', 'Streams+', 'stage2border'],
-                ['ResearchW6', 'Channel', 'stage2border']
+                ['ResearchW1', 'Moles+', 'stage2borderImage'],
+                ['ResearchW2', 'Moles++', 'stage2borderImage'],
+                ['ResearchW3', 'Tension+', 'stage2borderImage'],
+                ['ResearchW4', 'Stress+', 'stage2borderImage'],
+                ['ResearchW5', 'Streams+', 'stage2borderImage'],
+                ['ResearchW6', 'Channel', 'stage2borderImage']
             ],
             [
-                ['ResearchA1', 'Mass+', 'stage3border'],
-                ['ResearchA2', 'Adhesion', 'stage2border'],
-                ['ResearchA3', 'Weathering', 'stage3border'],
-                ['ResearchA4', 'Collision', 'stage3border'],
-                ['ResearchA5', 'Binary', 'stage3border'],
-                ['ResearchA6', 'Gravity+', 'stage1border'],
-                ['ResearchA7', 'Layers', 'stage7border'],
-                ['ResearchA8', 'Drag', 'stage1border']
+                ['ResearchA1', 'Mass+', 'stage3borderImage'],
+                ['ResearchA2', 'Adhesion', 'stage2borderImage'],
+                ['ResearchA3', 'Weathering', 'stage3borderImage'],
+                ['ResearchA4', 'Collision', 'stage3borderImage'],
+                ['ResearchA5', 'Binary', 'stage3borderImage'],
+                ['ResearchA6', 'Gravity+', 'stage1borderImage'],
+                ['ResearchA7', 'Layers', 'stage7borderImage'],
+                ['ResearchA8', 'Drag', 'stage1borderImage']
             ],
             [
-                ['ResearchS1', 'Orbit', 'stage5border'],
-                ['ResearchS2', '2 stars', 'stage5border'],
-                ['ResearchS3', 'Protodisc', 'stage7border'],
-                ['ResearchS4', 'Planetary nebula', 'stage5border']
+                ['ResearchS1', 'Orbit', 'stage5borderImage'],
+                ['ResearchS2', '2 stars', 'stage5borderImage'],
+                ['ResearchS3', 'Protodisc', 'stage7borderImage'],
+                ['ResearchS4', 'Planetary nebula', 'stage5borderImage']
             ],
             []
         ],
@@ -490,28 +492,28 @@ export const global: globalType = { //For information that doesn't need to be sa
         researchExtraDivHTML: [
             [],
             [],
-            ['Cloud%20Researches', 'Cloud researches', 'stage2border'],
-            ['Rank%20Researches', 'Rank researches', 'stage6border'],
-            ['Star%20Researches', 'Star researches', 'stage6border'],
+            ['Cloud%20Researches', 'Cloud researches', 'stage2borderImage'],
+            ['Rank%20Researches', 'Rank researches', 'stage6borderImage'],
+            ['Star%20Researches', 'Star researches', 'stage6borderImage'],
             []
         ],
         researchExtraHTML: [
             [],
             [],
             [
-                ['ResearchClouds1', 'Vaporization+', 'stage3border'],
-                ['ResearchClouds2', 'Rain', 'stage2border'],
-                ['ResearchClouds3', 'Storm', 'stage4border']
+                ['ResearchClouds1', 'Vaporization+', 'stage3borderImage'],
+                ['ResearchClouds2', 'Rain', 'stage2borderImage'],
+                ['ResearchClouds3', 'Storm', 'stage4borderImage']
             ],
             [
-                ['ResearchRank1', 'Ocean', 'stage3border'],
-                ['ResearchRank2', 'Rank', 'stage3border'],
-                ['ResearchRank3', 'Weight', 'stage3border'],
-                ['ResearchRank4', 'Viscosity', 'stage2border']
+                ['ResearchRank1', 'Ocean', 'stage3borderImage'],
+                ['ResearchRank2', 'Rank', 'stage3borderImage'],
+                ['ResearchRank3', 'Weight', 'stage3borderImage'],
+                ['ResearchRank4', 'Viscosity', 'stage2borderImage']
             ],
             [
-                ['ResearchStar1', 'Supernova', 'stage6border'],
-                ['ResearchStar2', 'White dwarf', 'stage1border']
+                ['ResearchStar1', 'Supernova', 'stage6borderImage'],
+                ['ResearchStar2', 'White dwarf', 'stage1borderImage']
             ],
             []
         ]
@@ -580,6 +582,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Rubble pile.',
                 'Satellite system.',
                 'Magma ocean.',
+                'Hydrostatic equilibrium',
                 'Atmosphere.',
                 'Pebble accretion.',
                 'Tidal force.',
@@ -594,13 +597,14 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Shattered pieces fall back together. Mass production is now even bigger. (By 3x)'],
                 ['Unlocks yet another structure.'],
                 ['Core melted, Accretion speed increased. (Mass production increased by ', ')'],
+                ['After reaching equilibrium, Protoplanets will boost themselfs, more with each self-made one.'],
                 ['Accretion speed increased again (because of drag and escape velocity), by 2.'],
                 ['Accretion speed greatly increased by ', '.'],
                 ['Satellites scaling cost is now 2 times smaller.'],
-                ['Satellites effect is increased by 3.']
+                ['Satellites effect scales better.']
             ],
-            effect: [1.01, 0, null, 1.02, null, null, null, 2, null, 10, null, null],
-            cost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e23, 1e9, 1e26, 1e29]
+            effect: [1.01, 0, null, 1.02, null, null, null, 2, null, null, 10, null, null],
+            cost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e22, 1e23, 1e9, 1e26, 1e29]
         }, { //Stage 4
             description: [
                 'Gravitational collapse.',
@@ -950,7 +954,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 ['Mole production increased by 2x.'],
                 ['Puddles produce 2 times more.'],
-                ['Increase max level of some researches by +1.'],
+                ['Increase max level of some researches by +1.\nFinal level will instead unlock a new upgrade.'],
                 ['Gain more Clouds from Vaporization. (Affected by softcap)'],
                 ['Automatically Vaporize when reach certain amount.'],
                 ['Start with auto for ', '.'],
@@ -976,7 +980,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 ['Accretion speed is 2 times faster. (Affected by softcap)'],
                 ['All Accretion structures that produce another structure now do it 2 times faster.'],
-                ['Some Rank researches receive extra Max level.'],
+                ['Some Rank researches receive extra Max level.\nFinal level will instead unlock a new upgrade.'],
                 ['Satellites now improve all Accretion structures.'],
                 ['Automatically increase Rank when available.'],
                 ['Start with auto for ', '.'],
@@ -985,8 +989,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effect: [null, null, null, null, null, 'Cosmic dust', null, null],
             cost: [1, 1, 3, 4, 3, 2, 5, 5],
-            scaling: [0.75, 1.5, 1, 0, 0, 1, 1.5, 0],
-            max: [8, 4, 2, 1, 1, 4, 3, 1]
+            scaling: [0.75, 1.5, 2.5, 0, 0, 1, 3.5, 0],
+            max: [8, 4, 3, 1, 1, 4, 3, 1]
         }, { //Stage 4
             description: [
                 'Hotter Stars.',
@@ -1026,8 +1030,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Gain abbility to be inside multiple stages at once. (Next one to always be inside is ', ')']
             ],
             effect: [null, 'Microworld'],
-            cost: [3, 10],
-            scaling: [0, 7.5],
+            cost: [3, 24],
+            scaling: [0, 8],
             max: [1, 3]
         }
     ],
@@ -1365,6 +1369,7 @@ export const updatePlayer = (load: playerType) => {
             }
             load.ASR[a] = load.researchesAuto.splice(1, 1)[0];
         }
+        if (load.upgrades[3].length === 12) { load.upgrades[3].splice(8, 0, 0); }
 
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');

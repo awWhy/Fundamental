@@ -44,14 +44,15 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
             return true;
         } else if (stageIndex === 3) {
             if (player.accretion.rank === 0) { return false; }
-            if (index === 1 || player.upgrades[3][(index - 1) * 2] === 1) { //Lazy
-                return true;
-            }
+            if (index === 1) { return true; }
+            if (index === 2) { return player.upgrades[3][2] === 1; }
+            if (index === 3) { return player.upgrades[3][4] === 1; }
+            if (index === 4) { return player.upgrades[3][6] === 1; }
         } else if (stageIndex === 4) {
             if (player.collapse.mass < global.collapseInfo.unlockB[index]) { return false; }
-            if (index === 1 || index === 4 || player.upgrades[4][index - 1] === 1) { //Lazy
-                return true;
-            }
+            if (index === 1 || index === 4) { return true; }
+            if (index === 2) { return player.upgrades[4][1] === 1; }
+            if (index === 3) { return player.upgrades[4][2] === 1; }
         } else if (stageIndex === 5) {
             if (index === 1) {
                 return false; //player.milestones[2][0] >= 3;
@@ -79,6 +80,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 6 && player.strangeness[2][2] < 3) { return false; }
                 return true;
             } else if (stageIndex === 3) {
+                if (upgrade === 8 && player.strangeness[3][2] < 3) { return false; }
                 return player.accretion.rank >= global.accretionInfo.rankU[upgrade];
             } else if (stageIndex === 4) {
                 if (upgrade === 3 && player.strangeness[4][2] < 2) { return false; }
@@ -136,8 +138,8 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
     return false;
 };
 
-//Only checks if upgrades is allowed to be reset
-export const checkUpgradeReset = (upgrade: number, stageIndex: number, type: 'upgrades' /*| 'researches'*/ | 'researchesExtra'): boolean => {
+//Checks if upgrade/building is allowed to be reset (later can be added up to which amount if needed)
+export const allowedToBeReset = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researchesExtra'): boolean => {
     switch (type) {
         case 'upgrades':
             if (stageIndex === 2) {

@@ -1,4 +1,4 @@
-import { checkUpgradeReset } from './Check';
+import { allowedToBeReset } from './Check';
 import { player, playerStart } from './Player';
 import { autoUpgradesSet, calculateBuildingsCost, calculateMaxLevel, calculateResearchCost, calculateStageInformation } from './Stage';
 import { numbersUpdate, visualUpdate, visualUpdateUpgrades } from './Update';
@@ -30,7 +30,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 if (type === 'discharge') { break noCostReset; }
 
                 for (let i = 0; i < playerStart.upgrades[s].length; i++) {
-                    if (!checkUpgradeReset(i, s, 'upgrades')) { continue; }
+                    if (!allowedToBeReset(i, s, 'upgrades')) { continue; }
 
                     player.upgrades[s][i] = 0;
                     visualUpdateUpgrades(i, s, 'upgrades');
@@ -39,7 +39,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 if (type === 'vaporization') { break noCostReset; }
 
                 for (let i = 0; i < playerStart.researches[s].length; i++) {
-                    //if (!checkUpgradeReset(i, s, 'researches')) { continue; }
+                    //if (!allowedToBeReset(i, s, 'researches')) { continue; }
 
                     player.researches[s][i] = 0;
                     visualUpdateUpgrades(i, s, 'researches');
@@ -48,7 +48,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 if (type === 'rank') { break noCostReset; }
 
                 for (let i = 0; i < playerStart.researchesExtra[s].length; i++) {
-                    if (!checkUpgradeReset(i, s, 'researchesExtra')) { continue; }
+                    if (!allowedToBeReset(i, s, 'researchesExtra')) { continue; }
 
                     player.researchesExtra[s][i] = 0;
                     visualUpdateUpgrades(i, s, 'researchesExtra');

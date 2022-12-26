@@ -3,12 +3,12 @@ import { getId } from './Main';
 import { global, globalStart, player } from './Player';
 import { reset } from './Reset';
 import { Alert, Confirm, playEvent } from './Special';
-import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdateUpgrades } from './Update';
+import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const calculateStageInformation = () => {
     const { stage, buildings, strange, upgrades, researches, researchesExtra, strangeness } = player;
     const { buildingsInfo, strangeInfo, upgradesInfo, researchesInfo, researchesExtraInfo } = global;
-    const activeAll = global.stageInfo.activeAll;
+    const activeAll = global.stageInfo.activeAll; //Updating all at once because stages will affect each other in future
 
     if (activeAll.includes(1)) {
         const { dischargeInfo } = global;
@@ -113,11 +113,11 @@ export const calculateStageInformation = () => {
 
         strangeInfo.stageBoost[3] = strangeness[3][7] >= 1 ? (strange[0].true + 1) ** 1.8 : null;
 
-        buildingsInfo.producing[3][4] = 1.1 ** buildings[3][4].current;
-        if (upgrades[3][11] === 1) { buildingsInfo.producing[3][4] *= 3; }
+        buildingsInfo.producing[3][4] = (upgrades[3][12] === 1 ? 1.14 : 1.1) ** buildings[3][4].current;
 
         buildingsInfo.producing[3][3] = 0.1 * buildings[3][3].current;
         if (upgrades[3][4] === 1 && researchesExtra[3][2] > 0) { buildingsInfo.producing[3][3] *= 2; }
+        if (upgrades[3][8] === 1) { buildingsInfo.producing[3][3] *= 1.005 ** buildings[3][3].current; }
         if (buildingsInfo.producing[3][4] > 1) { buildingsInfo.producing[3][3] *= buildingsInfo.producing[3][4]; }
         if (strangeness[3][1] >= 1) { buildingsInfo.producing[3][3] *= 2 ** strangeness[3][1]; }
 
@@ -135,7 +135,7 @@ export const calculateStageInformation = () => {
         upgradesInfo[3].effect[0] = 1.01 + 0.01 * researches[3][1];
         upgradesInfo[3].effect[1] = buildings[3][1].current ** (0.05 + 0.01 * researchesExtra[3][3]);
         upgradesInfo[3].effect[7] = 2 * 1.5 ** researches[3][6];
-        upgradesInfo[3].effect[9] = 10 * 3 ** researches[3][7];
+        upgradesInfo[3].effect[10] = 10 * 3 ** researches[3][7];
         researchesExtraInfo[3].effect[0] = 1.1 ** researchesExtra[3][0];
         researchesExtraInfo[3].effect[1] = (1 + 0.1 * researchesExtra[3][1]) ** accretion.rank;
         if (upgrades[3][0] === 1) { buildingsInfo.producing[3][1] *= upgradesInfo[3].effect[0] ** buildings[3][1].true; }
@@ -143,8 +143,8 @@ export const calculateStageInformation = () => {
         if (upgrades[3][2] === 1) { buildingsInfo.producing[3][1] *= 2; }
         if (upgrades[3][5] === 1) { buildingsInfo.producing[3][1] *= 3; }
         if (upgrades[3][7] === 1) { buildingsInfo.producing[3][1] *= upgradesInfo[3].effect[7]; }
-        if (upgrades[3][8] === 1) { buildingsInfo.producing[3][1] *= 2; }
-        if (upgrades[3][9] === 1) { buildingsInfo.producing[3][1] *= upgradesInfo[3].effect[9]; }
+        if (upgrades[3][9] === 1) { buildingsInfo.producing[3][1] *= 2; }
+        if (upgrades[3][10] === 1) { buildingsInfo.producing[3][1] *= upgradesInfo[3].effect[10]; }
         if (researches[3][0] >= 1) { buildingsInfo.producing[3][1] *= 3 ** researches[3][0]; }
         if (researches[3][3] >= 1) { buildingsInfo.producing[3][1] *= 2 ** researches[3][3]; }
         if (researchesExtra[3][0] >= 1) { buildingsInfo.producing[3][1] *= researchesExtraInfo[3].effect[0]; }
@@ -320,8 +320,8 @@ export const calculateBuildingsCost = (index: number, stageIndex: number) => {
         buildingsInfo.increase[1][index] = Math.round((1.4 - (player.upgrades[1][4] === 1 ? global.upgradesInfo[1].effect[4] : 0)) * 100) / 100;
         if (index === 1) { buildingsInfo.startCost[1][1] = globalStart.buildingsInfo.startCost[1][1] / (player.upgrades[1][0] === 1 ? 10 : 1); }
     } else if (stageIndex === 3) {
-        buildingsInfo.startCost[3][index] = globalStart.buildingsInfo.startCost[3][index] / (global.strangeInfo.stageBoost[3] !== null ? global.strangeInfo.stageBoost[3] : 1);
-        if (index === 4) { buildingsInfo.increase[3][4] = player.upgrades[3][10] === 1 ? 5 : 10; }
+        buildingsInfo.startCost[3][index] = globalStart.buildingsInfo.startCost[3][index] / (global.strangeInfo.stageBoost[3] ?? 1);
+        if (index === 4) { buildingsInfo.increase[3][4] = player.upgrades[3][11] === 1 ? 5 : 10; }
     } else if (stageIndex === 4) {
         buildingsInfo.increase[4][index] = Math.round(((1.4 + 0.15 * (index - 1)) - (player.elements[2] === 1 ? 0.1 : 0) - (player.elements[8] === 1 ? 0.05 : 0)) * 100) / 100;
         buildingsInfo.startCost[4][index] = globalStart.buildingsInfo.startCost[4][index] / (player.elements[13] === 1 ? 1e3 : 1) / (2 ** player.strangeness[4][1]);
@@ -406,7 +406,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
                         calculateBuildingsCost(i, 1);
                     }
                 }
-            } else if (stageIndex === 3 && upgrade === 10) {
+            } else if (stageIndex === 3 && upgrade === 11) {
                 calculateBuildingsCost(4, 3);
             }
         } else if (type === 'researches') {
@@ -502,6 +502,11 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
                 if (upgrade === 2) {
                     calculateMaxLevel(0, 3, 'researchesExtra');
                     calculateMaxLevel(1, 3, 'researchesExtra');
+                } else if (upgrade === 7) {
+                    calculateStageInformation();
+                    for (let i = 1; i < global.buildingsInfo.name[3].length; i++) {
+                        calculateBuildingsCost(i, 3);
+                    }
                 }
             }
             if (upgrade === 6) {
@@ -644,10 +649,10 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
             if (research === 0) {
                 global.researchesExtraInfo[3].max[0] = 12;
                 if (player.accretion.rank >= 3) { global.researchesExtraInfo[3].max[0] += 17; }
-                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[0] += 10 * player.strangeness[3][2]; }
+                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[0] += 10 * Math.min(player.strangeness[3][2], 2); }
             } else if (research === 1) {
                 global.researchesExtraInfo[3].max[1] = 5;
-                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[1] += 1 * player.strangeness[3][2]; }
+                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[1] += 1 * Math.min(player.strangeness[3][2], 2); }
             }
         }
     }
@@ -953,7 +958,12 @@ const stageReset = (stageIndex: number) => {
     }
 
     reset('stage', resetThese);
-    if (increased) { stageCheck(); }
+    if (increased) {
+        stageCheck();
+    } else {
+        if (resetThese.includes(player.stage.active)) { visualUpdate(); }
+        if (resetThese.includes(3)) { updateRankInfo(); }
+    }
 };
 
 /* Only for stage 4 right now */
@@ -989,7 +999,7 @@ export const dischargeResetCheck = (auto = 'false' as 'false' | 'interval' | 'up
 };
 
 export const dischargeAsyncReset = async() => {
-    if (!dischargeResetCheck()) { return; }
+    if (!dischargeResetCheck() || !global.stageInfo.activeAll.includes(1)) { return; }
 
     let ok = true;
     if (player.toggles.normal[2]) {
@@ -998,6 +1008,8 @@ export const dischargeAsyncReset = async() => {
         } else {
             ok = await Confirm('You have enough Energy to gain boost. Continue?');
         }
+    } else if (player.stage.active !== 1) {
+        ok = await Confirm(`You are trying to Discarge while inside '${global.stageInfo.word[player.stage.active]}'.\n${player.discharge.energyCur < global.dischargeInfo.next ? 'You haven\'t reached next goal' : 'You will gain boost'}, continue?`);
     }
     if (ok) {
         if (global.screenReader) {
@@ -1033,11 +1045,13 @@ export const vaporizationResetCheck = (auto = false): boolean => {
 };
 
 export const vaporizationAsyncReset = async() => {
-    if (!vaporizationResetCheck()) { return; }
+    if (!vaporizationResetCheck() || !global.stageInfo.activeAll.includes(2)) { return; }
 
     let ok = true;
     if (player.toggles.normal[3]) {
         ok = await Confirm(`Do you wish to reset structures and upgrades for ${format(global.vaporizationInfo.get)} Clouds?`);
+    } else if (player.stage.active !== 2) {
+        ok = await Confirm(`You are trying to cause Vaporization while inside '${global.stageInfo.word[player.stage.active]}'.\nYou will get ${format(global.vaporizationInfo.get)} Clouds, continue?`);
     }
     if (ok) {
         if (global.screenReader) { getId('invisibleBought').textContent = `Progress were reset for ${format(global.vaporizationInfo.get)} Clouds`; }
@@ -1052,6 +1066,7 @@ const vaporizationReset = () => {
 };
 
 export const rankResetCheck = (auto = false): boolean => {
+    //calculateStageInformation();
     const requirement = global.accretionInfo.rankCost[player.accretion.rank];
 
     if (player.buildings[3][0].current >= requirement && requirement !== 0) {
@@ -1067,11 +1082,13 @@ export const rankResetCheck = (auto = false): boolean => {
 };
 
 export const rankAsyncReset = async() => {
-    if (!rankResetCheck()) { return; }
+    if (!rankResetCheck() || !global.stageInfo.activeAll.includes(3)) { return; }
 
     let ok = true;
     if (player.toggles.normal[4] && player.accretion.rank !== 0) {
         ok = await Confirm('Increasing Rank will reset structures, upgrades, stage researches. But you will get closer to your goal');
+    } else if (player.stage.active !== 3) {
+        ok = await Confirm(`You are trying increase Rank while inside '${global.stageInfo.word[player.stage.active]}'. Continue?`);
     }
     if (ok) {
         rankReset();
@@ -1106,14 +1123,16 @@ export const collapseResetCheck = (auto = false): boolean => {
 };
 
 export const collapseAsyncReset = async() => {
-    if (!collapseResetCheck()) { return; }
+    if (!collapseResetCheck() || !global.stageInfo.activeAll.includes(4)) { return; }
     const { collapse, researchesExtra } = player;
 
     let ok = true;
-    if (player.toggles.normal[5]) {
+    if (player.toggles.normal[5] || player.stage.active !== 4) {
         const { collapseInfo } = global;
 
-        let message = `This will reset all non automization researches and upgrades. ${collapseInfo.newMass === collapse.mass ? 'Your total Mass won\'t change' : `But your total Mass will be now ${format(collapseInfo.newMass)}`}`;
+        let message = player.stage.active === 4 ?
+            `This will reset all non automization researches and upgrades. ${collapseInfo.newMass === collapse.mass ? 'Your total Mass won\'t change' : `But your total Mass will be now ${format(collapseInfo.newMass)}`}` :
+            `You are trying to Collapse Stars while inside '${global.stageInfo.word[player.stage.active]}'.\nSolar mass will increase by +${format(collapseInfo.newMass - collapse.mass)}`;
         if (researchesExtra[4][0] >= 1) {
             message += `, also you will get ${format(collapseInfo.starCheck[0])} Red giants`;
             if (researchesExtra[4][0] >= 2) {
@@ -1123,6 +1142,7 @@ export const collapseAsyncReset = async() => {
                 }
             }
         }
+        if (player.stage.active !== 4) { message += '.\nContinue?'; }
         ok = await Confirm(message);
     }
     if (ok) {
