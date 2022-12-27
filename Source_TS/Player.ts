@@ -2,7 +2,7 @@ import { globalType, playerType } from './Types';
 console.time('Game loaded in'); //Just for fun (end is in Main.ts file)
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.0.9',
+    version: 'v0.1.0',
     fileName: 'Fundamental, [stage], [date] [time]',
     separator: ['', '.'], //[0] every 3 numbers, [1] point
     stage: {
@@ -28,7 +28,8 @@ export const player: playerType = { //Only for information that need to be saved
     collapse: { //Stage 4
         mass: 0.01235,
         stars: [0, 0, 0],
-        show: -1,
+        show: [], //Used for showing effects and auto rebuy
+        disabled: false, //Switch for auto to rebuy
         inputM: 4,
         inputS: 2
     },
@@ -48,146 +49,170 @@ export const player: playerType = { //Only for information that need to be saved
             { //Quarks[0]
                 current: 3,
                 total: 3,
-                trueTotal: 3
+                trueTotal: 3,
+                highest: 3
             },
             { //Particles[1]
                 current: 0, //On hands
                 true: 0, //How many were bought
                 total: 0, //How many were gained this reset
-                trueTotal: 0 //How many were gained this stage, can be moved elsewhere for history if something
+                trueTotal: 0, //How many were gained this stage, can be moved elsewhere for history if something
+                highest: 0 //Highest 'current' that was reached in any stage
             },
             { //Atoms[2]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //Molecules[3]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             }
         ], [
             { //[0] Stage 2
                 current: 0.0028,
                 total: 0.0028,
-                trueTotal: 0.0028
+                trueTotal: 0.0028,
+                highest: 0.0028
             },
             { //[1]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[2]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[3]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[4]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[5]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             }
         ], [
             { //[0] Stage 3
                 current: 1e-19,
                 total: 1e-19,
-                trueTotal: 1e-19
+                trueTotal: 1e-19,
+                highest: 1e-19
             },
             { //[1]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[2]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[3]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[4]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             }
         ], [
             { //[0] Stage 4
                 current: 1,
                 total: 1,
-                trueTotal: 1
+                trueTotal: 1,
+                highest: 1
             },
             { //[1]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[2]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[3]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[4]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             }
         ],
         [
             { //[0] Stage 5
                 current: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[1]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[2]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             },
             { //[3]
                 current: 0,
                 true: 0,
                 total: 0,
-                trueTotal: 0
+                trueTotal: 0,
+                highest: 0
             }
         ]
     ],
@@ -220,13 +245,14 @@ export const player: playerType = { //Only for information that need to be saved
             strict: true
         }
     },
-    events: [false] //One time events, can be seen in playEvent();
+    events: [false, false, false] //One time events, can be seen in playEvent();
 };
 
 export const global: globalType = { //For information that doesn't need to be saved
     tab: 'stage', //Tabs and subtabs have same name as buttons (for easier screen reader support)
     subtab: {
         /* Subtab format must be: [subtabName] + 'Current' */
+        stageCurrent: 'Structures',
         settingsCurrent: 'Settings',
         researchCurrent: 'Researches',
         strangenessCurrent: 'Matter'
@@ -235,6 +261,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     tabList: { //Tabs and subtab need to be in same order as in footer
         /* Subtabs format must be: [subtabName] + 'Subtabs' */
         tabs: ['stage', 'research', 'strangeness', 'settings', 'special'],
+        stageSubtabs: ['Structures', 'Advanced'],
         settingsSubtabs: ['Settings', 'Stats'],
         researchSubtabs: ['Researches', 'Elements'],
         strangenessSubtabs: ['Matter', 'Milestones']
@@ -252,13 +279,14 @@ export const global: globalType = { //For information that doesn't need to be sa
     stageInfo: {
         word: ['', 'Microworld', 'Submerged', 'Accretion', 'Interstellar', 'Intergalactic'], //Stage amount is based on lenght
         textColor: ['', 'var(--cyan-text-color)', 'var(--blue-text-color)', 'var(--gray-text-color)', 'var(--orange-text-color)', 'var(--darkorchid-text-color)'],
+        buttonBackgroundColor: ['', 'mediumblue', 'blue', '#291344', '#6a3700', '#4a008f'],
         buttonBorderColor: ['', 'darkcyan', '#427be1', '#404040', '#9f6700', '#9d0054'],
         imageBorderColor: ['', '#008b8b', '#1460a8', '#5b5b75', '#e87400', '#b324e2'],
         priceName: 'Energy', //On what you buy upgrades and etc.
         activeAll: [1] //All stages that should be calculated
     },
     automatization: { //Sorted cheapest first
-        autoU: [ //First [] is all stages; Second [] is upgrades to buy; third is [upgradeIndex, upgradeCost]
+        autoU: [
             [], //Empty
             [],
             [],
@@ -280,8 +308,9 @@ export const global: globalType = { //For information that doesn't need to be sa
             [],
             [],
             [],
-            []
-        ] //Researches Extra
+            [] //Empty
+        ], //Researches Extra
+        elements: []
     },
     theme: {
         stage: 1,
@@ -305,11 +334,13 @@ export const global: globalType = { //For information that doesn't need to be sa
         rankImage: ['Ocean%20world', 'Dust', 'Meteoroids', 'Asteroid', 'Planet', 'Giant'] //Source of image (file name and .png auto added)
     },
     collapseInfo: {
-        unlockB: [0, 0.01235, 0.23, 10, 40], //Buildings
+        unlockB: [0, 0.01235, 0.23, 10, 40], //Buildings (stage 4)
+        unlockG: [0, 100, 1000, 1e5], //Buildings (stage 5)
         unlockU: [0.01235, 0.076, 1.3, 10], //Upgrades
         unlockR: [0.18, 0.3, 0.8, 2], //Researches
         newMass: 0,
-        starCheck: [0, 0, 0]
+        starCheck: [0, 0, 0],
+        trueStars: 0 //Stage 5 special (can be removed)
     },
     intervalsId: {
         main: 0,
@@ -326,13 +357,13 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['Elements', 'Brown dwarfs', 'Main sequence', 'Red supergiants', 'Blue hypergiants'],
             ['Stars', 'Nebulas', 'Star clusters', 'Galaxies']
         ],
-        type: [
+        type: [ //'Not allowed index x', means that this index is reserved for gain calculation (code need to be changed to allow)
             [],
-            ['', 'producing', 'producing', 'producing'],
+            ['', 'producing', 'producing', 'producing'], //Not allowed index 4 (for 'producing')
             ['', 'producing', 'producing', 'improves', 'improves', 'improves'],
             ['', 'producing', 'producing', 'producing', 'improves'],
             ['', 'producing', 'producing', 'producing', 'producing'],
-            ['', 'producing', 'improves', 'producing']
+            ['', 'producing', 'improves', 'improves'] //Not allowed index 2, 3, 4 (for 'producing')
         ],
         cost: [
             [],
@@ -348,7 +379,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             [0, 0.0028, 100, 1e7, 1e18, 1e23],
             [0, 1e-19, 1e-9, 1e21, 1e17],
             [0, 1, 1e5, 1e16, 1e31],
-            [0, 1e30, 1e40, 1e60]
+            [0, 1e30, 1e40, 1e5]
         ],
         increase: [
             [],
@@ -356,7 +387,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             [0, 1.2, 1.2, 1.2, 1.2, 1.2],
             [0, 1.15, 1.15, 1.15, 10],
             [0, 1.4, 1.55, 1.70, 1.85],
-            [0, 2, 2, 4]
+            [0, 2, 2, 1.1]
         ],
         producing: [
             [],
@@ -436,8 +467,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['UpgradeA5', 'Gravity'],
                 ['UpgradeA6', 'Pile'],
                 ['UpgradeA7', 'Orbit'],
-                ['UpgradeA8', 'Equilibrium'],
-                ['UpgradeA9', 'Magma'],
+                ['UpgradeA8', 'Magma'],
+                ['UpgradeA9', 'Equilibrium'],
                 ['UpgradeA10', 'Atmosphere'],
                 ['UpgradeA11', 'Pebble'],
                 ['UpgradeA12', 'Tidal force'],
@@ -449,7 +480,11 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['UpgradeS3', 'CNO'],
                 ['UpgradeS4', 'Helium fusion']
             ],
-            []
+            [
+                ['UpgradeG1', 'Instability'],
+                ['UpgradeG2', 'Super cluster'],
+                ['UpgradeG3', 'Quasar']
+            ]
         ],
         longestResearch: 8,
         researchHTML: [
@@ -486,7 +521,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['ResearchS3', 'Protodisc', 'stage7borderImage'],
                 ['ResearchS4', 'Planetary nebula', 'stage5borderImage']
             ],
-            []
+            [
+                ['ResearchG1', 'Density', 'stage1borderImage'],
+                ['ResearchG2', 'Frequency', 'stage6borderImage']
+            ]
         ],
         longestResearchExtra: 4,
         researchExtraDivHTML: [
@@ -621,10 +659,18 @@ export const global: globalType = { //For information that doesn't need to be sa
             effect: [null, null, null, null],
             cost: [100, 1000, 1e9, 1e50]
         }, { //Stage 5
-            description: [],
-            effectText: [],
-            effect: [],
-            cost: []
+            description: [
+                'Jeans instability.',
+                'Super star cluster.',
+                'Quasar'
+            ],
+            effectText: [
+                ['Gravitational collapse within Nebulas will increase speed for production of Stars by ', ' times.'],
+                ['A very massive Star clusters, that will boost Stars by ', '.'],
+                ['Nickel Element receives super boost of ^', '.'] //Effect here only needs format
+            ],
+            effect: [4, 6, 1.5],
+            cost: [1e50, 1e60, 1e100]
         }
     ],
     researchesInfo: [
@@ -721,12 +767,18 @@ export const global: globalType = { //For information that doesn't need to be sa
             scaling: [10, 200, 1e12, 0],
             max: [3, 2, 1, 1]
         }, { //Stage 5
-            description: [],
-            effectText: [],
-            effect: [],
-            cost: [],
-            scaling: [],
-            max: []
+            description: [
+                'Higher density.',
+                'Type frequency.'
+            ],
+            effectText: [
+                ['Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one.\nNext tier will be ', '.'],
+                ['More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ', '.']
+            ],
+            effect: ['Main sequence', 'Red supergiants'],
+            cost: [1e40, 1e55],
+            scaling: [1e20, 1e15],
+            max: [3, 3]
         }
     ],
     researchesExtraInfo: [
@@ -785,7 +837,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 ['', ' Stars are now creating something new, upon collapse reset.'],
-                ['Red giants started to turn into White dwarfs. Main-sequence stars production increased based on amount of Red giants again.']
+                ['Red giants are turning into White dwarfs, which caused Main-sequence to produce quicker. (Times square root of Red giants)']
             ],
             effect: ['Main sequence', null],
             cost: [1e6, 1e50],
@@ -825,7 +877,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             [1e10, 1e13, 1e16, 1e24, 1e28],
             [1e-7, 1e10, 5e29, 2e30],
             [1e6, 1e17, 1e28, 1e39],
-            [1]
+            [1, 1, 1]
         ],
         max: [0, 3, 5, 4, 4, 0]
     },
@@ -868,19 +920,19 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['First metal, Mass per Brown dwarf lightly increased.'],
             ['Brittle earth metal, so is brittle increase to production. (', 'x to all Stars)'], //Effect here only needs format
             ['A new color, and a new boost to Mass gain that is based on current Dwarf Stars.'],
-            ['Base for organics, boost to Main-sequence stars through Red giants is now increased to power of ', '.'], //Effect here only needs format
+            ['Base for organics, boost from Red giants is now increased to the power of ', '.\nDid you knew that Red giants are boosting Main-sequence Stars?'], //Effect here only needs format
             ["Most abundant uncombined Element in atmosphere of some Planets, also allows to have 2 extra levels of 'Star system'."],
             ['An oxidizing agent, that will make everything scale even slower. (', ' less)'], //Effect here only needs format
             ["Highly toxic and reactive, +12 to max level of 'Planetary system'."],
             ['A noble 2x boost to Mass gain.'],
             ["Through leaching, get 1 extra level of 'Protoplanetary disk'."],
-            ['Stars are inside you, as well Neutrons stars boost to all Stars is now increased to the decimal logarithm.'],
+            ['Stars are inside you, as well Neutrons stars strength is now increased to the decimal logarithm.\nThat will make Neutron stars boost all Stars even better.'],
             ['Has a great affinity towards oxygen and to decrease cost of all Stars by ', '.'], //Effect here only needs format
             ['Number is 14, group is 14, melts at 1414°C and so is Mass gain increased by ', '.'], //Effect here only needs format
             ['One of the fundamentals of life and to make all of Stars boost Mass.'],
             ["From hot area, to increase max level of 'Star system' by 1.\nResearch softcapped past 1e10."],
             ["Extremely reactive to extend max level of 'Planetary system', by another 27 levels."],
-            ['Less noble boost, but bonus to Mass gain from Black holes scales a little better.'],
+            ['Less noble boost, but Black holes effect scales a little better.\nThat will surely increase Main-sequence mass gain.'],
             ['Don\'t forget about it and get a 3x boost to all Stars.'],
             ["Get stronger with 1 extra level of 'Star system'.\nEffect is weaker, after 5 levels."],
             ['A new color and a rare bonus of ^', ' to Mass effect.'], //Effect here only needs format
@@ -889,18 +941,18 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['No corrosion, only ^', ' boost to all Stars based on unspent Elements.'], //Effect here only needs format
             ["Brittle element, but not the bonus - 1 more level in 'Star system'."],
             ['Any further fusion will be an endothermic process. Gain 2x boost to all Stars, but what next?'],
-            ['While new Elements do not produce much Energy, they still can create 1 extra Strange quark during this Stage reset.'],
-            ['Slow to react, but gain extra Strange quarks for every 5 new digits anyway.\n(+', ' for this reset)']
+            ['While new Elements won\'t produce much Energy, this one can create 2 extra Strange quark for this Stage reset.'],
+            ['Slow to react, but gain extra Strange quarks for every new digit anyway.\n(+', ' for this reset)']
         ],
         effect: [
             null, null, 0.1, null, 1.1, null, 1.5, null, 0.05, null,
             null, null, null, 1e3, 1.4, null, null, null, null, null,
             null, 1.1, null, null, 0.01, null, null, null, 0
         ],
-        cost: [ //player.collapse.show uses highest bought element to tell if you ever had it (so cost of all next one's has to be higher)
+        cost: [ //If index 0 to be added, then it should have cost higher than last unlocked before it (or add continue for autoElements)
             1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
             1e16, 1e20, 1e24, 1e25, 1.4e27, 1e30, 1e31, 5e31, 5e33, 1e35,
-            1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50, 1e55, 1e60
+            1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50, 1e52, 1e55
         ]
     },
     strangenessInfo: [
@@ -920,9 +972,9 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Automatic Discarge.',
                 'More Particle Energy.',
                 "Better 'Tritium' effect.",
-                'Keep auto structures on Stage reset.',
+                'Keep auto Structures.',
                 'More toggles.',
-                'Strange boost'
+                'Strange boost.'
             ],
             effectText: [
                 ['Base Discharge effect is now +1.'],
@@ -933,10 +985,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ["Research for improved 'Tritium' upgrade is now better. (+", ')'], //Effect here only needs format
                 ['Start with auto for ', '.'],
                 ['Unlock a new toggle. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Stronger radiation)\nWarning - disabled until next update!']
+                ['Unspend Strange quarks will boost this stage. (Stronger radiation)']
             ],
             effect: [null, null, null, null, null, 0.3, 'Particles', null, null],
-            cost: [1, 1, 2, 3, 4, 1, 2, 2, 4],
+            cost: [1, 1, 2, 3, 4, 1, 2, 2, 8],
             scaling: [1.5, 1, 3, 0, 2, 0.25, 2, 3, 0], //Right now only 2 digits allowed past point
             max: [6, 4, 2, 1, 2, 10, 3, 1, 1]
         }, { //Stage 2
@@ -946,10 +998,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'More spread.',
                 'Cloud density.',
                 'Automatic Vaporization.',
-                'Keep auto structures on Stage reset.',
+                'Keep auto Structures.',
                 'Longer max offline.',
                 'Longest max offline.',
-                'Strange boost'
+                'Strange boost.'
             ],
             effectText: [
                 ['Mole production increased by 2x.'],
@@ -960,22 +1012,22 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Start with auto for ', '.'],
                 ['Increase max offline time research level. Also keep them on Stage reset.'],
                 ['Max offline time is now 2 times longer. (Additive)'],
-                ['Unspend Strange quarks will boost this stage. (Puddle production)\nWarning - disabled until next update!']
+                ['Unspend Strange quarks will boost this stage. (Puddle production)']
             ],
             effect: [null, null, null, null, null, 'Drops', null, null, null],
-            cost: [1, 2, 2, 1, 3, 2, 1, 8, 5],
+            cost: [1, 2, 2, 1, 3, 2, 1, 8, 6],
             scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.75, 4, 0],
             max: [9, 6, 3, 3, 1, 5, 4, 2, 1]
         }, { //Stage 3
             description: [
                 'Accretion speed increase.',
                 'Intense weathering.',
-                'More levels for Rank researches.',
+                'More levels.',
                 'Improved Satellites.',
                 'Automatic Rank.',
-                'Keep auto structures on Stage reset.',
+                'Keep auto Structures.',
                 'Automatization for Upgrades.',
-                'Strange boost'
+                'Strange boost.'
             ],
             effectText: [
                 ['Accretion speed is 2 times faster. (Affected by softcap)'],
@@ -985,10 +1037,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Automatically increase Rank when available.'],
                 ['Start with auto for ', '.'],
                 ['Unlock automatization for Upgrades / Researches. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)\nWarning - disabled until next update!']
+                ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)']
             ],
             effect: [null, null, null, null, null, 'Cosmic dust', null, null],
-            cost: [1, 1, 3, 4, 3, 2, 5, 5],
+            cost: [1, 1, 3, 4, 3, 2, 5, 6],
             scaling: [0.75, 1.5, 2.5, 0, 0, 1, 3.5, 0],
             max: [8, 4, 3, 1, 1, 4, 3, 1]
         }, { //Stage 4
@@ -999,40 +1051,54 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Main giants.',
                 'Remnants of past.',
                 'Automatic Collapse.',
-                'Keep auto structures on Stage reset.',
+                'Keep auto Structures.',
                 'Daily gain.',
                 'Max gain.',
-                'Strange boost'
+                'Strange boost.'
             ],
             effectText: [
                 ['All Stars produce ', ' times more Elements.'], //Effect here only needs format
                 ['Stars are 2 times cheaper.'],
-                ['Unlock a new Upgrade.\nMaybe will create extra Strange quarks, once strong enough.'],
+                ['Unlock a new Upgrade.\nFirst one is extra good.'],
                 ['25% of Brown dwarfs will turn into Red giants now.'],
                 ['Elements will be preserved through Collapse reset.'],
                 ['Stars will Collapse automatically.'],
                 ['Start with auto for ', '.'],
                 ['Creates +1 Strange quarks per day, can claim only full one\'s only with export.'],
                 ['Unclaimed Strange quarks max storage is now 1 day longer.'],
-                ['Unspend Strange quarks will boost this stage. (All Stars production)\nWarning - disabled until next update!']
+                ['Unspend Strange quarks will boost this stage. (All Stars production)']
             ],
             effect: [1.5, null, null, null, null, null, 'Brown dwarfs', null, null, null],
-            cost: [1, 1, 2, 2, 4, 3, 3, 2, 4, 6],
+            cost: [1, 1, 3, 2, 4, 3, 3, 2, 4, 8],
             scaling: [1, 1.5, 1.5, 2, 0, 0, 1, 2.5, 0, 0],
             max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1]
         }, { //Stage 5
             description: [
+                'Omnipresent reality.',
                 'Strange gain.',
-                'Omnipresent reality.'
+                'Auto Stage.',
+                'Bigger Nebulas.',
+                'Denser Clusters.',
+                'Gravitational bound.',
+                'Hypercompact stellar system.',
+                'Auto Structures.',
+                'New Milestones.'
             ],
             effectText: [
+                ['Gain abbility to be inside multiple stages at once. (Next one to always be inside is ', ')'],
                 ['Gain 2 times more Strange quarks from Stage resets.'],
-                ['Gain abbility to be inside multiple stages at once. (Next one to always be inside is ', ')']
+                ['Allows to auto switch Stage, has some special settings.'],
+                ["Bigger Nebulas, more matter for Accretion. 'Jeans instability' upgrade is 3 times stronger."],
+                ["'Super star cluster' is now even bigger. Effect increased by 4."],
+                ['Intergalactic is no longer affected by lower Stage reset types.'],
+                ['With this, a new Structure, can be created. Second level unlocks auto for it.'],
+                ['Increase current level of auto Structures. It\'s the only way to do it.'],
+                ['Unlock intergalactic Milestones.']
             ],
-            effect: [null, 'Microworld'],
-            cost: [3, 24],
-            scaling: [0, 8],
-            max: [1, 3]
+            effect: ['Microworld', null, null, null, null, null, null, null, null],
+            cost: [33, 10, 100, 5, 10, 50, 1000, 75, 20],
+            scaling: [33, 0, 0, 5, 10, 0, 200, 75, 0],
+            max: [3, 1, 1, 9, 9, 1, 2, 2, 1]
         }
     ],
     lastUpgrade: [0, false], //Allows to auto update last looked upgrade description
@@ -1083,7 +1149,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 [3000, 5000, 9000, 18000]
             ],
             rewardText: [
-                'Unlock a new building. (WIP)',
+                'Unlock a new building.',
                 'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
             ],
             quarks: [
@@ -1105,7 +1171,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 [25, 40, 55, 70, 85]
             ],
             rewardText: [
-                'Unlock a new building. (WIP)',
+                'Unlock a new building.',
                 'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
             ],
             quarks: [
@@ -1123,7 +1189,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Collapse to ', ' Black holes or more.']
             ],
             need: [
-                [9000, 15000, 22000, 30000, 40000, 60000],
+                [9000, 15000, 22000, 30000, 40000, 60000, 100000],
                 [100, 150, 200, 250, 300]
             ],
             rewardText: [
@@ -1131,10 +1197,32 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
             ],
             quarks: [
-                [1, 2, 3, 4, 5, 6],
+                [1, 2, 3, 4, 5, 6, 10],
                 [1, 2, 3, 4, 5]
             ],
             unlock: [3, 5]
+        }, {
+            description: [
+                'Light in the dark.',
+                'Greatest of the walls.'
+            ],
+            needText: [
+                ['Have self-made Stars count reach at least ', '.'],
+                ['Have ', ' Galaxies or more.']
+            ],
+            need: [
+                [1000, 1200, 1400, 1600, 1800, 2000, 2500],
+                [1, 2, 5, 10, 15, 20, 25]
+            ],
+            rewardText: [
+                'Intergalactic is always unlocked with Interstellar.',
+                'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
+            ],
+            quarks: [
+                [10, 10, 20, 20, 20, 50, 100],
+                [100, 100, 200, 400, 400, 1000, 1000]
+            ],
+            unlock: [4, 7]
         }
     ]
 };
@@ -1194,7 +1282,8 @@ Object.assign(player, {
         createArray(global.milestonesInfo[1].need.length, 'upgrade'),
         createArray(global.milestonesInfo[2].need.length, 'upgrade'),
         createArray(global.milestonesInfo[3].need.length, 'upgrade'),
-        createArray(global.milestonesInfo[4].need.length, 'upgrade')
+        createArray(global.milestonesInfo[4].need.length, 'upgrade'),
+        createArray(global.milestonesInfo[5].need.length, 'upgrade')
     ]
 });
 Object.assign(player.toggles, { //To prevent properties from being removed, it will be done separatly
@@ -1321,8 +1410,7 @@ export const updatePlayer = (load: playerType) => {
         if (load.version === 'v0.0.5') {
             load.version = 'v0.0.6';
             versionInfo.log += `\n${load.version} - Minor bug fixes, also transition for theme change fixed. Minor QoL, hotkeys, event system reworked, save file names and others`;
-            load.events = [load.stage.current === 1 && load.discharge.current > 4];
-            load.collapse.show = -1;
+            load.events = [false];
         }
         if (load.version === 'v0.0.6') {
             load.version = 'v0.0.7';
@@ -1369,7 +1457,34 @@ export const updatePlayer = (load: playerType) => {
             }
             load.ASR[a] = load.researchesAuto.splice(1, 1)[0];
         }
-        if (load.upgrades[3].length === 12) { load.upgrades[3].splice(8, 0, 0); }
+        if (load.version === 'v0.0.9') {
+            load.version = 'v0.1.0';
+            versionInfo.log += `\n${load.version} - Stage 5 finished. As well some small bug fixes\\optimizations\\balances. More in a Discord. Due to balance some endgame upgrades/resources were reset`;
+            if (load.upgrades[3].length === 12) { load.upgrades[3].splice(8, 0, 0); }
+            if (load.strangeness[5][0] > 0) {
+                load.strangeness[5][0] = 0;
+                load.strange[0].true += 3;
+            }
+            if (load.strangeness[5][1] > 0) {
+                load.strangeness[5][1] = 0;
+                load.strange[0].true += 24;
+                load.stage.active = load.stage.current;
+            }
+            if (load.strange[0].true > 33) {
+                load.strange[0].total -= (load.strange[0].true - 33);
+                load.strange[0].true = 33;
+            }
+            for (let s = 1; s < load.buildings.length; s++) {
+                for (let i = 0; i < load.buildings[s].length; i++) {
+                    load.buildings[s][i].highest = load.buildings[s][i].current;
+                }
+            }
+            load.collapse.show = [];
+            for (let i = 1; i < load.elements.length; i++) {
+                if (load.elements[i] === 1) { load.collapse.show.push(i); }
+            }
+            load.collapse.disabled = false;
+        }
 
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');
@@ -1468,5 +1583,12 @@ export const updatePlayer = (load: playerType) => {
             load.toggles.auto[i] = false;
         }
     }
+
+    if (playerStart.events.length > load.events.length) {
+        for (let i = load.events.length; i < playerStart.events.length; i++) {
+            load.events[i] = false;
+        }
+    }
+
     Object.assign(player, load);
 };

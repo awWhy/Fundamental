@@ -6,17 +6,19 @@ body *, body {
     font-size: inherit;
 
     /* No text color, because it's really awkwardly behind... */
-    transition: background-color var(--transition-all), border-color var(--transition-all);
+    transition: background-color var(--transition-all),
+        border-color var(--transition-all),
+        background-image var(--transition-all);
 }
 
 body {
     /* Colors */
     --background-color: #030012;
-    --window-color: #12121c; /* ! Shares color with .stage1windowBackground ! */
+    --window-color: #12121c;
     --window-border: cornflowerblue;
     --footer-color: darkblue;
     --button-main-color: mediumblue;
-    --button-main-border: darkcyan; /* ! Shares color with .stage1borderButton ! */
+    --button-main-border: darkcyan;
     --button-main-hover: #2626ff;
     --building-can-buy: #a90000;
     --button-tab-border: darkcyan;
@@ -40,11 +42,16 @@ body {
     --green-text-color: #00e900;
     --yellow-text-color: #fafa00;
 
+    /* These colors need to be changed in multiple places:
+        --window-color > ".stage1windowBackground";
+        --button-main-color > ".stage1backgroundButton" and "--stage-button-color", and "global.stageInfo.buttonBackgroundColor[1]";
+        --button-main-border > ".stage1borderButton" and "--stage-button-border", and "global.stageInfo.buttonBackgroundColor[1]"; */
     /* Special */
     --transition-all: 0s;
     --transition-buttons: 100ms;
     --stage-text-color: var(--cyan-text-color);
-    --stage-button-border: darkcyan; /* Same color as --button-main-border */
+    --stage-button-color: mediumblue;
+    --stage-button-border: darkcyan;
     --image-border-main: url(Used_art/Stage1%20border.png);
     --image-stage-outer: #008b8b; /* Same color as image outer border */
     --font-size: 1rem;
@@ -54,7 +61,7 @@ body {
     color: var(--main-text-color);
     background-color: var(--background-color);
     font-size: var(--font-size);
-    height: 98vh; /* some browsers don't auto stretch to full height without it */
+    min-height: 98vh; /* some browsers won't stretch (for background-color), without it */
 }
 
 .stageText { color: var(--stage-text-color); }
@@ -80,6 +87,7 @@ body {
 .stage5borderImage { border-color: #b324e2 !important; }
 .stage6borderImage { border-color: #5300c1 !important; }
 .stage7borderImage { border-color: #b21111 !important; }
+.stageAllborderImage { border-color: var(--image-stage-outer) !important; }
 
 /* These colors are shared with --button-main-border */
 .stage1borderButton { border-color: darkcyan !important; }
@@ -87,6 +95,13 @@ body {
 .stage3borderButton { border-color: #404040 !important; }
 .stage4borderButton { border-color: #9f6700 !important; }
 .stage5borderButton { border-color: #9d0054 !important; }
+
+/* These colors are shared with --button-main-color */
+.stage1backgroundButton { background-color: mediumblue !important; }
+.stage2backgroundButton { background-color: blue !important; }
+.stage3backgroundButton { background-color: #291344 !important; }
+.stage4backgroundButton { background-color: #6a3700 !important; }
+.stage5backgroundButton { background-color: #4a008f !important; }
 
 /* These colors are shared with --window-color */
 .stage1windowBackground { background-color: #12121c !important; }
@@ -222,6 +237,11 @@ button, input { appearance: none; }
     font-size: 0.86em;
 }
 
+.miniButton {
+    width: 1.5em;
+    height: 1.63em;
+}
+
 .toggle, .toggleBuilding, .toggleAuto, .specialToggle {
     color: var(--green-text-color);
     border-color: forestgreen;
@@ -247,8 +267,7 @@ button, input { appearance: none; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 .toggle:hover, .toggleBuilding:hover, .toggleAuto:hover,
-.specialToggle:hover, .interactiveImage:hover, .extraHover:hover,
-#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
+.specialToggle:hover, .interactiveImage:hover, .extraHover:hover { background-color: var(--button-extra-hover); }
 
 input[type = "number"] {
     width: 5.4em;
@@ -383,10 +402,13 @@ p > img {
 #buyStrict {
     border-color: forestgreen;
     color: var(--green-text-color);
+    background-color: var(--background-color);
     padding: 0 0.5em;
     height: 1.92em;
     font-size: 0.85em;
 }
+
+#buyStrict:hover { background-color: var(--button-extra-hover); }
 
 #starsSpecial {
     display: flex;
@@ -422,6 +444,21 @@ p > img {
 
 #upgrades > h3 { margin-bottom: 0.05em; }
 
+.challengeDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.6em;
+}
+
+.challengeDiv > input[type="image"] {
+    width: 48px;
+    height: 48px;
+    border-radius: 0;
+}
+
+.challengeDiv > input[type="image"]:hover { background-color: var(--button-extra-hover); }
+
 .researchSection {
     display: flex;
     align-items: center;
@@ -453,7 +490,6 @@ p > img {
 
 .researchSection > div > div { display: flex; }
 #researchTab .descriptionText { margin-top: -0.5em; }
-#ASR > p { border-color: var(--image-stage-outer); }
 
 .descriptionText {
     display: flex;
@@ -527,11 +563,6 @@ p > img {
     margin-left: -2.5px;
 }
 
-#strangenessResearch .interactiveImage {
-    border-radius: 3px;
-    z-index: 2;
-}
-
 #milestones {
     display: flex;
     flex-wrap: wrap;
@@ -574,7 +605,10 @@ p > img {
     row-gap: 0.3em;
 }
 
-#resetToggles > div > div > .toggleAuto {
+#resetToggles .miniButton { background-color: var(--background-color); }
+#resetToggles .miniButton:hover { background-color: var(--button-extra-hover); }
+
+#resetToggles .toggleAuto {
     width: 5.1275em; /* instead of using 100% and :has() */
     height: 1.85em;
     font-size: 0.77em;
@@ -582,11 +616,6 @@ p > img {
 }
 
 #toggleAuto0Mark { border-color: var(--stage-button-border); }
-
-.miniButton {
-    width: 1.5em;
-    height: 1.63em;
-}
 
 #logoLinks {
     display: flex;
@@ -671,6 +700,11 @@ p > img {
     position: absolute;
     width: min-content;
     display: none;
+}
+
+#switchTheme0 {
+    background-color: var(--stage-button-color);
+    border-color: var(--stage-button-border);
 }
 
 #themeArea { text-align: center; }
@@ -770,25 +804,30 @@ li button {
 #stats {
     display: flex;
     flex-direction: column;
+    align-items: center;
     row-gap: 0.4em;
 }
 
-#buildingsAllStats {
+.statsWindows {
     display: flex;
     flex-wrap: wrap;
     text-align: center;
+    justify-content: center;
     gap: 0.5em 1em;
 }
 
-#buildingsAllStats > div {
+.statsWindows > div {
     min-width: 6.3em;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 0.5em;
+    margin-top: 0.4em;
     padding: 0.4em 0.6em 0.5em;
 }
 
-#buildingsAllStats > p { margin-bottom: 0.15em; }
+.statsWindows > div > div > p { margin-bottom: 0.08em; }
+
+#strangeAllStats > div { border-color: darkgreen; }
 
 .imageList {
     display: flex;
@@ -799,10 +838,10 @@ li button {
 }
 
 #footer {
-    /* Fixed position and any inputs causes text to become darker (for unknown reasons...) */
     position: fixed;
     width: 100%;
     bottom: 0;
+    z-index: 8;
 }
 
 #footerColor {
@@ -914,6 +953,7 @@ li button {
     pointer-events: auto; /* Just in case, to prevent gaps being clickable */
 }
 
+#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
 #stageSelect:focus-within > button { clip-path: circle(0); }
 #stageSelect:focus-within > div { display: flex; }
 #currentSwitch { border-color: var(--stage-button-border); }
@@ -1004,5 +1044,6 @@ li button {
 
     #themeArea > div > div { width: 80vw; }
 
-    #stageSelect > div, #subtabs { flex-direction: column-reverse; }
+    #stageSelect > div { flex-direction: column; }
+    #subtabs { flex-direction: column-reverse; }
 }

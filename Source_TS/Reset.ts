@@ -3,13 +3,19 @@ import { player, playerStart } from './Player';
 import { autoUpgradesSet, calculateBuildingsCost, calculateMaxLevel, calculateResearchCost, calculateStageInformation } from './Stage';
 import { numbersUpdate, visualUpdate, visualUpdateUpgrades } from './Update';
 
-export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'stage', stageIndex: number[]) => {
+export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'stage', stageIndex: number[]) => {
     if (type !== 'stage') {
         const { buildings } = player;
 
         if (type === 'discharge') {
             player.discharge.energyCur = 0;
-        } else if (type === 'collapse' && player.strangeness[4][4] < 1) {
+        } else if (type === 'galaxy') {
+            player.collapse.disabled = true;
+            player.collapse.mass = 0.01235;
+            player.collapse.stars = [0, 0, 0];
+        }
+
+        if ((type === 'collapse' && player.strangeness[4][4] < 1) || type === 'galaxy') {
             for (let i = 1; i < player.elements.length; i++) {
                 player.elements[i] = 0;
                 visualUpdateUpgrades(i, 4, 'elements');
@@ -22,6 +28,8 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 buildings[s][0].current = playerStart.buildings[s][0].current;
                 buildings[s][0].total = playerStart.buildings[s][0].total;
                 for (let i = 1; i < playerStart.buildings[s].length; i++) {
+                    if (!allowedToBeReset(i, s, 'structures')) { continue; }
+
                     buildings[s][i].current = 0;
                     buildings[s][i].true = 0;
                     buildings[s][i].total = 0;
@@ -76,9 +84,16 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         visualUpdate();
     } else { //Stage reset only
         for (const s of stageIndex) {
-            for (let i = 0; i < playerStart.buildings[s].length; i++) {
-                player.buildings[s][i] = { ...playerStart.buildings[s][i] };
+            for (let i = 1; i < playerStart.buildings[s].length; i++) {
+                player.buildings[s][i].current = 0;
+                player.buildings[s][i].true = 0;
+                player.buildings[s][i].total = 0;
+                player.buildings[s][i].trueTotal = 0;
             }
+            player.buildings[s][0].current = playerStart.buildings[s][0].current;
+            player.buildings[s][0].total = playerStart.buildings[s][0].total;
+            player.buildings[s][0].trueTotal = playerStart.buildings[s][0].trueTotal;
+
             player.upgrades[s] = [...playerStart.upgrades[s]];
             player.researches[s] = [...playerStart.researches[s]];
             player.researchesExtra[s] = [...playerStart.researchesExtra[s]];
@@ -95,12 +110,14 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             } else if (s === 4) {
                 player.collapse.mass = 0.01235;
                 player.collapse.stars = [0, 0, 0];
-                player.collapse.show = -1;
+                player.collapse.show = [];
+                player.collapse.disabled = false;
                 player.elements = [...playerStart.elements];
             }
 
-            player.ASR[s] = s !== 5 ? player.strangeness[s][[6, 5, 5, 6][s - 1]] : 0; //Temporary fix
-            calculateResearchCost(0, s, 'ASR');
+            player.ASR[s] = player.strangeness[s][[6, 5, 5, 6, 7][s - 1]];
+            if (s === 5 && player.strangeness[5][6] >= 2) { player.ASR[5]++; }
+            calculateMaxLevel(0, s, 'ASR');
 
             for (let i = 1; i < playerStart.buildings[s].length; i++) { calculateBuildingsCost(i, s); }
             for (let i = 0; i < playerStart.researches[s].length; i++) { calculateMaxLevel(i, s, 'researches'); }

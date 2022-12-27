@@ -1,6 +1,6 @@
-import { player, global, playerStart, globalStart, updatePlayer, checkPlayerValues } from './Player';
+import { player, global, playerStart, updatePlayer, checkPlayerValues } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier } from './Update';
-import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
+import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, switchVacuum, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat } from './Special';
 import { detectHotkey } from './Hotkeys';
 /* There can be a problem with incorrect build, imports can be called in a wrong order */
@@ -115,6 +115,8 @@ void reLoad(true); //This will start the game
     getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
     getId('buyMax').addEventListener('click', () => toggleBuy('max'));
     getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
+
+    getId('vacuumSwitch').addEventListener('click', switchVacuum);
 
     /* Research tab */
     for (let i = 0; i < global.HTMLSpecial.longestResearch; i++) {
@@ -274,6 +276,8 @@ void reLoad(true); //This will start the game
     getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
 
     /* Subtabs */
+    getId('stageSubtabBtnStructures').addEventListener('click', () => switchTab('stage', 'Structures'));
+    getId('stageSubtabBtnAdvanced').addEventListener('click', () => switchTab('stage', 'Advanced'));
     getId('researchSubtabBtnResearches').addEventListener('click', () => switchTab('research', 'Researches'));
     getId('researchSubtabBtnElements').addEventListener('click', () => switchTab('research', 'Elements'));
     getId('settingsSubtabBtnSettings').addEventListener('click', () => switchTab('settings', 'Settings'));
@@ -356,7 +360,7 @@ async function saveLoad(type: string) {
                 }
                 void reLoad();
             } catch (error) {
-                changeIntervals(); //Unpause game, in case it there was an issue before reLoad();
+                changeIntervals(); //Unpause game, in case there was an issue;
                 Alert(`Incorrect save file format.\nFull error is: '${error}'`);
             } finally {
                 id.value = ''; //Remove inputed file
@@ -368,6 +372,8 @@ async function saveLoad(type: string) {
                 const save = btoa(JSON.stringify(player));
                 //If Infinity will be needed inside, then can anything alike 'btoa(JSON.stringify(player), (k, v) => v === Infinity ? `${v}` : v)'
                 localStorage.setItem('save', save);
+                clearInterval(global.intervalsId.autoSave);
+                global.intervalsId.autoSave = setInterval(saveLoad, player.intervals.autoSave * 1000, 'save');
                 getId('isSaved').textContent = 'Saved';
                 global.timeSpecial.lastSave = 0;
             } catch (error) {
@@ -403,14 +409,12 @@ async function saveLoad(type: string) {
                 switchTab('stage'); //Switch back to original tab (subtabs will auto switch if tabbing into not unlocked one)
                 /* No need to remove non existing properties, because it's done on save load anyway */
                 Object.assign(player, structuredClone(playerStart));
-                Object.assign(global, structuredClone(globalStart));
                 player.time.started = Date.now();
                 player.time.updated = player.time.started;
-                void reLoad();
+                void reLoad(true);
             } else if (ok !== null && ok !== '') {
                 Alert(`You wrote '${ok}', so save file wasn't deleted`);
             }
-            break;
         }
     }
 }

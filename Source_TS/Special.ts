@@ -69,8 +69,10 @@ export const switchTheme = () => {
     getId('dropStat').style.color = '';
     getId('waterStat').style.color = '';
     /* And set new colors */
-    //--window-color shares color with classes like "stage2windowBackground", so need to be changed in both places
-    //--button-main-color shares color with classes like "stage2borderButton", so need to be changed in both places
+    /* These colors will need to be changed in other places as well: (not just 2, but from 2 to max)
+        --window-color > '.stage2windowBackground';
+        --button-main-color > '.stage2backgroundButton' and 'global.stageInfo.buttonBackgroundColor[2]';
+        --button-main-border > '.stage2borderButton' and 'global.stageInfo.buttonBorderColor[2]'; */
     switch (theme.stage) {
         case 2:
             for (const text of ['upgrade', 'research', 'element']) {
@@ -405,7 +407,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 const active = player.stage.active;
 
                 let extra = index - 1;
-                if (active >= 4) { extra = 0; }
+                if (active === 4 || active === 5) { extra = 0; }
 
                 if (index === 0) {
                     invText.textContent = `You have ${format(buildings[active][0].current)} ${buildingsInfo.name[active][0]}`;
@@ -504,7 +506,7 @@ export const playEvent = (event: number, index: number) => {
         case 1: //[0] Clouds softcap
             Alert('Cloud density is too high... Getting more will be harder now');
             break;
-        case 2: //[0] Accretion new rank unlocked
+        case 2: //[0] Accretion new Rank unlocked
             Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
             if (player.accretion.rank === 4) {
                 global.accretionInfo.rankCost[4] = 5e29;
@@ -512,9 +514,12 @@ export const playEvent = (event: number, index: number) => {
             }
             break;
         case 3: //[0] Collapse explanation
-            Alert('Any Collapse reset from now on will give extra rewards, but you can only Collapse when can get more or equal Mass.\nEach reward effect will be hidden to you for now');
+            Alert('Any Collapse reset from now on will give even more rewards, but can\'t be done, unless can increase any of them.\nRewards effects are unknown, but some of the Elements might reveal information about it.\n(Just like Main-sequence mass is provides boost for all Stars)');
             break;
-        case 4: //[1] Entering intergalactic
+        case 4: //[1] Entering Intergalactic
             Alert('There doesn\'t seem to be anything here. Let\'s try going back to start and find what is missing');
+            break;
+        case 5: //[2] Creating Galaxy
+            Alert("Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until can afford them again (if you have 'Remnants of past')");
     }
 };

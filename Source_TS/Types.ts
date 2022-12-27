@@ -25,7 +25,8 @@ export interface playerType {
     collapse: { //Stage 4
         mass: number
         stars: [number, number, number]
-        show: number
+        show: number[]
+        disabled: boolean
         inputM: number
         inputS: number
     }
@@ -68,12 +69,14 @@ export interface playerType {
 export interface globalType {
     tab: string
     subtab: {
+        stageCurrent: string
         settingsCurrent: string
         researchCurrent: string
         strangenessCurrent: string
     }
     tabList: {
         tabs: string[]
+        stageSubtabs: string[]
         settingsSubtabs: string[]
         researchSubtabs: string[]
         strangenessSubtabs: string[]
@@ -91,15 +94,17 @@ export interface globalType {
     stageInfo: {
         word: string[]
         textColor: string[]
+        buttonBackgroundColor: string[]
         buttonBorderColor: string[]
         imageBorderColor: string[]
         priceName: string
         activeAll: number[]
     }
     automatization: {
-        autoU: number[][][]
-        autoR: number[][][]
-        autoE: number[][][]
+        autoU: number[][]
+        autoR: number[][]
+        autoE: number[][]
+        elements: number[]
     }
     theme: {
         stage: number
@@ -124,10 +129,12 @@ export interface globalType {
     }
     collapseInfo: {
         unlockB: number[]
+        unlockG: number[]
         unlockU: number[]
         unlockR: number[]
         newMass: number
         starCheck: [number, number, number]
+        trueStars: number
     }
     intervalsId: {
         main: number
@@ -168,7 +175,7 @@ export interface globalType {
     researchesInfo: Array<{
         description: string[]
         effectText: string[][]
-        effect: Array<number | null>
+        effect: Array<number | null | string>
         cost: number[]
         scaling: number[]
         max: number[]
