@@ -6,7 +6,7 @@ import { Alert, Confirm, playEvent } from './Special';
 import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const calculateStageInformation = () => {
-    const { stage, buildings, strange, upgrades, researches, researchesExtra, strangeness } = player;
+    const { stage, buildings/*, strange*/, upgrades, researches, researchesExtra, strangeness } = player;
     const { buildingsInfo, strangeInfo, upgradesInfo, researchesInfo, researchesExtraInfo } = global;
     const activeAll = global.stageInfo.activeAll; //Updating all at once because stages will affect each other in future
 
@@ -24,7 +24,7 @@ export const calculateStageInformation = () => {
         if (upgrades[1][5] === 1) { buildingsInfo.producing[1][3] *= upgradesInfo[1].effect[5] ** buildings[1][3].true; }
 
         researchesInfo[1].effect[2] = 12 + strangeness[1][5] * 3 / 10;
-        strangeInfo.stageBoost[1] = strangeness[1][8] >= 1 ? (strange[0].true + 1) ** 0.32 : null;
+        //strangeInfo.stageBoost[1] = strangeness[1][8] >= 1 ? (strange[0].true + 1) ** 0.32 : null;
         if (buildingsInfo.producing[1][3] > 1) { //Because Math.log(0) === -infinity and Math.log(1) === 0
             upgradesInfo[1].effect[6] = Math.log(buildingsInfo.producing[1][3]) * researchesInfo[1].effect[2] ** researches[1][2]; //Add Math.min if [3] === Infinity
             if (upgrades[1][7] === 1) { upgradesInfo[1].effect[6] *= discharge.energyCur; }
@@ -72,7 +72,7 @@ export const calculateStageInformation = () => {
         buildingsInfo.producing[2][2] = 3 * buildings[2][2].current * vaporization.clouds;
         upgradesInfo[2].effect[2] = 0.02 + researches[2][2] * 0.02;
         upgradesInfo[2].effect[3] = 0.02 + researches[2][3] * 0.03;
-        strangeInfo.stageBoost[2] = strangeness[2][8] >= 1 ? (strange[0].true + 1) ** 0.4 : null;
+        //strangeInfo.stageBoost[2] = strangeness[2][8] >= 1 ? (strange[0].true + 1) ** 0.4 : null;
         if (upgrades[2][2] === 1 && researches[2][1] >= 2) {
             buildingsInfo.producing[2][2] *= buildings[2][0].total ** upgradesInfo[2].effect[2];
         } else if (upgrades[2][2] === 1) {
@@ -111,7 +111,7 @@ export const calculateStageInformation = () => {
     if (activeAll.includes(3)) {
         const { accretion } = player;
 
-        strangeInfo.stageBoost[3] = strangeness[3][7] >= 1 ? (strange[0].true + 1) ** 1.8 : null;
+        //strangeInfo.stageBoost[3] = strangeness[3][7] >= 1 ? (strange[0].true + 1) ** 1.8 : null;
 
         buildingsInfo.producing[3][4] = (upgrades[3][12] === 1 ? 1.14 : 1.1) ** buildings[3][4].current;
 
@@ -161,7 +161,7 @@ export const calculateStageInformation = () => {
 
         researchesInfo[4].effect[0] = (1.1 + 0.2 * researches[4][2]) ** researches[4][0];
         researchesInfo[4].effect[1] = (1 + (0.01 * Math.min(researches[4][1], 5)) + (researches[4][1] > 5 ? 0.005 * (researches[4][1] - 5) : 0)) ** (buildings[4][1].true + buildings[4][2].true + buildings[4][3].true + buildings[4][4].true);
-        strangeInfo.stageBoost[4] = strangeness[4][9] >= 1 ? (strange[0].true + 1) ** 0.3 : null;
+        //strangeInfo.stageBoost[4] = strangeness[4][9] >= 1 ? (strange[0].true + 1) ** 0.3 : null;
         if (researchesInfo[4].effect[1] > 1e10) { researchesInfo[4].effect[1] = 1e10 + (researchesInfo[4].effect[1] - 1e10) ** 0.70; }
         let redGiantEffect = collapse.stars[0] + 1;
         if (elements[6] === 1) { redGiantEffect **= 1.5; }

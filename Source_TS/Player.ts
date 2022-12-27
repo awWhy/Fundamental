@@ -933,7 +933,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ["Research for improved 'Tritium' upgrade is now better. (+", ')'], //Effect here only needs format
                 ['Start with auto for ', '.'],
                 ['Unlock a new toggle. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Stronger radiation)']
+                ['Unspend Strange quarks will boost this stage. (Stronger radiation)\nWarning - disabled until next update!']
             ],
             effect: [null, null, null, null, null, 0.3, 'Particles', null, null],
             cost: [1, 1, 2, 3, 4, 1, 2, 2, 4],
@@ -960,7 +960,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Start with auto for ', '.'],
                 ['Increase max offline time research level. Also keep them on Stage reset.'],
                 ['Max offline time is now 2 times longer. (Additive)'],
-                ['Unspend Strange quarks will boost this stage. (Puddle production)']
+                ['Unspend Strange quarks will boost this stage. (Puddle production)\nWarning - disabled until next update!']
             ],
             effect: [null, null, null, null, null, 'Drops', null, null, null],
             cost: [1, 2, 2, 1, 3, 2, 1, 8, 5],
@@ -985,7 +985,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Automatically increase Rank when available.'],
                 ['Start with auto for ', '.'],
                 ['Unlock automatization for Upgrades / Researches. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)']
+                ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)\nWarning - disabled until next update!']
             ],
             effect: [null, null, null, null, null, 'Cosmic dust', null, null],
             cost: [1, 1, 3, 4, 3, 2, 5, 5],
@@ -1014,7 +1014,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Start with auto for ', '.'],
                 ['Creates +1 Strange quarks per day, can claim only full one\'s only with export.'],
                 ['Unclaimed Strange quarks max storage is now 1 day longer.'],
-                ['Unspend Strange quarks will boost this stage. (All Stars production)']
+                ['Unspend Strange quarks will boost this stage. (All Stars production)\nWarning - disabled until next update!']
             ],
             effect: [1.5, null, null, null, null, null, 'Brown dwarfs', null, null, null],
             cost: [1, 1, 2, 2, 4, 3, 3, 2, 4, 6],
