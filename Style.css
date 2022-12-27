@@ -12,11 +12,11 @@ body *, body {
 body {
     /* Colors */
     --background-color: #030012;
-    --window-color: #12121c; /* ! Shares colors with .stage1window ! */
+    --window-color: #12121c; /* ! Shares color with .stage1windowBackground ! */
     --window-border: cornflowerblue;
     --footer-color: darkblue;
     --button-main-color: mediumblue;
-    --button-main-border: darkcyan;
+    --button-main-border: darkcyan; /* ! Shares color with .stage1borderButton ! */
     --button-main-hover: #2626ff;
     --building-can-buy: #a90000;
     --button-tab-border: darkcyan;
@@ -44,8 +44,9 @@ body {
     --transition-all: 0s;
     --transition-buttons: 100ms;
     --stage-text-color: var(--cyan-text-color);
-    --border-image: url(Used_art/Stage1%20border.png);
-    --border-stage: #008b8b; /* Based on image border */
+    --stage-button-border: darkcyan; /* Same color as --button-main-border */
+    --image-border-main: url(Used_art/Stage1%20border.png);
+    --image-stage-outer: #008b8b; /* Same color as image outer border */
     --font-size: 1rem;
 }
 
@@ -69,6 +70,30 @@ body {
 .redText { color: var(--red-text-color); }
 .greenText { color: var(--green-text-color); }
 .yellowText { color: var(--yellow-text-color); }
+
+/* These colors are same as Image border outer layer */
+.stage0borderImage { border-color: #006400 !important; }
+.stage1borderImage { border-color: #008b8b !important; }
+.stage2borderImage { border-color: #1460a8 !important; }
+.stage3borderImage { border-color: #5b5b75 !important; }
+.stage4borderImage { border-color: #e87400 !important; }
+.stage5borderImage { border-color: #b324e2 !important; }
+.stage6borderImage { border-color: #5300c1 !important; }
+.stage7borderImage { border-color: #b21111 !important; }
+
+/* These colors are shared with --button-main-border */
+.stage1borderButton { border-color: darkcyan !important; }
+.stage2borderButton { border-color: #427be1 !important; }
+.stage3borderButton { border-color: #404040 !important; }
+.stage4borderButton { border-color: #9f6700 !important; }
+.stage5borderButton { border-color: #9d0054 !important; }
+
+/* These colors are shared with --window-color */
+.stage1windowBackground { background-color: #12121c !important; }
+.stage2windowBackground { background-color: #000052 !important; }
+.stage3windowBackground { background-color: #2e1200 !important; }
+.stage4windowBackground { background-color: #4e0000 !important; }
+.stage5windowBackground { background-color: #001d42 !important; }
 
 /* Right now it works only with keyboard tab button */
 body:not(.outlineOnFocus) button:focus-visible,
@@ -97,8 +122,8 @@ img {
 
 .interactiveImage { cursor: pointer; }
 
-.stageBorder {
-    background-image: var(--border-image);
+.stageBorderImage {
+    background-image: var(--image-border-main);
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -406,7 +431,7 @@ p > img {
 .researchSection > div {
     display: flex;
     flex-wrap: wrap;
-    border: 2px solid var(--border-stage);
+    border: 2px solid var(--image-stage-outer);
     border-left-width: 1px;
     border-radius: 4px;
     padding: 0.25em;
@@ -428,17 +453,7 @@ p > img {
 
 .researchSection > div > div { display: flex; }
 #researchTab .descriptionText { margin-top: -0.5em; }
-
-/* I could try and use @layer, but no idea how much will need to be added (or how well supported) */
-.stage0border { border-color: #006400 !important; }
-.stage1border { border-color: #008b8b !important; } 
-.stage2border { border-color: #1460a8 !important; }
-.stage3border { border-color: #5b5b75 !important; }
-.stage4border { border-color: #e87400 !important; }
-.stage5border { border-color: #b324e2 !important; }
-.stage6border { border-color: #5300c1 !important; }
-.stage7border { border-color: #b21111 !important; }
-.stageAllBorder { border-color: var(--border-stage) !important; }
+#ASR > p { border-color: var(--image-stage-outer); }
 
 .descriptionText {
     display: flex;
@@ -510,18 +525,12 @@ p > img {
     padding: 0 0.25em 0 calc(2.5px + 0.25em);
     background-color: var(--background-color);
     margin-left: -2.5px;
-} 
+}
 
 #strangenessResearch .interactiveImage {
     border-radius: 3px;
     z-index: 2;
 }
-
-.stage1window { background-color: #12121c; } 
-.stage2window { background-color: #000052; }
-.stage3window { background-color: #2e1200; }
-/* .stage4window { background-color: #4e0000; } */
-/* .stage5window { background-color: #001d42; } */
 
 #milestones {
     display: flex;
@@ -571,6 +580,8 @@ p > img {
     font-size: 0.77em;
     margin-top: 0.1em;
 }
+
+#toggleAuto0Mark { border-color: var(--stage-button-border); }
 
 .miniButton {
     width: 1.5em;
@@ -667,11 +678,6 @@ p > img {
 #themeArea > div:focus-within > button { clip-path: circle(0); } /* Just makes button invisible without removing focus from it */
 #themeArea button { width: 7em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
-#switchTheme1 { border-color: darkcyan; }
-#switchTheme2 { border-color: #427be1; }
-#switchTheme3 { border-color: #404040; }
-#switchTheme4 { border-color: #9f6700; }
-#switchTheme5 { border-color: #9d0054; }
 #themeArea > h3 { margin-bottom: 0.3em; }
 
 #autoTogglesUpgrades {
@@ -910,6 +916,7 @@ li button {
 
 #stageSelect:focus-within > button { clip-path: circle(0); }
 #stageSelect:focus-within > div { display: flex; }
+#currentSwitch { border-color: var(--stage-button-border); }
 
 #hideToggle {
     margin-left: auto;
@@ -983,7 +990,7 @@ li button {
     .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
 
     #researchTab .descriptionText { margin-top: -0.25em; }
-    
+
     #elementsGrid {
         gap: 0.15em;
         padding: 0.25em;
