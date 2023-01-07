@@ -3,7 +3,7 @@ console.time('Game loaded in'); //Just for fun (end is in Main.ts file)
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
     version: 'v0.1.0',
-    fileName: 'Fundamental, [stage], [date] [time]',
+    fileName: 'Fundamental, [date] [time], [stage]',
     separator: ['', '.'], //[0] every 3 numbers, [1] point
     stage: {
         true: 1,
@@ -654,7 +654,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['As fuel runs out, each star will boost production in its own special way.'],
                 ['Fuse with Protium instead of Deuterium. Unlocks a new structure and something else.'],
                 ['CNO cycle is now a better source of Helium and Energy. Unlocks a new structure and more of something else.'],
-                ['Through Triple-alpha and then Alpha process, unlock a few more elements.']
+                ['Through Triple-alpha and then Alpha process, unlock a few more Elements.']
             ],
             effect: [null, null, null, null],
             cost: [100, 1000, 1e9, 1e50]
@@ -1149,7 +1149,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 [3000, 5000, 9000, 18000]
             ],
             rewardText: [
-                'Unlock a new building.',
+                'Unlock a new Structure.',
                 'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
             ],
             quarks: [
@@ -1171,7 +1171,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 [25, 40, 55, 70, 85]
             ],
             rewardText: [
-                'Unlock a new building.',
+                'Unlock a new Structure.',
                 'Unknown structure, it doesn\'t belong to this Universe.\nYou can view it in stats.'
             ],
             quarks: [
@@ -1405,7 +1405,7 @@ export const updatePlayer = (load: playerType) => {
         }
         if (load.version === 'v0.0.4') {
             load.version = 'v0.0.5';
-            versionInfo.log += `\n${load.version} - First part of Stage 4 is out, also small visual changes. Screen reader support updated (I forgot about it since stage 2...). Also testing new formula for making structures and other minor stuff`;
+            versionInfo.log += `\n${load.version} - First part of Stage 4 is out, also small visual changes. Screen reader support updated (I forgot about it since Stage 2...). Also testing new formula for making structures and other minor stuff`;
         }
         if (load.version === 'v0.0.5') {
             load.version = 'v0.0.6';

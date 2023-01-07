@@ -161,7 +161,7 @@ export const allowedToBeReset = (check: number, stageIndex: number, type: 'struc
             if (stageIndex === 2) {
                 if (check === 1) { return false; }
             } else if (stageIndex === 4) {
-                if (check === 0 || player.collapse.mass >= 10) { return false; }
+                if (player.strangeness[4][4] >= 1 || player.collapse.mass >= 10 || check === 0) { return false; }
             } else if (stageIndex === 5) {
                 if (check === 2) { return false; }
             }

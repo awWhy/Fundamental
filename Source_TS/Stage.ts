@@ -946,7 +946,7 @@ export const stageResetCheck = (stageIndex: number, auto = false): boolean => {
         case 4:
             return false;
         case 5:
-            allowed = true;
+            allowed = player.stage.current >= 5; //player.elements[26] === 1;
     }
 
     if (auto && allowed && player.strangeness[5][2] >= 1 && (stageIndex < 5 ||
@@ -972,6 +972,8 @@ export const stageAsyncReset = async() => {
                 return stage.true > 4 ?
                     Alert('Let\'s reach the limit') :
                     Alert('Let\'s see the limit');
+            case 5:
+                return Alert("'Iron' wasn't obtained yet");
         }
     } else {
         let ok = true;
