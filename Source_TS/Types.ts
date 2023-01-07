@@ -11,12 +11,13 @@ export interface playerType {
         input: number
     }
     discharge: { //Stage 1
-        energyCur: number
+        energy: number
         energyMax: number
         current: number
     }
     vaporization: { //Stage 2
         clouds: number
+        cloudsMax: number
         input: number
     }
     accretion: { //Stage 3
@@ -24,6 +25,8 @@ export interface playerType {
     }
     collapse: { //Stage 4
         mass: number
+        massMax: number
+        elementsMax: number
         stars: [number, number, number]
         show: number[]
         disabled: boolean

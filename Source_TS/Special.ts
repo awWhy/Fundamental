@@ -365,7 +365,7 @@ export const mobileDeviceSupport = (change = false) => {
     }
 };
 
-export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource') => {
+export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource' | 'information') => {
     switch (type) {
         case 'toggle': {
             const change = info as boolean;
@@ -416,7 +416,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 }
             } else if (special === 'resource') {
                 if (index === 1) {
-                    invText.textContent = `You have ${format(player.discharge.energyCur)} Energy${player.upgrades[1][3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2], 0)} free goals.` : ''}`;
+                    invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2], 0)} free goals.` : ''}`;
                 } else if (index === 2) {
                     invText.textContent = `You have ${format(player.vaporization.clouds)} Clouds${global.vaporizationInfo.get > 1 ? `, you can get +${format(global.vaporizationInfo.get)} if you reset now` : ''}`;
                 } else if (index === 4) {
@@ -424,6 +424,14 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 } else if (index === 0) {
                     invText.textContent = `You have ${format(player.strange[0].true, 0)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.stageGain + (player.stage.active >= 4 ? global.strangeInfo.extraGain : 0, 0))} on Stage reset`;
                 }
+            } else if (special === 'information') {
+                let activeStages = '';
+
+                for (let i = 0; i < global.stageInfo.activeAll.length; i++) {
+                    activeStages += (i === 0 ? '' : ', ') + global.stageInfo.word[global.stageInfo.activeAll[i]];
+                }
+
+                invText.textContent = `Current Active Stages are ${activeStages}`;
             }
         }
     }
@@ -501,7 +509,7 @@ export const playEvent = (event: number, index: number) => {
     switch (event) {
         case 0: //[0] Discharge explanation
             Alert('Since you can\'t get back Energy that you had spent, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
-            if (player.stage.true === 1) { player.discharge.energyCur += 800; }
+            if (player.stage.true === 1) { player.discharge.energy += 800; }
             break;
         case 1: //[0] Clouds softcap
             Alert('Cloud density is too high... Getting more will be harder now');

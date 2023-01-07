@@ -13,7 +13,7 @@ export const checkTab = (tab: string, subtab = null as null | string): boolean =
                 subUnl = true;
             } else if (subtab === 'Advanced') {
                 subUnl = player.milestones[1][0] >= 5 || player.milestones[2][1] >= 4 ||
-                    player.milestones[3][1] >= 5 || player.milestones[4][1] >= 5 || player.milestones[5][1] >= 7;
+                    player.milestones[3][1] >= 5 || player.milestones[4][1] >= 5 || player.milestones[5][1] >= 8;
             }
             break;
         case 'settings':
@@ -91,6 +91,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 return player.accretion.rank >= global.accretionInfo.rankU[upgrade];
             } else if (stageIndex === 4) {
                 if (upgrade === 3 && player.strangeness[4][2] < 1) { return false; }
+                if (upgrade >= 2 && player.upgrades[4][upgrade - 1] !== 1) { return false; } //Just in case
                 return player.collapse.mass >= global.collapseInfo.unlockU[upgrade];
             } else if (stageIndex === 5) {
                 if (upgrade === 2) { return player.buildings[5][3].current >= 1; }
@@ -115,7 +116,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             /*if (stageIndex === 1) {
                 return false;
             } else*/ if (stageIndex === 2) {
-                return true;
+                return player.vaporization.clouds > 1;
             } else if (stageIndex === 3) {
                 return player.accretion.rank >= global.accretionInfo.rankE[upgrade];
             } else if (stageIndex === 4) {
@@ -184,7 +185,7 @@ export const milestoneCheck = (index: number, stageIndex: number) => {
         if (index === 0) {
             award = player.buildings[1][0].current >= need;
         } else if (index === 1) {
-            award = player.discharge.energyMax >= need;
+            award = player.discharge.energy >= need;
         }
     } else if (stageIndex === 2) {
         if (index === 0) {

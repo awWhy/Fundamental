@@ -1,6 +1,6 @@
 import { allowedToBeReset } from './Check';
 import { player, playerStart } from './Player';
-import { autoUpgradesSet, calculateBuildingsCost, calculateMaxLevel, calculateResearchCost, calculateStageInformation } from './Stage';
+import { autoElements, autoUpgradesSet, calculateBuildingsCost, calculateMaxLevel, calculateResearchCost, calculateStageInformation } from './Stage';
 import { numbersUpdate, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'stage', stageIndex: number[]) => {
@@ -8,7 +8,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         const { buildings } = player;
 
         if (type === 'discharge') {
-            player.discharge.energyCur = 0;
+            player.discharge.energy = 0;
         } else if (type === 'galaxy') {
             player.collapse.disabled = true;
             player.collapse.mass = 0.01235;
@@ -99,8 +99,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             player.researchesExtra[s] = [...playerStart.researchesExtra[s]];
 
             if (s === 1) {
-                player.discharge.energyCur = 0;
-                player.discharge.energyMax = 0;
+                player.discharge.energy = 0;
                 player.discharge.current = 0;
             } else if (s === 2) {
                 player.vaporization.clouds = 1;
@@ -108,11 +107,13 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 player.accretion.rank = 0;
                 player.buildings[3][0].current = 5.97e27;
             } else if (s === 4) {
+                player.collapse.elementsMax = 1;
                 player.collapse.mass = 0.01235;
                 player.collapse.stars = [0, 0, 0];
                 player.collapse.show = [];
                 player.collapse.disabled = false;
                 player.elements = [...playerStart.elements];
+                autoElements(true);
             }
 
             player.ASR[s] = player.strangeness[s][[6, 5, 5, 6, 7][s - 1]];

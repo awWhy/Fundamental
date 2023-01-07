@@ -126,10 +126,10 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
     if (global.footer) {
         if (active === 1) {
             getId('quarks').textContent = format(buildings[1][0].current);
-            getId('energy').textContent = format(player.discharge.energyCur, 0);
+            getId('energy').textContent = format(player.discharge.energy, 0);
         } else if (active === 2) {
             getId('water').textContent = format(buildings[2][0].current);
-            if (tab !== 'stage') { getId('drops').textContent = format(buildings[2][1].current); }
+            getId('drops').textContent = format(buildings[2][1].current);
             getId('clouds').textContent = format(player.vaporization.clouds);
         } else if (active === 3) {
             getId('mass').textContent = format(buildings[3][0].current);
@@ -249,8 +249,13 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 getId('maxEnergyStat').textContent = format(player.discharge.energyMax, 0);
                 getId('dischargeStat').textContent = format(player.discharge.current, 0);
                 getId('dischargeStatBonus').textContent = `[+${format(player.strangeness[1][2], 0)}]`;
-            } else if (active === 5) {
-                getId('starsStatTrue').textContent = format(global.collapseInfo.trueStars);
+            } else if (active === 2) {
+                getId('maxCloudsStat').textContent = format(player.vaporization.cloudsMax);
+            } else if (active === 4 || active === 5) {
+                getId('maxSolarMassStat').textContent = format(player.collapse.massMax);
+                if (active === 5) {
+                    getId('starsStatTrue').textContent = format(global.collapseInfo.trueStars);
+                }
             }
         }
     }
@@ -285,7 +290,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 }
                 if (upgrades[1][7] === 1) { getId('stage').style.display = ''; }
                 getId('stageReset').textContent = buildings[1][3].current >= 1.67e21 ?
-                    active === stage.current ? 'Enter next stage' : 'Reset current stage' : 'You are not ready';
+                    active === stage.current ? 'Enter next Stage' : 'Reset this Stage' : 'You are not ready';
             } else if (tab === 'settings') {
                 if (subtab.settingsCurrent === 'Settings') {
                     if (discharge.current >= 1) { getId('resetToggles').style.display = ''; }
@@ -295,7 +300,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                     getId('dischargeStatBonus').style.display = strangeness[1][2] >= 1 ? '' : 'none';
                 }
             } else if (tab === 'special') {
-                getId('invisibleGetResource1').style.display = discharge.energyMax > 0 ? '' : 'none';
+                getId('invisibleGetResource1').style.display = discharge.energyMax >= 9 ? '' : 'none';
             }
         }
     }
@@ -311,7 +316,6 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
         }
 
         if (active === 2) {
-            getId('dropStat').style.display = global.tab !== 'stage' ? '' : 'none';
             getId('cloudStat').style.display = upgrades[2][1] === 1 ? '' : 'none';
             if (tab === 'stage') {
                 getId('vaporization').style.display = upgrades[2][1] === 1 ? '' : 'none';
@@ -326,7 +330,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('upgrade6').style.display = buildings[2][4].trueTotal >= 1 ? '' : 'none';
                 getId('upgrade7').style.display = buildings[2][5].trueTotal >= 1 && strangeness[2][2] >= 3 ? '' : 'none';
                 getId('stageReset').textContent = buildings[2][1].current >= 1.194e29 ?
-                    active === stage.current ? 'Enter next stage' : 'Reset current stage' : 'You are not ready';
+                    active === stage.current ? 'Enter next Stage' : 'Reset this Stage' : 'You are not ready';
             } else if (tab === 'research') {
                 if (subtab.researchCurrent === 'Researches') {
                     getId('extraResearch').style.display = vaporization.clouds > 1 ? '' : 'none';
@@ -335,6 +339,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                     getId('research5').style.display = buildings[2][3].trueTotal >= 1 ? '' : 'none';
                     getId('research6').style.display = buildings[2][4].trueTotal >= 1 ? '' : 'none';
                     getId('researchExtra3').style.display = buildings[2][5].trueTotal >= 1 ? '' : 'none';
+                }
+            } else if (tab === 'settings') {
+                if (subtab.settingsCurrent === 'Stats') {
+                    getId('cloudsStats').style.display = upgrades[2][1] === 1 ? '' : 'none';
                 }
             } else if (tab === 'special') {
                 getId('invisibleGetResource2').style.display = upgrades[2][1] === 1 ? '' : 'none';
@@ -371,7 +379,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('building3').style.display = upgrades[3][4] === 1 ? '' : 'none';
                 getId('building4').style.display = upgrades[3][6] === 1 ? '' : 'none';
                 getId('stageReset').textContent = buildings[3][0].current >= 2.47e31 ?
-                    active === stage.current ? 'Enter next stage' : 'Reset current stage' : 'You are not ready';
+                    active === stage.current ? 'Enter next Stage' : 'Reset this Stage' : 'You are not ready';
             } else if (tab === 'research') {
                 if (subtab.researchCurrent === 'Researches') {
                     getId('stageResearch').style.display = accretion.rank >= 1 ? '' : 'none';
@@ -510,12 +518,12 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (subtab.settingsCurrent === 'Stats') {
                 getId('maxExportStats').style.display = strangeness[4][7] >= 1 ? '' : 'none';
                 getId('unknownStructures').style.display = milestones[1][0] >= 5 || milestones[2][1] >= 4 ||
-                    milestones[3][1] >= 5 || milestones[4][1] >= 5 || milestones[5][1] >= 7 ? '' : 'none';
+                    milestones[3][1] >= 5 || milestones[4][1] >= 5 || milestones[5][1] >= 8 ? '' : 'none';
                 getId('unknownStructure1').style.display = milestones[1][0] >= 5 ? '' : 'none';
                 getId('unknownStructure2').style.display = milestones[2][1] >= 4 ? '' : 'none';
                 getId('unknownStructure3').style.display = milestones[3][1] >= 5 ? '' : 'none';
                 getId('unknownStructure4').style.display = milestones[4][1] >= 5 ? '' : 'none';
-                getId('unknownStructure5').style.display = milestones[5][1] >= 7 ? '' : 'none';
+                getId('unknownStructure5').style.display = milestones[5][1] >= 8 ? '' : 'none';
             }
         }
     }
@@ -584,7 +592,7 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         global.lastResearch = [index, false, type];
 
         getId('researchText').textContent = 'Automatization for making structures.';
-        getId('researchEffect').textContent = `Will automatically make ${format(player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)')}.\n(Can make them only when have 2 times of the structure cost)`;
+        getId('researchEffect').textContent = `Will automatically make ${format(player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)')}.\n(Auto will make them, only when have 2 times of the Structure cost)`;
         getId('researchCost').textContent = player.ASR[stageIndex] === global.ASRInfo.max[stageIndex] ? 'Maxed.' :
             `${format(global.ASRInfo.cost[stageIndex])} ${stageInfo.priceName}.`;
     } else if (type === 'elements') {
@@ -723,15 +731,14 @@ export const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'u
 };
 
 export const updateRankInfo = () => {
+    if (player.stage.active !== 3) { return; }
     const { accretion } = player;
     const { accretionInfo } = global;
     const image = getId('rankImage') as HTMLImageElement;
     const name = getId('rankName') as HTMLSpanElement;
 
-    //Important Rank information
-    accretionInfo.rankCost[4] = player.events[0] ? 5e29 : 0;
-
     //Visuals
+    accretionInfo.rankCost[4] = player.events[0] ? 5e29 : 0; //Calculated before Rank reset (here it's only for visual)
     getId('rankMessage').textContent = accretion.rank === 0 ?
         'Might need more than just water... You can increase rank with Mass.' :
         'Increase it with Mass. (Return back to Dust, but unlock something new)';
@@ -801,7 +808,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     if (stage.current === 4) {
         if (player.milestones[5][0] >= 4) { stageInfo.activeAll.push(5); }
     } else if (stage.current === 5) { stageInfo.activeAll.unshift(4); }
-    for (let i = 1; i <= player.strangeness[5][0]; i++) {
+    for (let i = player.strangeness[5][0]; i >= 1; i--) {
         if (stage.current !== i) { stageInfo.activeAll.unshift(i); }
     }
     const active = stage.active;
@@ -834,14 +841,14 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
             autoUpgradesSet('upgrades');
             autoUpgradesSet('researches');
             autoUpgradesSet('researchesExtra');
-            global.automatization.elements = [];
+            autoElements(true);
             for (const s of stageInfo.activeAll) { //Does useless visualUpdateUpgrades();
                 calculateMaxLevel(0, s, 'ASR');
                 for (let i = 1; i < buildingsInfo.name[s].length; i++) { calculateBuildingsCost(i, s); }
                 for (let i = 0; i < global.researchesInfo[s].cost.length; i++) { calculateMaxLevel(i, s, 'researches'); }
                 for (let i = 0; i < global.researchesExtraInfo[s].cost.length; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
             }
-            for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) { calculateMaxLevel(i, 0, 'researchesAuto'); }
+            for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) { calculateMaxLevel(i, global.researchesAutoInfo.autoStage[i], 'researchesAuto'); }
         }
         global.lastUpgrade[1] = false;
         global.lastResearch[0] = -1;
@@ -884,6 +891,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     if (active === 5) {
         getId('solarMassStat').style.display = '';
         getId('elementStat').style.display = '';
+        getId('solarMassStats').style.display = '';
     }
     if (localStorage.getItem('theme') !== null) { getId('themeArea').style.display = ''; }
 
@@ -892,12 +900,12 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
             getId(`strangenessSection${i}`).style.display = stage.resets >= i + 3 ? '' : 'none';
         }
         if (player.strange[0].total < 1) { getId('strangenessTabBtn').style.display = 'none'; }
+        if (stageInfo.activeAll.length === 1) { getId('stageSelect').style.display = 'none'; }
     }
 
     //Prepare new stage information
     stageInfo.priceName = ['Energy', 'Drops', 'Mass', 'Elements'][Math.min(active - 1, 3)];
-
-    if (stageInfo.activeAll.includes(3)) { updateRankInfo(); }
+    updateRankInfo();
 
     for (let i = 1; i < buildingsInfo.name[active].length; i++) {
         getId(`building${i}StatName`).textContent = buildingsInfo.name[active][i];
@@ -966,7 +974,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     }
     getId('currentSwitch').textContent = stageInfo.word[active];
     if (global.screenReader) {
-        getId('invisibleBought').textContent = `Current stage is '${stageInfo.word[active]}'`;
+        getId('invisibleBought').textContent = `Current Active Stage is '${stageInfo.word[active]}'`;
         for (let i = buildingsInfo.name[active].length; i < HTMLSpecial.longestBuilding; i++) {
             getId(`invisibleGetBuilding${i}`).style.display = 'none';
         }
@@ -977,6 +985,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         getId('invisibleGetResource1').style.display = active === 1 ? '' : 'none';
         getId('invisibleGetResource2').style.display = active === 2 ? '' : 'none';
         getId('invisibleGetResource4').style.display = active === 4 ? '' : 'none';
+        getId('invisibleInformation0').style.display = stage.true >= 5 ? '' : 'none';
     }
 
     //Includes visualUpdate();

@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-
   gh-pages-deploy:
     name: Deploying to gh-pages
     runs-on: ubuntu-latest
@@ -29,7 +28,7 @@ jobs:
       - name: Move into a folder
         run: | # Please, I don't know anymore
           mkdir -p please
-          mv index.html Style.css Used_art Code.js Code.js.map discord-mark-white.svg please/
+          mv index.html Style.css Used_art Code.js Code.js.map please/
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
@@ -38,4 +37,3 @@ jobs:
           clean: true
           clean-exclude: README.md
           # Default settings should be fine (I think)
-

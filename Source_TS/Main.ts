@@ -200,7 +200,7 @@ void reLoad(true); //This will start the game
     /* Settings tab */
     getId('vaporizationInput').addEventListener('blur', () => {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 0), 'auto', 'input');
         player.vaporization.input = Number(input.value);
     });
     getId('collapseMassInput').addEventListener('blur', () => {
@@ -210,7 +210,7 @@ void reLoad(true); //This will start the game
     });
     getId('collapseStarsInput').addEventListener('blur', () => {
         const input = getId('collapseStarsInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 0), 'auto', 'input');
         player.collapse.inputS = Number(input.value);
     });
     getId('stageInput').addEventListener('blur', () => {
@@ -266,6 +266,7 @@ void reLoad(true); //This will start the game
         getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(1, 'button', 'resource'));
         getId('invisibleGetResource2').addEventListener('click', () => screenReaderSupport(2, 'button', 'resource'));
         getId('invisibleGetResource4').addEventListener('click', () => screenReaderSupport(4, 'button', 'resource'));
+        getId('invisibleInformation0').addEventListener('click', () => screenReaderSupport(0, 'button', 'information'));
     }
 
     /* Footer */
@@ -402,16 +403,8 @@ async function saveLoad(type: string) {
             if (ok?.toLowerCase() === 'delete') {
                 changeIntervals(true);
                 localStorage.clear();
-                /* These one's only updated on page reload */
-                mobileDeviceSupport();
-                screenReaderSupport(false, 'toggle', 'reload');
-                changeFontSize();
-                switchTab('stage'); //Switch back to original tab (subtabs will auto switch if tabbing into not unlocked one)
-                /* No need to remove non existing properties, because it's done on save load anyway */
-                Object.assign(player, structuredClone(playerStart));
-                player.time.started = Date.now();
-                player.time.updated = player.time.started;
-                void reLoad(true);
+                Alert('Game will auto refresh. If not then do it manually');
+                window.location.reload();
             } else if (ok !== null && ok !== '') {
                 Alert(`You wrote '${ok}', so save file wasn't deleted`);
             }

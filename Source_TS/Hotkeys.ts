@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
-import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, vaporizationAsyncReset } from './Stage';
+import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, vaporizationAsyncReset } from './Stage';
 
 export const detectHotkey = (check: KeyboardEvent) => {
     const checkEl = document.activeElement as HTMLInputElement;
@@ -50,54 +50,78 @@ export const detectHotkey = (check: KeyboardEvent) => {
     }
 
     if (!check.repeat) {
-        if (key === 'ArrowLeft' || key === 'ArrowRight') {
-            const { tabs } = global.tabList;
-            let index = tabs.indexOf(global.tab);
-            if (index === -1) { return console.error(`Tab '${global.tab}' wasn't found in the list`); }
+        if (shift) {
+            if (key === 'ArrowLeft' || key === 'ArrowRight') {
+                const { activeAll } = global.stageInfo;
+                if (activeAll.length === 1) { return; }
+                let index = activeAll.indexOf(player.stage.active);
 
-            if (key === 'ArrowLeft') {
-                do {
+                if (key === 'ArrowLeft') {
                     if (index === 0) {
-                        index = tabs.length - 1;
+                        index = activeAll.length - 1;
                     } else {
                         index--;
                     }
-                } while (!checkTab(tabs[index]));
-                switchTab(tabs[index]);
-            } else {
-                do {
-                    if (index === tabs.length - 1) {
+                    switchStage(activeAll[index]);
+                } else {
+                    if (index === activeAll.length - 1) {
                         index = 0;
                     } else {
                         index++;
                     }
-                } while (!checkTab(tabs[index]));
-                switchTab(tabs[index]);
+                    switchStage(activeAll[index]);
+                }
             }
-        } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-            if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
-            const subtabs = global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs'];
-            let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
-            if (index === -1) { return console.error(`Subtab '${global.subtab[global.tab + 'Current' as 'settingsCurrent']}' wasn't found in the list`); }
+        } else {
+            if (key === 'ArrowLeft' || key === 'ArrowRight') {
+                const { tabs } = global.tabList;
+                let index = tabs.indexOf(global.tab);
+                if (index === -1) { return console.error(`Tab '${global.tab}' wasn't found in the list`); }
 
-            if (key === 'ArrowDown') {
-                do {
-                    if (index === 0) {
-                        index = subtabs.length - 1;
-                    } else {
-                        index--;
-                    }
-                } while (!checkTab(global.tab, subtabs[index]));
-                switchTab(global.tab, subtabs[index]);
-            } else {
-                do {
-                    if (index === subtabs.length - 1) {
-                        index = 0;
-                    } else {
-                        index++;
-                    }
-                } while (!checkTab(global.tab, subtabs[index]));
-                switchTab(global.tab, subtabs[index]);
+                if (key === 'ArrowLeft') {
+                    do {
+                        if (index === 0) {
+                            index = tabs.length - 1;
+                        } else {
+                            index--;
+                        }
+                    } while (!checkTab(tabs[index]));
+                    switchTab(tabs[index]);
+                } else {
+                    do {
+                        if (index === tabs.length - 1) {
+                            index = 0;
+                        } else {
+                            index++;
+                        }
+                    } while (!checkTab(tabs[index]));
+                    switchTab(tabs[index]);
+                }
+            } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+                if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
+                const subtabs = global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs'];
+                let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
+                if (index === -1) { return console.error(`Subtab '${global.subtab[global.tab + 'Current' as 'settingsCurrent']}' wasn't found in the list`); }
+
+                if (key === 'ArrowDown') {
+                    do {
+                        if (index === 0) {
+                            index = subtabs.length - 1;
+                        } else {
+                            index--;
+                        }
+                    } while (!checkTab(global.tab, subtabs[index]));
+                    switchTab(global.tab, subtabs[index]);
+                } else {
+                    do {
+                        if (index === subtabs.length - 1) {
+                            index = 0;
+                        } else {
+                            index++;
+                        }
+                    } while (!checkTab(global.tab, subtabs[index]));
+                    switchTab(global.tab, subtabs[index]);
+                }
             }
         }
     }
