@@ -620,6 +620,7 @@ p > img {
 #logoLinks {
     display: flex;
     align-items: end;
+    column-gap: 0.6em;
 }
 
 #logoLinks > a {
@@ -638,7 +639,8 @@ p > img {
 #logoLinks > a > img {
     background-color: inherit;
     object-fit: scale-down;
-    height: unset;
+    height: 25px;
+    width: unset;
 }
 
 .saveButtonGroup {
@@ -768,7 +770,7 @@ li button {
     transform: translateX(50%);
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
-    width: min(22em, 80vw);
+    width: min(23em, 80vw);
     padding: 0.6em 0.7em 0.7em;
     margin-top: 0.5em;
     row-gap: 0.3em;
