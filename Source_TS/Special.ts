@@ -1,3 +1,4 @@
+import { overlimit } from './Limit';
 import { getClass, getId } from './Main';
 import { global, player } from './Player';
 import { format, stageCheck } from './Update';
@@ -478,8 +479,10 @@ export const changeFormat = (point: boolean) => {
     }
     if (point) {
         player.separator[1] = htmlInput.value;
+        overlimit.settings.format.point = htmlInput.value;
     } else {
         player.separator[0] = htmlInput.value;
+        overlimit.settings.format.separator = htmlInput.value;
     }
 };
 

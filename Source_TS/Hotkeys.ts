@@ -13,7 +13,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
             document.body.classList.remove('outlineOnFocus');
     }
 
-    if (check.ctrlKey || check.altKey || check.code[0] === 'F') { return; } //No buttons are using it
+    if (check.ctrlKey || check.altKey) { return; } //No buttons are using it
 
     const shift = check.shiftKey;
     const isNumber = !isNaN(Number(check.code.slice(-1)));
@@ -22,6 +22,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
 
     //These one's can be holded down
     if (isNumber) {
+        if (check.code[0] === 'F') { return; }
         const numberKey = Number(key.slice(-1));
 
         //Buildings
@@ -30,7 +31,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
         }
         return;
     } else if (check.key.length === 1) { //Maybe this could work same as a-z regex
-        const stringKey = key.slice(-1).toLowerCase();
+        const stringKey = key.replace('Key', '').toLowerCase();
 
         //Resets
         if (!shift) {

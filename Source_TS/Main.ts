@@ -3,6 +3,7 @@ import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visua
 import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, switchVacuum, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat } from './Special';
 import { detectHotkey } from './Hotkeys';
+import { overlimit } from './Limit';
 /* There can be a problem with incorrect build, imports can be called in a wrong order */
 /* Small notes for myself: (tested with many, many loops) */
 //Optimizing visualUpdate() by using if...else... won't change anything (using a = b = c, will slow it down)
@@ -51,6 +52,8 @@ export const reLoad = async(firstLoad = false) => {
     }
     checkPlayerValues(); //Has to be done after stageCheck();
 
+    overlimit.settings.format.point = player.separator[1];
+    overlimit.settings.format.separator = player.separator[0];
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
     (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
     (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];

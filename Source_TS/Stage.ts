@@ -592,8 +592,6 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
                     reset('stage', [player.strangeness[5][0]]);
                     stageCheck('soft');
                 }
-            } else if (upgrade === 1) {
-                player.stage.input *= 2;
             }
         }
         if (global.screenReader) { getId('invisibleBought').textContent = `You have increased strangeness of ${global[typeInfo][stageIndex].description[upgrade]} for ${global.stageInfo.word[stageIndex]} stage, level is now ${player[type][stageIndex][upgrade]}${player[type][stageIndex][upgrade] === global[typeInfo][stageIndex].max[upgrade] ? 'maxed' : ''}`; }
