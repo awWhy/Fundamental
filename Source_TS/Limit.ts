@@ -1,45 +1,4 @@
-/* Overlimit - awWhy's version of break infinity (or Decimal):
-    From -1e1.8e308 to 1e1.8e308; Also allows for super small numbers like (1e-30000)
-    Beyond 1e9e15 or 1 ** 10 ** maxSafeInteger, precision for exponent will decrease (multiply by 10 won't work and etc)
-    Because of floating errors at the end of calculations number is rounded to maxDigits (in settings)
-
-    Numbers can be send in these ways:
-    1.25e32 as typeof 'number' (as long it's bellow 2**1024 or Number.MAX_VALUE)
-    '1.25e32' as typeof 'string' (2ee5 is not allowed, instead send '1e2e5')
-    [1.25, 32] as typeof 'object' [number, number]
-
-    Function calls
-    > Send numbers are converted into strings, so better to use Math instead for them
-    > Received strings can be turned back into a number as long its bellow 2**1024
-    > Just in case saying: all spread arguments require at least 1 (2 if not chain) arguments, TS is just being silly
-
-    Chainable: (Limit('2').plus(1).get(); has to end with .get if you need result)
-        plus, minus, multiply, divide - These one's can take any amount of arguments
-        power, log - Power must be a number. Also log can have any (number) base and even negative
-        abs
-        less, lessOrEqual, more, moreOrEqual, notEqual, equal - Only equal allows any amount of arguments
-        max, min
-        trunc, floor, ceil, round
-        isNaN, isFinite - reacts to both parts, even if exponent is -Infinity
-
-        format - Numbers are saved as '2e1', format will transform into '20' it's only for visual
-        Really big numbers shown as '2e-e20' ('1e-2e20') or '-2ee20' ('-1e2e20')
-
-        Exclusive: (both of them trying to fix floats and Infinity)
-        get - return converted value
-        noConvert - returns non converted value (you can use it anywhere)
-
-    Non chainable: (LimitAlt.plus(2, '1'))
-        All above, but some have different rules. Returns a string
-        abs, isFinite, isNaN - Strings only, for typeof === 'number' use Math.abs or turn into a string
-
-    Won't be added:
-        sqrt or any other rootes - Use .power(0.5) instead
-        exp - I don't see the need, just use .power(Math.E, 2)
-
-    > Longer chains should give better perfomance since convertion only happens at .get
-
-    Some JS rules are altered:
+/* Some JS rules are altered:
     '1 ** Infinity', '1 ** NaN' now returns 1 instead of NaN
     '0 * Infinity', '0 * NaN' now returns 0 instead of NaN
     'Infinity / 0' now returns NaN instead of Infinity
@@ -48,9 +7,11 @@
     'log-A(-X)', 'log-A(X)' can return actual value instead of NaN (because vanila JS doesn't have negative base)
     'log0(X)', 'log1(X)' returns NaN (JS doesn't have that rule)
     Because there is 2 numbers, bigNumber can be at same time NaN and Infinity. Or even -Infinity and Infinity
-
-    Can change some settings in overlimit.settings
 */
+
+import { getId } from './Main';
+import { player } from './Player';
+import { format } from './Update';
 
 /* Planned features:
     TS: Add proper type to an object (probably no, too much pain)
@@ -64,20 +25,8 @@
     NonChainableFunctions: special setting to return array instead of string
 */
 
+/* This is version has all settings removed (for better speed) */
 export const overlimit = {
-    settings: {
-        maxDigits: 12, //How many digits should be preserved when turning number into a string
-        minDigits: 0, //When exponent is bigger than 1000 (format.maxPower)
-        format: {
-            //Calling function with type === 'input', will ignore point and separator, also number never turned into 1ee2
-            digits: [4, 2], //Digits past point [max, min]
-            //padding: true, //Will add missing digits at numbers bigger than 1e6 (1.00e6)
-            power: [6, -3], //When convert into: example 1000000 > 1e6; [+, -]
-            maxPower: [1e3, -1e3], //When convert into: 1e2345 > 2ee3; [+, -] (power is never formated)
-            point: '.', //What should be used instead of dot; example 1.21 > 1,21
-            separator: '' //What should be used as a thousand separator; example 1200 > 1 200
-        }
-    },
     Limit: (number: string | number | [number, number]) => {
         const { technical } = overlimit;
         let result = technical.convert(number);
@@ -324,7 +273,7 @@ export const overlimit = {
         //Main calculations
         add: (left: [number, number], right: [number, number]): [number, number] => {
             const difference = left[1] - right[1];
-            if (Math.abs(difference) >= overlimit.settings.maxDigits) {
+            if (Math.abs(difference) >= 12) {
                 return difference > 0 ? left : right; //NaN will go into block bellow
             } else {
                 if (difference === 0) {
@@ -555,11 +504,10 @@ export const overlimit = {
         format: (left: [number, number], digits: number | null, type: 'number' | 'input'): string => {
             const [base, power] = left;
             if (!isFinite(base) || !isFinite(power)) { return overlimit.technical.convertBack(left); }
-            const { format: settings } = overlimit.settings;
 
             //1.23ee123 (-1.23e-e123)
-            if ((power >= settings.maxPower[0] || power < settings.maxPower[1]) && type !== 'input') {
-                if (digits === null) { digits = settings.digits[1]; }
+            if ((power >= 1e3 || power < -1e3) && type !== 'input') {
+                if (digits === null) { digits = 2; }
                 let exponent = Math.floor(Math.log10(Math.abs(power)));
                 let result = Math.abs(Math.round(power / 10 ** (exponent - digits)) / 10 ** digits);
                 if (result >= 10) {
@@ -567,28 +515,32 @@ export const overlimit = {
                     exponent++;
                 }
                 if (base < 0) { result *= -1; }
-                const formated = `${result}`.replace('.', settings.point);
+                const formated = `${result}`.replace('.', player.separator[1]);
 
                 return `${formated}e${power < 0 ? '-' : ''}e${exponent}`;
             }
 
             //1.23e123
-            if (power >= settings.power[0] || power < settings.power[1]) {
-                if (digits === null) { digits = settings.digits[1]; }
+            if (power >= 6 || power < -3) {
+                if (digits === null) { digits = 2; }
                 let formated = `${Math.round(base * 10 ** digits) / 10 ** digits}`;
-                if (type !== 'input') { formated = formated.replace('.', settings.point); }
+                if (type !== 'input') { formated = formated.replace('.', player.separator[1]); }
 
                 return `${formated}e${power}`;
             }
 
             //12345
-            if (digits === null) { digits = settings.digits[0]; }
-            if (power >= 3 && digits > 2) { digits = 2; }
+            if (digits === null) { digits = 4; }
+            if (power >= 3) {
+                digits = 0;
+            } else if (power >= 0) {
+                digits = 2;
+            }
 
             let formated = `${Math.round(base * 10 ** (digits + power)) / 10 ** digits}`;
             if (type !== 'input') {
-                formated = formated.replace('.', settings.point);
-                if (power >= 3) { formated = formated.replace(/\B(?=(\d{3})+(?!\d))/g, settings.separator); }
+                formated = formated.replace('.', player.separator[1]);
+                if (power >= 3) { formated = formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]); }
             }
 
             return formated;
@@ -640,10 +592,9 @@ export const overlimit = {
                 return [isNaN(number[0]) || isNaN(number[1]) ? NaN : number[0] < 0 ? -Infinity : Infinity, 0];
             }
 
-            const { settings } = overlimit;
             const digits = number[1] >= 0 ?
-                (number[1] >= settings.format.maxPower[0] ? settings.minDigits : settings.maxDigits) :
-                (number[1] <= settings.format.maxPower[1] ? settings.minDigits : settings.maxDigits);
+                (number[1] >= 1e3 ? 0 : 12) :
+                (number[1] <= 1e-3 ? 0 : 12);
             number[0] = Math.round(number[0] * 10 ** digits) / 10 ** digits;
 
             return number; //number[0] can become >= 10, but convert will fix it before being used again
@@ -663,29 +614,228 @@ export const overlimit = {
 export const { Limit, LimitAlt } = overlimit;
 export default Limit;
 
-/* Some alternative old functions */
+/* Remove once tested */
 
-//Calculate power 2 times slower, but with higher accuracy (?)
-//Need a lot of safe guards (this is short version), also it was first version that I figured out
-/*  let maxPower = Math.log(1e307) / Math.log(left[0]);
-    if (Math.abs(power) >= maxPower) {
-        do {
-            power /= maxPower;
-            left[1] *= maxPower;
-            left[0] **= maxPower;
-            const gainedPower = Math.floor(Math.log10(left[0]));
-            left[1] += gainedPower;
-            left[0] /= 10 ** gainedPower;
-            maxPower = Math.log(1e307) / Math.log(left[0]);
-        } while (Math.abs(power) >= maxPower);
-    }
-    left[1] *= power;
-    left[0] **= power; */
-//I got current formula for power from looking at maxPower formula...
+const created = false;
+export const createCalculator = () => {
+    if (created) { return; }
 
-//Quicker Logarith, but less safe for really big exponents (1e300)
-//Got it from combining these > logA(X) = logB(X) / logB(A); and logA(X) = 1 / logX(A);
-//To get > logX(A) = logB(A) / logB(X); Where B can be any number, but was taken as 10
-/*  const base10 = Math.log10(left[0]) + left[1];
-    left = base === 10 ? [base10, 0] : [base10 / Math.log10(base), 0]; */
-//Current formula is just changed order of stuff
+    getId('settingsSubtabDebug').innerHTML =
+    `<div class="insideTab" style="flex-flow: column;">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <p class="bigWord redText">This is testing area for break infinity calculator</p>
+            <span class="greenText">Since I created it myself there might be a lot of bugs</span>
+            <span class="greenText">If you have time you can test it, while I'm work on main game</span>
+        </div>
+        <div style="align-self: center;">
+            <div class="darkorchidText" style="display: flex; column-gap: 0.6em;">
+                <p>Current Math answer</p>
+                <span id="oldMath" style="border: 2px solid; width: 7em; text-align: center;"></span>
+            </div>
+            <div class="darkvioletText" style="display: flex; column-gap: 0.6em; margin-top: 0.2em;">
+                <p>New Math answer</p>
+                <span id="newMath" style="border: 2px solid; width: 7em; text-align: center;"></span>
+            </div>
+        </div>
+        <div style="align-self: center;">
+            <div>
+                <label for="firstNumber" class="cyanText">First Number</label>
+                <input type="text" id="firstNumber" style="margin-left: 1em; width: 10em;">
+            </div>
+            <div>
+                <label for="secondNumber" class="cyanText">Second number</label>
+                <input type="text" id="secondNumber" style="margin-left: 1em; margin-top: 0.2em; width: 10em;">
+            </div>
+        </div>
+        <div>
+            <p class="orchidText">Choose what to do with numbers</p>
+            <div style="display: flex; flex-wrap: wrap; column-gap: 0.25em;">
+                <button id="plus" style="width: 1.5em;">+</button>
+                <button id="minus" style="width: 1.5em;">-</button>
+                <button id="mult" style="width: 1.5em;">*</button>
+                <button id="div" style="width: 1.5em;">/</button>
+                <button id="pow" style="width: 1.5em;" title="Second number must be bellow 2^1024">^</button>
+                <button id="log" style="width: 2.5em;" title="Second number is base, also must be bellow 2^1024">log</button>
+                <button id="abs" style="width: 2em;" title="Removes minus. First number only">|x|</button>
+                <button id="Inf" style="width: 5.5em;" title="Check if number is finite (not Infinity or NaN). First number only">Is Finite</button>
+                <button id="NaN" style="width: 4em;" title="Check if number is NaN (Not a Number). First number only">Is NaN</button>
+                <button id="more" style="width: 1.5em;">&gt</button>
+                <button id="moreEqual" style="width: 2em;">&gt=</button>
+                <button id="less" style="width: 1.5em;">&lt</button>
+                <button id="lessEqual" style="width: 2em;">&lt=</button>
+                <button id="equal" style="width: 2em;">==</button>
+                <button id="notEqual" style="width: 2em;">!=</button>
+                <button id="trunc" style="width: 3.5em;" title="Remove all digits past point. First number only">Trunc</button>
+                <button id="floor" style="width: 3.5em;" title="Bring number to closest smallest integer. First number only">Floor</button>
+                <button id="ceil" style="width: 4em;" title="Bring number to biggest smallest integer. First number only">Ceiling</button>
+                <button id="round" style="width: 4em;" title="Bring number to closest integer. First number only">Round</button>
+            </div>
+        </div>
+    </div>`;
+    getId('plus').addEventListener('click', doPlus);
+    getId('minus').addEventListener('click', doMinus);
+    getId('mult').addEventListener('click', doMult);
+    getId('div').addEventListener('click', doDiv);
+    getId('pow').addEventListener('click', doPow);
+    getId('log').addEventListener('click', doLog);
+    getId('abs').addEventListener('click', doAbs);
+    getId('Inf').addEventListener('click', doInf);
+    getId('NaN').addEventListener('click', doNaN);
+    getId('more').addEventListener('click', doMore);
+    getId('moreEqual').addEventListener('click', doMoreEqual);
+    getId('less').addEventListener('click', doLess);
+    getId('lessEqual').addEventListener('click', doLessEqual);
+    getId('equal').addEventListener('click', doEqual);
+    getId('notEqual').addEventListener('click', doNotEqual);
+    getId('trunc').addEventListener('click', doTrunc);
+    getId('floor').addEventListener('click', doFloor);
+    getId('ceil').addEventListener('click', doCeil);
+    getId('round').addEventListener('click', doRound);
+};
+
+const doPlus = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Number(inputFirst) + Number(inputSecond));
+    newMath.textContent = Limit(inputFirst).plus(inputSecond).format();
+};
+const doMinus = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Number(inputFirst) - Number(inputSecond));
+    newMath.textContent = Limit(inputFirst).minus(inputSecond).format();
+};
+const doMult = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Number(inputFirst) * Number(inputSecond));
+    newMath.textContent = Limit(inputFirst).multiply(inputSecond).format();
+};
+const doDiv = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Number(inputFirst) / Number(inputSecond));
+    newMath.textContent = Limit(inputFirst).divide(inputSecond).format();
+};
+const doPow = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Number(inputFirst) ** Number(inputSecond));
+    newMath.textContent = Limit(inputFirst).power(Number(inputSecond)).format();
+};
+const doLog = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    const logAny = (number: number, base: number) => Math.log(number) / Math.log(base);
+    oldMath.textContent = format(logAny(Number(inputFirst), Number(inputSecond)));
+    newMath.textContent = Limit(inputFirst).log(Number(inputSecond)).format();
+};
+const doAbs = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Math.abs(Number(inputFirst)));
+    newMath.textContent = Limit(inputFirst).abs().format();
+};
+const doInf = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${isFinite(Number(inputFirst))}`;
+    newMath.textContent = `${Limit(inputFirst).isFinite()}`;
+};
+const doNaN = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${isNaN(Number(inputFirst))}`;
+    newMath.textContent = `${Limit(inputFirst).isNaN()}`;
+};
+const doMore = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) > Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).more(inputSecond)}`;
+};
+const doMoreEqual = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) >= Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).moreOrEqual(inputSecond)}`;
+};
+const doLess = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) < Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).less(inputSecond)}`;
+};
+const doLessEqual = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) <= Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).lessOrEqual(inputSecond)}`;
+};
+const doEqual = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) === Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).equal(inputSecond)}`;
+};
+const doNotEqual = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const inputSecond = (getId('secondNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = `${Number(inputFirst) !== Number(inputSecond)}`;
+    newMath.textContent = `${Limit(inputFirst).notEqual(inputSecond)}`;
+};
+const doTrunc = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Math.trunc(Number(inputFirst)));
+    newMath.textContent = Limit(inputFirst).trunc().format();
+};
+const doFloor = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Math.floor(Number(inputFirst)));
+    newMath.textContent = Limit(inputFirst).floor().format();
+};
+const doCeil = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Math.ceil(Number(inputFirst)));
+    newMath.textContent = Limit(inputFirst).ceil().format();
+};
+const doRound = () => {
+    const inputFirst = (getId('firstNumber') as HTMLInputElement).value;
+    const oldMath = getId('oldMath');
+    const newMath = getId('newMath');
+    oldMath.textContent = format(Math.round(Number(inputFirst)));
+    newMath.textContent = Limit(inputFirst).round().format();
+};

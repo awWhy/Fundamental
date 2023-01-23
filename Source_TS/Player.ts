@@ -263,9 +263,9 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     tabList: { //Tabs and subtab need to be in same order as in footer
         /* Subtabs format must be: [subtabName] + 'Subtabs' */
-        tabs: ['stage', 'research', 'strangeness', 'settings', 'special'],
+        tabs: ['stage', 'research', 'strangeness', 'settings', 'special'], //'special' must be last
         stageSubtabs: ['Structures', 'Advanced'],
-        settingsSubtabs: ['Settings', 'Stats'],
+        settingsSubtabs: ['Settings', 'Stats', 'Debug'],
         researchSubtabs: ['Researches', 'Elements'],
         strangenessSubtabs: ['Matter', 'Milestones']
     },

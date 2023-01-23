@@ -3,7 +3,7 @@ import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visua
 import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, switchVacuum, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat } from './Special';
 import { detectHotkey } from './Hotkeys';
-import { overlimit } from './Limit';
+import { createCalculator } from './Limit';
 /* There can be a problem with incorrect build, imports can be called in a wrong order */
 /* Small notes for myself: (tested with many, many loops) */
 //Optimizing visualUpdate() by using if...else... won't change anything (using a = b = c, will slow it down)
@@ -52,8 +52,6 @@ export const reLoad = async(firstLoad = false) => {
     }
     checkPlayerValues(); //Has to be done after stageCheck();
 
-    overlimit.settings.format.point = player.separator[1];
-    overlimit.settings.format.separator = player.separator[0];
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
     (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
     (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];
@@ -64,6 +62,8 @@ export const reLoad = async(firstLoad = false) => {
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
     toggleBuy(); //Also numbersUpdate();
+
+    createCalculator(); //Remove once done
 
     if (firstLoad && !player.toggles.normal[0]) {
         const offlineTime = Date.now() - player.time.updated;
@@ -274,20 +274,13 @@ void reLoad(true); //This will start the game
 
     /* Footer */
     getId('hideToggle').addEventListener('click', hideFooter);
-    getId('stageTabBtn').addEventListener('click', () => switchTab('stage'));
-    getId('researchTabBtn').addEventListener('click', () => switchTab('research'));
-    getId('strangenessTabBtn').addEventListener('click', () => switchTab('strangeness'));
-    getId('settingsTabBtn').addEventListener('click', () => switchTab('settings'));
-
-    /* Subtabs */
-    getId('stageSubtabBtnStructures').addEventListener('click', () => switchTab('stage', 'Structures'));
-    getId('stageSubtabBtnAdvanced').addEventListener('click', () => switchTab('stage', 'Advanced'));
-    getId('researchSubtabBtnResearches').addEventListener('click', () => switchTab('research', 'Researches'));
-    getId('researchSubtabBtnElements').addEventListener('click', () => switchTab('research', 'Elements'));
-    getId('settingsSubtabBtnSettings').addEventListener('click', () => switchTab('settings', 'Settings'));
-    getId('settingsSubtabBtnStats').addEventListener('click', () => switchTab('settings', 'Stats'));
-    getId('strangenessSubtabBtnMatter').addEventListener('click', () => switchTab('strangeness', 'Matter'));
-    getId('strangenessSubtabBtnMilestones').addEventListener('click', () => switchTab('strangeness', 'Milestones'));
+    const tabList = global.tabList.tabs.slice(0, -1);
+    for (const tabText of tabList) {
+        getId(`${tabText}TabBtn`).addEventListener('click', () => switchTab(tabText));
+        for (const subtabText of global.tabList[tabText + 'Subtabs' as 'stageSubtabs']) {
+            getId(`${tabText}SubtabBtn${subtabText}`).addEventListener('click', () => switchTab(tabText, subtabText));
+        }
+    }
 
     /* Stages */
     for (let i = 1; i < global.stageInfo.word.length; i++) {
