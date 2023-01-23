@@ -760,18 +760,19 @@ export const updateRankInfo = () => {
 
 export const format = (input: number | string, precision = 'auto' as 'auto' | number, type = 'number' as 'number' | 'input' | 'time'): string => {
     if (typeof input !== 'number') { return input; } //String's are being send here (for a reason)
-    if (precision === 'auto') { precision = input < 1e3 ? (input < 1 ? 4 : 2) : 0; }
+    const inputAbs = Math.abs(input);
+    if (precision === 'auto') { precision = inputAbs < 1e3 ? (inputAbs < 1 ? 4 : 2) : 0; }
 
     switch (type) { //toLocaleString() is banned, I don't want that slowness and weird behavior
         case 'input':
         case 'number':
             if (!isFinite(input)) { return 'Infinity'; }
-            if (input >= 1e6 || (input < 1e-3 && input > 0)) { //Format for these cases
-                let digits = Math.floor(Math.log10(input));
+            if (inputAbs >= 1e6 || (inputAbs < 1e-3 && inputAbs > 0)) { //Format for these cases
+                let digits = Math.floor(Math.log10(inputAbs));
                 let endValue = Math.round(input / 10 ** (digits - 2)) / 100;
-                if (endValue === 10) {
-                    endValue = 1;
-                    digits += 1;
+                if (Math.abs(endValue) >= 10) {
+                    endValue /= 10;
+                    digits++;
                 }
                 if (type === 'input') { return `${endValue}e${digits}`; }
                 return `${(`${endValue}`).replace('.', player.separator[1])}e${digits}`;
