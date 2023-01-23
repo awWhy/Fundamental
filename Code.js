@@ -75,7 +75,7 @@ Continue?`),s=await T(o)}if(s&&(Ge(),i.screenReader)){let r=`Your Mass has incre
                 <button id="pow" style="width: 1.5em;" title="Second number must be bellow 2^1024">^</button>
                 <button id="log" style="width: 2.5em;" title="Second number is base, also must be bellow 2^1024">log</button>
                 <button id="abs" style="width: 2em;" title="Removes minus. First number only">|x|</button>
-                <button id="Inf" style="width: 5.5em;" title="Check if number is finite. First number only">Is Infinity</button>
+                <button id="Inf" style="width: 5.5em;" title="Check if number is finite (not Infinity or NaN). First number only">Is Finite</button>
                 <button id="NaN" style="width: 4em;" title="Check if number is NaN (Not a Number). First number only">Is NaN</button>
                 <button id="more" style="width: 1.5em;">&gt</button>
                 <button id="moreEqual" style="width: 2em;">&gt=</button>
