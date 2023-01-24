@@ -1,4 +1,5 @@
 import { globalType, playerType } from './Types';
+import { format } from './Update';
 console.time('Game loaded in'); //Just for fun (end is in Main.ts file)
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
@@ -400,7 +401,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         extraGain: 0,
         stageBoost: [null, null, null, null, null, null]
     },
-    //Effect text = '[0]' + effect[n] + '[1]'; Unless effect[n] === null, then text = '[0]' (effect is not null only if can change)
+    //Effect is null if it can't change
     //Research cost, only allows 2 digits after a dot (example: 0.123 = 0.12)
     //Stage 3 / 4 need extra information in rankInfo / collapseInfo
     upgradesInfo: [
@@ -423,14 +424,14 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Nuclear fusion. More Energy.'
             ],
             effectText: [
-                ['Particle cost is 10 times cheaper.'],
-                ['Particles produce 10 times more Quarks.'],
-                ['Atoms produce 5 times more Particles.'],
-                ['Ability to reset at any time, and if had enough Energy, then production for all structures will also be boosted by ', ' times.'],
-                ['Cost scaling is decreased by ', '.'],
-                ['Structures (only self-made one\'s) boost themselves by ', ' times.'],
-                ['Molecules produce Molecules. At a reduced rate. (', ' per second)'],
-                ['Unspent Energy boost Molecules production of themselves 1 to 1.']
+                () => 'Particle cost is 10 times cheaper.',
+                () => 'Particles produce 10 times more Quarks.',
+                () => 'Atoms produce 5 times more Particles.',
+                () => `Ability to reset at any time, and if had enough Energy, then production for all structures will also be boosted by ${format(global.upgradesInfo[1].effect[3] as number)} times.`,
+                () => `Cost scaling is decreased by ${format(global.upgradesInfo[1].effect[4] as number)}.`,
+                () => `Structures (only self-made one\'s) boost themselves by ${format(global.upgradesInfo[1].effect[5] as number)} times.`,
+                () => `Molecules produce Molecules. At a reduced rate. (${format(global.upgradesInfo[1].effect[6] as number)} per second)`,
+                () => 'Unspent Energy boost Molecules production of themselves 1 to 1.'
             ],
             effect: [null, null, null, 4, 0.2, 1.01, 0, null],
             startCost: [9, 12, 36, 300, 800, 2000, 8000, 30000],
@@ -446,13 +447,13 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Tsunami. Spreads water too fast.'
             ],
             effectText: [
-                ['Drops will produce Moles even more for every self-made Drops.'],
-                ['Gain ability to convert Drops into Clouds. (Puddles get a boost equal to Cloud amount)'],
-                ['Puddles get boost based on Moles. (Equal to Moles ^ ', ')'],
-                ['Puddles get boost based on Drops. (Equal to Drops ^ ', ')'],
-                ['Ponds do not produce Puddles, instead they only improve them.\nThis upgrade will create extra Puddles for every Pond. (', ' extra Puddles per Pond)'],
-                ['Lakes now create extra Ponds. (', ' extra Ponds per Lake)'],
-                ['Each Sea creates 1 extra Lake.']
+                () => 'Drops will produce Moles even more for every self-made Drops.',
+                () => 'Gain ability to convert Drops into Clouds. (Puddles get a boost equal to Cloud amount)',
+                () => `Puddles get boost based on Moles. (Equal to Moles ^ ${format(global.upgradesInfo[2].effect[2] as number)})`,
+                () => `Puddles get boost based on Drops. (Equal to Drops ^ ${format(global.upgradesInfo[2].effect[3] as number)})`,
+                () => `Ponds do not produce Puddles, instead they only improve them.\nThis upgrade will create extra Puddles for every Pond. (${format(global.upgradesInfo[2].effect[3] as number)} extra Puddles per Pond)`,
+                () => `Lakes now create extra Ponds. (${format(global.upgradesInfo[2].effect[4] as number)} extra Ponds per Lake)`,
+                () => 'Each Sea creates 1 extra Lake.'
             ],
             effect: [null, null, 0.02, 0.02, 1, 1, null],
             startCost: [1e4, 1e10, 1000, 10000, 2e9, 5e20, 1e28],
@@ -474,21 +475,21 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Ring system.'
             ],
             effectText: [
-                ['Through random collisions every self-made Dust speeds up Accretion speed. (By ', ')'],
-                ['Accretion speed is now quicker based on current Dust amount. (', ' boost)'],
-                ['Just a small meteoroid, but it will be a good base for what to come. (Also 2x boost to Dust)'],
-                ['Small bodies spontaneously concentrate into clumps. (Self-made Planetesimals boost each other by ', ')'], //Effect here only needs format
-                ['Bodies are now massive enough to affect each other with gravity. (4x boost to Planetesimals)'],
-                ['Shattered pieces fall back together. Mass production is now even bigger. (By 3x)'],
-                ['Unlocks yet another structure.'],
-                ['Core melted, Accretion speed increased. (Mass production increased by ', ')'],
-                ['After reaching equilibrium, Protoplanets will boost themselfs, more with each self-made one.'],
-                ['Accretion speed increased again (because of drag and escape velocity), by 2.'],
-                ['Accretion speed greatly increased by ', '.'],
-                ['Satellites scaling cost is now 2 times smaller.'],
-                ['Satellites effect scales better.']
+                () => `Through random collisions every self-made Dust speeds up Accretion speed. (By ${format(global.upgradesInfo[3].effect[0] as number)})`,
+                () => `Accretion speed is now quicker based on current Dust amount. (${format(global.upgradesInfo[3].effect[1] as number)} boost)`,
+                () => 'Just a small meteoroid, but it will be a good base for what to come. (Also 2x boost to Dust)',
+                () => `Small bodies spontaneously concentrate into clumps. (Self-made Planetesimals boost each other by ${format(1.02)})`,
+                () => 'Bodies are now massive enough to affect each other with gravity. (4x boost to Planetesimals)',
+                () => 'Shattered pieces fall back together. Mass production is now even bigger. (By 3x)',
+                () => 'Unlocks yet another structure.',
+                () => `Core melted, Accretion speed increased. (Mass production increased by ${format(global.upgradesInfo[3].effect[7] as number)})`,
+                () => 'After reaching equilibrium, Protoplanets will boost themselfs, more with each self-made one.',
+                () => 'Accretion speed increased again (because of drag and escape velocity), by 2.',
+                () => `Accretion speed greatly increased by ${format(global.upgradesInfo[3].effect[10] as number)}.`,
+                () => 'Satellites scaling cost is now 2 times smaller.',
+                () => 'Satellites effect scales better.'
             ],
-            effect: [1.01, 0, null, 1.02, null, null, null, 2, null, null, 10, null, null],
+            effect: [1.01, 0, null, null, null, null, null, 2, null, null, 10, null, null],
             startCost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e22, 1e23, 1e9, 1e26, 1e29],
             cost: []
         }, { //Stage 4
@@ -499,10 +500,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Helium fusion.'
             ],
             effectText: [
-                ['As fuel runs out, each star will boost production in its own special way.'],
-                ['Fuse with Protium instead of Deuterium. Unlocks a new structure and something else.\n(Somewhere in Research tab)'],
-                ['CNO cycle is now a better source of Helium and Energy. Unlocks a new structure and more of something else.'],
-                ['Through Triple-alpha and then Alpha process, unlock a few more Elements.']
+                () => 'As fuel runs out, each star will boost production in its own special way.',
+                () => 'Fuse with Protium instead of Deuterium. Unlocks a new Structure and something else.\n(Somewhere in Research tab)',
+                () => 'CNO cycle is now a better source of Helium and Energy. Unlocks a new Structure and more of something else.',
+                () => 'Through Triple-alpha and then Alpha process, unlock a few more Elements.'
             ],
             effect: [null, null, null, null],
             startCost: [100, 1000, 1e9, 1e50],
@@ -514,11 +515,11 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Quasar'
             ],
             effectText: [
-                ['Gravitational collapse within Nebulas will increase speed for production of Stars by ', ' times.'],
-                ['A very massive Star clusters, that will boost Stars by ', '.'],
-                ['Nickel Element receives super boost of ^', '.'] //Effect here only needs format
+                () => `Gravitational collapse within Nebulas will increase speed for production of Stars by ${format(global.upgradesInfo[5].effect[0] as number)} times.`,
+                () => `A very massive Star clusters, that will boost Stars by ${format(global.upgradesInfo[5].effect[1] as number)}.`,
+                () => `Nickel Element receives super boost of ^${format(1.5)}.`
             ],
-            effect: [4, 6, 1.5],
+            effect: [4, 6, null],
             startCost: [1e50, 1e60, 1e100],
             cost: []
         }
@@ -543,14 +544,14 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Radioactive Discharge.'
             ],
             effectText: [
-                ['Cost scaling is ', ' smaller for each level.'], //Effect here only needs format
-                ['Each self-made structure, boost each other by additional ', '.'], //Effect here only needs format
-                ['Molecules now produce themselves ', ' times quicker.'],
-                ['Next goal for Discharge bonus scales by -1 less.'],
-                ['Discharge is now provides 2 times bigger bonus per reached goal.'],
-                ["Discharge will boost 'Tritium' upgrade for every reached goal + 1."]
+                () => `Cost scaling is ${format(0.01)} smaller for each level.`,
+                () => `Each self-made structure, boost each other by additional ${format(0.01)}.`,
+                () => `Molecules now produce themselves ${format(global.researchesInfo[1].effect[2] as number)} times quicker.`,
+                () => 'Next goal for Discharge bonus scales by -1 less.',
+                () => 'Discharge is now provides 2 times bigger bonus per reached goal.',
+                () => "Discharge will boost 'Tritium' upgrade for every reached goal + 1."
             ],
-            effect: [0.01, 0.01, 12, null, null, null],
+            effect: [null, null, 12, null, null, null],
             startCost: [1000, 3000, 12000, 6000, 10000, 20000],
             scaling: [500, 2000, 2000, 26000, 0, 5000],
             max: [9, 3, 9, 2, 1, 3],
@@ -565,14 +566,14 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Distributary channel.'
             ],
             effectText: [
-                ['Drops produce 3 times more Moles.'],
-                ['Bonus to structures is now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.'],
-                ['Surface tension upgrade is now +', ' stronger.'], //Effect here only needs format
-                ['Surface stress upgrade is now +', ' stronger.'], //Effect here only needs format
-                ['With more streams, can have even more extra Puddles. (+1 extra Puddles per Pond)'],
-                ['Rivers can split now, that allows even more Ponds per Lake. (+1 per)']
+                () => 'Drops produce 3 times more Moles.',
+                () => 'Bonus to structures is now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.',
+                () => `Surface tension upgrade is now +${format(0.02)} stronger.`,
+                () => `Surface stress upgrade is now +${format(0.03)} stronger.`,
+                () => 'With more streams, can have even more extra Puddles. (+1 extra Puddles per Pond)',
+                () => 'Rivers can split now, that allows even more Ponds per Lake. (+1 per)'
             ],
-            effect: [null, null, 0.02, 0.03, null, null],
+            effect: [null, null, null, null, null, null],
             startCost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
             scaling: [1.2, 1000, 1000, 10000, 1000, 100],
             max: [9, 2, 3, 3, 2, 2],
@@ -589,16 +590,16 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Aerodynamic drag.'
             ],
             effectText: [
-                ['Dust production is increased by 3.'],
-                ['Dust particles cling to each other. (+', " to 'Brownian motion')"], //Effect here only needs format
-                ['Planetesimals produce more Dust. (3 times more)'],
-                ['Slow encounter velocities will result in a more efficient growth, so this research will make bodies lose more energy with each deflection. Mass production increased by 2.'],
-                ['Some Planetesimals instead of shattering form a contact binary or even trinary. Planetesimals production boosted by 5x.'],
-                ['Planetesimals attract other bodies with own gravity. Planetesimals get boost to production based on unspent Mass.\n(Total boost: ', ')'],
-                ["'Magma Ocean' upgrade is stronger now. (", 'x times)'], //Effect here only needs format
-                ["Accretion speed for 'Pebble accretion' increased again, by 3."]
+                () => 'Dust production is increased by 3.',
+                () => `Dust particles cling to each other. (+${format(0.01)} to 'Brownian motion')`,
+                () => 'Planetesimals produce more Dust. (3 times more)',
+                () => 'Slow encounter velocities will result in a more efficient growth, so this research will make bodies lose more energy with each deflection. Mass production increased by 2.',
+                () => 'Some Planetesimals instead of shattering form a contact binary or even trinary. Planetesimals production boosted by 5x.',
+                () => `Planetesimals attract other bodies with own gravity. Planetesimals get boost to production based on unspent Mass.\n(Total boost: ${format(global.researchesInfo[3].effect[5] as number)})`,
+                () => `'Magma Ocean' upgrade is stronger now. (${format(1.5)}x times)`,
+                () => "Accretion speed for 'Pebble accretion' increased again, by 3."
             ],
-            effect: [null, 0.01, null, null, null, 0, 1.5, null],
+            effect: [null, null, null, null, null, 0, null, null],
             startCost: [1e-14, 1e-15, 1e-5, 1e5, 1e10, 1e15, 1e13, 1e12],
             scaling: [11, 111, 22, 10, 100, 10, 100000, 1000],
             max: [7, 3, 9, 4, 2, 5, 3, 3],
@@ -611,10 +612,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Planetary nebula.'
             ],
             effectText: [
-                ['From Planetesimals to Planets, will get ', 'x boost to all Stars.'],
-                ['Each Star boost another Star. (Total to each Star is ', 'x)'],
-                ["Improve effect of 'Planetary system', as well increases its max level by +3."],
-                ['Matter expelled from Red giants, but get 10x boost to Main-sequence stars anyway.']
+                () => `From Planetesimals to Planets, will get ${format(global.researchesInfo[4].effect[0] as number)}x boost to all Stars.`,
+                () => `Each Star boost another Star. (Total to each Star is ${format(global.researchesInfo[4].effect[1] as number)}x)`,
+                () => "Improve effect of 'Planetary system', as well increases its max level by +3.",
+                () => 'Matter expelled from Red giants, but get 10x boost to Main-sequence stars anyway.'
             ],
             effect: [1.1, 1, null, null],
             startCost: [1000, 50000, 1e8, 1e12],
@@ -627,10 +628,16 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Type frequency.'
             ],
             effectText: [
-                ['Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ', '.'],
-                ['More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ', '.']
+                () => {
+                    const index = Math.min(player.researches[5][0] + 2, 4);
+                    return `Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`
+                },
+                () => {
+                    const index = Math.max(3 - player.researches[5][1], 1);
+                    return `More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`
+                }
             ],
-            effect: ['Main sequence', 'Red supergiants'],
+            effect: [null, null],
             startCost: [1e40, 1e55],
             scaling: [1e20, 1e15],
             max: [3, 3],
@@ -663,9 +670,9 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Storm Clouds.'
             ],
             effectText: [
-                ['Clouds will now use total produced Drops instead, when formed.'],
-                ['Some Clouds will start pouring Drops themselves. (', ' per second)'],
-                ['Seas get a boost based on amount of Clouds. (Equal to ', ')']
+                () => 'Clouds will now use total produced Drops instead, when formed.',
+                () => `Some Clouds will start pouring Drops themselves. (${format(global.researchesExtraInfo[2].effect[1] as number)} per second)`,
+                () => `Seas get a boost based on amount of Clouds. (Equal to ${format(global.researchesExtraInfo[2].effect[2] as number)})`
             ],
             effect: [null, 0, 0],
             startCost: [1e16, 1e13, 1e26],
@@ -680,10 +687,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Viscosity.'
             ],
             effectText: [
-                ['Dust production is increased by another ', '.'],
-                ['Accretion speed is even quicker. Multiplied by current rank. (Total boost to Dust: ', ')'],
-                ["'Gravitational field' upgrade will boost Protoplanets now as well. (Only half of effect)"],
-                ["'Gas' upgrade is now stronger."]
+                () => `Dust production is increased by another ${format(global.researchesExtraInfo[3].effect[0] as number)}.`,
+                () => `Accretion speed is even quicker. Multiplied by current rank. (Total boost to Dust: ${format(global.researchesExtraInfo[3].effect[1] as number)})`,
+                () => "'Gravitational field' upgrade will boost Protoplanets now as well. (Only half of effect)",
+                () => "'Gas' upgrade is now stronger."
             ],
             effect: [0, 0, null, null],
             startCost: [1e-18, 1e-16, 1e26, 1e-12],
@@ -696,10 +703,13 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'White dwarfs.'
             ],
             effectText: [
-                ['', ' Stars are now creating something new, upon collapse reset.'],
-                ['Red giants are turning into White dwarfs, which caused Main-sequence to produce quicker. (Times square root of Red giants)']
+                () => {
+                    const index = Math.min(player.researchesExtra[4][0] + 2, 4);
+                    return `${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(Unknown)'} Stars are now creating something new, upon collapse reset.`
+                },
+                () => 'Red giants are turning into White dwarfs, which caused Main-sequence to produce quicker. (Times square root of Red giants)'
             ],
-            effect: ['Main sequence', null],
+            effect: [null, null],
             startCost: [1e6, 1e50],
             scaling: [1e12, 0],
             max: [3, 1],
@@ -721,11 +731,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             'Automatic upgrades.'
         ],
         effectText: [
-            ['Unlock ability to make multiple structures at same time.'],
-            ['Research this to make max offline timer +4 hours longer.'],
-            ['This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.']
+            () => 'Unlock ability to make multiple Structures at same time.',
+            () => 'Research this to make max offline timer +4 hours longer.',
+            () => 'This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.'
         ],
-        effect: [null, null, null],
         startCost: [300, 1e9, 1],
         scaling: [30000, 2e4, 1e10],
         max: [1, 1, 0],
@@ -777,40 +786,40 @@ export const global: globalType = { //For information that doesn't need to be sa
             '[28] Nickel.'
         ],
         effectText: [
-            ['Placeholder'],
-            ['Most basic element, increases Brown dwarf production by 2.'],
-            ['Fusion reaction by product, makes everything scale ', ' less.'], //Effect here only needs format
-            ['First metal, Mass per Brown dwarf lightly increased.'],
-            ['Brittle earth metal, so is brittle increase to production. (', 'x to all Stars)'], //Effect here only needs format
-            ['A new color, and a new boost to Mass gain that is based on current Dwarf Stars.'],
-            ['Base for organics, boost from Red giants is now increased to the power of ', '.\nDid you knew that Red giants are boosting Main-sequence Stars?'], //Effect here only needs format
-            ["Most abundant uncombined Element in atmosphere of some Planets, also allows to have 2 extra levels of 'Star system'."],
-            ['An oxidizing agent, that will make everything scale even slower. (', ' less)'], //Effect here only needs format
-            ["Highly toxic and reactive, +12 to max level of 'Planetary system'."],
-            ['A noble 2x boost to Mass gain.'],
-            ["Through leaching, get 1 extra level of 'Protoplanetary disk'."],
-            ['Stars are inside you, as well Neutrons stars strength is now increased to the decimal logarithm.\nThat will make Neutron stars boost all Stars even better.'],
-            ['Has a great affinity towards Oxygen and to decrease cost of all Stars by ', '.'], //Effect here only needs format
-            ['Number is 14, group is 14, melts at 1414°C and so is Mass gain increased by ', '.'], //Effect here only needs format
-            ['One of the fundamentals of life and to make all of Stars boost Mass.'],
-            ["From hot area, to increase max level of 'Star system' by 1.\nResearch softcapped past 1e10."],
-            ["Extremely reactive to extend max level of 'Planetary system', by another 27 levels."],
-            ['Less noble boost, but Black holes effect scales a little better.\nThat will surely increase Main-sequence mass gain.'],
-            ['Don\'t forget about it and get a 3x boost to all Stars.'],
-            ["Get stronger with 1 extra level of 'Star system'.\nEffect is weaker, after 5 levels."],
-            ['A new color and a rare bonus of ^', ' to Mass effect.'], //Effect here only needs format
-            ['New alloy allowing Red giants to be added into effective amount of Neutron stars.'],
-            ['Catalyst for production of Elements. Black holes boost all Stars to the decimal logarithm.'],
-            ['No corrosion, only ^', ' boost to all Stars based on unspent Elements.'], //Effect here only needs format
-            ["Brittle element, but not the bonus - 1 more level in 'Star system'."],
-            ['Any further fusion will be an endothermic process. Gain 2x boost to all Stars, but what next?\nUnlock ability to switch beetwin Stages. (Also enter a new Stage)'],
-            ['While new Elements won\'t produce much Energy, this one can create 2 extra Strange quark for this Stage reset.'],
-            ['Slow to react, but gain extra Strange quarks for every new reached digit past 52 anyway.\n(+', ' for this reset)']
+            () => 'Placeholder.',
+            () => 'Most basic element, increases Brown dwarf production by 2.\nAlso Main-sequence mass effect is now known - boost to all Stars.',
+            () => `Fusion reaction by product, makes everything scale ${format(0.1)} less.`,
+            () => 'First metal, Mass per Brown dwarf lightly increased.',
+            () => `Brittle earth metal, so is brittle increase to production. (${format(1.1)}x to all Stars)`,
+            () => 'A new color, and a new boost to Mass gain that is based on current Dwarf Stars.',
+            () => `Base for organics, boost from Red giants is now increased to the power of ${format(1.5)}.\nRed giants effect is now known - boost to all Main-sequence stars.`,
+            () => "Most abundant uncombined Element in atmosphere of some Planets, also allows to have 2 extra levels of 'Star system'.",
+            () => `An oxidizing agent, that will make everything scale even slower. (${format(0.05)} less)`,
+            () => "Highly toxic and reactive, +12 to max level of 'Planetary system'.",
+            () => 'A noble 2x boost to Mass gain.',
+            () => "Through leaching, get 1 extra level of 'Protoplanetary disk'.",
+            () => 'Stars are inside you, as well Neutrons stars strength is now increased to the decimal logarithm.\nNeutron stars effect is now known - boost to all Stars.',
+            () => `Has a great affinity towards Oxygen and to decrease cost of all Stars by ${format(1e3)}.`,
+            () => `Number is 14, group is 14, melts at 1414°C and so is Mass gain increased by ${format(1.4)}.`,
+            () => 'One of the fundamentals of life and to make all of Stars boost Mass.',
+            () => "From hot area, to increase max level of 'Star system' by 1.\nResearch softcapped past 1e10.",
+            () => "Extremely reactive to extend max level of 'Planetary system', by another 27 levels.",
+            () => 'Less noble boost, but Black holes effect scales a little better.\nBlack holes effect is now known - boost to Main-sequence mass gain.',
+            () => 'Don\'t forget about it and get a 3x boost to all Stars.',
+            () => "Get stronger with 1 extra level of 'Star system'.\nEffect is weaker, after 5 levels.",
+            () => `A new color and a rare bonus of ^${format(1.1)} to Mass effect.`,
+            () => 'New alloy allowing Red giants to be added into effective amount of Neutron stars.',
+            () => 'Catalyst for production of Elements. Black holes boost all Stars to the decimal logarithm.',
+            () => `No corrosion, only ^${format(0.01)} boost to all Stars based on unspent Elements.`,
+            () => "Brittle element, but not the bonus - 1 more level in 'Star system'.",
+            () => 'Any further fusion will be an endothermic process. Gain 2x boost to all Stars, but what next?\nUnlock ability to switch beetwin Stages. (Also enter a new Stage)',
+            () => 'While new Elements won\'t produce much Energy, this one can create 2 extra Strange quark for this Stage reset.',
+            () => `Slow to react, but gain extra Strange quarks for every new reached digit past 52 anyway.\n(+${format(global.elementsInfo.effect[28] as number)} for this reset)`
         ],
         effect: [
-            null, null, 0.1, null, 1.1, null, 1.5, null, 0.05, null,
-            null, null, null, 1e3, 1.4, null, null, null, null, null,
-            null, 1.1, null, null, 0.01, null, null, null, 0
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, 0
         ],
         startCost: [ //If index 0 to be added, then it should have cost higher than last unlocked before it (or add continue for autoElements)
             1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
@@ -823,7 +832,6 @@ export const global: globalType = { //For information that doesn't need to be sa
         {
             description: [],
             effectText: [],
-            effect: [],
             startCost: [],
             scaling: [],
             max: [],
@@ -842,17 +850,16 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Strange boost.'
             ],
             effectText: [
-                ['Base Discharge effect is now +1.'],
-                ['Discharge goal scales slower. (-1)'],
-                ['Always have +1 bonus Discharge.'],
-                ['Automatically Discharge upon creating an upgrade or reaching next goal.'],
-                ['Gain more Energy from creating Particles, +1.'],
-                ["Research for improved 'Tritium' upgrade is now better. (+", ')'], //Effect here only needs format
-                ['Start with auto for ', '.'],
-                ['Unlock a new toggle. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Stronger radiation)']
+                () => 'Base Discharge effect is now +1.',
+                () => 'Discharge goal scales slower. (-1)',
+                () => 'Always have +1 bonus Discharge.',
+                () => 'Automatically Discharge upon creating an upgrade or reaching next goal.',
+                () => 'Gain more Energy from creating Particles, +1.',
+                () => `Research for improved 'Tritium' upgrade is now better. (+${format(0.3)})`,
+                () => `Start with auto for ${global.buildingsInfo.name[1][Math.min(player.strangeness[1][6] + 1, global.ASRInfo.max[1])]}.`,
+                () => 'Unlock a new toggle. Also keep them on Stage reset.',
+                () => 'Unspend Strange quarks will boost this stage. (Stronger radiation)'
             ],
-            effect: [null, null, null, null, null, 0.3, 'Particles', null, null],
             startCost: [1, 1, 2, 4, 4, 1, 2, 2, 10],
             scaling: [1.5, 1, 3, 0, 2, 0.25, 2, 3, 0], //Right now only 2 digits allowed past point
             max: [4, 4, 2, 1, 2, 10, 3, 1, 1],
@@ -870,17 +877,16 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Strange boost.'
             ],
             effectText: [
-                ['Mole production increased by 2x.'],
-                ['Puddles produce 2 times more.'],
-                ['Increase max level of some researches by +1.\nFinal level will instead unlock a new upgrade.'],
-                ['Gain more Clouds from Vaporization. (Affected by softcap)'],
-                ['Automatically Vaporize when reach certain amount.'],
-                ['Start with auto for ', '.'],
-                ['Increase max offline time research level. Also keep them on Stage reset.'],
-                ['Max offline time is now 2 times longer. (Additive)'],
-                ['Unspend Strange quarks will boost this stage. (Puddle production)']
+                () => 'Mole production increased by 2x.',
+                () => 'Puddles produce 2 times more.',
+                () => 'Increase max level of some researches by +1.\nFinal level will instead unlock a new upgrade.',
+                () => 'Gain more Clouds from Vaporization. (Affected by softcap)',
+                () => 'Automatically Vaporize when reach certain amount.',
+                () => `Start with auto for ${global.buildingsInfo.name[2][Math.min(player.strangeness[2][5] + 1, global.ASRInfo.max[5])]}.`,
+                () => 'Increase max offline time research level. Also keep them on Stage reset.',
+                () => 'Max offline time is now 2 times longer. (Additive)',
+                () => 'Unspend Strange quarks will boost this stage. (Puddle production)'
             ],
-            effect: [null, null, null, null, null, 'Drops', null, null, null],
             startCost: [1, 2, 2, 1, 3, 2, 1, 3, 8],
             scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.34, 2.5, 0],
             max: [9, 6, 3, 3, 1, 5, 4, 2, 1],
@@ -897,16 +903,15 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Strange boost.'
             ],
             effectText: [
-                ['Accretion speed is 2 times faster. (Affected by softcap)'],
-                ['All Accretion structures that produce another structure now do it 2 times faster.'],
-                ['Some Rank researches receive extra Max level.\nFinal level will instead unlock a new upgrade.'],
-                ['Satellites now improve all Accretion structures.'],
-                ['Automatically increase Rank when available.'],
-                ['Start with auto for ', '.'],
-                ['Unlock automatization for Upgrades / Researches. Also keep them on Stage reset.'],
-                ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)']
+                () => 'Accretion speed is 2 times faster. (Affected by softcap)',
+                () => 'All Accretion structures that produce another structure now do it 2 times faster.',
+                () => 'Some Rank researches receive extra Max level.\nFinal level will instead unlock a new upgrade.',
+                () => 'Satellites now improve all Accretion structures.',
+                () => 'Automatically increase Rank when available.',
+                () => `Start with auto for ${global.buildingsInfo.name[3][Math.min(player.strangeness[3][5] + 1, global.ASRInfo.max[3])]}.`,
+                () => 'Unlock automatization for Upgrades / Researches. Also keep them on Stage reset.',
+                () => 'Unspend Strange quarks will boost this stage. (Cheaper Accretion)'
             ],
-            effect: [null, null, null, null, null, 'Cosmic dust', null, null],
             startCost: [1, 1, 3, 4, 3, 2, 5, 6],
             scaling: [0.75, 1.5, 2.5, 0, 0, 1, 3.5, 0],
             max: [8, 4, 3, 1, 1, 4, 3, 1],
@@ -925,18 +930,17 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Strange boost.'
             ],
             effectText: [
-                ['All Stars produce ', ' times more Elements.'], //Effect here only needs format
-                ['Stars are 2 times cheaper.'],
-                ['Unlock a new Upgrade.\nFirst one is extra good.'],
-                ['25% of Brown dwarfs will turn into Red giants now.'],
-                ['Elements in research tab will be preserved through Collapse reset.'],
-                ['Stars will Collapse automatically.'],
-                ['Start with auto for ', '.'],
-                ['Creates +1 Strange quarks per day, can claim only full one\'s only with export.'],
-                ['Unclaimed Strange quarks max storage is now 1 day longer.'],
-                ['Unspend Strange quarks will boost this stage. (All Stars production)']
+                () => `All Stars produce ${format(1.5)} times more Elements.`,
+                () => 'Stars are 2 times cheaper.',
+                () => 'Unlock a new Upgrade.\nFirst one is extra good.',
+                () => '25% of Brown dwarfs will turn into Red giants now.',
+                () => 'Elements in research tab will be preserved through Collapse reset.',
+                () => 'Stars will Collapse automatically.',
+                () => `Start with auto for ${global.buildingsInfo.name[4][Math.min(player.strangeness[4][6] + 1, global.ASRInfo.max[4])]}.`,
+                () => 'Creates +1 Strange quarks per day, can claim only full one\'s only with export.',
+                () => 'Unclaimed Strange quarks max storage is now 1 day longer.',
+                () => 'Unspend Strange quarks will boost this stage. (All Stars production)'
             ],
-            effect: [1.5, null, null, null, null, null, 'Brown dwarfs', null, null, null],
             startCost: [1, 1, 3, 2, 4, 3, 3, 2, 4, 4],
             scaling: [1, 1.5, 1.5, 2, 0, 0, 1, 2.5, 0, 0],
             max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1],
@@ -954,17 +958,16 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'New Milestones.'
             ],
             effectText: [
-                ['Gain abbility to be inside multiple Stages at once. (Next one to always be inside is ', ')'],
-                ['Gain 2 times more Strange quarks from Stage resets.'],
-                ['Allows to auto switch Stage, has some special settings.'],
-                ["Bigger Nebulas, more matter for Accretion. 'Jeans instability' upgrade is 3 times stronger."],
-                ["'Super star cluster' is now even bigger. Effect increased by 4."],
-                ['Intergalactic is no longer affected by lower Stage reset types.'],
-                ['With this, a new Structure, can be created. Second level unlocks auto for it.'],
-                ['Increase current level of auto Structures. It\'s the only way to do it.'],
-                ['Unlock Intergalactic Milestones.']
+                () => `Gain abbility to be inside multiple Stages at once. (Next one to always be inside is ${global.stageInfo.word[Math.min(player.strangeness[5][0] + 1, global.stageInfo.word.length - 1)]})`,
+                () => 'Gain 2 times more Strange quarks from Stage resets.',
+                () => 'Allows to auto switch Stage, has some special settings.',
+                () => "Bigger Nebulas, more matter for Accretion. 'Jeans instability' upgrade is 3 times stronger.",
+                () => "'Super star cluster' is now even bigger. Effect increased by 4.",
+                () => 'Intergalactic is no longer affected by lower Stage reset types.',
+                () => 'With this, a new Structure, can be created. Second level unlocks auto for it.',
+                () => 'Increase current level of auto Structures. It\'s the only way to do it.',
+                () => 'Unlock Intergalactic Milestones.'
             ],
-            effect: ['Microworld', null, null, null, null, null, null, null, null],
             startCost: [120, 10, 20, 5, 10, 20, 800, 20, 40],
             scaling: [60, 0, 0, 5, 10, 0, 400, 20, 0],
             max: [3, 1, 1, 9, 9, 1, 2, 2, 1],

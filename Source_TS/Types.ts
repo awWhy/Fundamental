@@ -161,15 +161,15 @@ export interface globalType {
     }
     upgradesInfo: Array<{
         description: string[]
-        effectText: string[][]
+        effectText: Function[]
         effect: Array<number | null>
         startCost: number[]
         cost: number[]
     }>
     researchesInfo: Array<{
         description: string[]
-        effectText: string[][]
-        effect: Array<number | null | string>
+        effectText: Function[]
+        effect: Array<number | null>
         startCost: number[]
         scaling: number[]
         max: number[]
@@ -177,8 +177,8 @@ export interface globalType {
     }>
     researchesExtraInfo: Array<{
         description: string[]
-        effectText: string[][]
-        effect: Array<number | null | string>
+        effectText: Function[]
+        effect: Array<number | null>
         startCost: number[]
         scaling: number[]
         max: number[]
@@ -186,8 +186,8 @@ export interface globalType {
     }>
     researchesAutoInfo: {
         description: string[]
-        effectText: string[][]
-        effect: null[]
+        effectText: Function[]
+        //effect: null[]
         startCost: number[]
         scaling: number[]
         max: number[]
@@ -201,15 +201,15 @@ export interface globalType {
     }
     elementsInfo: {
         description: string[]
-        effectText: string[][]
+        effectText: Function[]
         effect: Array<number | null>
         startCost: number[]
         cost: number[]
     }
     strangenessInfo: Array<{
         description: string[]
-        effectText: string[][]
-        effect: Array<number | string | null>
+        effectText: Function[]
+        //effect: Array<number | null>
         startCost: number[]
         scaling: number[]
         max: number[]

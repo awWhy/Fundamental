@@ -994,7 +994,6 @@ li button {
     to { transform: rotate(180deg); }
 }
 
-/* I wonder, if using @container would be better. But I don't like it removing width and/or height... */
 @media screen and (max-width: 55em) {
     .insideTab {
         flex-direction: column;

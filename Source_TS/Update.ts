@@ -221,7 +221,8 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
     } else if (tab === 'strangeness') {
         if (subtab.strangenessCurrent === 'Matter') {
             getId('strange0Cur').textContent = format(player.strange[0].true, 0);
-            getId('strange0Prod').textContent = format(global.strangeInfo.stageBoost[Math.min(active)] ?? 'none');
+            const stageBoost = global.strangeInfo.stageBoost[Math.min(active)];
+            getId('strange0Prod').textContent = stageBoost !== null ? format(stageBoost) : 'none';
             getId('strange0Gain').textContent = format(global.strangeInfo.stageGain + (active >= 4 ? global.strangeInfo.extraGain : 0), 0);
         }
     } else if (tab === 'settings') {
@@ -558,23 +559,8 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         if (global[typeInfo][stageIndex].effect[index] === undefined) { return; } //Just in case some issues with HTML not being hidden
         global.lastResearch = [index, global[typeInfo][stageIndex].effect[index] !== null, type];
 
-        /* Special cases */
-        if (stageIndex === 4 && type === 'researchesExtra' && index === 0) {
-            const starIndex = Math.min(player.researchesExtra[4][0] + 2, 4);
-            global.researchesExtraInfo[4].effect[0] = player.buildings[4][starIndex].trueTotal !== 0 ? global.buildingsInfo.name[4][starIndex] : '(Unknown)';
-        } else if (stageIndex === 5 && type === 'researches') {
-            if (index === 0) {
-                const starIndex = Math.min(player.researches[5][0] + 2, 4);
-                global.researchesInfo[5].effect[0] = player.buildings[4][starIndex].trueTotal !== 0 ? global.buildingsInfo.name[4][starIndex] : '(unknown)';
-            } else if (index === 1) {
-                const starIndex = Math.max(3 - player.researches[5][1], 1);
-                global.researchesInfo[5].effect[1] = player.buildings[4][starIndex].trueTotal !== 0 ? global.buildingsInfo.name[4][starIndex] : '(unknown)';
-            }
-        }
-
         getId('researchText').textContent = global[typeInfo][stageIndex].description[index];
-        getId('researchEffect').textContent = global[typeInfo][stageIndex].effect[index] === null ? global[typeInfo][stageIndex].effectText[index][0] :
-            global[typeInfo][stageIndex].effectText[index][0] + format(global[typeInfo][stageIndex].effect[index] as number | string) + global[typeInfo][stageIndex].effectText[index][1];
+        getId('researchEffect').textContent = global[typeInfo][stageIndex].effectText[index]();
         getId('researchCost').textContent = player[type][stageIndex][index] === global[typeInfo][stageIndex].max[index] ? 'Maxed.' :
             stageIndex === 4 && type === 'researches' && global.collapseInfo.unlockR[index] > player.collapse.mass ? `Unlocked at ${format(global.collapseInfo.unlockR[index])} Mass.` :
             `${format(global[typeInfo][stageIndex].cost[index])} ${stageInfo.priceName}.`;
@@ -583,7 +569,7 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         global.lastResearch = [index, false, type];
 
         getId('researchText').textContent = global[typeInfo].description[index];
-        getId('researchEffect').textContent = global[typeInfo].effectText[index][0]; //Right now all researchesAuto have null effect
+        getId('researchEffect').textContent = global[typeInfo].effectText[index]();
         getId('researchCost').textContent = player[type][index] === global[typeInfo].max[index] ? 'Maxed.' :
             stageIndex !== global.researchesAutoInfo.autoStage[index] ? `Can't be created outside of ${stageInfo.word[global.researchesAutoInfo.autoStage[index]]} stage.` :
             `${format(global[typeInfo].cost[index])} ${stageInfo.priceName}.`;
@@ -592,7 +578,7 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         global.lastResearch = [index, false, type];
 
         getId('researchText').textContent = 'Automatization for making structures.';
-        getId('researchEffect').textContent = `Will automatically make ${format(player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)')}.\n(Auto will make them, only when have 2 times of the Structure cost)`;
+        getId('researchEffect').textContent = `Will automatically make ${player.buildings[stageIndex][autoIndex].trueTotal !== 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)'}.\n(Auto will make them, only when have 2 times of the Structure cost)`;
         getId('researchCost').textContent = player.ASR[stageIndex] === global.ASRInfo.max[stageIndex] ? 'Maxed.' :
             `${format(global.ASRInfo.cost[stageIndex])} ${stageInfo.priceName}.`;
     } else if (type === 'elements') {
@@ -601,9 +587,8 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
 
         getId('elementText').textContent = elementsInfo.description[index] +
             (global.automatization.elements.includes(index) ? ' (Disabled)' : '');
-        getId('elementEffect').textContent = !player.collapse.show.includes(index) ? 'Effect is not yet known.' :
-            elementsInfo.effect[index] === null ? elementsInfo.effectText[index][0] :
-            elementsInfo.effectText[index][0] + format(elementsInfo.effect[index] as number | string) + elementsInfo.effectText[index][1];
+        getId('elementEffect').textContent = !player.collapse.show.includes(index) ?
+            'Effect is not yet known.' : elementsInfo.effectText[index]();
         getId('elementCost').textContent = player.elements[index] === 1 ? 'Obtained.' : `${format(elementsInfo.cost[index])} ${stageInfo.priceName}.`;
     } else if (type === 'upgrades') {
         const typeInfo = 'upgradesInfo' as const;
@@ -611,30 +596,19 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         global.lastUpgrade = [index, global[typeInfo][stageIndex].effect[index] !== null];
 
         getId('upgradeText').textContent = global[typeInfo][stageIndex].description[index];
-        getId('upgradeEffect').textContent = global[typeInfo][stageIndex].effect[index] === null ? global[typeInfo][stageIndex].effectText[index][0] :
-            global[typeInfo][stageIndex].effectText[index][0] + format(global[typeInfo][stageIndex].effect[index] as number | string) + global[typeInfo][stageIndex].effectText[index][1];
+        getId('upgradeEffect').textContent = global[typeInfo][stageIndex].effectText[index]();
         getId('upgradeCost').textContent = player[type][stageIndex][index] === 1 ? 'Created.' :
             stageIndex === 4 && global.collapseInfo.unlockU[index] > player.collapse.mass ? `Unlocked at ${format(global.collapseInfo.unlockU[index])} Mass.` :
             `${format(global[typeInfo][stageIndex].cost[index])} ${stageInfo.priceName}.`;
     } else /*if (type === 'strangeness' || type === 'milestones')*/ {
         const typeInfo = type + 'Info' as 'strangenessInfo';
 
-        /* Special cases */
-        if (type === 'strangeness') {
-            if (((stageIndex === 1 || stageIndex === 4) && index === 6) || ((stageIndex === 2 || stageIndex === 3) && index === 5)) {
-                global.strangenessInfo[stageIndex].effect[index] = global.buildingsInfo.name[stageIndex][Math.min(player.strangeness[stageIndex][index] + 1, global.ASRInfo.max[stageIndex])];
-            } else if (stageIndex === 5 && index === 0) {
-                global.strangenessInfo[stageIndex].effect[index] = global.stageInfo.word[Math.min(player.strangeness[stageIndex][index] + 1, global.stageInfo.word.length - 1)];
-            }
-        }
-
         const stageText = getId(`${type}Stage`) as HTMLSpanElement;
         stageText.style.color = stageInfo.textColor[stageIndex];
         stageText.textContent = `${stageInfo.word[stageIndex]}. `;
         getId(`${type}Text`).textContent = `${global[typeInfo][stageIndex].description[index]}`;
         if (type === 'strangeness') {
-            getId('strangenessEffect').textContent = global[typeInfo][stageIndex].effect[index] === null ? global[typeInfo][stageIndex].effectText[index][0] :
-                global[typeInfo][stageIndex].effectText[index][0] + format(global[typeInfo][stageIndex].effect[index] as number | string) + global[typeInfo][stageIndex].effectText[index][1];
+            getId('strangenessEffect').textContent = global[typeInfo][stageIndex].effectText[index]();
             getId('strangenessCost').textContent = player[type][stageIndex][index] === global[typeInfo][stageIndex].max[index] ? 'Maxed.' : `${format(global[typeInfo][stageIndex].cost[index])} Strange quarks.`;
         } else {
             const level = player[type][stageIndex][index];
@@ -758,8 +732,7 @@ export const updateRankInfo = () => {
     }
 };
 
-export const format = (input: number | string, precision = 'auto' as 'auto' | number, type = 'number' as 'number' | 'input' | 'time'): string => {
-    if (typeof input !== 'number') { return input; } //String's are being send here (for a reason)
+export const format = (input: number, precision = 'auto' as 'auto' | number, type = 'number' as 'number' | 'input' | 'time'): string => {
     const inputAbs = Math.abs(input);
     if (precision === 'auto') { precision = inputAbs < 1e3 ? (inputAbs < 1 ? 4 : 2) : 0; }
 

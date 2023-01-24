@@ -706,7 +706,7 @@ export const playEvent = (event: number, index: number) => {
             }
             break;
         case 3: //[0] Collapse explanation
-            Alert('Any Collapse reset from now on will give even more rewards, but can\'t be done, unless can increase any of them.\nRewards effects are unknown, but some of the Elements might reveal information about it.\n(Just like Main-sequence mass is provides boost for all Stars)');
+            Alert('Any Collapse reset from now on will give even more rewards. Collapse is only possible when can increase any of rewards.\nRewards effects are unknown, but with more Elements will be revealed');
             break;
         case 4: //[1] Entering Intergalactic
             Alert('There doesn\'t seem to be anything here. Let\'s try going back to start and find what is missing');
