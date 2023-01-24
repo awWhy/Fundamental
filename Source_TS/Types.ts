@@ -148,57 +148,51 @@ export interface globalType {
     buildingsInfo: {
         name: string[][]
         type: Array<Array<'producing' | 'improves' | ''>>
-        cost: number[][]
+        firstCost: number[][]
         startCost: number[][]
         increase: number[][]
         producing: number[][]
+        cost: number[][]
     }
     strangeInfo: {
         stageGain: number
         extraGain: number
         stageBoost: Array<number | null>
     }
-    HTMLSpecial: {
-        longestBuilding: number
-        buildingHTML: string[][][]
-        longestUpgrade: number
-        upgradeHTML: string[][][]
-        longestResearch: number
-        researchHTML: string[][][]
-        longestResearchExtra: number
-        researchExtraDivHTML: string[][]
-        researchExtraHTML: string[][][]
-    }
     upgradesInfo: Array<{
         description: string[]
         effectText: string[][]
         effect: Array<number | null>
+        startCost: number[]
         cost: number[]
     }>
     researchesInfo: Array<{
         description: string[]
         effectText: string[][]
         effect: Array<number | null | string>
-        cost: number[]
+        startCost: number[]
         scaling: number[]
         max: number[]
+        cost: number[]
     }>
     researchesExtraInfo: Array<{
         description: string[]
         effectText: string[][]
         effect: Array<number | null | string>
-        cost: number[]
+        startCost: number[]
         scaling: number[]
         max: number[]
+        cost: number[]
     }>
     researchesAutoInfo: {
         description: string[]
         effectText: string[][]
         effect: null[]
-        cost: number[]
+        startCost: number[]
         scaling: number[]
         max: number[]
         autoStage: number[]
+        cost: number[]
     }
     ASRInfo: {
         cost: number[]
@@ -209,15 +203,17 @@ export interface globalType {
         description: string[]
         effectText: string[][]
         effect: Array<number | null>
+        startCost: number[]
         cost: number[]
     }
     strangenessInfo: Array<{
         description: string[]
         effectText: string[][]
         effect: Array<number | string | null>
-        cost: number[]
+        startCost: number[]
         scaling: number[]
         max: number[]
+        cost: number[]
     }>
     lastUpgrade: [number, boolean]
     lastResearch: [number, boolean, 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']
@@ -230,4 +226,16 @@ export interface globalType {
         quarks: number[][]
         unlock: number[]
     }>
+}
+
+export interface ListOfHTML {
+    longestBuilding: number
+    buildingHTML: string[][][]
+    longestUpgrade: number
+    upgradeHTML: string[][][]
+    longestResearch: number
+    researchHTML: string[][][]
+    longestResearchExtra: number
+    researchExtraDivHTML: string[][]
+    researchExtraHTML: string[][][]
 }

@@ -1,6 +1,192 @@
 import { getClass, getId } from './Main';
 import { global, player } from './Player';
+import { ListOfHTML } from './Types';
 import { format, stageCheck } from './Update';
+
+//Eventually might move more HTML into here
+export const specialHTML: ListOfHTML = {
+    longestBuilding: 1, //All longest type auto added
+    buildingHTML: [ //No idea if it's good idea (outerHTML is 20+ times slower)
+        [], //All [0] are skipped
+        [
+            ['Particle', 'Particle'], //[0] > path; [1] > alt
+            ['Atom', 'Atom'],
+            ['Molecule', 'Molecule']
+        ],
+        [
+            ['Drop', 'Drop of water'],
+            ['Puddle', 'Puddle'],
+            ['Pond', 'Pond'],
+            ['Lake', 'Lake'],
+            ['Sea', 'Sea']
+        ],
+        [
+            ['Cosmic%20dust', 'Cosmic dust'],
+            ['Planetesimal', 'Planetesimal'],
+            ['Protoplanet', 'Protoplanet'],
+            ['Natural%20satellite', 'Moon']
+        ],
+        [
+            ['Brown%20dwarf', 'Brown dwarf'],
+            ['Orange%20dwarf', 'Orange dwarf'],
+            ['Red%20supergiant', 'Red supergiant'],
+            ['Blue%20hypergiant', 'Blue hypergiant']
+        ],
+        [
+            ['Nebula', 'Nebula'],
+            ['Star%20cluster', 'Star cluster'],
+            ['Galaxy', 'Galaxy']
+        ]
+    ],
+    longestUpgrade: 1,
+    upgradeHTML: [
+        [],
+        [
+            ['Upgrade1', 'Electron'],
+            ['Upgrade2', 'Proton'],
+            ['Upgrade3', 'Neutron'],
+            ['Upgrade4', 'Superposition'],
+            ['Upgrade5', 'Protium'],
+            ['Upgrade6', 'Deuterium'],
+            ['Upgrade7', 'Tritium'],
+            ['Upgrade8', 'Fusion']
+        ],
+        [
+            ['UpgradeW1', 'Mole'],
+            ['UpgradeW2', 'Vaporization'],
+            ['UpgradeW3', 'Tension'],
+            ['UpgradeW4', 'Stress'],
+            ['UpgradeW5', 'Stream'],
+            ['UpgradeW6', 'River'],
+            ['UpgradeW7', 'Tsunami']
+        ],
+        [
+            ['UpgradeA1', 'Motion'],
+            ['UpgradeA2', 'Gas'],
+            ['UpgradeA3', 'Micrometeoroid'],
+            ['UpgradeA4', 'Instability'],
+            ['UpgradeA5', 'Gravity'],
+            ['UpgradeA6', 'Pile'],
+            ['UpgradeA7', 'Orbit'],
+            ['UpgradeA8', 'Magma'],
+            ['UpgradeA9', 'Equilibrium'],
+            ['UpgradeA10', 'Atmosphere'],
+            ['UpgradeA11', 'Pebble'],
+            ['UpgradeA12', 'Tidal force'],
+            ['UpgradeA13', 'Ring']
+        ],
+        [
+            ['UpgradeS1', 'Collapse'],
+            ['UpgradeS2', 'Reaction'],
+            ['UpgradeS3', 'CNO'],
+            ['UpgradeS4', 'Helium fusion']
+        ],
+        [
+            ['UpgradeG1', 'Instability'],
+            ['UpgradeG2', 'Super cluster'],
+            ['UpgradeG3', 'Quasar']
+        ]
+    ],
+    longestResearch: 1,
+    researchHTML: [
+        [],
+        [
+            ['Research1', 'Protium+', 'stage1borderImage'], //[2] > classlist (min and max 1 right now)
+            ['Research2', 'Deuterium+', 'stage1borderImage'],
+            ['Research3', 'Tritium+', 'stage1borderImage'],
+            ['Research4', 'Discharge-', 'stage4borderImage'],
+            ['Research5', 'Discharge+', 'stage4borderImage'],
+            ['Research6', 'Discharge++', 'stage4borderImage']
+        ],
+        [
+            ['ResearchW1', 'Moles+', 'stage2borderImage'],
+            ['ResearchW2', 'Moles++', 'stage2borderImage'],
+            ['ResearchW3', 'Tension+', 'stage2borderImage'],
+            ['ResearchW4', 'Stress+', 'stage2borderImage'],
+            ['ResearchW5', 'Streams+', 'stage2borderImage'],
+            ['ResearchW6', 'Channel', 'stage2borderImage']
+        ],
+        [
+            ['ResearchA1', 'Mass+', 'stage3borderImage'],
+            ['ResearchA2', 'Adhesion', 'stage2borderImage'],
+            ['ResearchA3', 'Weathering', 'stage3borderImage'],
+            ['ResearchA4', 'Collision', 'stage3borderImage'],
+            ['ResearchA5', 'Binary', 'stage3borderImage'],
+            ['ResearchA6', 'Gravity+', 'stage1borderImage'],
+            ['ResearchA7', 'Layers', 'stage7borderImage'],
+            ['ResearchA8', 'Drag', 'stage1borderImage']
+        ],
+        [
+            ['ResearchS1', 'Orbit', 'stage5borderImage'],
+            ['ResearchS2', '2 stars', 'stage5borderImage'],
+            ['ResearchS3', 'Protodisc', 'stage7borderImage'],
+            ['ResearchS4', 'Planetary nebula', 'stage5borderImage']
+        ],
+        [
+            ['ResearchG1', 'Density', 'stage1borderImage'],
+            ['ResearchG2', 'Frequency', 'stage6borderImage']
+        ]
+    ],
+    longestResearchExtra: 1,
+    researchExtraDivHTML: [
+        [],
+        [],
+        ['Cloud%20Researches', 'Cloud researches', 'stage2borderImage'],
+        ['Rank%20Researches', 'Rank researches', 'stage6borderImage'],
+        ['Star%20Researches', 'Star researches', 'stage6borderImage'],
+        []
+    ],
+    researchExtraHTML: [
+        [],
+        [],
+        [
+            ['ResearchClouds1', 'Vaporization+', 'stage3borderImage'],
+            ['ResearchClouds2', 'Rain', 'stage2borderImage'],
+            ['ResearchClouds3', 'Storm', 'stage4borderImage']
+        ],
+        [
+            ['ResearchRank1', 'Ocean', 'stage3borderImage'],
+            ['ResearchRank2', 'Rank', 'stage3borderImage'],
+            ['ResearchRank3', 'Weight', 'stage3borderImage'],
+            ['ResearchRank4', 'Viscosity', 'stage2borderImage']
+        ],
+        [
+            ['ResearchStar1', 'Supernova', 'stage6borderImage'],
+            ['ResearchStar2', 'White dwarf', 'stage1borderImage']
+        ],
+        []
+    ]
+};
+
+//Done like this for now
+specialHTML.longestBuilding = Math.max(
+    specialHTML.buildingHTML[1].length + 1,
+    specialHTML.buildingHTML[2].length + 1,
+    specialHTML.buildingHTML[3].length + 1,
+    specialHTML.buildingHTML[4].length + 1,
+    specialHTML.buildingHTML[5].length + 1
+);
+specialHTML.longestUpgrade = Math.max(
+    specialHTML.upgradeHTML[1].length,
+    specialHTML.upgradeHTML[2].length,
+    specialHTML.upgradeHTML[3].length,
+    specialHTML.upgradeHTML[4].length,
+    specialHTML.upgradeHTML[5].length
+);
+specialHTML.longestResearch = Math.max(
+    specialHTML.researchHTML[1].length,
+    specialHTML.researchHTML[2].length,
+    specialHTML.researchHTML[3].length,
+    specialHTML.researchHTML[4].length,
+    specialHTML.researchHTML[5].length
+);
+specialHTML.longestResearchExtra = Math.max(
+    //specialHTML.researchExtraHTML[1].length,
+    specialHTML.researchExtraHTML[2].length,
+    specialHTML.researchExtraHTML[3].length,
+    specialHTML.researchExtraHTML[4].length
+    //specialHTML.researchExtraHTML[5].length
+);
 
 export const setTheme = (themeNumber: number, initial = false) => {
     const { theme } = global;

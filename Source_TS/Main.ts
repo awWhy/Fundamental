@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, checkPlayerValues } from './Player';
 import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier } from './Update';
 import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, switchVacuum, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat } from './Special';
+import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat, specialHTML } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { createCalculator } from './Limit';
 /* There can be a problem with incorrect build, imports can be called in a wrong order */
@@ -86,7 +86,7 @@ void reLoad(true); //This will start the game
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
         getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
     }
-    for (let i = 0; i < global.HTMLSpecial.longestBuilding; i++) {
+    for (let i = 0; i < specialHTML.longestBuilding; i++) {
         getId(`toggleBuilding${i}`).addEventListener('click', () => toggleSwap(i, 'buildings', true));
     }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) {
@@ -94,10 +94,10 @@ void reLoad(true); //This will start the game
     }
 
     /* Stage tab */
-    for (let i = 1; i < global.HTMLSpecial.longestBuilding; i++) {
+    for (let i = 1; i < specialHTML.longestBuilding; i++) {
         getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(i));
     }
-    for (let i = 0; i < global.HTMLSpecial.longestUpgrade; i++) {
+    for (let i = 0; i < specialHTML.longestUpgrade; i++) {
         const image = getId(`upgrade${i + 1}`) as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(i, 'auto', 'upgrades'));
@@ -122,7 +122,7 @@ void reLoad(true); //This will start the game
     getId('vacuumSwitch').addEventListener('click', switchVacuum);
 
     /* Research tab */
-    for (let i = 0; i < global.HTMLSpecial.longestResearch; i++) {
+    for (let i = 0; i < specialHTML.longestResearch; i++) {
         const image = getId(`research${i + 1}Image`) as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(i, 'auto', 'researches'));
@@ -133,7 +133,7 @@ void reLoad(true); //This will start the game
         }
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(i, 'auto', 'researches')); }
     }
-    for (let i = 0; i < global.HTMLSpecial.longestResearchExtra; i++) {
+    for (let i = 0; i < specialHTML.longestResearchExtra; i++) {
         const image = getId(`researchExtra${i + 1}Image`) as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(i, 'auto', 'researchesExtra'));
@@ -262,7 +262,7 @@ void reLoad(true); //This will start the game
     /* Only for screen readers */
     getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
     if (screenReader) {
-        for (let i = 0; i < global.HTMLSpecial.longestBuilding; i++) {
+        for (let i = 0; i < specialHTML.longestBuilding; i++) {
             getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i, 'button', 'building'));
         }
         getId('invisibleGetResource0').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));

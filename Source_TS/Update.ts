@@ -1,7 +1,7 @@
 import { checkTab } from './Check';
 import { getClass, getId } from './Main';
-import { global, globalStart, player } from './Player';
-import { playEvent, switchTheme } from './Special';
+import { global, player } from './Player';
+import { playEvent, specialHTML, switchTheme } from './Special';
 import { autoElements, autoUpgradesBuy, autoUpgradesSet, buyBuilding, calculateBuildingsCost, calculateGainedBuildings, calculateMaxLevel, calculateResearchCost, calculateStageInformation, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleSwap, vaporizationResetCheck } from './Stage';
 
 //No tab checking, because if someone will use HTML to enable button, they can do same for insides
@@ -27,7 +27,7 @@ export const switchTab = (tab: string, subtab = null as null | string) => {
                     subtabAmount++;
                 } else {
                     if (global.subtab[tab + 'Current' as 'settingsCurrent'] === inside) {
-                        switchTab(tab, globalStart.subtab[tab + 'Current' as 'settingsCurrent']);
+                        switchTab(tab, global.tabList[tab + 'Subtabs' as 'settingsSubtabs'][0]);
                     }
                 }
             }
@@ -182,10 +182,10 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 totalCost = buildingsInfo.cost[active][i];
                 totalBuy = 1;
             } else {
-                const totalBefore = buildingsInfo.startCost[active][i] * ((buildingsInfo.increase[active][i] ** buildings[active][i].true - 1) / (buildingsInfo.increase[active][i] - 1));
-                const maxAfford = shop.strict && shop.howMany !== -1 ? 1 : Math.trunc(Math.log((totalBefore + currency) * (buildingsInfo.increase[active][i] - 1) / buildingsInfo.startCost[active][i] + 1) / Math.log(buildingsInfo.increase[active][i])) - buildings[active][i].true;
+                const totalBefore = buildingsInfo.firstCost[active][i] * ((buildingsInfo.increase[active][i] ** buildings[active][i].true - 1) / (buildingsInfo.increase[active][i] - 1));
+                const maxAfford = shop.strict && shop.howMany !== -1 ? 1 : Math.trunc(Math.log((totalBefore + currency) * (buildingsInfo.increase[active][i] - 1) / buildingsInfo.firstCost[active][i] + 1) / Math.log(buildingsInfo.increase[active][i])) - buildings[active][i].true;
                 totalBuy = shop.howMany === -1 ? maxAfford : shop.strict ? shop.howMany : Math.min(maxAfford, shop.howMany);
-                totalCost = buildingsInfo.startCost[active][i] * ((buildingsInfo.increase[active][i] ** (totalBuy + buildings[active][i].true) - 1) / (buildingsInfo.increase[active][i] - 1)) - totalBefore;
+                totalCost = buildingsInfo.firstCost[active][i] * ((buildingsInfo.increase[active][i] ** (totalBuy + buildings[active][i].true) - 1) / (buildingsInfo.increase[active][i] - 1)) - totalBefore;
             }
 
             if (totalCost <= currency) {
@@ -803,7 +803,7 @@ export const format = (input: number | string, precision = 'auto' as 'auto' | nu
 
 export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     const { stage } = player;
-    const { stageInfo, HTMLSpecial, buildingsInfo } = global;
+    const { stageInfo, buildingsInfo } = global;
 
     stageInfo.activeAll = [stage.current];
     if (stage.current === 4) {
@@ -858,17 +858,17 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     }
 
     //Hide | show what is required
-    for (let i = buildingsInfo.name[active].length; i < HTMLSpecial.longestBuilding; i++) {
+    for (let i = buildingsInfo.name[active].length; i < specialHTML.longestBuilding; i++) {
         getId(`building${i}Stats`).style.display = 'none';
         getId(`building${i}`).style.display = 'none';
     }
-    for (let i = global.upgradesInfo[active].cost.length; i < HTMLSpecial.longestUpgrade; i++) {
+    for (let i = global.upgradesInfo[active].cost.length; i < specialHTML.longestUpgrade; i++) {
         getId(`upgrade${i + 1}`).style.display = 'none';
     }
-    for (let i = global.researchesInfo[active].cost.length; i < HTMLSpecial.longestResearch; i++) {
+    for (let i = global.researchesInfo[active].cost.length; i < specialHTML.longestResearch; i++) {
         getId(`research${i + 1}`).style.display = 'none';
     }
-    for (let i = global.researchesExtraInfo[active].cost.length; i < HTMLSpecial.longestResearchExtra; i++) {
+    for (let i = global.researchesExtraInfo[active].cost.length; i < specialHTML.longestResearchExtra; i++) {
         getId(`researchExtra${i + 1}`).style.display = 'none';
     }
 
@@ -913,8 +913,8 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         getId(`building${i}Name`).textContent = buildingsInfo.name[active][i];
         getId(`building${i}Type`).textContent = buildingsInfo.type[active][i];
         const image = getId(`building${i}Image`) as HTMLImageElement;
-        image.src = `Used_art/${HTMLSpecial.buildingHTML[active][i - 1][0]}.png`;
-        image.alt = HTMLSpecial.buildingHTML[active][i - 1][1];
+        image.src = `Used_art/${specialHTML.buildingHTML[active][i - 1][0]}.png`;
+        image.alt = specialHTML.buildingHTML[active][i - 1][1];
         toggleSwap(i, 'buildings');
     }
     getId('building0StatName').textContent = buildingsInfo.name[active][0];
@@ -922,33 +922,33 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     for (let i = 0; i < global.upgradesInfo[active].cost.length; i++) {
         getId(`upgrade${i + 1}`).style.display = '';
         const image = getId(`upgrade${i + 1}`) as HTMLInputElement;
-        image.src = `Used_art/${HTMLSpecial.upgradeHTML[active][i][0]}.png`;
-        image.alt = HTMLSpecial.upgradeHTML[active][i][1];
+        image.src = `Used_art/${specialHTML.upgradeHTML[active][i][0]}.png`;
+        image.alt = specialHTML.upgradeHTML[active][i][1];
         visualUpdateUpgrades(i, active, 'upgrades');
     }
     for (let i = 0; i < global.researchesInfo[active].cost.length; i++) {
         const main = getId(`research${i + 1}`) as HTMLDivElement;
         main.style.display = '';
-        main.className = HTMLSpecial.researchHTML[active][i][2];
+        main.className = specialHTML.researchHTML[active][i][2];
         const image = getId(`research${i + 1}Image`) as HTMLInputElement;
-        image.src = `Used_art/${HTMLSpecial.researchHTML[active][i][0]}.png`;
-        image.alt = HTMLSpecial.researchHTML[active][i][1];
+        image.src = `Used_art/${specialHTML.researchHTML[active][i][0]}.png`;
+        image.alt = specialHTML.researchHTML[active][i][1];
         visualUpdateUpgrades(i, active, 'researches');
     }
     if (active !== 1 && active !== 5) {
         for (let i = 0; i < global.researchesExtraInfo[active].cost.length; i++) {
             const main = getId(`researchExtra${i + 1}`) as HTMLDivElement;
             main.style.display = '';
-            main.className = HTMLSpecial.researchExtraHTML[active][i][2];
+            main.className = specialHTML.researchExtraHTML[active][i][2];
             const image = getId(`researchExtra${i + 1}Image`) as HTMLInputElement;
-            image.src = `Used_art/${HTMLSpecial.researchExtraHTML[active][i][0]}.png`;
-            image.alt = HTMLSpecial.researchExtraHTML[active][i][1];
+            image.src = `Used_art/${specialHTML.researchExtraHTML[active][i][0]}.png`;
+            image.alt = specialHTML.researchExtraHTML[active][i][1];
             visualUpdateUpgrades(i, active, 'researchesExtra');
         }
         const image = document.querySelector('#extraResearch > img') as HTMLImageElement;
-        image.src = `Used_art/${HTMLSpecial.researchExtraDivHTML[active][0]}.png`;
-        image.alt = HTMLSpecial.researchExtraDivHTML[active][1];
-        (document.querySelector('#extraResearch > div') as HTMLDivElement).className = HTMLSpecial.researchExtraDivHTML[active][2];
+        image.src = `Used_art/${specialHTML.researchExtraDivHTML[active][0]}.png`;
+        image.alt = specialHTML.researchExtraDivHTML[active][1];
+        (document.querySelector('#extraResearch > div') as HTMLDivElement).className = specialHTML.researchExtraDivHTML[active][2];
     }
     visualUpdateUpgrades(0, active, 'ASR');
 
@@ -976,7 +976,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     getId('currentSwitch').textContent = stageInfo.word[active];
     if (global.screenReader) {
         getId('invisibleBought').textContent = `Current Active Stage is '${stageInfo.word[active]}'`;
-        for (let i = buildingsInfo.name[active].length; i < HTMLSpecial.longestBuilding; i++) {
+        for (let i = buildingsInfo.name[active].length; i < specialHTML.longestBuilding; i++) {
             getId(`invisibleGetBuilding${i}`).style.display = 'none';
         }
         for (let i = 0; i < buildingsInfo.name[active].length; i++) {

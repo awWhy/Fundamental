@@ -1,6 +1,6 @@
 import { checkBuilding, checkUpgrade, milestoneCheck } from './Check';
 import { getId } from './Main';
-import { global, globalStart, player } from './Player';
+import { global, player } from './Player';
 import { reset } from './Reset';
 import { Alert, Confirm, playEvent } from './Special';
 import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdateUpgrades } from './Update';
@@ -291,18 +291,17 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     const { shop } = player.toggles;
     const howMany = auto ? -1 : player.researchesAuto[0] === 0 ? 1 : shop.howMany;
     const microworld = stageIndex === 1;
-    if (microworld && index === 1) { global.dischargeInfo.energyType[index] = globalStart.dischargeInfo.energyType[index] + 1 * player.strangeness[1][4]; }
 
     let canAfford: number;
     let total: number;
     if (howMany !== 1 && player.researchesAuto[0] > 0) {
         //Increase must be > 1 (if < 1, then use (1 - increase) and (1 - increase ** levels))
         let budget = currency / (auto ? keep : 1); //How much need to spend
-        const totalBefore = buildingsInfo.startCost[stageIndex][index] * ((buildingsInfo.increase[stageIndex][index] ** buildings[stageIndex][index].true - 1) / (buildingsInfo.increase[stageIndex][index] - 1)); //How much already payed for
-        const maxAfford = Math.trunc(Math.log((totalBefore + budget) * (buildingsInfo.increase[stageIndex][index] - 1) / buildingsInfo.startCost[stageIndex][index] + 1) / Math.log(buildingsInfo.increase[stageIndex][index])) - buildings[stageIndex][index].true; //Max amount that can be afforded
+        const totalBefore = buildingsInfo.firstCost[stageIndex][index] * ((buildingsInfo.increase[stageIndex][index] ** buildings[stageIndex][index].true - 1) / (buildingsInfo.increase[stageIndex][index] - 1)); //How much already payed for
+        const maxAfford = Math.trunc(Math.log((totalBefore + budget) * (buildingsInfo.increase[stageIndex][index] - 1) / buildingsInfo.firstCost[stageIndex][index] + 1) / Math.log(buildingsInfo.increase[stageIndex][index])) - buildings[stageIndex][index].true; //Max amount that can be afforded
         if (shop.strict && maxAfford < howMany && howMany !== -1) { return; }
         canAfford = howMany !== -1 ? Math.min(maxAfford, howMany) : maxAfford;
-        total = buildingsInfo.startCost[stageIndex][index] * ((buildingsInfo.increase[stageIndex][index] ** (canAfford + buildings[stageIndex][index].true) - 1) / (buildingsInfo.increase[stageIndex][index] - 1)) - totalBefore; //How much you need to pay
+        total = buildingsInfo.firstCost[stageIndex][index] * ((buildingsInfo.increase[stageIndex][index] ** (canAfford + buildings[stageIndex][index].true) - 1) / (buildingsInfo.increase[stageIndex][index] - 1)) - totalBefore; //How much you need to pay
 
         if (!isFinite(total) || !isFinite(canAfford)) { /* Fallback */
             let cost = buildingsInfo.cost[stageIndex][index];
@@ -324,7 +323,11 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     buildings[stageIndex][index].trueTotal += canAfford;
     if (buildings[stageIndex][index].highest < buildings[stageIndex][index].current) { buildings[stageIndex][index].highest = buildings[stageIndex][index].current; }
 
-    if (microworld) { player.discharge.energy += global.dischargeInfo.energyType[index] * canAfford; }
+    if (microworld) {
+        let reward = global.dischargeInfo.energyType[index];
+        if (index === 1 && player.strangeness[1][4] >= 1) { reward += 1 + player.strangeness[1][4]; }
+        player.discharge.energy += reward * canAfford;
+    }
     if (global.screenReader && !auto) {
         getId('invisibleBought').textContent = `Maded ${format(canAfford)} '${buildingsInfo.name[stageIndex][index]}'${microworld ? `, gained ${format(global.dischargeInfo.energyType[index] * canAfford)} Energy` : ''}`;
     }
@@ -366,16 +369,16 @@ export const calculateBuildingsCost = (index: number, stageIndex: number) => {
     if (stageIndex === 1) {
         global.upgradesInfo[1].effect[4] = (20 + player.researches[1][0]) / 100; //(0.2 + 1 / 100) / 100
         buildingsInfo.increase[1][index] = Math.round((1.4 - (player.upgrades[1][4] === 1 ? global.upgradesInfo[1].effect[4] : 0)) * 100) / 100;
-        if (index === 1) { buildingsInfo.startCost[1][1] = globalStart.buildingsInfo.startCost[1][1] / (player.upgrades[1][0] === 1 ? 10 : 1); }
+        if (index === 1) { buildingsInfo.firstCost[1][1] = buildingsInfo.startCost[1][1] / (player.upgrades[1][0] === 1 ? 10 : 1); }
     } else if (stageIndex === 3) {
-        buildingsInfo.startCost[3][index] = globalStart.buildingsInfo.startCost[3][index] / (global.strangeInfo.stageBoost[3] ?? 1);
+        buildingsInfo.firstCost[3][index] = buildingsInfo.startCost[3][index] / (global.strangeInfo.stageBoost[3] ?? 1);
         if (index === 4) { buildingsInfo.increase[3][4] = player.upgrades[3][11] === 1 ? 5 : 10; }
     } else if (stageIndex === 4) {
         buildingsInfo.increase[4][index] = Math.round(((1.4 + 0.15 * (index - 1)) - (player.elements[2] === 1 ? 0.1 : 0) - (player.elements[8] === 1 ? 0.05 : 0)) * 100) / 100;
-        buildingsInfo.startCost[4][index] = globalStart.buildingsInfo.startCost[4][index] / (player.elements[13] === 1 ? 1e3 : 1) / (2 ** player.strangeness[4][1]);
+        buildingsInfo.firstCost[4][index] = buildingsInfo.startCost[4][index] / (player.elements[13] === 1 ? 1e3 : 1) / (2 ** player.strangeness[4][1]);
     }
 
-    buildingsInfo.cost[stageIndex][index] = buildingsInfo.startCost[stageIndex][index] * buildingsInfo.increase[stageIndex][index] ** buildings[stageIndex][index].true;
+    buildingsInfo.cost[stageIndex][index] = buildingsInfo.firstCost[stageIndex][index] * buildingsInfo.increase[stageIndex][index] ** buildings[stageIndex][index].true;
 };
 
 export const calculateGainedBuildings = (get: number, stageIndex: number, time: number) => {
@@ -631,9 +634,9 @@ export const calculateResearchCost = (research: number, stageIndex: number, type
         if (player[type][stageIndex][research] === global[typeInfo][stageIndex].max[research]) { return; }
 
         if (stageIndex === 1) {
-            global[typeInfo][stageIndex].cost[research] = globalStart[typeInfo][stageIndex].cost[research] + global[typeInfo][stageIndex].scaling[research] * player[type][stageIndex][research];
+            global[typeInfo][stageIndex].cost[research] = global[typeInfo][stageIndex].startCost[research] + global[typeInfo][stageIndex].scaling[research] * player[type][stageIndex][research];
         } else {
-            global[typeInfo][stageIndex].cost[research] = globalStart[typeInfo][stageIndex].cost[research] * global[typeInfo][stageIndex].scaling[research] ** player[type][stageIndex][research];
+            global[typeInfo][stageIndex].cost[research] = global[typeInfo][stageIndex].startCost[research] * global[typeInfo][stageIndex].scaling[research] ** player[type][stageIndex][research];
         }
 
         //Below will remove all but 2 digits past point
@@ -649,9 +652,9 @@ export const calculateResearchCost = (research: number, stageIndex: number, type
         if (player[type][research] === global[typeInfo].max[research]) { return; }
 
         if (stageIndex === 1) {
-            global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] + global[typeInfo].scaling[research] * player[type][research];
+            global[typeInfo].cost[research] = global[typeInfo].startCost[research] + global[typeInfo].scaling[research] * player[type][research];
         } else {
-            global[typeInfo].cost[research] = globalStart[typeInfo].cost[research] * global[typeInfo].scaling[research] ** player[type][research];
+            global[typeInfo].cost[research] = global[typeInfo].startCost[research] * global[typeInfo].scaling[research] ** player[type][research];
         }
 
         if (global[typeInfo].cost[research] < 1) {
@@ -669,7 +672,7 @@ export const calculateResearchCost = (research: number, stageIndex: number, type
 
         if (player[type][stageIndex][research] === global[typeInfo][stageIndex].max[research]) { return; }
 
-        global[typeInfo][stageIndex].cost[research] = Math.trunc(Math.round((globalStart[typeInfo][stageIndex].cost[research] + global[typeInfo][stageIndex].scaling[research] * player[type][stageIndex][research]) * 100) / 100);
+        global[typeInfo][stageIndex].cost[research] = Math.trunc(Math.round((global[typeInfo][stageIndex].startCost[research] + global[typeInfo][stageIndex].scaling[research] * player[type][stageIndex][research]) * 100) / 100);
     }
 };
 

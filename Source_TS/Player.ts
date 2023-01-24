@@ -259,7 +259,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         settingsCurrent: 'Settings',
         researchCurrent: 'Researches',
         strangenessCurrent: 'Matter'
-        //Starting subtab name must be unlocked at same time as tab its part of (or change switchTab() logic)
+        //Starting subtab must be unlocked at same time as tab and have index 0 in proper tabList
     },
     tabList: { //Tabs and subtab need to be in same order as in footer
         /* Subtabs format must be: [subtabName] + 'Subtabs' */
@@ -368,15 +368,9 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['', 'producing', 'producing', 'producing', 'producing'],
             ['', 'producing', 'improves', 'improves'] //Not allowed index 2, 3, 4 (for 'producing')
         ],
-        cost: [
-            [],
-            [0, 3, 24, 3],
-            [0, 0.0028, 100, 1e7, 1e18, 1e23],
-            [0, 1e-19, 1e-9, 1e21, 1e17],
-            [0, 1, 1e5, 1e16, 1e31],
-            [0, 1e30, 1e40, 1e60]
-        ],
-        startCost: [
+        cost: [], //Auto set to startCost
+        firstCost: [], //Cost for first building after all discounts apply (Auto set to startCost)
+        startCost: [ //Static value for cost (no changing)
             [],
             [0, 3, 24, 3],
             [0, 0.0028, 100, 1e7, 1e18, 1e23],
@@ -406,159 +400,6 @@ export const global: globalType = { //For information that doesn't need to be sa
         extraGain: 0,
         stageBoost: [null, null, null, null, null, null]
     },
-    HTMLSpecial: { //Have to be manually added
-        longestBuilding: 6, //Including [0] with is not here
-        buildingHTML: [ //No idea if it's good idea (outerHTML is 20+ times slower)
-            [],
-            [
-                ['Particle', 'Particle'],
-                ['Atom', 'Atom'],
-                ['Molecule', 'Molecule']
-            ],
-            [
-                ['Drop', 'Drop of water'],
-                ['Puddle', 'Puddle'],
-                ['Pond', 'Pond'],
-                ['Lake', 'Lake'],
-                ['Sea', 'Sea']
-            ],
-            [
-                ['Cosmic%20dust', 'Cosmic dust'],
-                ['Planetesimal', 'Planetesimal'],
-                ['Protoplanet', 'Protoplanet'],
-                ['Natural%20satellite', 'Moon']
-            ],
-            [
-                ['Brown%20dwarf', 'Brown dwarf'],
-                ['Orange%20dwarf', 'Orange dwarf'],
-                ['Red%20supergiant', 'Red supergiant'],
-                ['Blue%20hypergiant', 'Blue hypergiant']
-            ],
-            [
-                ['Nebula', 'Nebula'],
-                ['Star%20cluster', 'Star cluster'],
-                ['Galaxy', 'Galaxy']
-            ]
-        ],
-        longestUpgrade: 13,
-        upgradeHTML: [
-            [],
-            [
-                ['Upgrade1', 'Electron'],
-                ['Upgrade2', 'Proton'],
-                ['Upgrade3', 'Neutron'],
-                ['Upgrade4', 'Superposition'],
-                ['Upgrade5', 'Protium'],
-                ['Upgrade6', 'Deuterium'],
-                ['Upgrade7', 'Tritium'],
-                ['Upgrade8', 'Fusion']
-            ],
-            [
-                ['UpgradeW1', 'Mole'],
-                ['UpgradeW2', 'Vaporization'],
-                ['UpgradeW3', 'Tension'],
-                ['UpgradeW4', 'Stress'],
-                ['UpgradeW5', 'Stream'],
-                ['UpgradeW6', 'River'],
-                ['UpgradeW7', 'Tsunami']
-            ],
-            [
-                ['UpgradeA1', 'Motion'],
-                ['UpgradeA2', 'Gas'],
-                ['UpgradeA3', 'Micrometeoroid'],
-                ['UpgradeA4', 'Instability'],
-                ['UpgradeA5', 'Gravity'],
-                ['UpgradeA6', 'Pile'],
-                ['UpgradeA7', 'Orbit'],
-                ['UpgradeA8', 'Magma'],
-                ['UpgradeA9', 'Equilibrium'],
-                ['UpgradeA10', 'Atmosphere'],
-                ['UpgradeA11', 'Pebble'],
-                ['UpgradeA12', 'Tidal force'],
-                ['UpgradeA13', 'Ring']
-            ],
-            [
-                ['UpgradeS1', 'Collapse'],
-                ['UpgradeS2', 'Reaction'],
-                ['UpgradeS3', 'CNO'],
-                ['UpgradeS4', 'Helium fusion']
-            ],
-            [
-                ['UpgradeG1', 'Instability'],
-                ['UpgradeG2', 'Super cluster'],
-                ['UpgradeG3', 'Quasar']
-            ]
-        ],
-        longestResearch: 8,
-        researchHTML: [
-            [],
-            [
-                ['Research1', 'Protium+', 'stage1borderImage'],
-                ['Research2', 'Deuterium+', 'stage1borderImage'],
-                ['Research3', 'Tritium+', 'stage1borderImage'],
-                ['Research4', 'Discharge-', 'stage4borderImage'],
-                ['Research5', 'Discharge+', 'stage4borderImage'],
-                ['Research6', 'Discharge++', 'stage4borderImage']
-            ],
-            [
-                ['ResearchW1', 'Moles+', 'stage2borderImage'],
-                ['ResearchW2', 'Moles++', 'stage2borderImage'],
-                ['ResearchW3', 'Tension+', 'stage2borderImage'],
-                ['ResearchW4', 'Stress+', 'stage2borderImage'],
-                ['ResearchW5', 'Streams+', 'stage2borderImage'],
-                ['ResearchW6', 'Channel', 'stage2borderImage']
-            ],
-            [
-                ['ResearchA1', 'Mass+', 'stage3borderImage'],
-                ['ResearchA2', 'Adhesion', 'stage2borderImage'],
-                ['ResearchA3', 'Weathering', 'stage3borderImage'],
-                ['ResearchA4', 'Collision', 'stage3borderImage'],
-                ['ResearchA5', 'Binary', 'stage3borderImage'],
-                ['ResearchA6', 'Gravity+', 'stage1borderImage'],
-                ['ResearchA7', 'Layers', 'stage7borderImage'],
-                ['ResearchA8', 'Drag', 'stage1borderImage']
-            ],
-            [
-                ['ResearchS1', 'Orbit', 'stage5borderImage'],
-                ['ResearchS2', '2 stars', 'stage5borderImage'],
-                ['ResearchS3', 'Protodisc', 'stage7borderImage'],
-                ['ResearchS4', 'Planetary nebula', 'stage5borderImage']
-            ],
-            [
-                ['ResearchG1', 'Density', 'stage1borderImage'],
-                ['ResearchG2', 'Frequency', 'stage6borderImage']
-            ]
-        ],
-        longestResearchExtra: 4,
-        researchExtraDivHTML: [
-            [],
-            [],
-            ['Cloud%20Researches', 'Cloud researches', 'stage2borderImage'],
-            ['Rank%20Researches', 'Rank researches', 'stage6borderImage'],
-            ['Star%20Researches', 'Star researches', 'stage6borderImage'],
-            []
-        ],
-        researchExtraHTML: [
-            [],
-            [],
-            [
-                ['ResearchClouds1', 'Vaporization+', 'stage3borderImage'],
-                ['ResearchClouds2', 'Rain', 'stage2borderImage'],
-                ['ResearchClouds3', 'Storm', 'stage4borderImage']
-            ],
-            [
-                ['ResearchRank1', 'Ocean', 'stage3borderImage'],
-                ['ResearchRank2', 'Rank', 'stage3borderImage'],
-                ['ResearchRank3', 'Weight', 'stage3borderImage'],
-                ['ResearchRank4', 'Viscosity', 'stage2borderImage']
-            ],
-            [
-                ['ResearchStar1', 'Supernova', 'stage6borderImage'],
-                ['ResearchStar2', 'White dwarf', 'stage1borderImage']
-            ],
-            []
-        ]
-    },
     //Effect text = '[0]' + effect[n] + '[1]'; Unless effect[n] === null, then text = '[0]' (effect is not null only if can change)
     //Research cost, only allows 2 digits after a dot (example: 0.123 = 0.12)
     //Stage 3 / 4 need extra information in rankInfo / collapseInfo
@@ -567,6 +408,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             description: [],
             effectText: [],
             effect: [],
+            startCost: [],
             cost: []
         },
         { //Stage 1
@@ -591,7 +433,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unspent Energy boost Molecules production of themselves 1 to 1.']
             ],
             effect: [null, null, null, 4, 0.2, 1.01, 0, null],
-            cost: [9, 12, 36, 300, 800, 2000, 8000, 30000]
+            startCost: [9, 12, 36, 300, 800, 2000, 8000, 30000],
+            cost: [] //Auto added
         }, { //Stage 2
             description: [
                 'Molecules to Moles. Even more Moles.',
@@ -612,7 +455,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Each Sea creates 1 extra Lake.']
             ],
             effect: [null, null, 0.02, 0.02, 1, 1, null],
-            cost: [1e4, 1e10, 1000, 10000, 2e9, 5e20, 1e28]
+            startCost: [1e4, 1e10, 1000, 10000, 2e9, 5e20, 1e28],
+            cost: []
         }, { //Stage 3
             description: [
                 'Brownian motion.',
@@ -645,7 +489,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Satellites effect scales better.']
             ],
             effect: [1.01, 0, null, 1.02, null, null, null, 2, null, null, 10, null, null],
-            cost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e22, 1e23, 1e9, 1e26, 1e29]
+            startCost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e22, 1e23, 1e9, 1e26, 1e29],
+            cost: []
         }, { //Stage 4
             description: [
                 'Gravitational collapse.',
@@ -655,12 +500,13 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 ['As fuel runs out, each star will boost production in its own special way.'],
-                ['Fuse with Protium instead of Deuterium. Unlocks a new structure and something else.'],
+                ['Fuse with Protium instead of Deuterium. Unlocks a new structure and something else.\n(Somewhere in Research tab)'],
                 ['CNO cycle is now a better source of Helium and Energy. Unlocks a new structure and more of something else.'],
                 ['Through Triple-alpha and then Alpha process, unlock a few more Elements.']
             ],
             effect: [null, null, null, null],
-            cost: [100, 1000, 1e9, 1e50]
+            startCost: [100, 1000, 1e9, 1e50],
+            cost: []
         }, { //Stage 5
             description: [
                 'Jeans instability.',
@@ -673,7 +519,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Nickel Element receives super boost of ^', '.'] //Effect here only needs format
             ],
             effect: [4, 6, 1.5],
-            cost: [1e50, 1e60, 1e100]
+            startCost: [1e50, 1e60, 1e100],
+            cost: []
         }
     ],
     researchesInfo: [
@@ -681,9 +528,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             description: [],
             effectText: [],
             effect: [],
-            cost: [],
+            startCost: [],
             scaling: [],
-            max: []
+            max: [],
+            cost: []
         },
         { //Stage 1
             description: [
@@ -703,9 +551,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ["Discharge will boost 'Tritium' upgrade for every reached goal + 1."]
             ],
             effect: [0.01, 0.01, 12, null, null, null],
-            cost: [1000, 3000, 12000, 6000, 10000, 20000],
+            startCost: [1000, 3000, 12000, 6000, 10000, 20000],
             scaling: [500, 2000, 2000, 26000, 0, 5000],
-            max: [9, 3, 9, 2, 1, 3]
+            max: [9, 3, 9, 2, 1, 3],
+            cost: []
         }, { //Stage 2
             description: [
                 'Better Mole production.',
@@ -724,9 +573,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Rivers can split now, that allows even more Ponds per Lake. (+1 per)']
             ],
             effect: [null, null, 0.02, 0.03, null, null],
-            cost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
+            startCost: [20, 1e12, 1e5, 1e6, 1e14, 1e22],
             scaling: [1.2, 1000, 1000, 10000, 1000, 100],
-            max: [9, 2, 3, 3, 2, 2]
+            max: [9, 2, 3, 3, 2, 2],
+            cost: []
         }, { //Stage 3
             description: [
                 'More massive bodies.',
@@ -749,9 +599,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ["Accretion speed for 'Pebble accretion' increased again, by 3."]
             ],
             effect: [null, 0.01, null, null, null, 0, 1.5, null],
-            cost: [1e-14, 1e-15, 1e-5, 1e5, 1e10, 1e15, 1e13, 1e12],
+            startCost: [1e-14, 1e-15, 1e-5, 1e5, 1e10, 1e15, 1e13, 1e12],
             scaling: [11, 111, 22, 10, 100, 10, 100000, 1000],
-            max: [7, 3, 9, 4, 2, 5, 3, 3]
+            max: [7, 3, 9, 4, 2, 5, 3, 3],
+            cost: []
         }, { //Stage 4
             description: [
                 'Planetary system.',
@@ -766,9 +617,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Matter expelled from Red giants, but get 10x boost to Main-sequence stars anyway.']
             ],
             effect: [1.1, 1, null, null],
-            cost: [1000, 50000, 1e8, 1e12],
+            startCost: [1000, 50000, 1e8, 1e12],
             scaling: [10, 200, 1e12, 0],
-            max: [3, 2, 1, 1]
+            max: [3, 2, 1, 1],
+            cost: []
         }, { //Stage 5
             description: [
                 'Higher density.',
@@ -779,9 +631,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ', '.']
             ],
             effect: ['Main sequence', 'Red supergiants'],
-            cost: [1e40, 1e55],
+            startCost: [1e40, 1e55],
             scaling: [1e20, 1e15],
-            max: [3, 3]
+            max: [3, 3],
+            cost: []
         }
     ],
     researchesExtraInfo: [
@@ -789,17 +642,19 @@ export const global: globalType = { //For information that doesn't need to be sa
             description: [],
             effectText: [],
             effect: [],
-            cost: [],
+            startCost: [],
             scaling: [],
-            max: []
+            max: [],
+            cost: []
         },
         {
             description: [],
             effectText: [],
             effect: [],
-            cost: [],
+            startCost: [],
             scaling: [],
-            max: []
+            max: [],
+            cost: []
         },
         { //Stage 2
             description: [
@@ -813,9 +668,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Seas get a boost based on amount of Clouds. (Equal to ', ')']
             ],
             effect: [null, 0, 0],
-            cost: [1e16, 1e13, 1e26],
+            startCost: [1e16, 1e13, 1e26],
             scaling: [0, 100, 0],
-            max: [1, 4, 1]
+            max: [1, 4, 1],
+            cost: []
         }, { //Stage 3
             description: [
                 'Rank, can now boost Dust production.',
@@ -830,9 +686,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ["'Gas' upgrade is now stronger."]
             ],
             effect: [0, 0, null, null],
-            cost: [1e-18, 1e-16, 1e26, 1e-12],
+            startCost: [1e-18, 1e-16, 1e26, 1e-12],
             scaling: [10, 100, 0, 100],
-            max: [12, 5, 1, 20]
+            max: [12, 5, 1, 20],
+            cost: []
         }, { //Stage 4
             description: [
                 'At the end of Star life.',
@@ -843,16 +700,18 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Red giants are turning into White dwarfs, which caused Main-sequence to produce quicker. (Times square root of Red giants)']
             ],
             effect: ['Main sequence', null],
-            cost: [1e6, 1e50],
+            startCost: [1e6, 1e50],
             scaling: [1e12, 0],
-            max: [3, 1]
+            max: [3, 1],
+            cost: []
         }, { //Stage 5
             description: [],
             effectText: [],
             effect: [],
-            cost: [],
+            startCost: [],
             scaling: [],
-            max: []
+            max: [],
+            cost: []
         }
     ],
     researchesAutoInfo: {
@@ -867,10 +726,11 @@ export const global: globalType = { //For information that doesn't need to be sa
             ['This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.']
         ],
         effect: [null, null, null],
-        cost: [300, 1e9, 1],
+        startCost: [300, 1e9, 1],
         scaling: [30000, 2e4, 1e10],
         max: [1, 1, 0],
-        autoStage: [1, 2, 3] //Stage at which you can buy auto research
+        autoStage: [1, 2, 3], //Stage at which you can buy auto research
+        cost: []
     },
     ASRInfo: { //Part of researchesAutoInfo for buildings (Auto Structures Research)
         cost: [0, 4000, 1e10, 1e-7, 1e6, 1],
@@ -952,20 +812,22 @@ export const global: globalType = { //For information that doesn't need to be sa
             null, null, null, 1e3, 1.4, null, null, null, null, null,
             null, 1.1, null, null, 0.01, null, null, null, 0
         ],
-        cost: [ //If index 0 to be added, then it should have cost higher than last unlocked before it (or add continue for autoElements)
+        startCost: [ //If index 0 to be added, then it should have cost higher than last unlocked before it (or add continue for autoElements)
             1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
             1e16, 1e20, 1e24, 1e25, 1.4e27, 1e30, 1e31, 5e31, 5e33, 1e35,
             1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50, 1e52, 1e55
-        ]
+        ],
+        cost: []
     },
     strangenessInfo: [
         {
             description: [],
             effectText: [],
             effect: [],
-            cost: [],
+            startCost: [],
             scaling: [],
-            max: []
+            max: [],
+            cost: []
         },
         { //Stage 1
             description: [
@@ -991,9 +853,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unspend Strange quarks will boost this stage. (Stronger radiation)']
             ],
             effect: [null, null, null, null, null, 0.3, 'Particles', null, null],
-            cost: [1, 1, 2, 4, 4, 1, 2, 2, 10],
+            startCost: [1, 1, 2, 4, 4, 1, 2, 2, 10],
             scaling: [1.5, 1, 3, 0, 2, 0.25, 2, 3, 0], //Right now only 2 digits allowed past point
-            max: [4, 4, 2, 1, 2, 10, 3, 1, 1]
+            max: [4, 4, 2, 1, 2, 10, 3, 1, 1],
+            cost: []
         }, { //Stage 2
             description: [
                 'More Moles.',
@@ -1018,9 +881,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unspend Strange quarks will boost this stage. (Puddle production)']
             ],
             effect: [null, null, null, null, null, 'Drops', null, null, null],
-            cost: [1, 2, 2, 1, 3, 2, 1, 3, 8],
+            startCost: [1, 2, 2, 1, 3, 2, 1, 3, 8],
             scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.34, 2.5, 0],
-            max: [9, 6, 3, 3, 1, 5, 4, 2, 1]
+            max: [9, 6, 3, 3, 1, 5, 4, 2, 1],
+            cost: []
         }, { //Stage 3
             description: [
                 'Accretion speed increase.',
@@ -1043,9 +907,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unspend Strange quarks will boost this stage. (Cheaper Accretion)']
             ],
             effect: [null, null, null, null, null, 'Cosmic dust', null, null],
-            cost: [1, 1, 3, 4, 3, 2, 5, 6],
+            startCost: [1, 1, 3, 4, 3, 2, 5, 6],
             scaling: [0.75, 1.5, 2.5, 0, 0, 1, 3.5, 0],
-            max: [8, 4, 3, 1, 1, 4, 3, 1]
+            max: [8, 4, 3, 1, 1, 4, 3, 1],
+            cost: []
         }, { //Stage 4
             description: [
                 'Hotter Stars.',
@@ -1072,9 +937,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unspend Strange quarks will boost this stage. (All Stars production)']
             ],
             effect: [1.5, null, null, null, null, null, 'Brown dwarfs', null, null, null],
-            cost: [1, 1, 3, 2, 4, 3, 3, 2, 4, 4],
+            startCost: [1, 1, 3, 2, 4, 3, 3, 2, 4, 4],
             scaling: [1, 1.5, 1.5, 2, 0, 0, 1, 2.5, 0, 0],
-            max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1]
+            max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1],
+            cost: []
         }, { //Stage 5
             description: [
                 'Omnipresent reality.',
@@ -1099,9 +965,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 ['Unlock Intergalactic Milestones.']
             ],
             effect: ['Microworld', null, null, null, null, null, null, null, null],
-            cost: [120, 10, 20, 5, 10, 20, 800, 20, 40],
+            startCost: [120, 10, 20, 5, 10, 20, 800, 20, 40],
             scaling: [60, 0, 0, 5, 10, 0, 400, 20, 0],
-            max: [3, 1, 1, 9, 9, 1, 2, 2, 1]
+            max: [3, 1, 1, 9, 9, 1, 2, 2, 1],
+            cost: []
         }
     ],
     lastUpgrade: [0, false], //Allows to auto update last looked upgrade description
@@ -1230,6 +1097,18 @@ export const global: globalType = { //For information that doesn't need to be sa
     ]
 };
 
+//Set cost to startCost (startCost is not allowed to be changed, it's done this way to not have to copy global)
+global.buildingsInfo.cost = structuredClone(global.buildingsInfo.startCost) as number[][];
+global.buildingsInfo.firstCost = structuredClone(global.buildingsInfo.startCost) as number[][];
+global.researchesAutoInfo.cost = [...global.researchesAutoInfo.startCost];
+for (const upgradeType of ['upgrades', 'researches', 'researchesExtra', 'strangeness']) {
+    const pointer = global[upgradeType + 'Info' as 'upgradesInfo'];
+    for (let i = 0; i < pointer.length; i++) {
+        pointer[i].cost = [...pointer[i].startCost];
+    }
+}
+global.elementsInfo.cost = [...global.elementsInfo.startCost];
+
 const createArray = (amount: number, special: 'toggle' | 'toggleAuto' | 'upgrade') => {
     const array = [];
     for (let i = 0; i < amount; i++) {
@@ -1302,9 +1181,8 @@ Object.assign(player.toggles, { //To prevent properties from being removed, it w
     auto: createArray(document.getElementsByClassName('toggleAuto').length, 'toggleAuto')
 });
 
-//player.example = playerStart.example; not allowed, instead iterate or create clone
+//player.example = playerStart.example; not allowed (if example is an array or object), instead iterate or create clone
 export const playerStart = structuredClone(player) as playerType;
-export const globalStart = structuredClone(global) as globalType;
 
 //Extension for Math.log for any base
 //export const logAny = (number: number, base: number) => Math.log(number) / Math.log(base);
