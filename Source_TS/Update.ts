@@ -739,12 +739,12 @@ export const format = (input: number, precision = 'auto' as 'auto' | number, typ
     switch (type) { //toLocaleString() is banned, I don't want that slowness and weird behavior
         case 'input':
         case 'number':
-            if (!isFinite(input)) { return 'Infinity'; }
+            if (!isFinite(input)) { return `${input}`; }
             if (inputAbs >= 1e6 || (inputAbs < 1e-3 && inputAbs > 0)) { //Format for these cases
                 let digits = Math.floor(Math.log10(inputAbs));
                 let endValue = Math.round(input / 10 ** (digits - 2)) / 100;
-                if (Math.abs(endValue) >= 10) {
-                    endValue /= 10;
+                if (Math.abs(endValue) === 10) {
+                    endValue = 1;
                     digits++;
                 }
                 if (type === 'input') { return `${endValue}e${digits}`; }
@@ -763,13 +763,13 @@ export const format = (input: number, precision = 'auto' as 'auto' | number, typ
             }
         case 'time':
             if (input >= 172800000) {
-                return `${Math.trunc(input / 86400000)} days`;
+                return `${Math.floor(input / 86400000)} days`;
             } else if (input >= 7200000) {
-                return `${Math.trunc(input / 3600000)} hours`;
+                return `${Math.floor(input / 3600000)} hours`;
             } else if (input >= 600000) {
-                return `${Math.trunc(input / 60000)} minutes`;
+                return `${Math.floor(input / 60000)} minutes`;
             } else {
-                return `${Math.trunc(input / 1000)} seconds`;
+                return `${Math.floor(input / 1000)} seconds`;
             }
     }
 };

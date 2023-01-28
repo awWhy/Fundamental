@@ -214,8 +214,9 @@ export const milestoneCheck = (index: number, stageIndex: number) => {
     }
 
     if (award) {
-        player.strange[0].true += global.milestonesInfo[stageIndex].quarks[index][player.milestones[stageIndex][index]];
-        player.strange[0].total += global.milestonesInfo[stageIndex].quarks[index][player.milestones[stageIndex][index]];
+        const reward = global.milestonesInfo[stageIndex].quarks[index][player.milestones[stageIndex][index]];
+        player.strange[0].true += reward;
+        player.strange[0].total += reward;
         player.milestones[stageIndex][index]++;
         getUpgradeDescription(index, stageIndex, 'milestones');
     }

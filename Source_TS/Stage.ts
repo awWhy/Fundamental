@@ -325,7 +325,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
 
     if (microworld) {
         let reward = global.dischargeInfo.energyType[index];
-        if (index === 1 && player.strangeness[1][4] >= 1) { reward += 1 + player.strangeness[1][4]; }
+        if (index === 1) { reward += player.strangeness[1][4]; }
         player.discharge.energy += reward * canAfford;
     }
     if (global.screenReader && !auto) {

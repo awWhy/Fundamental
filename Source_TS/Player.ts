@@ -429,7 +429,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Atoms produce 5 times more Particles.',
                 () => `Ability to reset at any time, and if had enough Energy, then production for all structures will also be boosted by ${format(global.upgradesInfo[1].effect[3] as number)} times.`,
                 () => `Cost scaling is decreased by ${format(global.upgradesInfo[1].effect[4] as number)}.`,
-                () => `Structures (only self-made one\'s) boost themselves by ${format(global.upgradesInfo[1].effect[5] as number)} times.`,
+                () => `Structures (only self-made one's) boost themselves by ${format(global.upgradesInfo[1].effect[5] as number)} times.`,
                 () => `Molecules produce Molecules. At a reduced rate. (${format(global.upgradesInfo[1].effect[6] as number)} per second)`,
                 () => 'Unspent Energy boost Molecules production of themselves 1 to 1.'
             ],
@@ -451,8 +451,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Gain ability to convert Drops into Clouds. (Puddles get a boost equal to Cloud amount)',
                 () => `Puddles get boost based on Moles. (Equal to Moles ^ ${format(global.upgradesInfo[2].effect[2] as number)})`,
                 () => `Puddles get boost based on Drops. (Equal to Drops ^ ${format(global.upgradesInfo[2].effect[3] as number)})`,
-                () => `Ponds do not produce Puddles, instead they only improve them.\nThis upgrade will create extra Puddles for every Pond. (${format(global.upgradesInfo[2].effect[3] as number)} extra Puddles per Pond)`,
-                () => `Lakes now create extra Ponds. (${format(global.upgradesInfo[2].effect[4] as number)} extra Ponds per Lake)`,
+                () => `Ponds do not produce Puddles, instead they only improve them.\nThis upgrade will create extra Puddles for every Pond. (${format(global.upgradesInfo[2].effect[4] as number)} extra Puddles per Pond)`,
+                () => `Lakes now create extra Ponds. (${format(global.upgradesInfo[2].effect[5] as number)} extra Ponds per Lake)`,
                 () => 'Each Sea creates 1 extra Lake.'
             ],
             effect: [null, null, 0.02, 0.02, 1, 1, null],
@@ -630,11 +630,11 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 () => {
                     const index = Math.min(player.researches[5][0] + 2, 4);
-                    return `Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`
+                    return `Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`;
                 },
                 () => {
                     const index = Math.max(3 - player.researches[5][1], 1);
-                    return `More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`
+                    return `More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(unknown)'}.`;
                 }
             ],
             effect: [null, null],
@@ -705,7 +705,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 () => {
                     const index = Math.min(player.researchesExtra[4][0] + 2, 4);
-                    return `${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(Unknown)'} Stars are now creating something new, upon collapse reset.`
+                    return `${player.buildings[4][index].trueTotal !== 0 ? global.buildingsInfo.name[4][index] : '(Unknown)'} Stars are now creating something new, upon collapse reset.`;
                 },
                 () => 'Red giants are turning into White dwarfs, which caused Main-sequence to produce quicker. (Times square root of Red giants)'
             ],

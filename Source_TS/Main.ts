@@ -381,7 +381,7 @@ async function saveLoad(type: string) {
         case 'export': {
             if (player.strangeness[4][7] >= 1) {
                 const multiplier = exportMultiplier();
-                const strangeGain = Math.trunc(player.stage.export * multiplier / 86400);
+                const strangeGain = Math.floor(player.stage.export * multiplier / 86400);
                 player.strange[0].true += strangeGain;
                 player.strange[0].total += strangeGain;
                 player.stage.export -= strangeGain * 86400 / multiplier;
