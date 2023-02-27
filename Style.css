@@ -1,4 +1,3 @@
-/* CSS lint will never be installed, because it was only gettin in a way without proving any help */
 body *, body {
     font-family: Inter, serif;
     box-sizing: border-box;
@@ -12,7 +11,6 @@ body *, body {
 }
 
 body {
-    /* Colors */
     --background-color: #030012;
     --window-color: #12121c;
     --window-border: cornflowerblue;
@@ -46,7 +44,6 @@ body {
         --window-color > ".stage1windowBackground";
         --button-main-color > ".stage1backgroundButton" and "--stage-button-color", and "global.stageInfo.buttonBackgroundColor[1]";
         --button-main-border > ".stage1borderButton" and "--stage-button-border", and "global.stageInfo.buttonBackgroundColor[1]"; */
-    /* Special */
     --transition-all: 0s;
     --transition-buttons: 100ms;
     --stage-text-color: var(--cyan-text-color);
@@ -123,7 +120,7 @@ img {
     border-radius: 2px;
     /* box-sizing: content-box; */ /* If need to change padding */
 
-    /* Alt text color (shown if image failed to load) */
+    /* For alt text */
     color: white;
     font-size: 0.66em;
 }
@@ -131,8 +128,8 @@ img {
 .statFoot img,
 #strangenessResearch input[type = "image"],
 .researchSection input[type = "image"] {
-    border-radius: 3px; /* Yes 1 pixel difference... */
-    z-index: 2; /* Text has -2.5px margin (because round corners), so image should be on top */
+    border-radius: 3px;
+    z-index: 2;
 }
 
 .interactiveImage { cursor: pointer; }
@@ -156,9 +153,9 @@ h1, h2, h3, h4, h5, h6 {
     cursor: default;
 }
 
-#loading > p { padding: 0.6em 2em; }
+#loading > p { padding: 0.6em 2vw; }
 
-#loading, #blocker {
+#loading, #blocker, #versionInfo {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -170,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
 }
 
-#blocker {
+#blocker, #versionInfo {
     z-index: 10;
     background-color: #00000050;
 }
@@ -180,8 +177,6 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
     width: clamp(24vw, 23.8em, 80vw);
     height: clamp(18vh, 20em, 90vh);
-    left: 50%;
-    top: 50%;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
@@ -272,7 +267,7 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 input[type = "number"] {
     width: 5.4em;
     height: 1.85em;
-    appearance: textfield; /* To remove arrows */
+    appearance: textfield;
     text-align: center;
 }
 
@@ -288,7 +283,7 @@ input[type = "number"], input[type = "text"] {
     padding: 0.1em 0.2em;
 }
 
-.insideTab { /* If tab has subtabs, then it should be placed ONLY on subtabs */
+.insideTab {
     margin-top: min(2vh, 1.2em);
     display: flex;
     flex-flow: row wrap;
@@ -305,7 +300,7 @@ input[type = "number"], input[type = "text"] {
     gap: 1.2em;
 }
 
-.reset {
+#resets > div {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -316,15 +311,16 @@ input[type = "number"], input[type = "text"] {
     border: 2px solid var(--window-border);
 }
 
-.reset .mediumButton { margin-top: 0.4em; }
-.bigWord { font-size: 1.1em; }
-.biggerWord { font-size: 1.2em; }
+#resets > div .mediumButton { margin-top: 0.4em; }
 
 p > img {
-    float: left; /* This is the only way to have an image inside text */
+    float: left;
     margin-right: 0.4em;
     margin-top: 0.35em;
 }
+
+.bigWord { font-size: 1.1em; }
+.biggerWord { font-size: 1.2em; }
 
 #buildings {
     display: flex;
@@ -444,6 +440,16 @@ p > img {
 
 #upgrades > h3 { margin-bottom: 0.05em; }
 
+#offlineBoost {
+    text-align: center;
+    width: 100%;
+}
+
+#offlineBoostEffect {
+    display: inline-block;
+    width: 2.4em;
+}
+
 .challengeDiv {
     display: flex;
     flex-direction: column;
@@ -483,9 +489,9 @@ p > img {
     border-left: none;
     line-height: 28px;
     text-align: center;
-    padding: 0 0.25em 0 calc(0.25em + 2.5px);
+    padding: 0 0.25em 0 calc(0.25em + 2px);
     background-color: var(--background-color);
-    margin-left: -2.5px;
+    margin-left: -2px;
 }
 
 .researchSection > div > div { display: flex; }
@@ -558,9 +564,9 @@ p > img {
     border-left: none;
     line-height: 28px;
     text-align: center;
-    padding: 0 0.25em 0 calc(2.5px + 0.25em);
+    padding: 0 0.25em 0 calc(2px + 0.25em);
     background-color: var(--background-color);
-    margin-left: -2.5px;
+    margin-left: -2px;
 }
 
 #milestones {
@@ -609,7 +615,7 @@ p > img {
 #resetToggles .miniButton:hover { background-color: var(--button-extra-hover); }
 
 #resetToggles .toggleAuto {
-    width: 5.1275em; /* instead of using 100% and :has() */
+    width: 5.1275em;
     height: 1.85em;
     font-size: 0.77em;
     margin-top: 0.1em;
@@ -623,6 +629,15 @@ p > img {
     column-gap: 0.6em;
 }
 
+#logoLinks > button {
+    height: unset;
+    font-size: unset;
+    transition: background-color var(--transition-all),
+        border-color var(--transition-all),
+        background-image var(--transition-all);
+}
+
+#logoLinks > button,
 #logoLinks > a {
     display: flex;
     flex-direction: column;
@@ -636,7 +651,7 @@ p > img {
     text-decoration: none;
 }
 
-#logoLinks > a > img {
+#logoLinks img {
     background-color: inherit;
     object-fit: scale-down;
     height: 25px;
@@ -661,6 +676,12 @@ p > img {
 .saveButtonGroup > div > div {
     display: flex;
     column-gap: 0.2em;
+}
+
+#exportGain {
+    display: inline-block;
+    text-align: center;
+    width: 2.4em;
 }
 
 .saveButtonGroup button, #load { font-size: 1em; }
@@ -711,7 +732,7 @@ p > img {
 
 #themeArea { text-align: center; }
 #themeArea > div:focus-within > div { display: block; }
-#themeArea > div:focus-within > button { clip-path: circle(0); } /* Just makes button invisible without removing focus from it */
+#themeArea > div:focus-within > button { clip-path: circle(0); }
 #themeArea button { width: 7em; }
 #themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
 #themeArea > h3 { margin-bottom: 0.3em; }
@@ -735,13 +756,13 @@ p > img {
 .options > ul {
     display: flex;
     flex-direction: column;
-    row-gap: 0.18em;
     margin-top: 0.2em;
     margin-left: -1em;
 }
 
 .options li {
     font-size: 0.92em;
+    line-height: 1.63em;
     list-style-type: ">  ";
 }
 
@@ -750,6 +771,7 @@ li > input[type = "number"] {
     width: 3.15em;
 }
 
+#offlineWarp,
 li > .windowPopUp > button {
     height: 1.77em;
     padding: 0 0.45em;
@@ -772,8 +794,9 @@ li button {
     border: 2px solid var(--window-border);
     width: min(23em, 80vw);
     padding: 0.6em 0.7em 0.7em;
-    margin-top: 0.5em;
+    margin-top: 0.38em;
     row-gap: 0.3em;
+    line-height: 1.26em;
 }
 
 .windowPopUp > div > div {
@@ -784,7 +807,7 @@ li button {
 
 .windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
 .windowPopUp:focus-within > div { display: flex; }
-.windowPopUp > button { margin-left: 0.4em; } /* Put comments on separate lines, because white space */
+.windowPopUp > button { margin-left: 0.4em; }
 
 .miniInput {
     width: 1.3em;
@@ -800,13 +823,14 @@ li button {
 #noMovement,
 #pauseGame {
     cursor: pointer;
-    width: max-content; /* Without it, area where you can click will stretch */
+    width: max-content;
 }
 
 #stats {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     row-gap: 0.4em;
 }
 
@@ -875,41 +899,31 @@ li button {
 #footerColor > div:not(:last-of-type) { margin-bottom: min(1.3vh, 0.8em); }
 
 .statFoot > p {
-    width: 10em;
     line-height: 28px;
     text-align: center;
     border: 2px solid;
     border-left: none;
     border-radius: 0 6px 6px 0;
     background-color: black;
-    color: inherit;
-    margin-left: -2.5px;
-    padding-left: 2.5px;
+    margin-left: -2px;
+    padding-left: calc(2px + 0.5em);
+    padding-right: 0.25em;
     white-space: nowrap;
+    z-index: 1; /* Text color issue */
+}
 
-    /* For some reason text losing color without it, when not on first tab */
-    z-index: 1;
+.statFoot > p > span:last-of-type {
+    display: inline-block;
+    width: 5.2em;
 }
 
 #footer img { background-color: black; }
 .statFoot { display: flex; }
 
-.noMove > p {
-    width: unset;
-    padding-left: calc(2.5px + 0.5em);
-    padding-right: 0.25em;
-}
-
-.noMove span {
-    display: inline-block;
-    width: 5em;
-}
-
 #footer > div:first-child {
     display: flex;
     align-items: end;
-    height: 0; /* Next one wont work, because of footer
-    pointer-events: none; */
+    height: 0; /* To click behind it (pointer-events won't work here) */
 }
 
 #subtabs {
@@ -930,13 +944,11 @@ li button {
 #stageSelect {
     display: flex;
     align-items: end;
+    justify-content: center;
     margin-bottom: min(0.6vh, 0.8em);
-
-    /* No idea how to centralize without doing that... It's also causing area behind to be non clickable */
+    pointer-events: none;
     position: absolute;
     width: 100%;
-    justify-content: center;
-    pointer-events: none;
 }
 
 #stageSelect button {
@@ -952,13 +964,13 @@ li button {
     position: absolute;
     flex-direction: row;
     gap: min(0.5vh, 0.4em);
-    pointer-events: auto; /* Just in case, to prevent gaps being clickable */
+    pointer-events: auto;
 }
 
-#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
-#stageSelect:focus-within > button { clip-path: circle(0); }
-#stageSelect:focus-within > div { display: flex; }
 #currentSwitch { border-color: var(--stage-button-border); }
+#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
+#stageSelect.active > #currentSwitch { clip-path: circle(0); }
+#stageSelect.active > div { display: flex; }
 
 #hideToggle {
     margin-left: auto;

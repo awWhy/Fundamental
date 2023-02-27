@@ -40,7 +40,7 @@
         "no-sparse-arrays": "off",
         "operator-assignment": "warn", //Test
         "operator-linebreak": ["error", "after"],
-        //"no-return-assign": "off",
+        //"no-return-assign": "off", //Put inside (), (return a = b)
         "eqeqeq": "warn", //Using ===, won't be slower than == (even if need type conversion)
         "no-loop-func": "warn", //Test
         "prefer-object-has-own": "warn", //No 'in' as well (because it's not actually quicker, sad...)

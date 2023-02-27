@@ -1,10 +1,7 @@
 # Fundamental
 Attempt to make something\
 Can be played at 'https://awwhy.github.io/Fundamental/' \
-(Work in Progress)\
-**v0.0.9** > Stage 4 speed up. Stage 5 second part, some balance changes, \
-There was a bug when launching game for the **first time**, buildings weren't producing, \
-Only way to fix it on your side, is by deleting game Cookies (Local storage)
+**v0.1.2** > Vacuum and Overlimit (break infinity, but self-made)
 
 #### Should be supported by:
 1. Modern browsers,

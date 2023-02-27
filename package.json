@@ -1,7 +1,7 @@
 {
   "name": "fundamental",
-  "description": "Test project (Idle game)",
-  "version": "0.1.0",
+  "description": "Explore the Universe with this idle-game",
+  "version": "0.1.2",
   "main": "Code.js",
   "repository": {
     "type": "git",

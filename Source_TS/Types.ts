@@ -10,28 +10,32 @@ export interface playerType {
         export: number
         input: number
     }
-    discharge: { //Stage 1
+    discharge: {
+        unlock: boolean
         energy: number
         energyMax: number
         current: number
     }
-    vaporization: { //Stage 2
-        clouds: number
-        cloudsMax: number
+    vaporization: {
+        clouds: overlimit
+        cloudsMax: overlimit
         input: number
     }
-    accretion: { //Stage 3
+    accretion: {
         rank: number
     }
-    collapse: { //Stage 4
+    collapse: {
         mass: number
         massMax: number
-        elementsMax: number
+        elementsMax: overlimit
         stars: [number, number, number]
         show: number[]
         disabled: boolean
         inputM: number
         inputS: number
+    }
+    inflation: {
+        vacuum: boolean
     }
     intervals: {
         main: number
@@ -42,10 +46,25 @@ export interface playerType {
     time: {
         updated: number
         started: number
+        offline: number
     }
-    buildings: Array<Array<Record<string, number>>>
+    buildings: Array<[
+        {
+            current: overlimit
+            total: overlimit
+            trueTotal: overlimit
+            highest: overlimit
+        },
+        ...Array<{
+            true: number
+            current: overlimit
+            total: overlimit
+            trueTotal: overlimit
+            highest: overlimit
+        }>
+    ]>
     strange: Array<{
-        true: number
+        current: number
         total: number
     }>
     upgrades: number[][]
@@ -88,8 +107,8 @@ export interface globalType {
     mobileDevice: boolean
     screenReader: boolean
     versionInfo: {
+        build: boolean
         changed: boolean
-        log: string
     }
     timeSpecial: {
         lastSave: number
@@ -102,6 +121,9 @@ export interface globalType {
         imageBorderColor: string[]
         priceName: string
         activeAll: number[]
+        maxUpgrades: number[]
+        maxResearches: number[]
+        maxResearchesExtra: number[]
     }
     automatization: {
         autoU: number[][]
@@ -114,13 +136,11 @@ export interface globalType {
         default: boolean
     }
     dischargeInfo: {
-        energyType: number[]
-        base: number
-        step: number
+        energyType: number[][]
         next: number
     }
     vaporizationInfo: {
-        get: number
+        get: overlimit
     }
     accretionInfo: {
         rankU: number[]
@@ -139,6 +159,10 @@ export interface globalType {
         starCheck: [number, number, number]
         trueStars: number
     }
+    inflationInfo: {
+        preonCap: overlimit
+        dustCap: overlimit
+    }
     intervalsId: {
         main: number
         numbers: number
@@ -146,53 +170,51 @@ export interface globalType {
         autoSave: number
     }
     buildingsInfo: {
+        maxActive: number[]
         name: string[][]
-        type: Array<Array<'producing' | 'improves' | ''>>
+        type: Array<Array<'producing' | 'improves'>>
         firstCost: number[][]
         startCost: number[][]
         increase: number[][]
-        producing: number[][]
-        cost: number[][]
+        producing: overlimit[][]
     }
     strangeInfo: {
-        stageGain: number
-        extraGain: number
+        gain: (stage: number) => number
         stageBoost: Array<number | null>
     }
     upgradesInfo: Array<{
         description: string[]
-        effectText: Function[]
-        effect: Array<number | null>
+        effectText: Array<() => string>
+        effect: Array<number | overlimit | null | (() => number)>
         startCost: number[]
-        cost: number[]
     }>
     researchesInfo: Array<{
         description: string[]
-        effectText: Function[]
-        effect: Array<number | null>
+        effectText: Array<() => string>
+        effect: Array<number | overlimit | null>
+        cost: number[]
         startCost: number[]
         scaling: number[]
         max: number[]
-        cost: number[]
     }>
     researchesExtraInfo: Array<{
         description: string[]
-        effectText: Function[]
-        effect: Array<number | null>
+        effectText: Array<() => string>
+        effect: Array<number | overlimit | null | (() => number)>
+        cost: number[]
         startCost: number[]
         scaling: number[]
         max: number[]
-        cost: number[]
     }>
     researchesAutoInfo: {
         description: string[]
-        effectText: Function[]
+        effectText: Array<() => string>
         //effect: null[]
+        cost: number[]
         startCost: number[]
         scaling: number[]
         max: number[]
         autoStage: number[]
-        cost: number[]
     }
     ASRInfo: {
         cost: number[]
@@ -201,41 +223,30 @@ export interface globalType {
     }
     elementsInfo: {
         description: string[]
-        effectText: Function[]
-        effect: Array<number | null>
+        effectText: Array<() => string>
+        effect: Array<number | overlimit | null | (() => number)>
         startCost: number[]
-        cost: number[]
     }
     strangenessInfo: Array<{
         description: string[]
-        effectText: Function[]
+        effectText: Array<() => string>
         //effect: Array<number | null>
+        cost: number[]
         startCost: number[]
         scaling: number[]
         max: number[]
-        cost: number[]
     }>
-    lastUpgrade: [number, boolean]
-    lastResearch: [number, boolean, 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']
-    lastElement: [number, boolean]
+    lastUpgrade: [boolean, number]
+    lastResearch: [boolean, number, 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']
+    lastElement: [boolean, number]
     milestonesInfo: Array<{
         description: string[]
         needText: string[][]
-        need: number[][]
+        need: Array<Array<number | overlimit>>
         rewardText: string[]
         quarks: number[][]
         unlock: number[]
     }>
 }
 
-export interface ListOfHTML {
-    longestBuilding: number
-    buildingHTML: string[][][]
-    longestUpgrade: number
-    upgradeHTML: string[][][]
-    longestResearch: number
-    researchHTML: string[][][]
-    longestResearchExtra: number
-    researchExtraDivHTML: string[][]
-    researchExtraHTML: string[][][]
-}
+export type overlimit = [number, number]; //Also possible as string (~21% slower) and number

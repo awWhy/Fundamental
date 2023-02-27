@@ -2,49 +2,44 @@ import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
 import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, vaporizationAsyncReset } from './Stage';
+import { timeWarp } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
     const checkEl = document.activeElement as HTMLInputElement;
-    if (checkEl.type === 'text' || checkEl.type === 'number') {
-        return; //Return if any inputs are focused
-    } else {
-        check.code === 'Tab' ? //I just want to remove outline when hitting buttons that is not a tab...
-            document.body.classList.add('outlineOnFocus') :
-            document.body.classList.remove('outlineOnFocus');
-    }
-
-    if (check.ctrlKey || check.altKey) { return; } //No buttons are using it
+    if (checkEl.type === 'text' || checkEl.type === 'number') { return; }
+    if (check.code === 'Tab') {
+        document.body.classList.add('outlineOnFocus');
+        return;
+    } else { document.body.classList.remove('outlineOnFocus'); }
+    if (check.ctrlKey || check.altKey) { return; }
 
     const shift = check.shiftKey;
     const isNumber = !isNaN(Number(check.code.slice(-1)));
-    const key = !player.toggles.normal[6] || (isNumber && shift) ?
-        check.code : check.key;
+    const key = !player.toggles.normal[6] || (isNumber && shift) ? check.code : check.key;
 
-    //These one's can be holded down
     if (isNumber) {
         if (check.code[0] === 'F') { return; }
         const numberKey = Number(key.slice(-1));
 
-        //Buildings
-        if (numberKey > 0 && numberKey < player.buildings[player.stage.active].length && !shift) {
-            buyBuilding(numberKey); //Check is already inside
-        }
+        if (!shift && numberKey >= 1) { buyBuilding(numberKey); }
         return;
-    } else if (check.key.length === 1) { //Maybe this could work same as a-z regex
+    } else if (check.key.length === 1) {
         const stringKey = key.replace('Key', '').toLowerCase();
 
-        //Resets
         if (!shift) {
             if (stringKey === 's') {
                 void stageAsyncReset();
             } else if (stringKey === 'd') {
-                void dischargeAsyncReset();
+                if (global.stageInfo.activeAll.includes(1)) { void dischargeAsyncReset(); }
             } else if (stringKey === 'v') {
-                void vaporizationAsyncReset();
+                if (global.stageInfo.activeAll.includes(2)) { void vaporizationAsyncReset(); }
             } else if (stringKey === 'r') {
-                void rankAsyncReset();
+                if (global.stageInfo.activeAll.includes(3)) { void rankAsyncReset(); }
             } else if (stringKey === 'c') {
-                void collapseAsyncReset();
+                if (global.stageInfo.activeAll.includes(4)) { void collapseAsyncReset(); }
+            } else if (stringKey === 'w') {
+                check.preventDefault();
+                void timeWarp();
             }
         }
         return;
@@ -58,18 +53,14 @@ export const detectHotkey = (check: KeyboardEvent) => {
                 let index = activeAll.indexOf(player.stage.active);
 
                 if (key === 'ArrowLeft') {
-                    if (index === 0) {
+                    if (index <= 0) {
                         index = activeAll.length - 1;
-                    } else {
-                        index--;
-                    }
+                    } else { index--; }
                     switchStage(activeAll[index]);
                 } else {
-                    if (index === activeAll.length - 1) {
+                    if (index >= activeAll.length - 1) {
                         index = 0;
-                    } else {
-                        index++;
-                    }
+                    } else { index++; }
                     switchStage(activeAll[index]);
                 }
             }
@@ -77,24 +68,19 @@ export const detectHotkey = (check: KeyboardEvent) => {
             if (key === 'ArrowLeft' || key === 'ArrowRight') {
                 const { tabs } = global.tabList;
                 let index = tabs.indexOf(global.tab);
-                if (index === -1) { return console.error(`Tab '${global.tab}' wasn't found in the list`); }
 
                 if (key === 'ArrowLeft') {
                     do {
-                        if (index === 0) {
+                        if (index <= 0) {
                             index = tabs.length - 1;
-                        } else {
-                            index--;
-                        }
+                        } else { index--; }
                     } while (!checkTab(tabs[index]));
                     switchTab(tabs[index]);
                 } else {
                     do {
-                        if (index === tabs.length - 1) {
+                        if (index >= tabs.length - 1) {
                             index = 0;
-                        } else {
-                            index++;
-                        }
+                        } else { index++; }
                     } while (!checkTab(tabs[index]));
                     switchTab(tabs[index]);
                 }
@@ -102,24 +88,19 @@ export const detectHotkey = (check: KeyboardEvent) => {
                 if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
                 const subtabs = global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs'];
                 let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
-                if (index === -1) { return console.error(`Subtab '${global.subtab[global.tab + 'Current' as 'settingsCurrent']}' wasn't found in the list`); }
 
                 if (key === 'ArrowDown') {
                     do {
-                        if (index === 0) {
+                        if (index <= 0) {
                             index = subtabs.length - 1;
-                        } else {
-                            index--;
-                        }
+                        } else { index--; }
                     } while (!checkTab(global.tab, subtabs[index]));
                     switchTab(global.tab, subtabs[index]);
                 } else {
                     do {
-                        if (index === subtabs.length - 1) {
+                        if (index >= subtabs.length - 1) {
                             index = 0;
-                        } else {
-                            index++;
-                        }
+                        } else { index++; }
                     } while (!checkTab(global.tab, subtabs[index]));
                     switchTab(global.tab, subtabs[index]);
                 }

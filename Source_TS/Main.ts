@@ -1,56 +1,47 @@
-import { player, global, playerStart, updatePlayer, checkPlayerValues } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier } from './Update';
-import { autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, switchVacuum, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
-import { Alert, Confirm, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, removeTextMovement, changeFormat, specialHTML } from './Special';
+import { player, global, playerStart, updatePlayer, checkPlayerValues, buildVersionInfo } from './Player';
+import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
+import { autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
+import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait } from './Special';
 import { detectHotkey } from './Hotkeys';
-import { createCalculator } from './Limit';
-/* There can be a problem with incorrect build, imports can be called in a wrong order */
-/* Small notes for myself: (tested with many, many loops) */
-//Optimizing visualUpdate() by using if...else... won't change anything (using a = b = c, will slow it down)
-//Removing decostructing ({ a } = b), in most cases will slow down code
+import { prepareVacuum, switchVacuum } from './Vacuum';
 
-export const getId = (id: string): HTMLElement => { //To type less and check if ID exist
-    const i = document.getElementById(id);
-    if (i !== null) { return i; }
-    Alert(`ID of HTML element (${id}), failed to load, game will not work properly, please refresh. If this happens more than once, then please report it`);
-    throw new ReferenceError(`ID "${id}" not found.`);
-};
+export const getId = (id: string) => document.getElementById(id) as HTMLElement;
+export const getClass = (idCollection: string) => document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>;
 
-export const getClass = (idCollection: string) => [...document.getElementsByClassName(idCollection) as HTMLCollectionOf<HTMLElement>];
-
-export const reLoad = async(firstLoad = false) => {
+export const reLoad = (firstLoad = false) => {
     if (firstLoad) {
         const save = localStorage.getItem('save');
-        const theme = localStorage.getItem('theme');
         if (save !== null) {
             const load = JSON.parse(atob(save));
             updatePlayer(load);
-            if (player.toggles.normal[0]) {
-                const offlineTime = Date.now() - player.time.updated;
-                const maxOffline = maxOfflineTime();
-                Alert(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}.${offlineTime > maxOffline * 1000 ? ` (Max offline time is ${maxOffline / 3600} hours)` : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
-            }
+
+            const { time } = player;
+            const offlineTime = Date.now() - time.updated;
+            const maxOffline = maxOfflineTime();
+            time.updated = Date.now();
+            global.timeSpecial.lastSave += offlineTime;
+            time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
+            player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
+            Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${offlineTime + (time.offline * 1000) > maxOffline * 1000 ? ' (Your offline time storage is full)' : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}` : `\nCurrent version is ${player.version}`}`);
         } else {
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
         }
-        if (theme !== null) {
-            global.theme.default = false;
-            global.theme.stage = Number(theme);
-        }
 
-        /* These one's better to do only on page reload */
         mobileDeviceSupport();
         screenReaderSupport(false, 'toggle', 'reload');
         changeFontSize();
-        if (localStorage.getItem('textMove') !== null) { removeTextMovement(); }
     }
 
-    stageCheck('reload'); //All related stage information and visualUpdate(), also calculateStageInformation();
-    if (firstLoad) { //Prevent spoilers
+    const theme = localStorage.getItem('theme');
+    setTheme(Number(theme), theme === null);
+
+    prepareVacuum();
+    stageCheck('reload'); //Stage information (incuding part of invisibleUpdate), visualUpdate
+    if (firstLoad) {
         getId('body').style.display = '';
         getId('loading').style.display = 'none';
     }
-    checkPlayerValues(); //Has to be done after stageCheck();
+    checkPlayerValues(); //Must be after stageCheck
 
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
     (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
@@ -59,28 +50,19 @@ export const reLoad = async(firstLoad = false) => {
     (getId('vaporizationInput') as HTMLInputElement).value = `${player.vaporization.input}`;
     (getId('collapseMassInput') as HTMLInputElement).value = `${player.collapse.inputM}`;
     (getId('collapseStarsInput') as HTMLInputElement).value = `${player.collapse.inputS}`;
+    getId('vacuumState').textContent = `${player.inflation.vacuum}`;
+    getId('stageSelect').classList.remove('active');
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
-    toggleBuy(); //Also numbersUpdate();
+    toggleBuy(); //Also numbersUpdate
 
-    createCalculator(); //Remove once done
-
-    if (firstLoad && !player.toggles.normal[0]) {
-        const offlineTime = Date.now() - player.time.updated;
-        const maxOffline = maxOfflineTime();
-        const noOffline = await Confirm(`Welcome back, you were away for ${format(offlineTime, 0, 'time')}${offlineTime > maxOffline * 1000 ? ` (max offline time is ${maxOffline / 3600} hours)` : ''}. Game was set to have offline time disabled. Press confirm to NOT to gain offline time.${global.versionInfo.changed ? ` Also game has been updated to ${player.version}, ${global.versionInfo.log}` : `\nCurrent version is ${player.version}`}`);
-        if (noOffline) {
-            global.timeSpecial.lastSave += offlineTime;
-            player.time.updated = Date.now();
-        }
-    }
-    changeIntervals(false, 'all'); //Will 'unpause' game, also set all of inputs values
+    changeIntervals(false, 'all'); //Unpause game and set input values
 };
 
-void reLoad(true); //This will start the game
+reLoad(true); //This will start the game
 
-/* Global */
 {
+    /* Global */
     const { mobileDevice, screenReader } = global;
     document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
@@ -108,11 +90,22 @@ void reLoad(true); //This will start the game
         }
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(i, 'auto', 'upgrades')); }
     }
-    getId('dischargeReset').addEventListener('click', () => { void dischargeAsyncReset(); });
-    getId('vaporizationReset').addEventListener('click', () => { void vaporizationAsyncReset(); });
-    getId('rankReset').addEventListener('click', () => { void rankAsyncReset(); });
     getId('stageReset').addEventListener('click', () => { void stageAsyncReset(); });
-    getId('collapseReset').addEventListener('click', () => { void collapseAsyncReset(); });
+    getId('reset1Button').addEventListener('click', () => {
+        switch (player.stage.active) {
+            case 1:
+                void dischargeAsyncReset();
+                break;
+            case 2:
+                void vaporizationAsyncReset();
+                break;
+            case 3:
+                void rankAsyncReset();
+                break;
+            case 4:
+                void collapseAsyncReset();
+        }
+    });
     getId('buy1x').addEventListener('click', () => toggleBuy('1'));
     getId('buyAny').addEventListener('click', () => toggleBuy('any'));
     getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
@@ -144,7 +137,7 @@ void reLoad(true); //This will start the game
         }
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(i, 'auto', 'researchesExtra')); }
     }
-    for (let i = 0; i < global.researchesAutoInfo.cost.length; i++) {
+    for (let i = 0; i < global.researchesAutoInfo.startCost.length; i++) {
         const image = getId(`researchAuto${i + 1}Image`) as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(i, 'auto', 'researchesAuto'));
@@ -167,7 +160,7 @@ void reLoad(true); //This will start the game
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(0, 'auto', 'ASR')); }
     }
 
-    for (let i = 1; i < global.elementsInfo.cost.length; i++) {
+    for (let i = 1; i < global.elementsInfo.startCost.length; i++) {
         const image = getId(`element${i}`) as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(i, 4, 'elements'));
@@ -181,7 +174,7 @@ void reLoad(true); //This will start the game
 
     /* Strangeness tab */
     for (let s = 1; s < global.strangenessInfo.length; s++) {
-        for (let i = 0; i < global.strangenessInfo[s].cost.length; i++) {
+        for (let i = 0; i < global.strangenessInfo[s].startCost.length; i++) {
             const image = getId(`strange${i + 1}Stage${s}Image`) as HTMLInputElement;
             if (!mobileDevice) {
                 image.addEventListener('mouseover', () => getUpgradeDescription(i, s, 'strangeness'));
@@ -203,23 +196,27 @@ void reLoad(true); //This will start the game
     /* Settings tab */
     getId('vaporizationInput').addEventListener('blur', () => {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 0), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 0), { type: 'input' });
         player.vaporization.input = Number(input.value);
     });
     getId('collapseMassInput').addEventListener('blur', () => {
         const input = getId('collapseMassInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 1), { type: 'input' });
         player.collapse.inputM = Number(input.value);
     });
     getId('collapseStarsInput').addEventListener('blur', () => {
         const input = getId('collapseStarsInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 0), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 0), { type: 'input' });
         player.collapse.inputS = Number(input.value);
     });
     getId('stageInput').addEventListener('blur', () => {
         const input = getId('stageInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), 'auto', 'input');
+        input.value = format(Math.max(Number(input.value), 1), { type: 'input' });
         player.stage.input = Number(input.value);
+    });
+    getId('versionButton').addEventListener('click', () => {
+        buildVersionInfo();
+        getId('versionInfo').style.display = '';
     });
     getId('save').addEventListener('click', () => { void saveLoad('save'); });
     getId('file').addEventListener('change', () => { void saveLoad('load'); });
@@ -230,13 +227,13 @@ void reLoad(true); //This will start the game
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     }
     getId('toggleAuto5').addEventListener('click', () => {
-        if (player.toggles.auto[5]) { autoUpgradesSet('upgrades'); }
+        if (player.toggles.auto[5]) { autoUpgradesSet('all'); }
     });
     getId('toggleAuto6').addEventListener('click', () => {
-        if (player.toggles.auto[6]) { autoUpgradesSet('researches'); }
+        if (player.toggles.auto[6]) { autoResearchesSet('researches', 'all'); }
     });
     getId('toggleAuto7').addEventListener('click', () => {
-        if (player.toggles.auto[7]) { autoUpgradesSet('researchesExtra'); }
+        if (player.toggles.auto[7]) { autoResearchesSet('researchesExtra', 'all'); }
     });
     getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
     getId('saveFileHoverButton').addEventListener('mouseover', () => {
@@ -252,7 +249,7 @@ void reLoad(true); //This will start the game
     getId('thousandSeparator').addEventListener('blur', () => changeFormat(false));
     getId('decimalPoint').addEventListener('blur', () => changeFormat(true));
     getId('pauseGame').addEventListener('click', () => { void pauseGame(); });
-    getId('noMovement').addEventListener('click', () => removeTextMovement(true));
+    getId('offlineWarp').addEventListener('click', () => { void timeWarp(); });
     getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
     getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
 
@@ -281,16 +278,14 @@ void reLoad(true); //This will start the game
             getId(`${tabText}SubtabBtn${subtabText}`).addEventListener('click', () => switchTab(tabText, subtabText));
         }
     }
-
-    /* Stages */
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`${global.stageInfo.word[i]}Switch`).addEventListener('click', () => switchStage(i));
     }
+    getId('currentSwitch').addEventListener('click', () => getId('stageSelect').classList.add('active'));
 }
 
 console.timeEnd('Game loaded in'); //Started in Player.ts
 
-/* Intervals */
 function changeIntervals(pause = false, input = '') {
     const { intervals } = player;
     const { intervalsId } = global;
@@ -327,14 +322,11 @@ function changeIntervals(pause = false, input = '') {
     }
 }
 
-/* Promise returned in function argument where a void return was expected.
-   I have no idea what does that even mean... I have to use async since 'await saveFile[0].text()' must have await in it.*/
 async function saveLoad(type: string) {
     switch (type) {
         case 'load': {
             const id = getId('file') as HTMLInputElement;
-            const saveFile = id.files;
-            if (saveFile === null) { return Alert('Loaded file wasn\'t found, somehow'); }
+            const saveFile = id.files as FileList;
             const text = await saveFile[0].text();
 
             try {
@@ -342,20 +334,19 @@ async function saveLoad(type: string) {
                 const versionCheck = Object.hasOwn(load, 'player') ? load.player.version : load.version;
                 changeIntervals(true);
                 updatePlayer(load);
-                const offlineTime = Date.now() - player.time.updated;
+
+                const { time } = player;
+                const offlineTime = Date.now() - time.updated;
                 const maxOffline = maxOfflineTime();
-                getId('isSaved').textContent = 'Imported';
+                time.updated = Date.now();
+                global.timeSpecial.lastSave += offlineTime;
+                time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
+                player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
+                Alert(`This save is ${format(offlineTime, { type: 'time' })} old${offlineTime + (time.offline * 1000) > maxOffline * 1000 ? ', storage is maxed' : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}` : `\nSave file version is ${player.version}`}`);
                 global.timeSpecial.lastSave = 0;
-                if (!player.toggles.normal[0]) {
-                    const noOffline = await Confirm(`This save file was set to have offline progress disabled (currently ${format(offlineTime, 0, 'time')}${offlineTime > maxOffline * 1000 ? `, max is ${maxOffline / 3600} hours` : ''}). Press confirm to NOT to gain offline time.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
-                    if (noOffline) {
-                        global.timeSpecial.lastSave += offlineTime;
-                        player.time.updated = Date.now();
-                    }
-                } else {
-                    Alert(`This save is ${format(offlineTime, 0, 'time')} old${offlineTime > maxOffline * 1000 ? `, max offline time is ${maxOffline / 3600} hours` : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}, ${global.versionInfo.log}` : `\nSave file version is ${player.version}`}`);
-                }
-                void reLoad();
+                getId('isSaved').textContent = 'Imported';
+
+                reLoad();
             } catch (error) {
                 changeIntervals(); //Unpause game, in case there was an issue;
                 Alert(`Incorrect save file format.\nFull error is: '${error}'`);
@@ -367,7 +358,6 @@ async function saveLoad(type: string) {
         case 'save': {
             try {
                 const save = btoa(JSON.stringify(player));
-                //If Infinity will be needed inside, then can anything alike 'btoa(JSON.stringify(player), (k, v) => v === Infinity ? `${v}` : v)'
                 localStorage.setItem('save', save);
                 clearInterval(global.intervalsId.autoSave);
                 global.intervalsId.autoSave = setInterval(saveLoad, player.intervals.autoSave * 1000, 'save');
@@ -382,12 +372,12 @@ async function saveLoad(type: string) {
             if (player.strangeness[4][7] >= 1) {
                 const multiplier = exportMultiplier();
                 const strangeGain = Math.floor(player.stage.export * multiplier / 86400);
-                player.strange[0].true += strangeGain;
+                player.strange[0].current += strangeGain;
                 player.strange[0].total += strangeGain;
                 player.stage.export -= strangeGain * 86400 / multiplier;
             }
 
-            const save = btoa(JSON.stringify(player)); //It doesn't use one from localStorage in case of errors
+            const save = btoa(JSON.stringify(player)); //This way in case of errors
             const a = document.createElement('a');
             a.href = 'data:text/plain;charset=utf-8,' + save;
             a.download = replaceSaveFileSpecials();
@@ -410,18 +400,7 @@ async function saveLoad(type: string) {
 
 const changeSaveFileName = () => {
     const input = getId('saveFileNameInput') as HTMLInputElement;
-
-    let newValue: string; //Max allowed string length is 255 (35) (?)
-    if (input.value.length > 4) {
-        newValue = input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
-    } else {
-        const check = input.value.replace(/[1-9]/, '').toLowerCase(); //No idea if I should check for these
-        if (input.value.length < 4 || (input.value.length === 4 && (check === 'com' || check === 'lpt'))) {
-            newValue = playerStart.fileName;
-        } else {
-            newValue = input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
-        }
-    }
+    const newValue = input.value.length === 0 ? playerStart.fileName : input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
 
     try {
         btoa(newValue); //Test for any illegal characters
@@ -441,7 +420,7 @@ const replaceSaveFileSpecials = (): string => {
         '[time]'
     ];
     const replaceWith = [
-        global.stageInfo.word[player.stage.current],
+        global.stageInfo.word[player.stage.active],
         global.stageInfo.word[player.stage.true],
         getDate('dateDMY'),
         getDate('timeHMS')
@@ -470,14 +449,30 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
     return result;
 };
 
+export const timeWarp = async() => {
+    if (player.researchesAuto[0] < 3) { return; }
+
+    const { time } = player;
+    if (time.offline <= 0) { return Alert("Can't Warp without any Offline time"); }
+
+    const warpTime = Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? Current Offline time is ${format(time.offline * 1000, { type: 'time' })} (will be used without any loss, 1 minute at a time)\nBigger number will result in more lag`)), time.offline);
+    if (warpTime <= 0 || !isFinite(warpTime)) { return; }
+
+    time.offline -= warpTime;
+    invisibleUpdate(warpTime);
+};
+
 const pauseGame = async() => {
     changeIntervals(true);
-    const offline = await Prompt(`Game is currently paused. Press any button bellow to unpause it. Can enter 'NoOffline' to NOT to gain offline time. (Max offline time is ${maxOfflineTime() / 3600} hours)`);
-    //Maybe to add when game was paused (if I can figure out how later)
-    if (offline?.toLowerCase() === 'nooffline') {
-        player.time.updated = Date.now();
-    } else if (offline !== null && offline !== '') {
-        Alert(`You wrote '${offline}', so offline time was gained`);
-    }
+    await AlertWait("Game is currently paused. Press 'confirm' to unpause it. Time spend here will be moved into offline storage");
+
+    const { time } = player;
+    const maxOffline = maxOfflineTime();
+    const offlineTime = Date.now() - time.updated;
+    time.updated = Date.now();
+    global.timeSpecial.lastSave += offlineTime;
+    time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
+    player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
+
     changeIntervals();
 };

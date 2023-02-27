@@ -1,218 +1,243 @@
-import { getClass, getId } from './Main';
+import Limit from './Limit';
+import { getId } from './Main';
 import { global, player } from './Player';
-import { ListOfHTML } from './Types';
-import { format, stageCheck } from './Update';
+import { assignCollapseInformation, assignDischargeInformation, assignVaporizationInformation } from './Stage';
+import { format, numbersUpdate, stageCheck, visualUpdate } from './Update';
 
 //Eventually might move more HTML into here
-export const specialHTML: ListOfHTML = {
-    longestBuilding: 1, //All longest type auto added
-    buildingHTML: [ //No idea if it's good idea (outerHTML is 20+ times slower)
-        [], //All [0] are skipped
+export const specialHTML = {
+    resetHTML: [ /* All new ID's need to be checked for being null */
+        '',
+        '<span class="bigWord orangeText">Discharge</span>. Reset current Structures and Energy. Will also boost production by <span id="dischargeEffect" class="orangeText"></span>, if to reset with enough Energy.',
+        '<span class="bigWord grayText">Vaporization</span>. Structures, upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.',
+        '<img id="rankImage" src="Used_art/Missing.png" alt="Missing">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName" class="blueText"></span>. <span id="rankMessage"></span>',
+        '<span class="bigWord orchidText">Collapse</span> - Everything will be lost, but at same time gained. Each of the Stars will produce something unique and special.',
+        ''
+    ],
+    longestBuilding: 7, //Max +1; If max will increase then new HTML need to be added into index.html
+    buildingHTML: [ //outerHTML is slow
+        [],
         [
-            ['Particle', 'Particle'], //[0] > path; [1] > alt
-            ['Atom', 'Atom'],
-            ['Molecule', 'Molecule']
+            ['Preon.png', 'Preon'], //[0] === image; [1] === alt
+            ['Quarks.png', 'Quarks'],
+            ['Particle.png', 'Particle'],
+            ['Atom.png', 'Atom'],
+            ['Molecule.png', 'Molecule']
         ],
         [
-            ['Drop', 'Drop of water'],
-            ['Puddle', 'Puddle'],
-            ['Pond', 'Pond'],
-            ['Lake', 'Lake'],
-            ['Sea', 'Sea']
+            ['Drop.png', 'Drop of water'],
+            ['Puddle.png', 'Puddle'],
+            ['Pond.png', 'Pond'],
+            ['Lake.png', 'Lake'],
+            ['Sea.png', 'Sea'],
+            ['Ocean.png', 'Ocean']
         ],
         [
-            ['Cosmic%20dust', 'Cosmic dust'],
-            ['Planetesimal', 'Planetesimal'],
-            ['Protoplanet', 'Protoplanet'],
-            ['Natural%20satellite', 'Moon']
+            ['Cosmic%20dust.png', 'Cosmic dust'],
+            ['Planetesimal.png', 'Planetesimal'],
+            ['Protoplanet.png', 'Protoplanet'],
+            ['Natural%20satellite.png', 'Moon'],
+            ['Subsatellite.png', 'Submoon']
         ],
         [
-            ['Brown%20dwarf', 'Brown dwarf'],
-            ['Orange%20dwarf', 'Orange dwarf'],
-            ['Red%20supergiant', 'Red supergiant'],
-            ['Blue%20hypergiant', 'Blue hypergiant']
+            ['Brown%20dwarf.png', 'Brown dwarf'],
+            ['Orange%20dwarf.png', 'Orange dwarf'],
+            ['Red%20supergiant.png', 'Red supergiant'],
+            ['Blue%20hypergiant.png', 'Blue hypergiant'],
+            ['Quasi%20star.png', 'Quasi star']
         ],
         [
-            ['Nebula', 'Nebula'],
-            ['Star%20cluster', 'Star cluster'],
-            ['Galaxy', 'Galaxy']
+            ['Nebula.png', 'Nebula'],
+            ['Star%20cluster.png', 'Star cluster'],
+            ['Galaxy.png', 'Galaxy'],
+            ['Galaxy%20filament.png', 'Galaxy filaments']
         ]
     ],
-    longestUpgrade: 1,
+    longestUpgrade: 13, //If max will increase then new HTML need to be added into index.html
     upgradeHTML: [
         [],
         [
-            ['Upgrade1', 'Electron'],
-            ['Upgrade2', 'Proton'],
-            ['Upgrade3', 'Neutron'],
-            ['Upgrade4', 'Superposition'],
-            ['Upgrade5', 'Protium'],
-            ['Upgrade6', 'Deuterium'],
-            ['Upgrade7', 'Tritium'],
-            ['Upgrade8', 'Fusion']
+            ['UpgradeQ1.png', 'Weak force'],
+            ['UpgradeQ2.png', 'Strong force'],
+            ['UpgradeQ3.png', 'Electron'],
+            ['UpgradeQ4.png', 'Proton'],
+            ['UpgradeQ5.png', 'Neutron'],
+            ['UpgradeQ6.png', 'Superposition'],
+            ['UpgradeQ7.png', 'Protium'],
+            ['UpgradeQ8.png', 'Deuterium'],
+            ['UpgradeQ9.png', 'Tritium'],
+            ['UpgradeQ10.png', 'Fusion']
         ],
         [
-            ['UpgradeW1', 'Mole'],
-            ['UpgradeW2', 'Vaporization'],
-            ['UpgradeW3', 'Tension'],
-            ['UpgradeW4', 'Stress'],
-            ['UpgradeW5', 'Stream'],
-            ['UpgradeW6', 'River'],
-            ['UpgradeW7', 'Tsunami']
+            ['UpgradeW1.png', 'Mole'],
+            ['UpgradeW2.png', 'Vaporization'],
+            ['UpgradeW3.png', 'Tension'],
+            ['UpgradeW4.png', 'Stress'],
+            ['UpgradeW5.png', 'Stream'],
+            ['UpgradeW6.png', 'River'],
+            ['UpgradeW7.png', 'Tsunami']
         ],
         [
-            ['UpgradeA1', 'Motion'],
-            ['UpgradeA2', 'Gas'],
-            ['UpgradeA3', 'Micrometeoroid'],
-            ['UpgradeA4', 'Instability'],
-            ['UpgradeA5', 'Gravity'],
-            ['UpgradeA6', 'Pile'],
-            ['UpgradeA7', 'Orbit'],
-            ['UpgradeA8', 'Magma'],
-            ['UpgradeA9', 'Equilibrium'],
-            ['UpgradeA10', 'Atmosphere'],
-            ['UpgradeA11', 'Pebble'],
-            ['UpgradeA12', 'Tidal force'],
-            ['UpgradeA13', 'Ring']
+            ['UpgradeA1.png', 'Motion'],
+            ['UpgradeA2.png', 'Gas'],
+            ['UpgradeA3.png', 'Micrometeoroid'],
+            ['UpgradeA4.png', 'Instability'],
+            ['UpgradeA5.png', 'Gravity'],
+            ['UpgradeA6.png', 'Pile'],
+            ['UpgradeA7.png', 'Orbit'],
+            ['UpgradeA8.png', 'Magma'],
+            ['UpgradeA9.png', 'Equilibrium'],
+            ['UpgradeA10.png', 'Atmosphere'],
+            ['UpgradeA11.png', 'Pebble'],
+            ['UpgradeA12.png', 'Tidal force'],
+            ['UpgradeA13.png', 'Ring']
         ],
         [
-            ['UpgradeS1', 'Collapse'],
-            ['UpgradeS2', 'Reaction'],
-            ['UpgradeS3', 'CNO'],
-            ['UpgradeS4', 'Helium fusion']
+            ['UpgradeS1.png', 'Collapse'],
+            ['UpgradeS2.png', 'Reaction'],
+            ['UpgradeS3.png', 'CNO'],
+            ['UpgradeS4.png', 'Helium fusion']
         ],
         [
-            ['UpgradeG1', 'Instability'],
-            ['UpgradeG2', 'Super cluster'],
-            ['UpgradeG3', 'Quasar']
+            ['UpgradeG1.png', 'Instability'],
+            ['UpgradeG2.png', 'Super cluster'],
+            ['UpgradeG3.png', 'Quasar']
         ]
     ],
-    longestResearch: 1,
+    longestResearch: 8, //If max will increase then new HTML need to be added into index.html
     researchHTML: [
         [],
         [
-            ['Research1', 'Protium+', 'stage1borderImage'], //[2] > classlist (min and max 1 right now)
-            ['Research2', 'Deuterium+', 'stage1borderImage'],
-            ['Research3', 'Tritium+', 'stage1borderImage'],
-            ['Research4', 'Discharge-', 'stage4borderImage'],
-            ['Research5', 'Discharge+', 'stage4borderImage'],
-            ['Research6', 'Discharge++', 'stage4borderImage']
+            ['ResearchQ1.png', 'Protium+', 'stage1borderImage'], //[2] === className
+            ['ResearchQ2.png', 'Deuterium+', 'stage1borderImage'],
+            ['ResearchQ3.png', 'Tritium+', 'stage1borderImage'],
+            ['ResearchQ4.png', 'Discharge-', 'stage4borderImage'],
+            ['ResearchQ5.png', 'Discharge+', 'stage4borderImage'],
+            ['ResearchQ6.png', 'Discharge++', 'stage4borderImage']
         ],
         [
-            ['ResearchW1', 'Moles+', 'stage2borderImage'],
-            ['ResearchW2', 'Moles++', 'stage2borderImage'],
-            ['ResearchW3', 'Tension+', 'stage2borderImage'],
-            ['ResearchW4', 'Stress+', 'stage2borderImage'],
-            ['ResearchW5', 'Streams+', 'stage2borderImage'],
-            ['ResearchW6', 'Channel', 'stage2borderImage']
+            ['ResearchW1.png', 'Moles+', 'stage2borderImage'],
+            ['ResearchW2.png', 'Moles++', 'stage2borderImage'],
+            ['ResearchW3.png', 'Tension+', 'stage2borderImage'],
+            ['ResearchW4.png', 'Stress+', 'stage2borderImage'],
+            ['ResearchW5.png', 'Streams+', 'stage2borderImage'],
+            ['ResearchW6.png', 'Channel', 'stage2borderImage']
         ],
         [
-            ['ResearchA1', 'Mass+', 'stage3borderImage'],
-            ['ResearchA2', 'Adhesion', 'stage2borderImage'],
-            ['ResearchA3', 'Weathering', 'stage3borderImage'],
-            ['ResearchA4', 'Collision', 'stage3borderImage'],
-            ['ResearchA5', 'Binary', 'stage3borderImage'],
-            ['ResearchA6', 'Gravity+', 'stage1borderImage'],
-            ['ResearchA7', 'Layers', 'stage7borderImage'],
-            ['ResearchA8', 'Drag', 'stage1borderImage']
+            ['ResearchA1.png', 'Mass+', 'stage3borderImage'],
+            ['ResearchA2.png', 'Adhesion', 'stage2borderImage'],
+            ['ResearchA3.png', 'Weathering', 'stage3borderImage'],
+            ['ResearchA4.png', 'Collision', 'stage3borderImage'],
+            ['ResearchA5.png', 'Binary', 'stage3borderImage'],
+            ['ResearchA6.png', 'Gravity+', 'stage1borderImage'],
+            ['ResearchA7.png', 'Layers', 'stage7borderImage'],
+            ['ResearchA8.png', 'Drag', 'stage1borderImage']
         ],
         [
-            ['ResearchS1', 'Orbit', 'stage5borderImage'],
-            ['ResearchS2', '2 stars', 'stage5borderImage'],
-            ['ResearchS3', 'Protodisc', 'stage7borderImage'],
-            ['ResearchS4', 'Planetary nebula', 'stage5borderImage']
+            ['ResearchS1.png', 'Orbit', 'stage5borderImage'],
+            ['ResearchS2.png', '2 stars', 'stage5borderImage'],
+            ['ResearchS3.png', 'Protodisc', 'stage7borderImage'],
+            ['ResearchS4.png', 'Planetary nebula', 'stage5borderImage']
         ],
         [
-            ['ResearchG1', 'Density', 'stage1borderImage'],
-            ['ResearchG2', 'Frequency', 'stage6borderImage']
+            ['ResearchG1.png', 'Density', 'stage1borderImage'],
+            ['ResearchG2.png', 'Frequency', 'stage6borderImage']
         ]
     ],
-    longestResearchExtra: 1,
+    longestResearchExtra: 5, //If max will increase then new HTML need to be added into index.html
     researchExtraDivHTML: [
         [],
-        [],
-        ['Cloud%20Researches', 'Cloud researches', 'stage2borderImage'],
-        ['Rank%20Researches', 'Rank researches', 'stage6borderImage'],
-        ['Star%20Researches', 'Star researches', 'stage6borderImage'],
+        ['Energy%20Researches.png', 'Energy researches', 'stage4borderImage'],
+        ['Cloud%20Researches.png', 'Cloud researches', 'stage2borderImage'],
+        ['Rank%20Researches.png', 'Rank researches', 'stage6borderImage'],
+        ['Star%20Researches.png', 'Star researches', 'stage6borderImage'],
         []
     ],
     researchExtraHTML: [
         [],
-        [],
         [
-            ['ResearchClouds1', 'Vaporization+', 'stage3borderImage'],
-            ['ResearchClouds2', 'Rain', 'stage2borderImage'],
-            ['ResearchClouds3', 'Storm', 'stage4borderImage']
+            ['ResearchEnergy1.png', 'Strong force+', 'stage1borderImage'],
+            ['ResearchEnergy2.png', 'Radiation+', 'stage5borderImage'],
+            ['ResearchEnergy3.png', 'Accretion', 'stage3borderImage'],
+            ['ResearchEnergy4.png', 'Preon Mass', 'stage1borderImage'],
+            ['ResearchEnergy5.png', 'Impulse', 'stage6borderImage']
         ],
         [
-            ['ResearchRank1', 'Ocean', 'stage3borderImage'],
-            ['ResearchRank2', 'Rank', 'stage3borderImage'],
-            ['ResearchRank3', 'Weight', 'stage3borderImage'],
-            ['ResearchRank4', 'Viscosity', 'stage2borderImage']
+            ['ResearchClouds1.png', 'Vaporization+', 'stage3borderImage'],
+            ['ResearchClouds2.png', 'Rain', 'stage2borderImage'],
+            ['ResearchClouds3.png', 'Storm', 'stage4borderImage'],
+            ['Ocean%20world.png', 'Ocean world', 'stage2borderImage']
         ],
         [
-            ['ResearchStar1', 'Supernova', 'stage6borderImage'],
-            ['ResearchStar2', 'White dwarf', 'stage1borderImage']
+            ['ResearchRank1.png', 'Ocean', 'stage3borderImage'],
+            ['ResearchRank2.png', 'Rank', 'stage3borderImage'],
+            ['ResearchRank3.png', 'Weight', 'stage3borderImage'],
+            ['ResearchRank4.png', 'Viscosity', 'stage2borderImage'],
+            ['ResearchRank5.png', 'Water rank', 'stage2borderImage']
+        ],
+        [
+            ['ResearchStar1.png', 'Supernova', 'stage6borderImage'],
+            ['ResearchStar2.png', 'White dwarf', 'stage1borderImage']
         ],
         []
+    ],
+    longestFooterStats: 3, //If max will increase then new HTML need to be added into index.html
+    footerStatsHTML: [
+        [],
+        [
+            ['Energy%20mass.png', 'Energy mass', 'stage1borderImage cyanText', 'Mass'], //[3] === textcontent
+            ['Energy.png', 'Energy', 'stage4borderImage orangeText', 'Energy']
+        ],
+        [
+            ['Clouds.png', 'Clouds', 'stage3borderImage grayText', 'Clouds'],
+            ['Water.png', 'H2O', 'stage2borderImage blueText', 'Moles'],
+            ['Drop.png', 'Drop of water', 'stage2borderImage blueText', 'Drops']
+        ],
+        [
+            ['Mass.png', 'Mass', 'stage3borderImage grayText', 'Mass']
+        ],
+        [
+            ['Main_sequence%20mass.png', 'Solar mass', 'stage1borderImage cyanText', 'Mass'],
+            ['Elements.png', 'Elements', 'stage4borderImage orangeText', 'Elements']
+        ],
+        [
+            ['Main_sequence%20mass.png', 'Solar mass', 'stage1borderImage cyanText', 'Mass'],
+            ['Elements.png', 'Elements', 'stage4borderImage orangeText', 'Elements'],
+            ['Stars.png', 'Stars', 'stage7borderImage redText', 'Stars']
+        ]
     ]
 };
 
-//Done like this for now
-specialHTML.longestBuilding = Math.max(
-    specialHTML.buildingHTML[1].length + 1,
-    specialHTML.buildingHTML[2].length + 1,
-    specialHTML.buildingHTML[3].length + 1,
-    specialHTML.buildingHTML[4].length + 1,
-    specialHTML.buildingHTML[5].length + 1
-);
-specialHTML.longestUpgrade = Math.max(
-    specialHTML.upgradeHTML[1].length,
-    specialHTML.upgradeHTML[2].length,
-    specialHTML.upgradeHTML[3].length,
-    specialHTML.upgradeHTML[4].length,
-    specialHTML.upgradeHTML[5].length
-);
-specialHTML.longestResearch = Math.max(
-    specialHTML.researchHTML[1].length,
-    specialHTML.researchHTML[2].length,
-    specialHTML.researchHTML[3].length,
-    specialHTML.researchHTML[4].length,
-    specialHTML.researchHTML[5].length
-);
-specialHTML.longestResearchExtra = Math.max(
-    //specialHTML.researchExtraHTML[1].length,
-    specialHTML.researchExtraHTML[2].length,
-    specialHTML.researchExtraHTML[3].length,
-    specialHTML.researchExtraHTML[4].length
-    //specialHTML.researchExtraHTML[5].length
-);
-
 export const setTheme = (themeNumber: number, initial = false) => {
-    const { theme } = global;
+    if (!initial) {
+        let allowed = player.stage.true >= themeNumber;
+        if (themeNumber === 6) { allowed = false; }
+        if (!allowed) { initial = true; }
+    }
 
     if (initial) {
-        theme.default = true;
+        global.theme.default = true;
         localStorage.removeItem('theme');
     } else {
-        theme.default = false;
-        theme.stage = themeNumber;
+        global.theme.default = false;
+        global.theme.stage = themeNumber;
         localStorage.setItem('theme', `${themeNumber}`);
     }
     switchTheme();
 };
 
-//While most of it can be set with CSS, I think it's better not, because it might slow down page load
+//Not done through CSS, because worse (?)
 export const switchTheme = () => {
-    const { stage } = player;
-    const { stageInfo, theme } = global;
+    const { theme } = global;
     const body = document.body.style;
+    const dropStat = document.querySelector('#footerStat2 > p') as HTMLParagraphElement;
+    const waterStat = document.querySelector('#footerStat3 > p') as HTMLParagraphElement;
 
     if (theme.default) {
-        theme.stage = stage.active;
+        theme.stage = player.stage.active;
         getId('currentTheme').textContent = 'Default';
     } else {
-        getId('currentTheme').textContent = stageInfo.word[theme.stage];
+        getId('currentTheme').textContent = global.stageInfo.word[theme.stage];
     }
 
     /* Full reset, for easier out of order theme change */
@@ -252,9 +277,8 @@ export const switchTheme = () => {
     body.removeProperty('--red-text-color');
     body.removeProperty('--green-text-color');
     body.removeProperty('--yellow-text-color');
-    getId('dropStat').style.color = '';
-    getId('waterStat').style.color = '';
-    /* And set new colors */
+    dropStat.style.color = '';
+    waterStat.style.color = '';
     /* These colors will need to be changed in other places as well: (not just 2, but from 2 to max)
         --window-color > '.stage2windowBackground';
         --button-main-color > '.stage2backgroundButton' and 'global.stageInfo.buttonBackgroundColor[2]';
@@ -283,8 +307,10 @@ export const switchTheme = () => {
             body.setProperty('--darkviolet-text-color', '#a973ff');
             body.setProperty('--green-text-color', '#82cb3b');
             body.setProperty('--red-text-color', '#f70000');
-            getId('dropStat').style.color = '#3099ff';
-            getId('waterStat').style.color = '#3099ff';
+            if (player.stage.active === 2) {
+                dropStat.style.color = '#3099ff';
+                waterStat.style.color = '#3099ff';
+            }
             break;
         case 3:
             for (const text of ['upgrade', 'research', 'element']) {
@@ -310,8 +336,10 @@ export const switchTheme = () => {
             body.setProperty('--white-text-color', '#dfdfdf');
             body.setProperty('--orange-text-color', '#f58600');
             body.setProperty('--green-text-color', '#00db00');
-            getId('dropStat').style.color = '#3099ff';
-            getId('waterStat').style.color = '#3099ff';
+            if (player.stage.active === 2) {
+                dropStat.style.color = '#3099ff';
+                waterStat.style.color = '#3099ff';
+            }
             break;
         case 4:
             for (const text of ['upgrade', 'research', 'element']) {
@@ -375,6 +403,11 @@ export const switchTheme = () => {
             body.setProperty('--darkorchid-text-color', '#c000ff');
             body.setProperty('--darkviolet-text-color', '#9f52ff');
             body.setProperty('--yellow-text-color', 'var(--darkviolet-text-color)');
+            break;
+        case 6:
+            //Violet text
+            //White white text
+            //Black BG
     }
     setTimeout(() => {
         body.removeProperty('--transition-all');
@@ -382,14 +415,12 @@ export const switchTheme = () => {
     }, 1000);
 };
 
-/* If any type of Alert is already being shown, then it will auto resolve itself (false for Confirm and null for Prompt)
-   Because to throw an Error (or any type of reject()) is a bit of a pain, and feels unnecessary */
 export const Alert = (text: string) => { void AlertWait(text); };
-const AlertWait = async(text: string): Promise<void> => { //Export if needed
+export const AlertWait = async(text: string): Promise<void> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (blocker.style.display === '') {
-            console.warn('Wasn\'t able to show another window (alert)');
+        if (blocker.style.display !== 'none') {
+            console.warn("Wasn't able to show another window (alert)");
             resolve();
             return;
         }
@@ -418,8 +449,8 @@ const AlertWait = async(text: string): Promise<void> => { //Export if needed
 export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (blocker.style.display === '') {
-            console.warn('Wasn\'t able to show another window (confirm)');
+        if (blocker.style.display !== 'none') {
+            console.warn("Wasn't able to show another window (confirm)");
             resolve(false);
             return;
         }
@@ -457,8 +488,8 @@ export const Confirm = async(text: string): Promise<boolean> => {
 export const Prompt = async(text: string): Promise<string | null> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker') as HTMLDivElement;
-        if (blocker.style.display === '') {
-            console.warn('Wasn\'t able to show another window (prompt)');
+        if (blocker.style.display !== 'none') {
+            console.warn("Wasn't able to show another window (prompt)");
             resolve(null);
             return;
         }
@@ -467,10 +498,10 @@ export const Prompt = async(text: string): Promise<string | null> => {
         const input = getId('inputArea') as HTMLInputElement;
         const cancel = getId('cancelBtn') as HTMLButtonElement;
         const confirm = getId('confirmBtn') as HTMLButtonElement;
-        input.value = '';
         blocker.style.display = '';
         cancel.style.display = '';
         input.style.display = '';
+        input.value = '';
         input.focus();
 
         const yes = () => { close(input.value); };
@@ -497,7 +528,6 @@ export const Prompt = async(text: string): Promise<string | null> => {
     });
 };
 
-/* This is a pain, I had to remove animation for it to play again... Though I still think it's better than adding a class... */
 export const hideFooter = () => {
     const footer = getId('footer') as HTMLDivElement;
     const hide = getId('footerColor') as HTMLDivElement;
@@ -513,6 +543,9 @@ export const hideFooter = () => {
         footer.style.animation = 'hide 1s forwards reverse';
         arrow.style.animation = 'rotate 1s forwards reverse';
         text.textContent = 'Hide';
+
+        numbersUpdate();
+        visualUpdate();
     } else {
         footer.style.animation = 'hide 1s backwards';
         arrow.style.animation = 'rotate 1s backwards';
@@ -523,7 +556,7 @@ export const hideFooter = () => {
         }, 1000);
     }
     setTimeout(() => {
-        footer.style.animation = '';
+        footer.style.animation = ''; //Better than using a class
         arrow.style.animation = '';
         toggle.addEventListener('click', hideFooter);
     }, 1000);
@@ -559,20 +592,16 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
             const toggle = getId('screenReaderToggle') as HTMLButtonElement;
 
             if (change) { turnOn = !turnOn; }
-            /* Its a nightmare to try and remove event listener's...
-               So as of now refresh of page is the best (and only) way I know how
-               Also I'm super confused on how tabindex works... */
+
             if (turnOn) {
+                if (special === 'reload') { player.toggles.shop.strict = false; } //Too lazy to add dynamic aria-label for current status
+
                 toggle.textContent = 'ON';
                 toggle.style.color = 'var(--red-text-color)';
                 toggle.style.borderColor = 'crimson';
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
-                if (special === 'reload') {
-                    /* This is recommended options, being set after every reload */
-                    player.toggles.shop.strict = false; //Want to decrease amount of items you can tab into
-                }
-                stageCheck('soft'); //Update related information instanly
+                stageCheck('soft');
                 if (change) { Alert('You will get: focus event on upgrades to get description (Refresh page to get it, also I need feedback on it), special tab to check progress and more.\n(For non screen readers this will cause issues)'); }
             } else {
                 toggle.textContent = 'OFF';
@@ -588,27 +617,30 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
             const invText = getId('invisibleBought') as HTMLLabelElement;
 
             if (special === 'building') {
-                const { buildings } = player;
                 const { buildingsInfo } = global;
                 const active = player.stage.active;
+                const buildings = player.buildings[active];
 
                 let extra = index - 1;
                 if (active === 4 || active === 5) { extra = 0; }
 
                 if (index === 0) {
-                    invText.textContent = `You have ${format(buildings[active][0].current)} ${buildingsInfo.name[active][0]}`;
+                    invText.textContent = `You have ${Limit(buildings[0].current).format()} ${buildingsInfo.name[active][0]}`;
                 } else {
-                    invText.textContent = `You have ${format(buildings[active][index].current)} ${buildingsInfo.name[active][index]}${buildings[active][index].current !== buildings[active][index].true ? `, out of them ${format(buildings[active][index].true, 0)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${format(buildingsInfo.producing[active][index])} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${format(buildingsInfo.producing[active][index])}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
+                    invText.textContent = `You have ${Limit(buildings[index].current).format()} ${buildingsInfo.name[active][index]}${Limit(buildings[index].current).notEqual(buildings[index as 1].true) ? `, out of them ${format(buildings[index as 1].true)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${Limit(buildingsInfo.producing[active][index]).format()} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${Limit(buildingsInfo.producing[active][index]).format()}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
                 }
             } else if (special === 'resource') {
                 if (index === 1) {
-                    invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][3] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current, 0)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2], 0)} free goals.` : ''}`;
+                    assignDischargeInformation();
+                    invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2])} free goals.` : ''}`;
                 } else if (index === 2) {
-                    invText.textContent = `You have ${format(player.vaporization.clouds)} Clouds${global.vaporizationInfo.get > 1 ? `, you can get +${format(global.vaporizationInfo.get)} if you reset now` : ''}`;
+                    assignVaporizationInformation();
+                    invText.textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan([1, 0]) ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
                 } else if (index === 4) {
-                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0], 0)} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1], 0)} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2], 0)} Black holes` : ''}`;
+                    assignCollapseInformation();
+                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
                 } else if (index === 0) {
-                    invText.textContent = `You have ${format(player.strange[0].true, 0)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.stageGain + (player.stage.active >= 4 ? global.strangeInfo.extraGain : 0, 0))} on Stage reset`;
+                    invText.textContent = `You have ${format(player.strange[0].current)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.gain(player.stage.active))} on Stage reset`;
                 }
             } else if (special === 'information') {
                 let activeStages = '';
@@ -658,7 +690,7 @@ export const changeFormat = (point: boolean) => {
         getId('decimalPoint') as HTMLInputElement :
         getId('thousandSeparator') as HTMLInputElement;
     const allowed = ['.', ',', ' ', '_', '^', '"', "'", '`', '|'].includes(htmlInput.value);
-    if (!allowed || (point && (player.separator[0] === htmlInput.value || htmlInput.value.length === 0)) || (!point && player.separator[1] === htmlInput.value)) {
+    if (!allowed || (point ? player.separator[0] === htmlInput.value || htmlInput.value.length === 0 : player.separator[1] === htmlInput.value)) {
         htmlInput.value = point ? '.' : '';
         return;
     }
@@ -667,51 +699,38 @@ export const changeFormat = (point: boolean) => {
         player.separator[0] = htmlInput.value;
 };
 
-export const removeTextMovement = (change = false) => {
-    const add = getClass('statFoot');
-
-    if (change) {
-        if (localStorage.getItem('textMove') === null) {
-            localStorage.setItem('textMove', 'false');
-        } else {
-            localStorage.removeItem('textMove');
-        }
-    }
-
-    for (const i of add) {
-        i.classList.contains('noMove') ?
-            i.classList.remove('noMove') :
-            i.classList.add('noMove');
-    }
+//If done for span, then add display: inline-block;
+export const assignWithNoMove = (html: HTMLElement, text: string) => {
+    html.textContent = text;
+    html.style.width = `${text.length * 0.6}em`;
 };
 
-//It's here, because mostly not important for gameplay
 export const playEvent = (event: number, index: number) => {
-    if (getId('blocker').style.display === '') { return; } //Return if Alert is being shown, event should be called later again (if not then will need to setTimeout())
+    if (getId('blocker').style.display !== 'none') { return; }
     player.events[index] = true;
 
     switch (event) {
         case 0: //[0] Discharge explanation
-            Alert('Since you can\'t get back Energy that you had spent, you will need to Discharge anytime you spend it.\nBut for the first time, you can keep your Energy');
-            if (player.stage.true === 1) { player.discharge.energy += 800; }
+            Alert("Energy that had been spent, can't be obtained again. But doing Discharge will reset spent Energy");
             break;
         case 1: //[0] Clouds softcap
             Alert('Cloud density is too high... Getting more will be harder now');
             break;
         case 2: //[0] Accretion new Rank unlocked
             Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
-            if (player.accretion.rank === 4) {
+            if (player.accretion.rank <= 4) {
                 global.accretionInfo.rankCost[4] = 5e29;
-                getId('rankReset').textContent = 'Next rank is 5e29 Mass';
+                const button = getId('reset1Button');
+                if (button.textContent === 'Max Rank achieved') { button.textContent = 'Next Rank is 5e29 Mass'; }
             }
             break;
         case 3: //[0] Collapse explanation
             Alert('Any Collapse reset from now on will give even more rewards. Collapse is only possible when can increase any of rewards.\nRewards effects are unknown, but with more Elements will be revealed');
             break;
         case 4: //[1] Entering Intergalactic
-            Alert('There doesn\'t seem to be anything here. Let\'s try going back to start and find what is missing');
+            Alert("There doesn't seem to be anything here. Let's try going back to start and find what is missing");
             break;
         case 5: //[2] Creating Galaxy
-            Alert("Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until can afford them again (if you have 'Remnants of past')");
+            Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until can afford them again');
     }
 };

@@ -21,6 +21,7 @@
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
+    //"strictNullChecks": false, //At this point I hate TS not being able to have proper index system, not being able to tell when something is actually null, and in addition turning this rule off causes null no longer to be noticed in any way. Like seriously
+    "strictPropertyInitialization": true
   }
 }
