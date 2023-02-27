@@ -601,7 +601,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 toggle.style.borderColor = 'crimson';
                 localStorage.setItem('screen reader', 'true');
                 global.screenReader = true;
-                stageCheck('soft');
+                stageCheck();
                 if (change) { Alert('You will get: focus event on upgrades to get description (Refresh page to get it, also I need feedback on it), special tab to check progress and more.\n(For non screen readers this will cause issues)'); }
             } else {
                 toggle.textContent = 'OFF';
@@ -630,17 +630,19 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                     invText.textContent = `You have ${Limit(buildings[index].current).format()} ${buildingsInfo.name[active][index]}${Limit(buildings[index].current).notEqual(buildings[index as 1].true) ? `, out of them ${format(buildings[index as 1].true)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${Limit(buildingsInfo.producing[active][index]).format()} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${Limit(buildingsInfo.producing[active][index]).format()}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
                 }
             } else if (special === 'resource') {
-                if (index === 1) {
-                    assignDischargeInformation();
-                    invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2])} free goals.` : ''}`;
-                } else if (index === 2) {
-                    assignVaporizationInformation();
-                    invText.textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan([1, 0]) ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
-                } else if (index === 4) {
-                    assignCollapseInformation();
-                    invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
-                } else if (index === 0) {
+                if (index === 0) {
                     invText.textContent = `You have ${format(player.strange[0].current)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.gain(player.stage.active))} on Stage reset`;
+                } else if (index === 1) {
+                    if (player.stage.active === 1) {
+                        assignDischargeInformation();
+                        invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2])} free goals.` : ''}`;
+                    } else if (player.stage.active === 2) {
+                        assignVaporizationInformation();
+                        invText.textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan([1, 0]) ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
+                    } else if (player.stage.active === 4) {
+                        assignCollapseInformation();
+                        invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
+                    }
                 }
             } else if (special === 'information') {
                 let activeStages = '';

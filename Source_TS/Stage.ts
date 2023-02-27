@@ -73,7 +73,7 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
 
             producing[1][1] = Limit(producing[1][1]).power(Limit(producing[1][1]).lessThan([1, 0]) ? 1.1 : 0.1).toArray();
             researchesExtraInfo[1].effect[3] = researchesExtra[1][3] >= 1 ? (20 + 5 * researchesExtra[1][3]) / 100 : 0;
-            inflationInfo.preonCap = Limit(1e13 * player.discharge.energy ** researchesExtraInfo[1].effect[3]).toArray();
+            inflationInfo.preonCap = Limit(1e13 * Math.max(player.discharge.energy, 0) ** researchesExtraInfo[1].effect[3]).toArray();
             if (player.collapse.stars[2] >= 1) { inflationInfo.preonCap = Limit(inflationInfo.preonCap).multiply((player.collapse.stars[2] + 1) / Math.log10(player.collapse.stars[2] + (player.elements[18] === 1 ? 9 : 99))).toArray(); }
             if (Limit(producing[1][1]).moreOrEqual(inflationInfo.preonCap)) { producing[1][1] = inflationInfo.preonCap; }
         }
@@ -632,7 +632,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
     }
 
     visualUpdateUpgrades(upgrade, stageIndex, type);
-    if (!auto || (stageIndex === player.stage.active && global.lastResearch[2] === type && global.lastResearch[1] === upgrade)) { getUpgradeDescription(upgrade, stageIndex, type); }
+    if (!auto) { getUpgradeDescription(upgrade, stageIndex, type); }
     if (!auto || stageIndex === player.stage.active || (type === 'elements' && player.stage.active === 5) || type === 'strangeness') { numbersUpdate(); }
     if (stageIndex === 1 && player.toggles.auto[1] && type !== 'strangeness') { dischargeResetCheck('upgrade'); }
     return true;
@@ -962,13 +962,13 @@ export const toggleBuy = (type = null as string | null) => {
             shop.input = Math.max(Math.trunc(Number(input.value)), -1);
             if (shop.input === 0) { shop.input = 1; }
             shop.howMany = shop.input;
-            input.value = format(shop.input, { precision: 0, type: 'input' });
+            input.value = format(shop.input, { digits: 0, type: 'input' });
             break;
         case 'strict':
             shop.strict = !shop.strict;
             break;
         default:
-            input.value = format(shop.input, { precision: 0, type: 'input' });
+            input.value = format(shop.input, { digits: 0, type: 'input' });
     }
     const strict = getId('buyStrict') as HTMLButtonElement;
     strict.style.borderColor = shop.strict ? '' : 'crimson';
@@ -1045,21 +1045,21 @@ const stageReset = (stageIndex: number) => {
             if (stageIndex === 5) {
                 if (player.strangeness[1][7] < 1) {
                     researchesAuto[0] = 0;
-                    visualUpdateUpgrades(0, 1, 'researchesAuto');
+                    calculateMaxLevel(0, 1, 'researchesAuto');
                 }
                 if (player.strangeness[2][6] < 1) {
                     researchesAuto[1] = 0;
-                    visualUpdateUpgrades(1, 2, 'researchesAuto');
+                    calculateMaxLevel(1, 2, 'researchesAuto');
                 }
             } else if (stageIndex === 2) {
                 if (researchesAuto[1] === 0) {
                     researchesAuto[1] = 1;
-                    visualUpdateUpgrades(1, 2, 'researchesAuto');
+                    calculateMaxLevel(1, 2, 'researchesAuto');
                 }
             } else if (stageIndex === 1) {
                 if (researchesAuto[0] === 0) {
                     researchesAuto[0] = 1;
-                    visualUpdateUpgrades(0, 1, 'researchesAuto');
+                    calculateMaxLevel(0, 1, 'researchesAuto');
                 }
             }
             stage.true = Math.max(stage.true, stage.current);

@@ -85,8 +85,8 @@ export const invisibleUpdate = (timeWarp = 0) => { //Time based information
             time.offline = Math.min(time.offline, maxOfflineTime());
         } else if (time.offline !== 0 && toggles.normal[0]) {
             if (time.offline > 0) {
-                const extraTime = Math.min(Math.max(time.offline / 3600, 0.1) * passedSeconds, time.offline);
-                time.offline -= Math.min(extraTime * (30 / (vacuum && player.strangeness[2][7] >= 1 ? 1.5 * player.strangeness[2][7] : 1)), time.offline);
+                const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
+                time.offline -= Math.min(extraTime * (9 / (vacuum && player.strangeness[2][7] >= 1 ? 1.5 * player.strangeness[2][7] : 1)), time.offline);
                 passedSeconds += extraTime;
             } else {
                 time.offline += passedSeconds;
@@ -243,7 +243,9 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
             }
 
             if (player.time.offline > 0 && player.toggles.normal[0]) {
-                assignWithNoMove(getId('offlineBoostEffect'), format(1 + Math.max(player.time.offline / 3600, 0.1), { padding: true }));
+                const time = Math.max(player.time.offline / 3600, 1);
+                assignWithNoMove(getId('offlineBoostEffect'), `+${format(time * 1, { digits: 0 })} seconds`);
+                assignWithNoMove(getId('offlineBoostWaste'), `${format(time * (9 / (player.inflation.vacuum && player.strangeness[2][7] >= 1 ? 1.5 * player.strangeness[2][7] : 1)), { digits: 0 })} seconds`);
             }
             if (global.lastUpgrade[0]) { getUpgradeDescription(global.lastUpgrade[1], 'auto', 'upgrades'); }
         }
@@ -576,9 +578,9 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
         if (active === 1) {
             getId('invisibleGetResource1').style.display = player.discharge.unlock ? '' : 'none';
         } else if (active === 2) {
-            getId('invisibleGetResource2').style.display = player.upgrades[2][1] === 1 ? '' : 'none';
+            getId('invisibleGetResource1').style.display = player.upgrades[2][1] === 1 ? '' : 'none';
         } else if (active === 4) {
-            getId('invisibleGetResource4').style.display = player.upgrades[4][0] === 1 ? '' : 'none';
+            getId('invisibleGetResource1').style.display = player.upgrades[4][0] === 1 ? '' : 'none';
         }
     }
 };
@@ -732,7 +734,7 @@ export const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'u
     }
 };
 
-export const format = (input: number | overlimit, settings = {} as { precision?: 0, type?: 'number' | 'input' | 'time', padding?: boolean }): string => {
+export const format = (input: number | overlimit, settings = {} as { digits?: 0, type?: 'number' | 'input' | 'time', padding?: boolean }): string => {
     if (typeof input === 'object') { return Limit(input).format(settings as any); }
     const type = settings.type ?? 'number';
 
@@ -752,7 +754,7 @@ export const format = (input: number | overlimit, settings = {} as { precision?:
                 if (type === 'input') { return `${endValue}e${digits}`; }
                 return `${`${endValue}`.replace('.', player.separator[1])}e${digits}`;
             } else {
-                const precision = inputAbs >= 1e3 || settings.precision === 0 ? 0 : (inputAbs < 1 ? 4 : 2);
+                const precision = inputAbs >= 1e3 || settings.digits === 0 ? 0 : (inputAbs < 1 ? 4 : 2);
                 let endValue: number | string = Math.round(input * 10 ** precision) / 10 ** precision;
                 if (settings.padding === true && precision > 0) { endValue = endValue.toFixed(precision); }
                 if (type === 'input') { return `${endValue}`; }
@@ -827,9 +829,9 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
             for (let i = buildingsInfo.maxActive[active]; i < specialHTML.longestBuilding; i++) { getId(`invisibleGetBuilding${i}`).style.display = 'none'; }
             for (let i = 0; i < buildingsInfo.maxActive[active]; i++) { getId(`invisibleGetBuilding${i}`).textContent = `Get information for ${buildingsInfo.name[active][i]}`; }
             getId('invisibleGetResource0').style.display = player.strange[0].total > 0 ? '' : 'none';
-            getId('invisibleGetResource1').style.display = active === 1 ? '' : 'none';
-            getId('invisibleGetResource2').style.display = active === 2 ? '' : 'none';
-            getId('invisibleGetResource4').style.display = active === 4 ? '' : 'none';
+            if (active === 1 || active === 2 || active === 4) {
+                getId('invisibleGetResource1').textContent = `Get information for ${['', 'Energy', 'Clouds', 'Rank', 'Stars', ''][active]}`;
+            } else { getId('invisibleGetResource1').style.display = 'none'; }
         }
         getId('invisibleInformation0').style.display = stage.true >= 5 ? '' : 'none';
     }

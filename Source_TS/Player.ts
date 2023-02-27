@@ -705,7 +705,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 () => 'Mesons now binds Particles to form Atoms as well. Atoms are affected by strong force.',
                 () => `Improve formula for Radiation, ${player.researchesExtra[1][1] < 1 ? 'logE > log2' : `log${format(global.researchesExtraInfo[1].effect[1] as number)}${player.researchesExtra[1][1] < 10 ? ` > log${format(global.researchesExtraInfo[1].effect[1] as number - 0.1)}` : ''}`}.`,
-                () => 'First level is too begin the Accretion, second level is too Submerge it.\nEverything is connected. All Structures produce Energy on creation.',
+                () => 'First level is to begin the Accretion, second level is to Submerge it.\nEverything is connected. All Structures produce Energy on creation.',
                 () => `Hardcap for Mass production from Preons is delayed by current Energy ^ ${format(global.researchesExtraInfo[1].effect[3] as number)}.`,
                 () => `Discharge goals can now boost all Structures from Submerged and Accretion Stages, but at reduced base.\nCurrent base is ${format(global.researchesExtraInfo[1].effect[4] as number)}, total boost is ${Limit(global.researchesExtraInfo[1].effect[4] as number).power(player.discharge.current + player.strangeness[1][2]).format()}.`
             ],
@@ -716,7 +716,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [1, 10, 2, 4, 1]
         }, { //Stage 2
             description: [
-                'Natural vaporization.',
+                'Natural Vaporization.',
                 'Rain Clouds.',
                 'Storm Clouds.',
                 'Ocean world.'
@@ -916,7 +916,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Gain more Energy from creating ${player.inflation.vacuum ? 'Preons' : 'Particles'}, +1.`,
                 () => `Research for improved 'Tritium' upgrade is now better. (+${format(0.3)})`,
                 () => `Start with auto for ${global.buildingsInfo.name[1][Math.min(player.strangeness[1][6] + 1, global.ASRInfo.max[1])]}.`,
-                () => "Increase max level of 'New toggles'. Also keep them on Stage reset.",
+                () => `Increase max level of 'New toggles'.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
                 () => 'Unspend Strange quarks will boost this stage. (Stronger radiation)'
             ],
             cost: [],
@@ -942,7 +942,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Gain more Clouds from Vaporization. (Affected by softcap)',
                 () => 'Automatically Vaporize when reach certain amount.',
                 () => `Start with auto for ${global.buildingsInfo.name[2][Math.min(player.strangeness[2][5] + 1, global.ASRInfo.max[5])]}.`,
-                () => 'Increase max offline time research level. Also keep them on Stage reset.',
+                () => `Increase max offline time research level.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
                 () => !player.inflation.vacuum ? 'Max offline time is now 2 times longer. (Additive)' :
                 /**/`Offline time being wasted ${format(1.5)} times less. (Additive)`,
                 () => 'Unspend Strange quarks will boost this stage. (Puddle production)'
@@ -969,7 +969,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Satellites now improve all Accretion structures.',
                 () => 'Automatically increase Rank when available.',
                 () => `Start with auto for ${global.buildingsInfo.name[3][Math.min(player.strangeness[3][5] + 1, global.ASRInfo.max[3])]}.`,
-                () => 'Unlock automatization for Upgrades / Researches. Also keep them on Stage reset.',
+                () => `Unlock automatization for Upgrades / Researches.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
                 () => 'Unspend Strange quarks will boost this stage. (Cheaper Accretion)\n(Scales slower past 800 Strange quarks)'
             ],
             cost: [],

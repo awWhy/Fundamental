@@ -264,8 +264,6 @@ reLoad(true); //This will start the game
         }
         getId('invisibleGetResource0').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
         getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(1, 'button', 'resource'));
-        getId('invisibleGetResource2').addEventListener('click', () => screenReaderSupport(2, 'button', 'resource'));
-        getId('invisibleGetResource4').addEventListener('click', () => screenReaderSupport(4, 'button', 'resource'));
         getId('invisibleInformation0').addEventListener('click', () => screenReaderSupport(0, 'button', 'information'));
     }
 

@@ -69,8 +69,8 @@ export const prepareVacuum = () => {
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
 
         const stageWord = getId('stageWord') as HTMLSpanElement;
-        stageWord.textContent = stageInfo.word[player.stage.current];
-        stageWord.style.color = stageInfo.textColor[player.stage.current];
+        stageWord.textContent = stageInfo.word[6];
+        stageWord.style.color = stageInfo.textColor[6];
         getId('unknownStructures').style.display = 'none';
     } else {
         const { buildings } = playerStart;
@@ -153,7 +153,7 @@ export const switchVacuum = async() => {
     const ready = await Confirm('This will not be possible to undo. Are you ready?');
     if (!ready) { return; }
 
-    await AlertWait('Universe is too unstable. Inflation is imminent');
+    await AlertWait('Universe is too unstable. Vacuum instability is imminent');
     getId('vacuumState').textContent = 'true';
     player.inflation.vacuum = true;
     player.stage.true = 6;
