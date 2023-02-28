@@ -166,8 +166,9 @@ export const overlimit = {
                 left[0] /= 10;
                 left[1]++;
             } else if (after < 1) {
-                left[0] *= 10;
-                left[1]--;
+                const digits = -Math.floor(Math.log10(after));
+                left[0] *= 10 ** digits;
+                left[1] -= digits;
             }
 
             return left;

@@ -1,6 +1,6 @@
 import { allowedToBeReset } from './Check';
 import { cloneArray, global, player, playerStart } from './Player';
-import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation } from './Stage';
+import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet } from './Stage';
 import { numbersUpdate, updateRankInfo, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'stage' | 'vacuum', stageIndex: number[]) => {
@@ -8,8 +8,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         if (type === 'discharge' || player.inflation.vacuum) { player.discharge.energy = 0; }
         if (stageIndex.includes(4)) { global.collapseInfo.trueStars = 0; }
         if (type === 'galaxy') {
-            global.automatization.elements = [];
-            player.collapse.disabled = true;
+            if (!player.inflation.vacuum) { player.collapse.disabled = true; }
             player.collapse.mass = 0.01235;
             player.collapse.stars = [0, 0, 0];
         }
@@ -21,6 +20,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 elements[i] = 0;
                 visualUpdateUpgrades(i, 4, 'elements');
             }
+            autoElementsSet();
         }
 
         for (const s of stageIndex) {
@@ -114,9 +114,9 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
                 collapse.mass = 0.01235;
                 collapse.stars = [0, 0, 0];
                 collapse.show = [];
-                collapse.disabled = false;
+                if (!player.inflation.vacuum) { collapse.disabled = false; }
                 player.elements = cloneArray(playerStart.elements);
-                global.automatization.elements = [];
+                autoElementsSet();
                 if (player.stage.active === 4) {
                     for (let i = 1; i < playerStart.elements.length; i++) { visualUpdateUpgrades(i, 4, 'elements'); }
                 }
@@ -161,7 +161,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         collapse.show = [];
         collapse.disabled = false;
         player.elements = cloneArray(playerStart.elements);
-        global.automatization.elements = [];
 
         //Stage 5 and rest
         player.researchesAuto = cloneArray(playerStart.researchesAuto);

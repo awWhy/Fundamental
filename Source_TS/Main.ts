@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, checkPlayerValues, buildVersionInfo } from './Player';
-import { getUpgradeDescription, invisibleUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
-import { autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
+import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
+import { autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { prepareVacuum, switchVacuum } from './Vacuum';
@@ -36,7 +36,7 @@ export const reLoad = (firstLoad = false) => {
     setTheme(Number(theme), theme === null);
 
     prepareVacuum();
-    stageCheck('reload'); //Stage information (incuding part of invisibleUpdate), visualUpdate
+    stageCheck('reload'); //Stage information (incuding part of timeUpdate), visualUpdate
     if (firstLoad) {
         getId('body').style.display = '';
         getId('loading').style.display = 'none';
@@ -148,7 +148,7 @@ reLoad(true); //This will start the game
         }
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(i, 'auto', 'researchesAuto')); }
     }
-    { //Part of researchesAuto
+    {
         const image = getId('ASRImage') as HTMLInputElement;
         if (!mobileDevice) {
             image.addEventListener('mouseover', () => getUpgradeDescription(0, 'auto', 'ASR'));
@@ -160,6 +160,7 @@ reLoad(true); //This will start the game
         if (screenReader) { image.addEventListener('focus', () => getUpgradeDescription(0, 'auto', 'ASR')); }
     }
 
+    getId('toggleAuto8').addEventListener('click', () => autoElementsSet());
     for (let i = 1; i < global.elementsInfo.startCost.length; i++) {
         const image = getId(`element${i}`) as HTMLInputElement;
         if (!mobileDevice) {
@@ -226,15 +227,9 @@ reLoad(true); //This will start the game
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     }
-    getId('toggleAuto5').addEventListener('click', () => {
-        if (player.toggles.auto[5]) { autoUpgradesSet('all'); }
-    });
-    getId('toggleAuto6').addEventListener('click', () => {
-        if (player.toggles.auto[6]) { autoResearchesSet('researches', 'all'); }
-    });
-    getId('toggleAuto7').addEventListener('click', () => {
-        if (player.toggles.auto[7]) { autoResearchesSet('researchesExtra', 'all'); }
-    });
+    getId('toggleAuto5').addEventListener('click', () => autoUpgradesSet('all'));
+    getId('toggleAuto6').addEventListener('click', () => autoResearchesSet('researches', 'all'));
+    getId('toggleAuto7').addEventListener('click', () => autoResearchesSet('researchesExtra', 'all'));
     getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
     getId('saveFileHoverButton').addEventListener('mouseover', () => {
         getId('saveFileNamePreview').textContent = replaceSaveFileSpecials();
@@ -260,11 +255,11 @@ reLoad(true); //This will start the game
     getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
     if (screenReader) {
         for (let i = 0; i < specialHTML.longestBuilding; i++) {
-            getId(`invisibleGetBuilding${i}`).addEventListener('click', () => screenReaderSupport(i, 'button', 'building'));
+            getId(`SRBuild${i}`).addEventListener('click', () => screenReaderSupport(i, 'button', 'building'));
         }
-        getId('invisibleGetResource0').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
-        getId('invisibleGetResource1').addEventListener('click', () => screenReaderSupport(1, 'button', 'resource'));
-        getId('invisibleInformation0').addEventListener('click', () => screenReaderSupport(0, 'button', 'information'));
+        getId('SRExtra0').addEventListener('click', () => screenReaderSupport(0, 'button', 'resource'));
+        getId('SRExtra1').addEventListener('click', () => screenReaderSupport(1, 'button', 'resource'));
+        getId('SRInfo0').addEventListener('click', () => screenReaderSupport(0, 'button', 'information'));
     }
 
     /* Footer */
@@ -313,7 +308,7 @@ function changeIntervals(pause = false, input = '') {
     clearInterval(intervalsId.visual);
     clearInterval(intervalsId.autoSave);
     if (!pause) {
-        intervalsId.main = setInterval(invisibleUpdate, intervals.main);
+        intervalsId.main = setInterval(timeUpdate, intervals.main);
         intervalsId.numbers = setInterval(numbersUpdate, intervals.numbers);
         intervalsId.visual = setInterval(visualUpdate, intervals.visual * 1000);
         intervalsId.autoSave = setInterval(saveLoad, intervals.autoSave * 1000, 'save');
@@ -431,25 +426,25 @@ const replaceSaveFileSpecials = (): string => {
 
 const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
     const current = new Date();
-    let result: string;
     switch (type) {
-        case 'dateDMY':
-            result = `${current.getDate()}.${current.getMonth() + 1}.${current.getFullYear()}`;
-            break;
+        case 'dateDMY': {
+            let day = `${current.getDate()}`;
+            if (day.length === 1) { day = '0' + day; }
+            let month = `${current.getMonth() + 1}`;
+            if (month.length === 1) { month = '0' + month; }
+            return `${day}.${month}.${current.getFullYear()}`;
+        }
         case 'timeHMS': {
             let minutes = `${current.getMinutes()}`;
             if (minutes.length === 1) { minutes = '0' + minutes; }
             let seconds = `${current.getSeconds()}`;
             if (seconds.length === 1) { seconds = '0' + seconds; }
-            result = `${current.getHours()}-${minutes}-${seconds}`;
+            return `${current.getHours()}-${minutes}-${seconds}`;
         }
     }
-    return result;
 };
 
 export const timeWarp = async() => {
-    if (player.researchesAuto[0] < 3) { return; }
-
     const { time } = player;
     if (time.offline <= 0) { return Alert("Can't Warp without any Offline time"); }
 
@@ -457,7 +452,7 @@ export const timeWarp = async() => {
     if (warpTime <= 0 || !isFinite(warpTime)) { return; }
 
     time.offline -= warpTime;
-    invisibleUpdate(warpTime);
+    timeUpdate(warpTime);
 };
 
 const pauseGame = async() => {

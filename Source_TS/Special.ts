@@ -210,9 +210,7 @@ export const specialHTML = {
 
 export const setTheme = (themeNumber: number, initial = false) => {
     if (!initial) {
-        let allowed = player.stage.true >= themeNumber;
-        if (themeNumber === 6) { allowed = false; }
-        if (!allowed) { initial = true; }
+        if (player.stage.true < themeNumber) { initial = true; }
     }
 
     if (initial) {
@@ -301,7 +299,7 @@ export const switchTheme = () => {
             body.setProperty('--button-extra-hover', '#2400d7');
             body.setProperty('--input-border-color', '#4747ff');
             body.setProperty('--input-text-color', 'dodgerblue');
-            body.setProperty('--main-text-color', 'dodgerblue');
+            body.setProperty('--main-text-color', 'var(--blue-text-color)');
             body.setProperty('--gray-text-color', '#9b9b9b');
             body.setProperty('--darkorchid-text-color', '#c71bff');
             body.setProperty('--darkviolet-text-color', '#a973ff');
@@ -332,7 +330,7 @@ export const switchTheme = () => {
             body.setProperty('--button-delete-hover', '#a10a0a');
             body.setProperty('--input-border-color', '#8b4a00');
             body.setProperty('--input-text-color', '#e77e00');
-            body.setProperty('--main-text-color', '#8f8f8f');
+            body.setProperty('--main-text-color', 'var(--gray-text-color)');
             body.setProperty('--white-text-color', '#dfdfdf');
             body.setProperty('--orange-text-color', '#f58600');
             body.setProperty('--green-text-color', '#00db00');
@@ -364,7 +362,7 @@ export const switchTheme = () => {
             body.setProperty('--input-border-color', '#008399');
             body.setProperty('--input-text-color', '#05c3c3');
             body.setProperty('--button-text-color', '#d9d900');
-            body.setProperty('--main-text-color', 'darkorange');
+            body.setProperty('--main-text-color', 'var(--orange-text-color)');
             body.setProperty('--white-text-color', '#e5e500');
             body.setProperty('--blue-text-color', '#2694ff');
             body.setProperty('--gray-text-color', '#8b8b8b');
@@ -384,7 +382,7 @@ export const switchTheme = () => {
             body.setProperty('--background-color', '#060010');
             body.setProperty('--window-color', '#001d42');
             body.setProperty('--window-border', '#35466e');
-            body.setProperty('--footer-color', '#320061');
+            body.setProperty('--footer-color', '#2f005c');
             body.setProperty('--button-main-color', '#4a008f');
             body.setProperty('--button-main-border', '#8a0049');
             body.setProperty('--button-main-hover', '#6800d6');
@@ -397,7 +395,7 @@ export const switchTheme = () => {
             body.setProperty('--input-border-color', '#3656a1');
             body.setProperty('--input-text-color', '#6a88cd');
             body.setProperty('--button-text-color', '#fc9cfc');
-            body.setProperty('--main-text-color', '#c000ff');
+            body.setProperty('--main-text-color', 'var(--darkorchid-text-color)');
             body.setProperty('--white-text-color', '#ff79ff');
             body.setProperty('--orchid-text-color', '#ff00f4');
             body.setProperty('--darkorchid-text-color', '#c000ff');
@@ -405,9 +403,34 @@ export const switchTheme = () => {
             body.setProperty('--yellow-text-color', 'var(--darkviolet-text-color)');
             break;
         case 6:
-            //Violet text
-            //White white text
-            //Black BG
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = 'var(--red-text-color)';
+                getId(`${text}Cost`).style.color = 'var(--orange-text-color)';
+                if (text === 'upgrade') { continue; }
+                getId(`${text}Text`).style.color = 'var(--orchid-text-color)';
+            }
+            body.setProperty('--background-color', 'black');
+            body.setProperty('--window-color', '#01003c');
+            body.setProperty('--window-border', '#7100ff');
+            body.setProperty('--footer-color', '#00007a');
+            body.setProperty('--button-main-color', '#2b0095');
+            body.setProperty('--button-main-border', '#711bda');
+            body.setProperty('--button-main-hover', '#3d00d6');
+            body.setProperty('--building-can-buy', '#a80000');
+            body.setProperty('--button-tab-border', '#6719c8');
+            body.setProperty('--button-tab-active', '#8d0000');
+            body.setProperty('--button-extra-hover', '#490070');
+            body.setProperty('--button-delete-color', '#930606');
+            body.setProperty('--button-delete-hover', '#b80000');
+            body.setProperty('--input-border-color', '#a50000');
+            body.setProperty('--input-text-color', 'red');
+            body.setProperty('--button-text-color', '#efe0ff');
+            body.setProperty('--main-text-color', 'var(--darkviolet-text-color)');
+            body.setProperty('--gray-text-color', '#9b9b9b');
+            body.setProperty('--darkviolet-text-color', '#8157ff');
+            body.setProperty('--white-text-color', '#f9f5ff');
+            body.setProperty('--red-text-color', 'red');
+            body.setProperty('--yellow-text-color', 'var(--red-text-color)');
     }
     setTimeout(() => {
         body.removeProperty('--transition-all');
@@ -614,7 +637,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
         }
         case 'button': {
             const index = info as number;
-            const invText = getId('invisibleBought') as HTMLLabelElement;
+            const invText = getId('SRMain') as HTMLLabelElement;
 
             if (special === 'building') {
                 const { buildingsInfo } = global;
@@ -635,7 +658,7 @@ export const screenReaderSupport = (info = false as boolean | number, type = 'to
                 } else if (index === 1) {
                     if (player.stage.active === 1) {
                         assignDischargeInformation();
-                        invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${player.strangeness[1][2] >= 1 ? `, you also have +${format(player.strangeness[1][2])} free goals.` : ''}`;
+                        invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${global.dischargeInfo.bonus > 0 ? `, you also have +${format(global.dischargeInfo.bonus)} free goals.` : ''}`;
                     } else if (player.stage.active === 2) {
                         assignVaporizationInformation();
                         invText.textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan([1, 0]) ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
@@ -701,7 +724,7 @@ export const changeFormat = (point: boolean) => {
         player.separator[0] = htmlInput.value;
 };
 
-//If done for span, then add display: inline-block;
+//If done for span, then add class="noMoveSpan";
 export const assignWithNoMove = (html: HTMLElement, text: string) => {
     html.textContent = text;
     html.style.width = `${text.length * 0.6}em`;

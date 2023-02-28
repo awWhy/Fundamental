@@ -137,9 +137,12 @@ export interface globalType {
     }
     dischargeInfo: {
         energyType: number[][]
+        bonus: number
         next: number
     }
     vaporizationInfo: {
+        effect2U1: () => number
+        effect2RE3: () => number
         get: overlimit
     }
     accretionInfo: {
@@ -157,6 +160,7 @@ export interface globalType {
         unlockR: number[]
         newMass: number
         starCheck: [number, number, number]
+        starEffect: [(post?: boolean) => number, (post?: boolean) => number, (post?: boolean) => number]
         trueStars: number
     }
     inflationInfo: {
@@ -179,13 +183,14 @@ export interface globalType {
         producing: overlimit[][]
     }
     strangeInfo: {
+        Element28: () => number
         gain: (stage: number) => number
         stageBoost: Array<number | null>
     }
     upgradesInfo: Array<{
         description: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null | (() => number)>
+        effect: Array<number | overlimit | null>
         startCost: number[]
     }>
     researchesInfo: Array<{
@@ -200,7 +205,7 @@ export interface globalType {
     researchesExtraInfo: Array<{
         description: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null | (() => number)>
+        effect: Array<number | overlimit | null>
         cost: number[]
         startCost: number[]
         scaling: number[]
@@ -209,7 +214,6 @@ export interface globalType {
     researchesAutoInfo: {
         description: string[]
         effectText: Array<() => string>
-        //effect: null[]
         cost: number[]
         startCost: number[]
         scaling: number[]
@@ -224,7 +228,7 @@ export interface globalType {
     elementsInfo: {
         description: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null | (() => number)>
+        effect: Array<number | overlimit | null>
         startCost: number[]
     }
     strangenessInfo: Array<{

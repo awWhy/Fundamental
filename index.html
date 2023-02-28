@@ -177,7 +177,7 @@
                         </div>
                     </div>
                     <p id="offlineBoost" class="blueText">Consuming <span id="offlineBoostWaste" class="cyanText">9.00</span> from Offline storage to add <span id="offlineBoostEffect" class="cyanText">+1.00</span> to passed time</p>
-                    <p class="invisible">Use left or right arrow keys to navigate through tabs. Up or down arrows to navigate through subtabs (when there are any). Can check other hotkeys in settings.</p>
+                    <p class="reader">Use left or right arrow keys to navigate through tabs. Up or down arrows to navigate through subtabs (when there are any). Can check other hotkeys in settings.</p>
                 </section>
                 <section id="stageSubtabAdvanced" class="insideTab" style="display: none;">
                     <div class="challengeDiv">
@@ -307,6 +307,12 @@
                         <input type="image" src="Used_art/Element26.png" alt="Iron" id="element26" class="interactiveImage" aria-labelledby="elementText elementEffect elementCost">
                         <input type="image" src="Used_art/Element27.png" alt="Cobalt" id="element27" class="interactiveImage" aria-labelledby="elementText elementEffect elementCost">
                         <input type="image" src="Used_art/Element28.png" alt="Nickel" id="element28" class="interactiveImage" aria-labelledby="elementText elementEffect elementCost">
+                    </div>
+                    <div id="elementsExtra">
+                        <div>
+                            <label for="toggleAuto8">Elements <span class="whiteText">-></span></label>
+                            <button id="toggleAuto8" class="toggleAuto">Auto OFF</button>
+                        </div>
                     </div>
                     <div class="descriptionText">
                         <h3>Element: <span id="elementText" class="darkorchidText">Hover to see.</span></h3>
@@ -615,21 +621,21 @@
                     <div id="logoLinks">
                         <a href="https://discord.gg/DfpuhDTseN" target="_blank" rel="noopener noreferrer" aria-label="Official Discord">
                             <img src="Used_art/Elsewhere/discord-mark-white.svg" alt="" loading="lazy">
-                            <p>Discord</p>
+                            Discord
                         </a>
                         <button id="versionButton" aria-label="Version Information">
                             <img src="Used_art/Elsewhere/files.svg" alt="" loading="lazy">
-                            <p>Version</p>
+                            Version
                         </button>
                     </div>
                     <div class="saveButtonGroup">
                         <h3 class="bigWord">Please export save file regularly</h3>
-                        <p id="exportSpecial" class="whiteText">Gain <span id="exportGain" class="greenText">0</span> Strange quarks for doing it</p>
+                        <p id="exportSpecial" class="whiteText">Gain <span id="exportGain" class="greenText noMoveSpan">0</span> Strange quarks for doing it</p>
                         <div>
                             <div>
                                 <button id="save" aria-label="Save game">Save</button>
                                 <label id="load" for="file" aria-hidden="true">Load</label>
-                                <input type="file" id="file" accept=".txt" aria-label="Load from file">
+                                <input type="file" id="file" class="reader" accept=".txt" aria-label="Load from file">
                             </div>
                             <button id="export">Export save file</button>
                             <button id="delete">Delete save file</button>
@@ -646,8 +652,8 @@
                                         <div>
                                             <p id="saveFileNamePreview" class="mainText bigWord">Fundamental.txt</p>
                                             <p class="whiteText center">You can add any of these for extra information of a save file</p>
-                                            <p class="stageText">[stage] - <span class="whiteText">for current Stage</span></p>
                                             <p class="stageText">[true] - <span class="whiteText">for current true Stage</span></p>
+                                            <p class="stageText">[stage] - <span class="whiteText">for current active Stage</span></p>
                                             <p class="cyanText">[date] - <span class="whiteText">for current day, month, year</span></p>
                                             <p class="cyanText">[time] - <span class="whiteText">for current hour, minute, second</span></p>
                                             <p class="redText bigWord center">Case sentitive</p>
@@ -677,7 +683,7 @@
                                             <p class="mainText center">Resets</p>
                                             <div class="center">
                                                 <p id="stageSwitchHotkey" class="stageText stage1Unlock">S - <span class="whiteText">Stage</span></p>
-                                                <p id="offlineWarpHotkey" class="darkvioletText">W - <span class="whiteText">Warp</span></p>
+                                                <p class="darkvioletText">W - <span class="whiteText">Warp</span></p>
                                                 <p class="orangeText stage1Include">D - <span class="whiteText">Discharge</span></p>
                                                 <p class="grayText stage2Include">V - <span class="whiteText">Vaporization</span></p>
                                                 <p class="darkorchidText stage3Include">R - <span class="whiteText">Rank</span></p>
@@ -692,7 +698,7 @@
                             <h3 class="center">Less recommended options</h3>
                             <ul class="whiteText">
                                 <li id="pauseGame" aria-hidden="true">Pause game</li>
-                                <li><label for="toggle0">Auto consume offline storage</label><button id="toggle0" class="toggle">ON</button><button id="offlineWarp" class="extraHover">Warp</li>
+                                <li><label id="offlineStorage" for="toggle0">Auto consume offline storage</label><button id="toggle0" class="toggle">ON</button><button id="offlineWarp" class="extraHover">Warp</button></li>
                                 <li aria-hidden="true"><label for="customFontSize">Custom font size (art won't scale)</label>: <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="fontSizeToggle" class="specialToggle" tabindex="-1">ON</button></li>
                             </ul>
                         </div>
@@ -715,15 +721,15 @@
                         </div>
                         <div id="autoTogglesUpgrades">
                             <div id="autoToggle5">
-                                <label for="toggleAuto5" class="whiteText">Upgrades <span class="mainText">-></span></label>
+                                <label for="toggleAuto5" class="whiteText">Upgrades <span class="mainText">-&gt;</span></label>
                                 <button id="toggleAuto5" class="toggleAuto">Auto OFF</button>  
                             </div>
                             <div id="autoToggle6">
-                                <label for="toggleAuto6" class="whiteText">Researches <span class="mainText">-></span></label>
+                                <label for="toggleAuto6" class="whiteText">Researches <span class="mainText">-&gt;</span></label>
                                 <button id="toggleAuto6" class="toggleAuto">Auto OFF</button>
                             </div>
                             <div id="autoToggle7">
-                                <label for="toggleAuto7" class="whiteText">Special Researches <span class="mainText">-></span></label>
+                                <label for="toggleAuto7" class="whiteText">Special Researches <span class="mainText">-&gt;</span></label>
                                 <button id="toggleAuto7" class="toggleAuto">Auto OFF</button>
                             </div>
                         </div>
@@ -852,6 +858,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="starsStats" class="stage4Only">
+                            <p>Current effect -&gt; after Collapse</p>
+                            <p id="star1Stats" class="redText">Red giants: <span id="star1StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star1StatAfter" class="greenText noMoveSpan">0</span></p>
+                            <p id="star2Stats" class="darkvioletText">Neutron stars: <span id="star2StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star2StatAfter" class="greenText noMoveSpan">0</span></p>
+                            <p id="star3Stats" class="grayText">Black holes: <span id="star3StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star3StatAfter" class="greenText noMoveSpan">0</span></p>
+                        </div>
                         <p class="redText stage5Only">Self-made Stars: <span id="starsStatTrue" class="orangeText">0</span></p>
                         <p id="energyStats" class="orangeText stage1Only">Most Energy at once: <span id="maxEnergyStat" class="whiteText">0</span></p>
                         <p id="dischargeStats" class="orangeText stage1Only">Discharge goals: <span id="dischargeStat" class="whiteText">0</span> <span id="dischargeStatBonus" class="cyanText">[+0]</span></p>
@@ -868,28 +880,29 @@
                             <img src="Used_art/Protostar.png" alt="Protostar" id="rankStat6" title="Protostar" loading="lazy">
                         </div>
                         <div id="unknownStructures" class="imageList"></div>
-                        <p id="preonCap" class="cyanText stage1Only">Preon production hardcap starts at <span id="preonCapStat" class="grayText">1e13</span><br aria-hidden="true">(before Accretion boost)</p>
-                        <p id="dustCap" class="grayText stage3Only">Cosmic dust production hardcap starts at <span id="dustCapStat" class="redText">1e46</span></p>
-                        <p id="mainCap" class="cyanText stage4Only">Main-sequence mass gain is limited to <span id="mainCapStat" class="orangeText">1</span><br aria-hidden="true">(10 minutes worth of production)</p>
+                        <p id="preonCap" class="cyanText stage1Only">Preons production hardcap starts at <span id="preonCapStat" class="grayText noMoveSpan">2e13</span><br aria-hidden="true">(before Accretion boost)</p>
+                        <p id="dustCap" class="grayText stage3Only">Cosmic dust production hardcap starts at <span id="dustCapStat" class="redText noMoveSpan">5e45</span></p>
+                        <p id="mainCap" class="cyanText stage4Only">Main-sequence mass gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(10 minutes worth of production)</p>
                     </div>
                 </section>
             </section>
             <section id="specialTab" style="display: none;"> <!-- Only for screen readers -->
-                <button id="invisibleGetBuilding0">Missing</button>
-                <button id="invisibleGetBuilding1">Missing</button>
-                <button id="invisibleGetBuilding2">Missing</button>
-                <button id="invisibleGetBuilding3">Missing</button>
-                <button id="invisibleGetBuilding4">Missing</button>
-                <button id="invisibleGetBuilding5">Missing</button>
-                <button id="invisibleGetBuilding6">Missing</button>
-                <button id="invisibleGetResource1">Missing</button>
-                <button id="invisibleGetResource0">Get information for Strange quarks</button>
-                <button id="invisibleInformation0">Current Active Stages (Shift + Left or Right Arrow to switch)</button>
+                <button id="SRBuild0">Missing</button>
+                <button id="SRBuild1">Missing</button>
+                <button id="SRBuild2">Missing</button>
+                <button id="SRBuild3">Missing</button>
+                <button id="SRBuild4">Missing</button>
+                <button id="SRBuild5">Missing</button>
+                <button id="SRBuild6">Missing</button>
+                <button id="SRExtra1">Missing</button>
+                <button id="SRExtra0">Information for Strange quarks</button>
+                <button id="SRInfo0">Current Active Stages</button>
+                <p id="SRHotkeyA">To switch Active Stage, press Shift + Left or Right Arrow</p>
                 <p>Support isn't full, might have mistakes. If there are any mistakes or suggestions, you can contact me trough Discord (link in settings) or <a href="https://github.com/awWhy/Fundamental/issues">Github</a>, by creating an issue</p>
                 <p class="redText" aria-hidden="true">If you do not need Screen Reader support, then turn it off in settings</p>
             </section>
-            <h5 id="invisibleTab" class="invisible" aria-live="polite">Current tab: stage tab</h5> <!-- Will say what tab/subtab is -->
-            <h6 id="invisibleBought" class="invisible" aria-live="assertive"></h6> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
+            <h5 id="SRTab" class="reader" aria-live="polite">Current tab: Stage tab</h5> <!-- Will say what tab/subtab is -->
+            <h6 id="SRMain" class="reader" aria-live="assertive"></h6> <!-- Information that updated all the time (bought buldings, reset and etc.) -->
             <footer id="footer">
                 <div>
                     <nav id="subtabs" style="display: none;" aria-hidden="true">
