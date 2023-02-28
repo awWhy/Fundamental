@@ -445,6 +445,7 @@ p > img {
     width: 100%;
 }
 
+#offlineBoostWaste,
 #offlineBoostEffect {
     display: inline-block;
     width: 2.4em;
