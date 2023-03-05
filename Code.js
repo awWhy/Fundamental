@@ -117,6 +117,7 @@ Self-made Structures are moved into Stage tab (displayed when current is not equ
 - Offline warp unlock condition is now switched with Offline storage consumption toggle
 - Offline time is being wasted less (from 9 to 6)
 - Balance changes for Stage 6
+- New stats for Stage 4
 - Other minor stuff`}a("versionText").textContent=r,a("currentVesion").textContent=t};a("versionInfo").innerHTML=`<div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: clamp(42vw, 36em, 80vw); height: clamp(26vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em;">
         <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.06em;">
             <button id="v0.0.1" style="width: 3.8em; height: 2em; font-size: 0.88em;">v0.0.1</button>
