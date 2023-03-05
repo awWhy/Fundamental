@@ -348,7 +348,7 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     vaporizationInfo: {
         effect2U1: () => (global.upgradesInfo[2].effect[1] = 1e10 / 3 ** player.strangeness[2][3]),
-        effect2RE3: () => (global.researchesExtraInfo[2].effect[3] = 1 + Math.floor(Limit(player.vaporization.clouds).log(10).toNumber())),
+        effect2RE3: () => (global.researchesExtraInfo[2].effect[3] = 1 + Math.floor(Limit(player.vaporization.clouds).log(10).min([2, 0]).toNumber())),
         get: [0, 0]
     },
     accretionInfo: {
@@ -638,7 +638,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         }, { //Stage 2
             description: [
                 'Better Mole production.',
-                'All of it, is still around.',
+                'Condensation.',
                 'Stronger surface tension.',
                 'Stronger surface stress.',
                 'More streams.',
@@ -646,7 +646,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => 'Drops produce 3 times more Moles.',
-                () => 'Bonus to Structures is now based on total produced, rather than on hands. Level 1 for Drops, level 2 for Moles.',
+                () => 'Through condensation bonus to Structure production is now based on total produced, instead of current amount.\nLevel 1 for Drops, level 2 for Moles.',
                 () => `Surface tension upgrade is now +${format(0.02)} stronger.`,
                 () => `Surface stress upgrade is now +${format(0.03)} stronger.`,
                 () => 'With more streams, can have even more extra Puddles. (+1 extra Puddles per Pond)',
@@ -763,7 +763,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Clouds will now use total produced Drops instead, when formed.',
                 () => `Some Clouds will start pouring Drops themselves. (${player.inflation.vacuum ? `Improves Puddles by ${format(global.researchesExtraInfo[2].effect[1] as number)} in total` : `${format(global.researchesExtraInfo[2].effect[1] as number)} per second`})`,
                 () => `Seas get a boost based on amount of Clouds. (Equal to ${Limit(global.researchesExtraInfo[2].effect[2] as overlimit).format()})`,
-                () => `On Stage reset gain extra reward for every new digit in Clouds, as well +1. (Currently +${format(global.vaporizationInfo.effect2RE3())})`
+                () => `On Stage reset gain extra reward for every new digit in Clouds, as well +1. (Currently +${format(global.vaporizationInfo.effect2RE3())})\nDue to some balance issues, currenly hardcapped at +3.`
             ],
             effect: [null, 0, 0, 1],
             cost: [],
@@ -953,9 +953,9 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Unspend Strange quarks will boost this stage. (Stronger radiation)'
             ],
             cost: [],
-            startCost: [1, 1, 2, 4, 4, 1, 2, 2, 10],
-            scaling: [1.5, 1, 3, 0, 2, 0.25, 2, 1.5, 0],
-            max: [4, 4, 2, 1, 2, 10, 3, 2, 1]
+            startCost: [2, 1, 20, 40, 6, 1, 4, 8, 10],
+            scaling: [4, 3, 2, 1, 2, 1.5, 2, 2.5, 1],
+            max: [4, 4, 2, 1, 2, 10, 3, 1, 1]
         }, { //Stage 2
             description: [
                 'More Moles.',
@@ -981,8 +981,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Unspend Strange quarks will boost this stage. (Puddle production)'
             ],
             cost: [],
-            startCost: [1, 2, 2, 1, 3, 2, 1, 3, 8],
-            scaling: [0.2, 0.5, 1.5, 2, 0, 1, 1.34, 2.5, 0],
+            startCost: [1, 2, 4, 6, 20, 3, 1, 5, 20],
+            scaling: [1.6, 2.5, 3, 3.5, 1, 2.5, 1.8, 10, 1],
             max: [9, 6, 3, 3, 1, 5, 4, 2, 1]
         }, { //Stage 3
             description: [
@@ -1006,8 +1006,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Unspend Strange quarks will boost this stage. (Cheaper Accretion)\n(Scales slower past 800 Strange quarks)'
             ],
             cost: [],
-            startCost: [1, 1, 3, 4, 3, 2, 5, 6],
-            scaling: [0.75, 1.5, 2.5, 0, 0, 1, 3.5, 0],
+            startCost: [1, 1, 5, 20, 30, 4, 12, 30],
+            scaling: [1.46, 3, 2.5, 1, 1, 1.8, 3, 1],
             max: [8, 4, 3, 1, 1, 4, 3, 1]
         }, { //Stage 4
             description: [
@@ -1036,8 +1036,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Unspend Strange quarks will boost this stage. (All Stars production)'
             ],
             cost: [],
-            startCost: [1, 1, 3, 2, 4, 3, 3, 2, 4, 4],
-            scaling: [1, 1.5, 1.5, 2, 0, 0, 1, 2.5, 0, 0],
+            startCost: [1, 3, 5, 5, 108, 20, 5, 4, 80, 40],
+            scaling: [1.9, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1],
             max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1]
         }, { //Stage 5
             description: [
@@ -1065,8 +1065,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Unlock${player.inflation.vacuum ? '' : ' Intergalactic'} Milestones.`
             ],
             cost: [],
-            startCost: [120, 10, 20, 5, 10, 20, 800, 20, 40],
-            scaling: [60, 0, 0, 5, 10, 0, 400, 20, 0],
+            startCost: [1e10, 10, 20, 5, 10, 40, 800, 40, 20],
+            scaling: [1, 1, 1, 1.9, 1.85, 1, 1.5, 2, 1],
             max: [3, 1, 1, 9, 9, 1, 2, 2, 1]
         }
     ],
@@ -1437,8 +1437,13 @@ export const updatePlayer = (load: playerType) => {
         if (load.version === 'v0.0.9') {
             load.version = 'v0.1.0';
             if (load.upgrades[3].length === 12) { load.upgrades[3].splice(8, 0, 0); }
+            if (load.strangeness[5] === undefined) { load.strangeness[5] = []; }
             load.strangeness[5][0] = 0;
             load.strangeness[5][1] = 0;
+            if (load.strange[0]['true' as 'current'] > 24) {
+                load.strange[0].total -= (load.strange[0]['true' as 'current'] - 24);
+                load.strange[0]['true' as 'current'] = 24;
+            }
             load.stage.active = load.stage.current;
             for (let s = 1; s < load.buildings.length; s++) {
                 for (let i = 0; i < load.buildings[s].length; i++) {
@@ -1644,7 +1649,7 @@ export const buildVersionInfo = () => {
                 text += '- Some Stage 3 and Stage 5 quick balance changes';
                 break;
             case 'v0.1.0':
-                text = '- New content and balance of old Stage 5 late content\n- New stats for Stage 5\n- Due to balance changes some Strangeness have been reset';
+                text = '- New content and balance of old Stage 5 late content\n- New stats for Stage 5\n- Due to balance changes, Strangeness for Stage 5 and Strange quarks had been reset';
                 break;
             case 'v0.1.1':
                 text = '- More balance for Stage 5\n- New stats for Stage 2 and 4, max energy no longer resets\n- New hotkey for changing Active Stage';

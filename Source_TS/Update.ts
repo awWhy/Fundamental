@@ -519,6 +519,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             getId('strange5Stage5').style.display = (vacuum ? player.strangeness[5][5] >= 1 : player.milestones[3][0] >= 3) ? '' : 'none';
             getId('strange6Stage5').style.display = vacuum || player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3 ? '' : 'none';
             getId('strange7Stage5').style.display = player.strangeness[5][5] >= 1 ? '' : 'none';
+            getId('strange8Stage5').style.display = (vacuum ? player.strangeness[5][5] >= 1 : player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3) ? '' : 'none';
         } else if (subtab.strangenessCurrent === 'Milestones') {
             getId('milestone1Stage5Div').style.display = player.strangeness[5][8] >= 1 ? '' : 'none';
             getId('milestone2Stage5Div').style.display = player.strangeness[5][8] >= 1 && player.strangeness[5][6] >= 1 ? '' : 'none';

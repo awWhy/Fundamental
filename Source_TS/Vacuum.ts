@@ -60,7 +60,7 @@ export const prepareVacuum = () => {
         strangenessInfo[3].startCost.splice(0, strangeness3Cost.length, ...strangeness3Cost);
         strangenessInfo[3].scaling.splice(0, strangeness3Scaling.length, ...strangeness3Scaling);
         const strangeness4Cost = [1, 3, 5, 5, 108, 20, 5, 4, 80, 40];
-        const strangeness4Scaling = [1.9, 2, 3, 4, 1, 1, 1.8, 1.6, 1, 1];
+        const strangeness4Scaling = [1.9, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
         const strangeness5Cost = [1e10, 10, 20, 5, 10, 40, 800, 40, 20];
