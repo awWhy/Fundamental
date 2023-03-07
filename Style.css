@@ -864,8 +864,6 @@ li button {
     margin-top: 0.1em;
 }
 
-#preonCapStat, #dustCapStat, #mainCapStat { text-align: start; }
-
 #footer {
     position: fixed;
     width: 100%;
