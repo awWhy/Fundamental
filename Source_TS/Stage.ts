@@ -319,9 +319,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         if (global.screenReader && !auto) { getId('SRMain').textContent = `Coudn't make '${buildingsInfo.name[stageIndex][index]}', because didn't had enough of '${galaxy ? 'Mass' : convert && stageIndex === 2 ? 'Moles' : buildingsInfo.name[stageExtra][extra]}'`; }
         return;
     }
-
     const howMany = player.researchesAuto[0] === 0 ? 1 : auto ? -1 : player.toggles.shop.howMany;
-    const microworld = player.inflation.vacuum || stageIndex === 1;
 
     let canAfford: number;
     let total: overlimit;
@@ -347,14 +345,6 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     building.trueTotal = Limit(building.trueTotal).plus(canAfford).toArray();
     if (Limit(building.highest).lessThan(building.current)) { building.highest = cloneArray(building.current); }
 
-    const { discharge } = player;
-    if (microworld) {
-        let reward = global.dischargeInfo.energyType[stageIndex][index];
-        if (index === 1) { reward += player.strangeness[1][4]; }
-        discharge.energy += reward * canAfford;
-    }
-    if (global.screenReader && !auto) { getId('SRMain').textContent = `Maded ${format(canAfford)} '${buildingsInfo.name[stageIndex][index]}'${microworld ? `, gained ${format((global.dischargeInfo.energyType[stageIndex][index] + (index === 1 ? player.strangeness[1][4] : 0)) * canAfford)} Energy` : ''}`; }
-
     if (galaxy) {
         //player.collapse.mass = Math.max(Limit(currency).toNumber(), 0.01235);
         reset('galaxy', player.inflation.vacuum ? [1, 2, 3, 4, 5] : [4, 5]);
@@ -370,9 +360,12 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     }
 
     //Milestones that are based on bought amount
-    if (microworld) {
-        if (!discharge.unlock) { discharge.unlock = discharge.energy >= (player.inflation.vacuum ? 32 : 9); }
-        if (discharge.energyMax < discharge.energy) { discharge.energyMax = discharge.energy; }
+    if (player.inflation.vacuum || stageIndex === 1) {
+        if (player.strangeness[1][9] < 1) {
+            global.dischargeInfo.updateEnergy();
+            player.discharge.energy += global.dischargeInfo.energyType[stageIndex][index] * canAfford;
+        }
+        assignEnergy();
         milestoneCheck(1, 1);
     }
     if (stageIndex === 2) {
@@ -388,6 +381,29 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
             if (!player.events[2]) { playEvent(5, 2); }
         }
     }
+    if (!auto && global.screenReader) { getId('SRMain').textContent = `Maded ${format(canAfford)} '${buildingsInfo.name[stageIndex][index]}'`; }
+};
+
+export const assignEnergy = () => {
+    const { discharge } = player;
+
+    if (player.strangeness[1][9] >= 1) {
+        const { dischargeInfo } = global;
+        dischargeInfo.updateEnergy();
+
+        let total = 0;
+        for (let s = 1; s < dischargeInfo.energyType.length; s++) {
+            const energyType = dischargeInfo.energyType[s];
+            const buildings = player.buildings[s];
+
+            for (let i = 1; i < energyType.length; i++) {
+                total += energyType[i] * buildings[i as 1].true;
+            }
+        }
+        discharge.energy = total;
+    }
+    if (!discharge.unlock) { discharge.unlock = discharge.energy >= (player.inflation.vacuum ? 32 : 9); }
+    if (discharge.energyMax < discharge.energy) { discharge.energyMax = discharge.energy; }
 };
 
 export const calculateBuildingsCost = (index: number, stageIndex: number): overlimit => {
@@ -576,26 +592,24 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
             if (upgrade === 7) {
                 player.researchesAuto[0] = Math.max(1, player.researchesAuto[0]);
                 calculateMaxLevel(0, 1, 'researchesAuto');
+            } else if (upgrade === 9) {
+                //calculateMaxLevel(3, 1, 'strangeness');
+                //calculateMaxLevel(4, 2, 'strangeness');
+                //calculateMaxLevel(5, 4, 'strangeness');
             }
         } else if (stageIndex === 2) {
-            if (global.stageInfo.activeAll.includes(2)) {
-                if (upgrade === 2) {
-                    if (player.strangeness[2][2] < 3) { calculateMaxLevel(4, 2, 'researches'); }
-                    if (player.strangeness[2][2] === 2) { calculateMaxLevel(5, 2, 'researches'); }
-                }
-            }
-            if (upgrade === 6) {
+            if (upgrade === 2) {
+                if (player.strangeness[2][2] < 3) { calculateMaxLevel(4, 2, 'researches'); }
+                if (player.strangeness[2][2] === 2) { calculateMaxLevel(5, 2, 'researches'); }
+            } else if (upgrade === 6) {
                 player.researchesAuto[1] = Math.max(1, player.researchesAuto[1]);
                 calculateMaxLevel(1, 2, 'researchesAuto');
             }
         } else if (stageIndex === 3) {
-            if (global.stageInfo.activeAll.includes(3)) {
-                if (upgrade === 2) {
-                    calculateMaxLevel(0, 3, 'researchesExtra');
-                    calculateMaxLevel(1, 3, 'researchesExtra');
-                }
-            }
-            if (upgrade === 6) {
+            if (upgrade === 2) {
+                calculateMaxLevel(0, 3, 'researchesExtra');
+                calculateMaxLevel(1, 3, 'researchesExtra');
+            } else if (upgrade === 6) {
                 calculateMaxLevel(2, 3, 'researchesAuto');
             }
         } else if (stageIndex === 5) {
@@ -613,7 +627,10 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
     if (type === 'strangeness') {
         player.strange[0].current = currency as number;
     } else if (stageIndex === 1) {
-        player.discharge.energy = Limit(currency).toNumber();
+        if (player.strangeness[1][9] < 1) {
+            player.discharge.energy = Limit(currency).toNumber();
+            if (player.toggles.auto[1]) { dischargeResetCheck('upgrade'); }
+        }
     } else if (stageIndex === 2) {
         player.buildings[stageIndex][1].current = currency as overlimit;
     } else if (stageIndex === 3) {
@@ -627,7 +644,6 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
     visualUpdateUpgrades(upgrade, stageIndex, type);
     if (!auto) { getUpgradeDescription(upgrade, stageIndex, type); }
     if (!auto || stageIndex === player.stage.active || (type === 'elements' && player.stage.active === 5) || type === 'strangeness') { numbersUpdate(); }
-    if (stageIndex === 1 && player.toggles.auto[1] && type !== 'strangeness') { dischargeResetCheck('upgrade'); }
     return true;
 };
 
@@ -749,7 +765,7 @@ export const autoUpgradesSet = (which: 'all' | number) => {
     if (which === 'all') {
         for (const s of global.stageInfo.activeAll) {
             auto[s] = [];
-            for (let i = 0; i < global.stageInfo.maxUpgrades[s]; i++) {
+            for (let i = 0; i < global.upgradesInfo[s].maxActive; i++) {
                 if (player.upgrades[s][i] < 1) {
                     auto[s].push(i);
                 }
@@ -760,7 +776,7 @@ export const autoUpgradesSet = (which: 'all' | number) => {
         }
     } else if (typeof which === 'number') {
         auto[which] = [];
-        for (let i = 0; i < global.stageInfo.maxUpgrades[which]; i++) {
+        for (let i = 0; i < global.upgradesInfo[which].maxActive; i++) {
             if (player.upgrades[which][i] < 1) {
                 auto[which].push(i);
             }
@@ -799,13 +815,11 @@ export const autoResearchesSet = (type: 'researches' | 'researchesExtra', which:
     const { [type === 'researches' ? 'autoR' : 'autoE']: auto } = global.automatization;
 
     if (which === 'all') {
-        const max = global.stageInfo[type === 'researches' ? 'maxResearches' : 'maxResearchesExtra'];
-
         for (const s of global.stageInfo.activeAll) {
             const pointer = global[type + 'Info' as 'researchesInfo'][s];
 
             auto[s] = [];
-            for (let i = 0; i < max[s]; i++) {
+            for (let i = 0; i < pointer.maxActive; i++) {
                 if (player[type][s][i] < pointer.max[i]) {
                     auto[s].push(i);
                 }
@@ -816,7 +830,7 @@ export const autoResearchesSet = (type: 'researches' | 'researchesExtra', which:
         const pointer = global[type + 'Info' as 'researchesInfo'][which];
 
         auto[which] = [];
-        for (let i = 0; i < global.stageInfo[type === 'researches' ? 'maxResearches' : 'maxResearchesExtra'][which]; i++) {
+        for (let i = 0; i < pointer.maxActive; i++) {
             if (player[type][which][i] < pointer.max[i]) {
                 auto[which].push(i);
             }

@@ -1,6 +1,6 @@
 import { allowedToBeReset } from './Check';
 import { cloneArray, global, player, playerStart } from './Player';
-import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet } from './Stage';
+import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet, assignEnergy } from './Stage';
 import { numbersUpdate, updateRankInfo, visualUpdate, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'stage' | 'vacuum', stageIndex: number[]) => {
@@ -39,7 +39,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             if (type === 'discharge') { continue; }
             const upgrades = player.upgrades[s];
 
-            for (let i = 0; i < global.stageInfo.maxUpgrades[s]; i++) {
+            for (let i = 0; i < global.upgradesInfo[s].maxActive; i++) {
                 if (!allowedToBeReset(i, s, 'upgrades')) { continue; }
 
                 upgrades[i] = 0;
@@ -50,7 +50,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             if (type === 'vaporization') { continue; }
             const researches = player.researches[s];
 
-            for (let i = 0; i < global.stageInfo.maxResearches[s]; i++) {
+            for (let i = 0; i < global.researchesInfo[s].maxActive; i++) {
                 if (!allowedToBeReset(i, s, 'researches')) { continue; }
 
                 researches[i] = 0;
@@ -62,7 +62,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             if (type === 'rank') { continue; }
             const researchesExtra = player.researchesExtra[s];
 
-            for (let i = 0; i < global.stageInfo.maxResearchesExtra[s]; i++) {
+            for (let i = 0; i < global.researchesExtraInfo[s].maxActive; i++) {
                 if (!allowedToBeReset(i, s, 'researchesExtra')) { continue; }
 
                 researchesExtra[i] = 0;
@@ -127,10 +127,10 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             calculateMaxLevel(0, s, 'ASR');
 
             if (player.stage.active === s) {
-                for (let i = 0; i < global.stageInfo.maxUpgrades[s]; i++) { visualUpdateUpgrades(i, s, 'upgrades'); }
+                for (let i = 0; i < global.upgradesInfo[s].maxActive; i++) { visualUpdateUpgrades(i, s, 'upgrades'); }
             }
-            for (let i = 0; i < global.stageInfo.maxResearches[s]; i++) { calculateMaxLevel(i, s, 'researches'); }
-            for (let i = 0; i < global.stageInfo.maxResearchesExtra[s]; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
+            for (let i = 0; i < global.researchesInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researches'); }
+            for (let i = 0; i < global.researchesExtraInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
 
             autoUpgradesSet(s);
             autoResearchesSet('researches', s);
@@ -189,8 +189,8 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
 
             if (s !== 1) { //stageCheck('reload') will only do it for stage 1
                 calculateMaxLevel(0, s, 'ASR');
-                for (let i = 0; i < global.stageInfo.maxResearches[s]; i++) { calculateMaxLevel(i, s, 'researches'); }
-                for (let i = 0; i < global.stageInfo.maxResearchesExtra[s]; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
+                for (let i = 0; i < global.researchesInfo[s].startCost.length; i++) { calculateMaxLevel(i, s, 'researches'); }
+                for (let i = 0; i < global.researchesExtraInfo[s].startCost.length; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
             }
         }
 
@@ -203,6 +203,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         building.highest = [5.476, -3];
     }
 
+    if (player.strangeness[1][9] >= 1) { assignEnergy(); }
     assignBuildingInformation();
     if (stageIndex.includes(player.stage.active)) { numbersUpdate(); }
 };

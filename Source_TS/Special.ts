@@ -364,7 +364,7 @@ export const switchTheme = () => {
             body.setProperty('--button-text-color', '#d9d900');
             body.setProperty('--main-text-color', 'var(--orange-text-color)');
             body.setProperty('--white-text-color', '#e5e500');
-            body.setProperty('--blue-text-color', '#2694ff');
+            body.setProperty('--blue-text-color', '#42a2ff');
             body.setProperty('--gray-text-color', '#8b8b8b');
             body.setProperty('--darkorchid-text-color', '#c71bff');
             body.setProperty('--darkviolet-text-color', '#9859ff');
@@ -405,7 +405,6 @@ export const switchTheme = () => {
         case 6:
             for (const text of ['upgrade', 'research', 'element']) {
                 getId(`${text}Effect`).style.color = 'var(--red-text-color)';
-                getId(`${text}Cost`).style.color = 'var(--orange-text-color)';
                 if (text === 'upgrade') { continue; }
                 getId(`${text}Text`).style.color = 'var(--orchid-text-color)';
             }
@@ -711,23 +710,22 @@ export const changeFontSize = (change = false, inputChange = false) => {
 };
 
 export const changeFormat = (point: boolean) => {
-    const htmlInput = point ?
-        getId('decimalPoint') as HTMLInputElement :
-        getId('thousandSeparator') as HTMLInputElement;
+    const htmlInput = point ? getId('decimalPoint') as HTMLInputElement : getId('thousandSeparator') as HTMLInputElement;
     const allowed = ['.', ',', ' ', '_', '^', '"', "'", '`', '|'].includes(htmlInput.value);
-    if (!allowed || (point ? player.separator[0] === htmlInput.value || htmlInput.value.length === 0 : player.separator[1] === htmlInput.value)) {
+    if (!allowed || (point ? player.separator[0] : player.separator[1]) === htmlInput.value) {
+        if (point && player.separator[0] === '.') {
+            (getId('thousandSeparator') as HTMLInputElement).value = '';
+            player.separator[0] = '';
+        }
         htmlInput.value = point ? '.' : '';
-        return;
     }
-    point ?
-        player.separator[1] = htmlInput.value :
-        player.separator[0] = htmlInput.value;
+    point ? player.separator[1] = htmlInput.value : player.separator[0] = htmlInput.value;
 };
 
 //If done for span, then add class="noMoveSpan";
 export const assignWithNoMove = (html: HTMLElement, text: string) => {
     html.textContent = text;
-    html.style.width = `${text.length * 0.6}em`;
+    html.style.width = `${text.length * 0.63}em`;
 };
 
 export const playEvent = (event: number, index: number) => {

@@ -113,18 +113,6 @@ export interface globalType {
     timeSpecial: {
         lastSave: number
     }
-    stageInfo: {
-        word: string[]
-        textColor: string[]
-        buttonBackgroundColor: string[]
-        buttonBorderColor: string[]
-        imageBorderColor: string[]
-        priceName: string
-        activeAll: number[]
-        maxUpgrades: number[]
-        maxResearches: number[]
-        maxResearchesExtra: number[]
-    }
     automatization: {
         autoU: number[][]
         autoR: number[][]
@@ -136,6 +124,7 @@ export interface globalType {
         default: boolean
     }
     dischargeInfo: {
+        updateEnergy: () => void
         energyType: number[][]
         bonus: number
         next: number
@@ -173,6 +162,15 @@ export interface globalType {
         visual: number
         autoSave: number
     }
+    stageInfo: {
+        word: string[]
+        textColor: string[]
+        buttonBackgroundColor: string[]
+        buttonBorderColor: string[]
+        imageBorderColor: string[]
+        priceName: string
+        activeAll: number[]
+    }
     buildingsInfo: {
         maxActive: number[]
         name: string[][]
@@ -192,6 +190,7 @@ export interface globalType {
         effectText: Array<() => string>
         effect: Array<number | overlimit | null>
         startCost: number[]
+        maxActive: number
     }>
     researchesInfo: Array<{
         description: string[]
@@ -201,6 +200,7 @@ export interface globalType {
         startCost: number[]
         scaling: number[]
         max: number[]
+        maxActive: number
     }>
     researchesExtraInfo: Array<{
         description: string[]
@@ -210,6 +210,7 @@ export interface globalType {
         startCost: number[]
         scaling: number[]
         max: number[]
+        maxActive: number
     }>
     researchesAutoInfo: {
         description: string[]
@@ -234,11 +235,11 @@ export interface globalType {
     strangenessInfo: Array<{
         description: string[]
         effectText: Array<() => string>
-        //effect: Array<number | null>
         cost: number[]
         startCost: number[]
         scaling: number[]
         max: number[]
+        maxActive: number
     }>
     lastUpgrade: [boolean, number]
     lastResearch: [boolean, number, 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']

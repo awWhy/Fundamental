@@ -358,9 +358,9 @@ p > img {
 }
 
 .buyBuilding p { color: inherit; }
-.buyBuilding > div > p:first-of-type { width: 19em; }
-.buyBuilding > div > p:last-of-type { width: 10.5em; }
-.buyBuilding > div > p > span:not(:first-of-type) { margin-left: 0.25em; }
+.buyBuilding > div > p:first-of-type { width: 19.8em; }
+.buyBuilding > div > p:last-of-type { width: 10.7em; }
+.buyBuilding > div > p:last-of-type > span:last-of-type { margin-left: 0.12em; }
 
 .buyBuilding > div > div {
     grid-area: buy;
@@ -418,6 +418,7 @@ p > img {
 
 #starsSpecial {
     display: flex;
+    flex-wrap: wrap-reverse;
     justify-content: space-around;
 }
 
@@ -1016,12 +1017,8 @@ li button {
     #buildings { row-gap: 0.2em; }
     .buyBuilding, .specialStar, .buyStrange { column-gap: 0.45em; }
     .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
-    .buyBuilding > div > p:first-of-type { width: 13.5em; }
-
-    .buyBuilding > div > p:first-of-type > span:last-of-type {
-        display: block;
-        margin-left: 0;
-    }
+    .buyBuilding > div > p:first-of-type { width: 14.2em; }
+    .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
 
     .buyBuilding > div:last-of-type {
         row-gap: 0.16em;
@@ -1040,6 +1037,8 @@ li button {
     .buyBuilding .toggleBuilding { margin-left: auto; }
     .buyBuilding > div > div > div { display: none; }
     .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
+
+    #starsSpecial { max-width: 30em; }
 
     #researchTab .descriptionText { margin-top: -0.25em; }
 

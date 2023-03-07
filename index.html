@@ -57,7 +57,7 @@
                         <div id="building1" class="buyBuilding stageText stage1Unlock">
                             <img src="Used_art/Missing.png" alt="Missing" id="building1Image" loading="lazy">
                             <div>
-                                <p><span id="building1Name">Placeholder</span>: <span id="building1Cur" class="whiteText">0</span> <span id="building1True" class="yellowText">[0]</span></p>
+                                <p><span id="building1Name">Placeholder</span>: <span id="building1Cur" class="whiteText noMoveSpan">0</span> <span id="building1True" class="yellowText">[0]</span></p>
                                 <p><span id="building1Type">producing</span>: <span id="building1Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -72,7 +72,7 @@
                         <div id="building2" class="buyBuilding stageText">
                             <img src="Used_art/Missing.png" alt="Missing" id="building2Image" loading="lazy">
                             <div>
-                                <p><span id="building2Name">Placeholder</span>: <span id="building2Cur" class="whiteText">0</span> <span id="building2True" class="yellowText">[0]</span></p>
+                                <p><span id="building2Name">Placeholder</span>: <span id="building2Cur" class="whiteText noMoveSpan">0</span> <span id="building2True" class="yellowText">[0]</span></p>
                                 <p><span id="building2Type">producing</span>: <span id="building2Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -87,7 +87,7 @@
                         <div id="building3" class="buyBuilding stageText">
                             <img src="Used_art/Missing.png" alt="Missing" id="building3Image" loading="lazy">
                             <div>
-                                <p><span id="building3Name">Placeholder</span>: <span id="building3Cur" class="whiteText">0</span> <span id="building3True" class="yellowText">[0]</span></p>
+                                <p><span id="building3Name">Placeholder</span>: <span id="building3Cur" class="whiteText noMoveSpan">0</span> <span id="building3True" class="yellowText">[0]</span></p>
                                 <p><span id="building3Type">producing</span>: <span id="building3Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -102,7 +102,7 @@
                         <div id="building4" class="buyBuilding stageText">
                             <img src="Used_art/Missing.png" alt="Missing" id="building4Image" loading="lazy">
                             <div>
-                                <p><span id="building4Name">Placeholder</span>: <span id="building4Cur" class="whiteText">0</span> <span id="building4True" class="yellowText">[0]</span></p>
+                                <p><span id="building4Name">Placeholder</span>: <span id="building4Cur" class="whiteText noMoveSpan">0</span> <span id="building4True" class="yellowText">[0]</span></p>
                                 <p><span id="building4Type">producing</span>: <span id="building4Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -117,7 +117,7 @@
                         <div id="building5" class="buyBuilding stageText">
                             <img src="Used_art/Missing.png" alt="Missing" id="building5Image" loading="lazy">
                             <div>
-                                <p><span id="building5Name">Placeholder</span>: <span id="building5Cur" class="whiteText">0</span> <span id="building5True" class="yellowText">[0]</span></p>
+                                <p><span id="building5Name">Placeholder</span>: <span id="building5Cur" class="whiteText noMoveSpan">0</span> <span id="building5True" class="yellowText">[0]</span></p>
                                 <p><span id="building5Type">producing</span>: <span id="building5Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -132,7 +132,7 @@
                         <div id="building6" class="buyBuilding stageText">
                             <img src="Used_art/Missing.png" alt="Missing" id="building6Image" loading="lazy">
                             <div>
-                                <p><span id="building6Name">Placeholder</span>: <span id="building6Cur" class="whiteText">0</span> <span id="building6True" class="yellowText">[0]</span></p>
+                                <p><span id="building6Name">Placeholder</span>: <span id="building6Cur" class="whiteText noMoveSpan">0</span> <span id="building6True" class="yellowText">[0]</span></p>
                                 <p><span id="building6Type">producing</span>: <span id="building6Prod" class="whiteText">0</span></p>
                             </div>
                             <div>
@@ -372,6 +372,10 @@
                             <div id="strange9Stage1">
                                 <input type="image" src="Used_art/Boost%20Stage%201.png" alt="Microworld" id="strange9Stage1Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
                                 <p class="whiteText stage6borderImage"><span id="strange9Stage1Level" class="redText">0</span>/<span id="strange9Stage1Max" class="greenText">1</span></p>
+                            </div>
+                            <div id="strange10Stage1">
+                                <input type="image" src="Used_art/Energy%20recycle.png" alt="Recycle" id="strange10Stage1Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
+                                <p class="whiteText stage4borderImage"><span id="strange10Stage1Level" class="redText">0</span>/<span id="strange10Stage1Max" class="greenText">1</span></p>
                             </div>
                         </div>
                         <div id="strangenessSection2" class="stage2borderImage">
@@ -680,10 +684,9 @@
                                             <p class="mainText">Numbers - <span class="whiteText">make a new Structure</span></p>
                                             <p class="mainText">Enter - <span class="whiteText">confirm close Alert</span></p>
                                             <p class="mainText">Escape - <span class="whiteText">cancel close Alert</span></p>
-                                            <p class="mainText center">Resets</p>
                                             <div class="center">
-                                                <p id="stageSwitchHotkey" class="stageText stage1Unlock">S - <span class="whiteText">Stage</span></p>
                                                 <p class="darkvioletText">W - <span class="whiteText">Warp</span></p>
+                                                <p id="stageSwitchHotkey" class="stageText stage1Unlock">S - <span class="whiteText">Stage</span></p>
                                                 <p class="orangeText stage1Include">D - <span class="whiteText">Discharge</span></p>
                                                 <p class="grayText stage2Include">V - <span class="whiteText">Vaporization</span></p>
                                                 <p class="darkorchidText stage3Include">R - <span class="whiteText">Rank</span></p>
@@ -882,7 +885,7 @@
                         <div id="unknownStructures" class="imageList"></div>
                         <p id="preonCap" class="cyanText stage1Only">Preons production hardcap starts at <span id="preonCapStat" class="grayText noMoveSpan">2e13</span><br aria-hidden="true">(before Accretion boost)</p>
                         <p id="dustCap" class="grayText stage3Only">Cosmic dust production hardcap starts at <span id="dustCapStat" class="redText noMoveSpan">5e45</span></p>
-                        <p id="mainCap" class="cyanText stage4Only">Main-sequence mass gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(10 minutes worth of production)</p>
+                        <p id="mainCap" class="cyanText">Main-sequence mass gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(10 minutes worth of production)</p>
                     </div>
                 </section>
             </section>

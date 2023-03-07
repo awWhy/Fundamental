@@ -73,7 +73,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
 
     switch (type) { //Some cases are handled by max level being 0
         case 'upgrades':
-            if (global.stageInfo.maxUpgrades[stageIndex] < upgrade + 1) { return false; }
+            if (global.upgradesInfo[stageIndex].maxActive < upgrade + 1) { return false; }
             if (stageIndex === 1) {
                 if (!player.inflation.vacuum && (upgrade === 0 || upgrade === 1)) { return false; }
                 if (upgrade > 5) { return player.discharge.current >= 3; }
@@ -94,7 +94,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             break;
         case 'researches':
-            if (global.stageInfo.maxResearches[stageIndex] < upgrade + 1) { return false; }
+            if (global.researchesInfo[stageIndex].maxActive < upgrade + 1) { return false; }
             if (stageIndex === 1) {
                 return player.upgrades[1][5] === 1;
             } else if (stageIndex === 2) {
@@ -109,7 +109,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             break;
         case 'researchesExtra':
-            if (global.stageInfo.maxResearchesExtra[stageIndex] < upgrade + 1) { return false; }
+            if (global.researchesExtraInfo[stageIndex].maxActive < upgrade + 1) { return false; }
             if (stageIndex === 1) {
                 if (upgrade === 1 && player.stage.current < 3) { return false; }
                 return player.discharge.current >= 5;
@@ -135,8 +135,10 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             if (upgrade >= 6) { return player.upgrades[4][2] === 1; }
             return player.upgrades[4][1] === 1;
         case 'strangeness':
-            if (((stageIndex === 1 || stageIndex === 4) && upgrade < 8) ||
-                ((stageIndex === 2 || stageIndex === 3) && upgrade < 7)) { return true; }
+            if (global.strangenessInfo[stageIndex].maxActive < upgrade + 1) { return false; }
+            if (player.inflation.vacuum) { return true; }
+            if ((stageIndex === 1 || stageIndex === 4) && upgrade < 8) { return true; }
+            if ((stageIndex === 2 || stageIndex === 3) && upgrade < 7) { return true; }
             return player.milestones[4][0] >= 3;
     }
 

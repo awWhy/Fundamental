@@ -5,21 +5,17 @@ import { Alert, AlertWait, Confirm, specialHTML } from './Special';
 import { stageCheck } from './Update';
 
 export const prepareVacuum = () => {
-    if (player.inflation.vacuum) {
-        const { buildings } = playerStart;
-        const { buildingsInfo, stageInfo, strangenessInfo } = global;
+    const { buildings } = playerStart;
+    const { buildingsInfo, upgradesInfo, researchesInfo, researchesExtraInfo, strangenessInfo } = global;
 
+    if (player.inflation.vacuum) {
+        specialHTML.footerStatsHTML[1][0] = ['Energy%20mass.png', 'Energy mass', 'stage1borderImage cyanText', 'Mass'];
         buildings[1][0].current = [5.476, -3];
         buildings[2][0].current = [0, 0];
         buildings[3][0].current = [0, 0];
-        for (let s = 1; s <= 3; s++) {
-            buildings[s][0].total = cloneArray(buildings[s][0].current);
-            buildings[s][0].trueTotal = cloneArray(buildings[s][0].current);
-            buildings[s][0].highest = cloneArray(buildings[s][0].current);
-        }
-        specialHTML.footerStatsHTML[1][0] = ['Energy%20mass.png', 'Energy mass', 'stage1borderImage cyanText', 'Mass'];
-        buildingsInfo.maxActive = [0, 6, 7, 6, 6, 5];
-        if (buildingsInfo.name[1][0] === 'Quarks') {
+        const maxBuildings = [6, 7, 6, 6, 5];
+        buildingsInfo.maxActive.splice(1, maxBuildings.length, ...maxBuildings);
+        if (buildingsInfo.name[1][0] !== 'Mass') {
             specialHTML.buildingHTML[1].unshift(['Preon.png', 'Preon'], ['Quarks.png', 'Quarks']);
             buildingsInfo.name[1].unshift('Mass', 'Preons');
         }
@@ -29,37 +25,49 @@ export const prepareVacuum = () => {
         buildingsInfo.type[2][1] = 'improves';
         buildingsInfo.type[3][1] = 'improves';
 
-        stageInfo.maxUpgrades = [0, 10, 7, 13, 4, 3];
         const upgrades1Cost = [32, 48, 60, 90, 150, 400, 1600, 4000, 32000, 100000];
-        global.upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
-        global.upgradesInfo[2].startCost[0] = 10;
+        upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
+        upgradesInfo[2].startCost[0] = 10;
+        //upgradesInfo[1].maxActive = 10;
+        //upgradesInfo[2].maxActive = 7;
+        //upgradesInfo[3].maxActive = 13;
+        //upgradesInfo[4].maxActive = 4;
+        //upgradesInfo[5].maxActive = 3;
 
-        stageInfo.maxResearches = [0, 6, 6, 8, 4, 2];
         const researches1Cost = [2500, 8000, 40000, 8000, 58000, 36000];
         const researches1Scaling = [500, 4000, 6000, 38000, 0, 8000];
-        global.researchesInfo[1].startCost.splice(0, researches1Cost.length, ...researches1Cost);
-        global.researchesInfo[1].scaling.splice(0, researches1Scaling.length, ...researches1Scaling);
+        researchesInfo[1].startCost.splice(0, researches1Cost.length, ...researches1Cost);
+        researchesInfo[1].scaling.splice(0, researches1Scaling.length, ...researches1Scaling);
+        //researchesInfo[1].maxActive = 6;
+        //researchesInfo[2].maxActive = 6;
+        //researchesInfo[3].maxActive = 8;
+        //researchesInfo[4].maxActive = 4;
+        //researchesInfo[5].maxActive = 2;
 
-        global.stageInfo.maxResearchesExtra = [0, 5, 4, 5, 2, 0];
-        global.researchesExtraInfo[3].scaling[3] = 1e14;
+        researchesExtraInfo[3].scaling[3] = 1e14;
+        researchesExtraInfo[1].maxActive = 5;
+        researchesExtraInfo[2].maxActive = 4;
+        researchesExtraInfo[3].maxActive = 5;
+        //esearchesExtraInfo[4].maxActive = 2;
+        //researchesExtraInfo[5].maxActive = 0;
+
         global.accretionInfo.rankCost[5] = 2.47e31;
-
         global.researchesAutoInfo.startCost[0] = 2000;
         global.ASRInfo.costRange[1] = [4000, 12000, 24000, 32000, 44000];
 
-        const strangeness1Cost = [2, 1, 20, 40, 6, 1, 4, 8, 10];
-        const strangeness1Scaling = [4, 3, 2, 1, 2, 1.5, 2, 2.5, 1];
+        const strangeness1Cost = [2, 1, 20, 40, 2, 1, 2, 4, 10];
+        const strangeness1Scaling = [4, 3, 2, 1, 1.5, 1.5, 2, 3, 1];
         strangenessInfo[1].startCost.splice(0, strangeness1Cost.length, ...strangeness1Cost);
         strangenessInfo[1].scaling.splice(0, strangeness1Scaling.length, ...strangeness1Scaling);
-        const strangeness2Cost = [1, 2, 4, 6, 20, 3, 1, 5, 20];
-        const strangeness2Scaling = [1.6, 2.5, 3, 3.5, 1, 2.5, 1.8, 10, 1];
+        const strangeness2Cost = [1, 2, 4, 6, 20, 4, 1, 6, 20];
+        const strangeness2Scaling = [1.6, 2.5, 3, 3.5, 1, 2.5, 1.8, 4, 1];
         strangenessInfo[2].startCost.splice(0, strangeness2Cost.length, ...strangeness2Cost);
         strangenessInfo[2].scaling.splice(0, strangeness2Scaling.length, ...strangeness2Scaling);
-        const strangeness3Cost = [1, 1, 5, 20, 30, 4, 12, 30];
-        const strangeness3Scaling = [1.46, 3, 2.5, 1, 1, 1.8, 3, 1];
+        const strangeness3Cost = [1, 2, 6, 20, 30, 3, 12, 30];
+        const strangeness3Scaling = [1.46, 2.5, 2.5, 1, 1, 1.8, 3, 1];
         strangenessInfo[3].startCost.splice(0, strangeness3Cost.length, ...strangeness3Cost);
         strangenessInfo[3].scaling.splice(0, strangeness3Scaling.length, ...strangeness3Scaling);
-        const strangeness4Cost = [1, 3, 5, 5, 108, 20, 5, 4, 80, 40];
+        const strangeness4Cost = [1, 3, 5, 5, 108, 20, 4, 4, 80, 40];
         const strangeness4Scaling = [1.9, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
@@ -67,50 +75,75 @@ export const prepareVacuum = () => {
         const strangeness5Scaling = [1, 1, 1, 1.9, 1.85, 1, 1.5, 2, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
+        //strangenessInfo[1].maxActive = 10; //Re enable when done
+        //strangenessInfo[2].maxActive = 9;
+        //strangenessInfo[3].maxActive = 8;
+        //strangenessInfo[4].maxActive = 10;
+        //strangenessInfo[5].maxActive = 9;
+
+        getId('strange9Stage1').style.display = '';
+        getId('strange8Stage2').style.display = '';
+        getId('strange9Stage2').style.display = '';
+        getId('strange8Stage3').style.display = '';
+        getId('strange9Stage4').style.display = '';
+        getId('strange10Stage4').style.display = '';
+        getId('strange6Stage5').style.display = '';
+        getId('strangenessSection2').style.display = '';
+        getId('strangenessSection3').style.display = '';
+        getId('strangenessSection4').style.display = '';
+        getId('strangenessSection5').style.display = '';
+        getId('preonCap').style.display = '';
+        getId('dustCap').style.display = '';
+        getId('strange10Stage1').style.display = 'none'; //''; //Re enable when done
 
         const stageWord = getId('stageWord') as HTMLSpanElement;
-        stageWord.textContent = stageInfo.word[6];
-        stageWord.style.color = stageInfo.textColor[6];
+        stageWord.textContent = global.stageInfo.word[6];
+        stageWord.style.color = global.stageInfo.textColor[6];
         getId('unknownStructures').style.display = 'none';
     } else {
-        const { buildings } = playerStart;
-        const { buildingsInfo, stageInfo, strangenessInfo } = global;
-
         specialHTML.footerStatsHTML[1][0] = ['Quarks.png', 'Quarks', 'stage1borderImage cyanText', 'Quarks'];
         buildings[1][0].current = [3, 0];
         buildings[2][0].current = [2.8, -3];
         buildings[3][0].current = [1, -19];
-        for (let s = 1; s <= 3; s++) {
-            buildings[s][0].total = cloneArray(buildings[s][0].current);
-            buildings[s][0].trueTotal = cloneArray(buildings[s][0].current);
-            buildings[s][0].highest = cloneArray(buildings[s][0].current);
-        }
-        if (buildingsInfo.name[1][0] !== 'Quarks') {
+        if (buildingsInfo.name[1][0] === 'Mass') {
             specialHTML.buildingHTML[1].splice(0, 2);
             buildingsInfo.name[1].splice(0, 2);
         }
-        buildingsInfo.maxActive = [0, 4, 6, 5, 5, 4];
+        const maxBuildings = [4, 6, 5, 5, 4];
+        buildingsInfo.maxActive.splice(1, maxBuildings.length, ...maxBuildings);
         buildingsInfo.startCost[1] = [0, 3, 24, 3];
         buildingsInfo.firstCost[1] = [0, 3, 24, 3];
         global.dischargeInfo.energyType[1] = [0, 1, 5, 20];
         buildingsInfo.type[2][1] = 'producing';
         buildingsInfo.type[3][1] = 'producing';
 
-        stageInfo.maxUpgrades = [0, 10, 7, 13, 4, 3];
         const upgrades1Cost = [0, 0, 9, 12, 36, 300, 800, 2000, 8000, 30000];
-        global.upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
-        global.upgradesInfo[2].startCost[0] = 10000;
+        upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
+        upgradesInfo[2].startCost[0] = 10000;
+        upgradesInfo[1].maxActive = 10;
+        upgradesInfo[2].maxActive = 7;
+        upgradesInfo[3].maxActive = 13;
+        upgradesInfo[4].maxActive = 4;
+        upgradesInfo[5].maxActive = 3;
 
-        stageInfo.maxResearches = [0, 6, 6, 8, 4, 2];
         const researches1Cost = [1000, 3000, 12000, 6000, 10000, 20000];
         const researches1Scaling = [500, 2000, 2000, 26000, 0, 5000];
-        global.researchesInfo[1].startCost.splice(0, researches1Cost.length, ...researches1Cost);
-        global.researchesInfo[1].scaling.splice(0, researches1Scaling.length, ...researches1Scaling);
+        researchesInfo[1].startCost.splice(0, researches1Cost.length, ...researches1Cost);
+        researchesInfo[1].scaling.splice(0, researches1Scaling.length, ...researches1Scaling);
+        researchesInfo[1].maxActive = 6;
+        researchesInfo[2].maxActive = 6;
+        researchesInfo[3].maxActive = 8;
+        researchesInfo[4].maxActive = 4;
+        researchesInfo[5].maxActive = 2;
 
-        stageInfo.maxResearchesExtra = [0, 0, 3, 4, 2, 0];
-        global.researchesExtraInfo[3].scaling[3] = 100;
+        researchesExtraInfo[3].scaling[3] = 100;
+        researchesExtraInfo[1].maxActive = 0;
+        researchesExtraInfo[2].maxActive = 3;
+        researchesExtraInfo[3].maxActive = 4;
+        researchesExtraInfo[4].maxActive = 2;
+        researchesExtraInfo[5].maxActive = 0;
+
         global.accretionInfo.rankCost[5] = 0;
-
         global.researchesAutoInfo.startCost[0] = 300;
         global.ASRInfo.costRange[1] = [4000, 12000, 20000];
 
@@ -134,6 +167,22 @@ export const prepareVacuum = () => {
         const strangeness5Scaling = [60, 0, 0, 5, 10, 0, 400, 20, 0];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
+        strangenessInfo[1].maxActive = 9;
+        strangenessInfo[2].maxActive = 9;
+        strangenessInfo[3].maxActive = 8;
+        strangenessInfo[4].maxActive = 10;
+        strangenessInfo[5].maxActive = 9;
+
+        getId('rankStat0').style.display = '';
+        getId('elementsExtra').style.display = 'none';
+        getId('mainCap').style.display = 'none';
+        getId('strange10Stage1').style.display = 'none';
+    }
+
+    for (let s = 1; s <= 3; s++) {
+        buildings[s][0].total = cloneArray(buildings[s][0].current);
+        buildings[s][0].trueTotal = cloneArray(buildings[s][0].current);
+        buildings[s][0].highest = cloneArray(buildings[s][0].current);
     }
 };
 

@@ -133,21 +133,21 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
 
     if (global.footer) {
         if (active === 1) {
-            getId('footerStat1Span').textContent = Limit(buildings[0].current).format();
+            getId('footerStat1Span').textContent = Limit(buildings[0].current).format({ padding: true });
             getId('footerStat2Span').textContent = format(player.discharge.energy);
         } else if (active === 2) {
             getId('footerStat1Span').textContent = Limit(player.vaporization.clouds).format();
-            getId('footerStat2Span').textContent = !player.inflation.vacuum ? Limit(buildings[0].current).format() :
-                Limit(player.buildings[1][5].current).divide([6.02214076, 23]).format();
-            getId('footerStat3Span').textContent = Limit(buildings[1].current).format();
+            getId('footerStat2Span').textContent = !player.inflation.vacuum ? Limit(buildings[0].current).format({ padding: true }) :
+                Limit(player.buildings[1][5].current).divide([6.02214076, 23]).format({ padding: true });
+            getId('footerStat3Span').textContent = Limit(buildings[1].current).format({ padding: Limit(buildings[2].current).moreThan([0, 0]) });
         } else if (active === 3) {
-            getId('footerStat1Span').textContent = !player.inflation.vacuum ? Limit(buildings[0].current).format() :
-                Limit(player.buildings[1][0].current).multiply([1.78266192, -33]).format();
+            getId('footerStat1Span').textContent = !player.inflation.vacuum ? Limit(buildings[0].current).format({ padding: true }) :
+                Limit(player.buildings[1][0].current).multiply([1.78266192, -33]).format({ padding: true });
         } else if (active === 4 || active === 5) {
             const stars = player.buildings[4];
 
             getId('footerStat1Span').textContent = format(player.collapse.mass);
-            getId('footerStat2Span').textContent = Limit(stars[0].current).format();
+            getId('footerStat2Span').textContent = Limit(stars[0].current).format({ padding: true });
             if (active === 5) {
                 buildings[0].current = Limit(stars[1].current).plus(stars[2].current, stars[3].current, stars[4].current).toArray();
                 getId('footerStat3Span').textContent = Limit(buildings[0].current).format();
@@ -161,9 +161,10 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
             const strict = player.toggles.shop.strict;
 
             for (let i = 1; i < buildingsInfo.maxActive[active]; i++) {
-                getId(`building${i}True`).textContent = `[${format(buildings[i as 1].true)}]`;
-                getId(`building${i}Cur`).textContent = Limit(buildings[i].current).format();
-                getId(`building${i}Prod`).textContent = Limit(buildingsInfo.producing[active][i]).format();
+                const trueCountID = getId(`building${i}True`);
+                assignWithNoMove(getId(`building${i}Cur`), Limit(buildings[i].current).format({ padding: trueCountID.style.display !== 'none' }));
+                getId(`building${i}Prod`).textContent = Limit(buildingsInfo.producing[active][i]).format({ padding: true });
+                trueCountID.textContent = `[${format(buildings[i as 1].true)}]`;
 
                 if ((active === 4 && player.collapse.mass < global.collapseInfo.unlockB[i]) ||
                     (active === 5 && player.collapse.mass < global.collapseInfo.unlockG[i])) {
@@ -280,7 +281,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 getId('dischargeStat').textContent = format(player.discharge.current);
                 getId('dischargeStatBonus').textContent = `[+${format(global.dischargeInfo.bonus)}]`;
                 if (player.inflation.vacuum) {
-                    assignWithNoMove(getId('preonCapStat'), format(global.inflationInfo.preonCap));
+                    assignWithNoMove(getId('preonCapStat'), Limit(global.inflationInfo.preonCap).format({ padding: true }));
                 }
             } else if (active === 2) {
                 getId('maxCloudsStat').textContent = Limit(player.vaporization.cloudsMax).format();
@@ -299,22 +300,22 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                     buildings[0].trueTotal = Limit(mass.trueTotal).multiply([1.78266192, -33]).toArray();
                     buildings[0].highest = Limit(mass.highest).multiply([1.78266192, -33]).toArray();
 
-                    assignWithNoMove(getId('dustCapStat'), format(global.inflationInfo.dustCap));
+                    assignWithNoMove(getId('dustCapStat'), Limit(global.inflationInfo.dustCap).format({ padding: true }));
                 }
             } else if (active === 4 || active === 5) {
                 getId('maxSolarMassStat').textContent = format(player.collapse.massMax);
                 if (player.inflation.vacuum) {
-                    assignWithNoMove(getId('mainCapStat'), Limit(global.buildingsInfo.producing[1][1]).multiply([5.378995670037768, -64]).format());
+                    assignWithNoMove(getId('mainCapStat'), Limit(global.buildingsInfo.producing[1][1]).multiply([5.378995670037768, -64]).format({ padding: true }));
                 }
                 if (active === 4) {
                     const { starEffect } = global.collapseInfo;
 
-                    assignWithNoMove(getId('star1StatCurrent'), format(starEffect[0]()));
-                    assignWithNoMove(getId('star1StatAfter'), format(starEffect[0](true)));
-                    assignWithNoMove(getId('star2StatCurrent'), format(starEffect[1]()));
-                    assignWithNoMove(getId('star2StatAfter'), format(starEffect[1](true)));
-                    assignWithNoMove(getId('star3StatCurrent'), format(starEffect[2]()));
-                    assignWithNoMove(getId('star3StatAfter'), format(starEffect[2](true)));
+                    assignWithNoMove(getId('star1StatCurrent'), format(starEffect[0](), { padding: true }));
+                    assignWithNoMove(getId('star1StatAfter'), format(starEffect[0](true), { padding: true }));
+                    assignWithNoMove(getId('star2StatCurrent'), format(starEffect[1](), { padding: true }));
+                    assignWithNoMove(getId('star2StatAfter'), format(starEffect[1](true), { padding: true }));
+                    assignWithNoMove(getId('star3StatCurrent'), format(starEffect[2](), { padding: true }));
+                    assignWithNoMove(getId('star3StatAfter'), format(starEffect[2](true), { padding: true }));
                 } else if (active === 5) {
                     getId('starsStatTrue').textContent = format(global.collapseInfo.trueStars);
                     const stars = player.buildings[4];
@@ -475,7 +476,9 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 if (player.upgrades[3][4] === 1) { getId('research6').style.display = ''; }
                 getId('research3').style.display = Limit(player.buildings[3][2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
                 getId('research4').style.display = Limit(player.buildings[3][2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
-                getId('researchExtra5').style.display = player.accretion.rank >= 3 && player.researchesExtra[1][2] >= 2 ? '' : 'none';
+                if (player.inflation.vacuum) {
+                    getId('researchExtra5').style.display = player.accretion.rank >= 3 && player.researchesExtra[1][2] >= 2 ? '' : 'none';
+                }
             } else if (active === 4) {
                 getId('research4').style.display = player.strangeness[4][2] >= 2 ? '' : 'none';
                 getId('extraResearch').style.display = Limit(player.buildings[4][2].trueTotal).moreThan([0, 0]) ? '' : 'none';
@@ -498,28 +501,29 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             for (let i = 11; i <= 26; i++) { getId(`element${i}`).style.display = mass ? '' : 'none'; }
             getId('element27').style.display = mass && upgrades[3] === 1 ? '' : 'none';
             getId('element28').style.display = mass && upgrades[3] === 1 ? '' : 'none';
-            getId('elementsExtra').style.display = player.inflation.vacuum && player.strangeness[4][4] >= 1 ? '' : 'none';
+            if (player.inflation.vacuum) { getId('elementsExtra').style.display = player.strangeness[4][4] >= 1 ? '' : 'none'; }
         }
     } else if (tab === 'strangeness') {
         if (subtab.strangenessCurrent === 'Matter') {
             const vacuum = player.inflation.vacuum;
-            const strange5 = vacuum || player.milestones[4][0] >= 3;
+            const bound = player.strangeness[5][5] >= 1;
 
-            getId('strange9Stage1').style.display = strange5 ? '' : 'none';
-            getId('strangenessSection2').style.display = vacuum || stage.resets >= 5 ? '' : 'none';
-            getId('strange8Stage2').style.display = strange5 ? '' : 'none';
-            getId('strange9Stage2').style.display = strange5 ? '' : 'none';
-            getId('strangenessSection3').style.display = vacuum || stage.resets >= 6 ? '' : 'none';
-            getId('strange8Stage3').style.display = strange5 ? '' : 'none';
-            getId('strangenessSection4').style.display = vacuum || stage.resets >= 7 ? '' : 'none';
-            getId('strange9Stage4').style.display = strange5 ? '' : 'none';
-            getId('strange10Stage4').style.display = strange5 ? '' : 'none';
-            getId('strangenessSection5').style.display = strange5 ? '' : 'none';
-            getId('strange4Stage5').style.display = (vacuum ? player.strangeness[5][5] >= 1 : player.milestones[2][0] >= 3) ? '' : 'none';
-            getId('strange5Stage5').style.display = (vacuum ? player.strangeness[5][5] >= 1 : player.milestones[3][0] >= 3) ? '' : 'none';
-            getId('strange6Stage5').style.display = vacuum || player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3 ? '' : 'none';
-            getId('strange7Stage5').style.display = player.strangeness[5][5] >= 1 ? '' : 'none';
-            getId('strange8Stage5').style.display = (vacuum ? player.strangeness[5][5] >= 1 : player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3) ? '' : 'none';
+            getId('strange4Stage5').style.display = (vacuum ? bound : player.milestones[2][0] >= 3) ? '' : 'none';
+            getId('strange5Stage5').style.display = (vacuum ? bound : player.milestones[3][0] >= 3) ? '' : 'none';
+            getId('strange8Stage5').style.display = (vacuum ? bound : player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3) ? '' : 'none';
+            getId('strange7Stage5').style.display = bound ? '' : 'none';
+            if (!vacuum) {
+                const strange5 = player.milestones[4][0] >= 3;
+
+                getId('strange9Stage1').style.display = strange5 ? '' : 'none';
+                getId('strange8Stage2').style.display = strange5 ? '' : 'none';
+                getId('strange9Stage2').style.display = strange5 ? '' : 'none';
+                getId('strange8Stage3').style.display = strange5 ? '' : 'none';
+                getId('strange9Stage4').style.display = strange5 ? '' : 'none';
+                getId('strange10Stage4').style.display = strange5 ? '' : 'none';
+                getId('strangenessSection5').style.display = strange5 ? '' : 'none';
+                getId('strange6Stage5').style.display = player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3 ? '' : 'none';
+            }
         } else if (subtab.strangenessCurrent === 'Milestones') {
             getId('milestone1Stage5Div').style.display = player.strangeness[5][8] >= 1 ? '' : 'none';
             getId('milestone2Stage5Div').style.display = player.strangeness[5][8] >= 1 && player.strangeness[5][6] >= 1 ? '' : 'none';
@@ -572,12 +576,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('energyStats').style.display = player.discharge.unlock ? '' : 'none';
                 getId('dischargeStats').style.display = player.discharge.current + global.dischargeInfo.bonus > 0 ? '' : 'none';
                 getId('dischargeStatBonus').style.display = global.dischargeInfo.bonus > 0 ? '' : 'none';
-                if (!player.inflation.vacuum) { getId('preonCap').style.display = 'none'; }
             } else if (active === 2) {
                 getId('cloudsStats').style.display = player.upgrades[2][1] === 1 ? '' : 'none';
             } else if (active === 3) {
-                getId('rankStat0').style.display = !player.inflation.vacuum || player.researchesExtra[2][3] >= 1 ? '' : 'none';
-                if (!player.inflation.vacuum) { getId('dustCap').style.display = 'none'; }
+                if (player.inflation.vacuum) { getId('rankStat0').style.display = player.researchesExtra[2][3] >= 1 ? '' : 'none'; }
             } else if (active === 4) {
                 const nova = player.researchesExtra[4][0];
 
@@ -832,13 +834,21 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     }
 
     getId('solarMassStats').style.display = active === 4 || active === 5 ? '' : 'none';
-    getId('mainCap').style.display = vacuum && (active === 4 || active === 5) ? '' : 'none';
     getId('stageSelect').style.display = stageInfo.activeAll.length > 1 ? '' : 'none';
     if (player.strange[0].total <= 0) {
         getId('strangenessTabBtn').style.display = 'none';
         getId('strangeAllStats').style.display = 'none';
     }
-    if (vacuum && stage.current < 3) { getId('researchAuto2').style.display = 'none'; }
+    if (vacuum) {
+        getId('mainCap').style.display = active === 4 || active === 5 ? '' : 'none';
+        if (stage.current < 3 && player.strange[0].total <= 0) { getId('researchAuto2').style.display = 'none'; }
+    } else {
+        getId('strangenessSection2').style.display = stage.resets >= 5 ? '' : 'none';
+        getId('strangenessSection3').style.display = stage.resets >= 6 ? '' : 'none';
+        getId('strangenessSection4').style.display = stage.resets >= 7 ? '' : 'none';
+        getId('preonCap').style.display = 'none';
+        getId('dustCap').style.display = 'none';
+    }
 
     if (global.screenReader) {
         if (extra !== 'soft') {
@@ -880,8 +890,8 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
 
         for (const s of stageInfo.activeAll) {
             calculateMaxLevel(0, s, 'ASR');
-            for (let i = 0; i < stageInfo.maxResearches[s]; i++) { calculateMaxLevel(i, s, 'researches'); }
-            for (let i = 0; i < stageInfo.maxResearchesExtra[s]; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
+            for (let i = 0; i < global.researchesInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researches'); }
+            for (let i = 0; i < global.researchesExtraInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }
         }
         for (let i = 0; i < global.researchesAutoInfo.startCost.length; i++) { calculateMaxLevel(i, global.researchesAutoInfo.autoStage[i], 'researchesAuto'); }
         for (let s = 1; s < global.strangenessInfo.length; s++) {
@@ -900,13 +910,13 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         getId(`building${i}Stats`).style.display = 'none';
         getId(`building${i}`).style.display = 'none';
     }
-    for (let i = stageInfo.maxUpgrades[active]; i < specialHTML.longestUpgrade; i++) {
+    for (let i = global.upgradesInfo[active].maxActive; i < specialHTML.longestUpgrade; i++) {
         getId(`upgrade${i + 1}`).style.display = 'none';
     }
-    for (let i = stageInfo.maxResearches[active]; i < specialHTML.longestResearch; i++) {
+    for (let i = global.researchesInfo[active].maxActive; i < specialHTML.longestResearch; i++) {
         getId(`research${i + 1}`).style.display = 'none';
     }
-    for (let i = stageInfo.maxResearchesExtra[active]; i < specialHTML.longestResearchExtra; i++) {
+    for (let i = global.researchesExtraInfo[active].maxActive; i < specialHTML.longestResearchExtra; i++) {
         getId(`researchExtra${i + 1}`).style.display = 'none';
     }
     for (let i = specialHTML.footerStatsHTML[active].length; i < specialHTML.longestFooterStats; i++) {
@@ -978,7 +988,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     toggleSwap(0, 'buildings');
 
     const upgradeHTML = specialHTML.upgradeHTML[active];
-    for (let i = 0; i < stageInfo.maxUpgrades[active]; i++) {
+    for (let i = 0; i < global.upgradesInfo[active].maxActive; i++) {
         const image = getId(`upgrade${i + 1}`) as HTMLInputElement;
         if (showU.includes(i + 1)) { image.style.display = ''; }
         image.src = `Used_art/${upgradeHTML[i][0]}`;
@@ -987,7 +997,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     }
 
     const researchHTML = specialHTML.researchHTML[active];
-    for (let i = 0; i < stageInfo.maxResearches[active]; i++) {
+    for (let i = 0; i < global.researchesInfo[active].maxActive; i++) {
         const main = getId(`research${i + 1}`) as HTMLDivElement;
         if (showR.includes(i + 1)) { main.style.display = ''; }
         main.className = researchHTML[i][2];
@@ -998,7 +1008,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     }
 
     const researchExtraHTML = specialHTML.researchExtraHTML[active];
-    for (let i = 0; i < stageInfo.maxResearchesExtra[active]; i++) {
+    for (let i = 0; i < global.researchesExtraInfo[active].maxActive; i++) {
         const main = getId(`researchExtra${i + 1}`) as HTMLDivElement;
         if (showRE.includes(i + 1)) { main.style.display = ''; }
         main.className = researchExtraHTML[i][2];
