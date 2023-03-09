@@ -302,6 +302,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         if (stageIndex === 5) { stageExtra = 4; }
     }
 
+    let keep = 1;
     let currency: number | overlimit;
     if (galaxy) {
         currency = player.collapse.mass;
@@ -312,10 +313,10 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     } else {
         currency = cloneArray(player.buildings[stageExtra][extra].current);
     }
-    if (auto && building.true > 0 && !galaxy) { currency = Limit(currency).divide([2, 0]).toArray(); }
+    if (auto && building.true > 0 && !galaxy) { keep = 2; }
 
     const cost = calculateBuildingsCost(index, stageIndex);
-    if (Limit(cost).moreThan(currency)) {
+    if (Limit(cost).multiply(keep).moreThan(currency)) {
         if (global.screenReader && !auto) { getId('SRMain').textContent = `Coudn't make '${buildingsInfo.name[stageIndex][index]}', because didn't had enough of '${galaxy ? 'Mass' : convert && stageIndex === 2 ? 'Moles' : buildingsInfo.name[stageExtra][extra]}'`; }
         return;
     }
@@ -328,7 +329,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         const firstCost = buildingsInfo.firstCost[stageIndex][index];
         const alreadyBought = building.true;
         const totalBefore = Limit(increase).power(alreadyBought).minus([1, 0]).divide(increase - 1).multiply(firstCost).toArray();
-        const maxAfford = Math.floor(Limit(totalBefore).plus(currency).multiply(increase - 1).divide(firstCost).plus([1, 0]).log(10).divide(Math.log10(increase)).toNumber()) - alreadyBought;
+        const maxAfford = Math.floor(Limit(currency).divide(keep).plus(totalBefore).multiply(increase - 1).divide(firstCost).plus([1, 0]).log(10).divide(Math.log10(increase)).toNumber()) - alreadyBought;
 
         if (maxAfford < howMany && howMany !== -1 && player.toggles.shop.strict) { return; }
         canAfford = howMany !== -1 ? Math.min(maxAfford, howMany) : maxAfford;
