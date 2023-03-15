@@ -502,7 +502,7 @@ export const overlimit = {
         },
         convert: (number: string | number | [number, number]): [number, number] => {
             let result: [number, number];
-            if (typeof number !== 'object') { //Not an Array
+            if (typeof number !== 'object' || number === null) { //Not an Array
                 if (typeof number !== 'string') { number = `${number}`; } //Using log10 could cause floating point error
                 const index = number.indexOf('e'); //About 5+ times quicker than regex
                 result = index === -1 ? [Number(number), 0] : [Number(number.slice(0, index)), Number(number.slice(index + 1))];

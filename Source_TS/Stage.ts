@@ -334,6 +334,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         if (maxAfford < howMany && howMany !== -1 && player.toggles.shop.strict) { return; }
         canAfford = howMany !== -1 ? Math.min(maxAfford, howMany) : maxAfford;
         total = Limit(increase).power(canAfford + alreadyBought).minus([1, 0]).divide(increase - 1).multiply(firstCost).minus(totalBefore).toArray();
+        if (Limit(total).moreThan(currency)) { return console.warn('Prevented NaN from Structure creation'); } //Floats are a pain
     } else {
         canAfford = 1;
         total = cost;
