@@ -205,5 +205,5 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
 
     if (player.strangeness[1][9] >= 1) { assignEnergy(); }
     assignBuildingInformation();
-    if (stageIndex.includes(player.stage.active)) { numbersUpdate(); }
+    if ((type === 'discharge' || type === 'vaporization' || type === 'rank' || type === 'collapse' || type === 'galaxy') && stageIndex.includes(player.stage.active)) { numbersUpdate(); }
 };
