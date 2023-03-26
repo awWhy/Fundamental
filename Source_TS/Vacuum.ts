@@ -1,6 +1,6 @@
-import { getId } from './Main';
+import { getClass, getId } from './Main';
 import { cloneArray, global, player, playerStart } from './Player';
-import { reset } from './Reset';
+import { resetVacuum } from './Reset';
 import { Alert, AlertWait, Confirm, specialHTML } from './Special';
 import { stageCheck } from './Update';
 
@@ -24,6 +24,8 @@ export const prepareVacuum = () => {
         global.dischargeInfo.energyType[1] = [0, 1, 3, 5, 10, 20];
         buildingsInfo.type[2][1] = 'improves';
         buildingsInfo.type[3][1] = 'improves';
+        buildingsInfo.increase[5][1] = 4;
+        buildingsInfo.increase[5][2] = 4;
 
         const upgrades1Cost = [32, 48, 60, 90, 150, 400, 1600, 4000, 32000, 100000];
         upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
@@ -55,31 +57,37 @@ export const prepareVacuum = () => {
         global.researchesAutoInfo.startCost[0] = 2000;
         global.ASRInfo.costRange[1] = [4000, 12000, 24000, 32000, 44000];
 
-        const strangeness1Cost = [2, 1, 20, 40, 2, 1, 2, 4, 10];
-        const strangeness1Scaling = [4, 3, 2, 1, 1.5, 1.5, 2, 3, 1];
+        const strangeness1Cost = [2, 1, 20, 40, 2, 1, 2, 4, 20];
+        const strangeness1Scaling = [3, 3, 2, 1, 3, 1.4, 1.8, 3, 1];
         strangenessInfo[1].startCost.splice(0, strangeness1Cost.length, ...strangeness1Cost);
         strangenessInfo[1].scaling.splice(0, strangeness1Scaling.length, ...strangeness1Scaling);
-        const strangeness2Cost = [1, 2, 4, 6, 20, 4, 1, 6, 20];
-        const strangeness2Scaling = [1.6, 2.5, 3, 3.5, 1, 2.5, 1.8, 4, 1];
+        const strangeness2Cost = [1, 2, 3, 4, 20, 4, 1, 4, 30];
+        const strangeness2Scaling = [1.5, 2, 3, 3, 1, 1.6, 1.6, 4, 1];
         strangenessInfo[2].startCost.splice(0, strangeness2Cost.length, ...strangeness2Cost);
         strangenessInfo[2].scaling.splice(0, strangeness2Scaling.length, ...strangeness2Scaling);
-        const strangeness3Cost = [1, 2, 6, 20, 30, 3, 12, 30];
-        const strangeness3Scaling = [1.46, 2.5, 2.5, 1, 1, 1.8, 3, 1];
+        const strangeness3Cost = [1, 2, 6, 18, 30, 3, 10, 20];
+        const strangeness3Scaling = [1.46, 2.5, 2, 1, 1, 1.8, 3, 1];
         strangenessInfo[3].startCost.splice(0, strangeness3Cost.length, ...strangeness3Cost);
         strangenessInfo[3].scaling.splice(0, strangeness3Scaling.length, ...strangeness3Scaling);
-        const strangeness4Cost = [1, 3, 5, 5, 108, 20, 4, 4, 80, 40];
-        const strangeness4Scaling = [1.9, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
+        const strangeness4Cost = [1, 3, 5, 5, 90, 20, 4, 4, 24, 40];
+        const strangeness4Scaling = [1.8, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
-        const strangeness5Cost = [1e10, 10, 20, 5, 10, 40, 800, 40, 20];
-        const strangeness5Scaling = [1, 1, 1, 1.9, 1.85, 1, 1.5, 2, 1];
+        const strangeness5Cost = [1e10, 12, 20, 5, 10, 40, 800, 60, 20];
+        const strangeness5Scaling = [1, 1, 1, 1.8, 1.75, 1, 1.5, 1.5, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
-        //strangenessInfo[1].maxActive = 10; //Re enable when done
-        //strangenessInfo[2].maxActive = 9;
-        //strangenessInfo[3].maxActive = 8;
-        //strangenessInfo[4].maxActive = 10;
+        //strangenessInfo[1].maxActive = 10; //Re enable
+        strangenessInfo[2].maxActive = 10;
+        strangenessInfo[3].maxActive = 10;
+        strangenessInfo[4].maxActive = 11;
         //strangenessInfo[5].maxActive = 9;
+
+        getId('strange10Stage1').style.display = 'none'; //Re enable
+        getId('strange10Stage2').style.display = '';
+        getId('strange9Stage3').style.display = '';
+        getId('strange10Stage3').style.display = '';
+        getId('strange11Stage4').style.display = '';
 
         getId('strange9Stage1').style.display = '';
         getId('strange8Stage2').style.display = '';
@@ -92,14 +100,16 @@ export const prepareVacuum = () => {
         getId('strangenessSection3').style.display = '';
         getId('strangenessSection4').style.display = '';
         getId('strangenessSection5').style.display = '';
+        getId('milestone1Stage5Div').style.display = '';
+        getId('milestone2Stage5Div').style.display = '';
         getId('preonCap').style.display = '';
         getId('dustCap').style.display = '';
-        getId('strange10Stage1').style.display = 'none'; //''; //Re enable when done
+        getId('unknownStructures').style.display = 'none';
 
         const stageWord = getId('stageWord') as HTMLSpanElement;
         stageWord.textContent = global.stageInfo.word[6];
         stageWord.style.color = global.stageInfo.textColor[6];
-        getId('unknownStructures').style.display = 'none';
+        for (const element of getClass('vacuum')) { element.style.display = ''; }
     } else {
         specialHTML.footerStatsHTML[1][0] = ['Quarks.png', 'Quarks', 'stage1borderImage cyanText', 'Quarks'];
         buildings[1][0].current = [3, 0];
@@ -116,6 +126,8 @@ export const prepareVacuum = () => {
         global.dischargeInfo.energyType[1] = [0, 1, 5, 20];
         buildingsInfo.type[2][1] = 'producing';
         buildingsInfo.type[3][1] = 'producing';
+        buildingsInfo.increase[5][1] = 2;
+        buildingsInfo.increase[5][2] = 2;
 
         const upgrades1Cost = [0, 0, 9, 12, 36, 300, 800, 2000, 8000, 30000];
         upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
@@ -173,10 +185,15 @@ export const prepareVacuum = () => {
         strangenessInfo[4].maxActive = 10;
         strangenessInfo[5].maxActive = 9;
 
+        for (const element of getClass('vacuum')) { element.style.display = 'none'; }
+        for (let s = 1; s < strangenessInfo.length; s++) {
+            for (let i = strangenessInfo[s].maxActive + 1; i <= strangenessInfo[s].startCost.length; i++) {
+                getId(`strange${i}Stage${s}`).style.display = 'none';
+            }
+        }
+
         getId('rankStat0').style.display = '';
         getId('elementsExtra').style.display = 'none';
-        getId('mainCap').style.display = 'none';
-        getId('strange10Stage1').style.display = 'none';
     }
 
     for (let s = 1; s <= 3; s++) {
@@ -209,7 +226,7 @@ export const switchVacuum = async() => {
     player.stage.current = 1;
     player.stage.active = 1;
     prepareVacuum();
-    reset('vacuum', []);
+    resetVacuum();
     stageCheck('reload');
 };
 

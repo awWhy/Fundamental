@@ -8,6 +8,8 @@ export interface playerType {
         active: number
         resets: number
         export: number
+        best: number
+        time: number
         input: number
     }
     discharge: {
@@ -23,6 +25,7 @@ export interface playerType {
     }
     accretion: {
         rank: number
+        input: number
     }
     collapse: {
         mass: number
@@ -36,6 +39,7 @@ export interface playerType {
     }
     inflation: {
         vacuum: boolean
+        age: number
     }
     intervals: {
         main: number
@@ -135,6 +139,7 @@ export interface globalType {
         get: overlimit
     }
     accretionInfo: {
+        extra: number
         rankU: number[]
         rankR: number[]
         rankE: number[]
@@ -148,6 +153,7 @@ export interface globalType {
         unlockU: number[]
         unlockR: number[]
         newMass: number
+        massEffect: (post?: boolean) => number
         starCheck: [number, number, number]
         starEffect: [(post?: boolean) => number, (post?: boolean) => number, (post?: boolean) => number]
         trueStars: number
@@ -155,6 +161,7 @@ export interface globalType {
     inflationInfo: {
         preonCap: overlimit
         dustCap: overlimit
+        massCap: number
     }
     intervalsId: {
         main: number

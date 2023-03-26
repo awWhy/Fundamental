@@ -30,7 +30,7 @@
             <section id="stageTab">
                 <section id="stageSubtabStructures" class="insideTab">
                     <div id="resets">
-                        <div id="resetStage" class="stage1Unlock">
+                        <div id="resetStage" class="stage2Unlock">
                             <p class="whiteText">Lose all progress, but move to the next stage. Each stage has its own unique theme.<br aria-hidden="true">Current stage: <span id="stageWord" class="bigWord stageText">Microworld</span>.</p>
                             <button id="stageReset" class="bigButton">You are not ready</button>
                         </div>
@@ -184,6 +184,7 @@
                         <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum state" id="vacuumSwitch">
                         <label for="vacuumSwitch" class="orchidText">Vacuum state: <span id="vacuumState" class="redText">false</span></label>
                     </div>
+                    <p id="universeInfo" class="grayText">This Universe is <span id="universeAge" class="orangeText">0 seconds</span> old</p>
                 </section>
             </section>
             <section id="researchTab" style="display: none;">
@@ -265,7 +266,7 @@
                                 <input type="image" src="Used_art/Offline.png" alt="Sleep" id="researchAuto2Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost">
                                 <p class="whiteText stage2borderImage"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">1</span></p>
                             </div>
-                            <div id="researchAuto3" class="stage5Unlock">
+                            <div id="researchAuto3">
                                 <input type="image" src="Used_art/Auto%20upgrades.png" alt="Upgrades" id="researchAuto3Image" class="interactiveImage" aria-labelledby="researchText researchEffect researchCost">
                                 <p class="whiteText stage3borderImage"><span id="researchAuto3Level" class="redText">0</span>/<span id="researchAuto3Max" class="greenText">0</span></p>
                             </div>
@@ -415,6 +416,10 @@
                                 <input type="image" src="Used_art/Boost%20Stage%202.png" alt="Submerged" id="strange9Stage2Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
                                 <p class="whiteText stage6borderImage"><span id="strange9Stage2Level" class="redText">0</span>/<span id="strange9Stage2Max" class="greenText">1</span></p>
                             </div>
+                            <div id="strange10Stage2">
+                                <input type="image" src="Used_art/Unknown2.png" alt="Unknown" id="strange10Stage2Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
+                                <p class="whiteText stage2borderImage"><span id="strange10Stage2Level" class="redText">0</span>/<span id="strange10Stage2Max" class="greenText">1</span></p>
+                            </div>
                         </div>
                         <div id="strangenessSection3" class="stage3borderImage">
                             <div id="strange1Stage3">
@@ -448,6 +453,14 @@
                             <div id="strange8Stage3">
                                 <input type="image" src="Used_art/Boost%20Stage%203.png" alt="Accretion" id="strange8Stage3Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
                                 <p class="whiteText stage6borderImage"><span id="strange8Stage3Level" class="redText">0</span>/<span id="strange8Stage3Max" class="greenText">1</span></p>
+                            </div>
+                            <div id="strange9Stage3">
+                                <input type="image" src="Used_art/Unknown3.png" alt="Unknown" id="strange9Stage3Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
+                                <p class="whiteText stage3borderImage"><span id="strange9Stage3Level" class="redText">0</span>/<span id="strange9Stage3Max" class="greenText">1</span></p>
+                            </div>
+                            <div id="strange10Stage3">
+                                <input type="image" src="Used_art/Shift.png" alt="Shift" id="strange10Stage3Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
+                                <p class="whiteText stage3borderImage"><span id="strange10Stage3Level" class="redText">0</span>/<span id="strange10Stage3Max" class="greenText">1</span></p>
                             </div>
                         </div>
                         <div id="strangenessSection4" class="stage4borderImage">
@@ -490,6 +503,10 @@
                             <div id="strange10Stage4">
                                 <input type="image" src="Used_art/Boost%20Stage%204.png" alt="Interstellar" id="strange10Stage4Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
                                 <p class="whiteText stage6borderImage"><span id="strange10Stage4Level" class="redText">0</span>/<span id="strange10Stage4Max" class="greenText">1</span></p>
+                            </div>
+                            <div id="strange11Stage4">
+                                <input type="image" src="Used_art/Unknown4.png" alt="Unknown" id="strange11Stage4Image" class="interactiveImage" aria-labelledby="strangenessText strangenessEffect strangenessCost">
+                                <p class="whiteText stage4borderImage"><span id="strange11Stage4Level" class="redText">0</span>/<span id="strange11Stage4Max" class="greenText">1</span></p>
                             </div>
                         </div>
                         <div id="strangenessSection5" class="stage5borderImage">
@@ -594,7 +611,7 @@
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto2Mark" class="miniButton focusButton stage2borderButton">!</button>
                                         <div>
-                                            <label>Vaporize when can get at least <input type="number" id="vaporizationInput" value="10"> times of a current amount</label>
+                                            <label>Vaporize when can get at least <input type="number" id="vaporizationInput" value="10"> times of a current amount<span class="vacuum">, auto level 2 will not cause Vaporization</span></label>
                                         </div>
                                     </div>
                                 </div>
@@ -603,7 +620,13 @@
                             <div id="rankToggleReset" class="stage3Include">
                                 <img src="Used_art/Rank%20toggle.png" alt="Rank Reset Toggle" loading="lazy">
                                 <div>
-                                    <button id="toggle4" class="toggle" aria-label="Toggle for rank reset confirmation, currently ON">ON</button>
+                                    <button id="toggle4" class="toggle" aria-label="Toggle for rank reset confirmation, currently ON">ON</button><!--
+                                 --><div class="windowPopUp">
+                                        <button id="toggleAuto3Mark" class="miniButton focusButton stage3borderButton">!</button>
+                                        <div>
+                                            <label>Current shift value is <input type="number" id="rankShiftInput" value="600"> seconds, Main-sequence mass hardcap will start at that value. Smaller it is - higher Cosmic dust hardcap</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button id="toggleAuto3" class="toggleAuto">Auto OFF</button>
                             </div>
@@ -614,7 +637,7 @@
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto4Mark" class="miniButton focusButton stage4borderButton">!</button>
                                         <div>
-                                            <p><label for="collapseMassInput">Collapse when can increase Mass at least</label> <input type="number" id="collapseMassInput" value="4"> times <label for="collapseStarsInput">or any Star reward by</label> <input type="number" id="collapseStarsInput" value="2"></p>
+                                            <p><label for="collapseMassInput">Collapse when can increase Mass at least </label><input type="number" id="collapseMassInput" value="4"> times<span class="vacuum"> and reached Main-sequence Mass hardcap</span>. <label for="collapseStarsInput">Or if boost from all Stars rewards had reached </label><input type="number" id="collapseStarsInput" value="2"><span class="vacuum"> (auto level 2 and 3, will not cause Collapse)</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -700,7 +723,7 @@
                         <div class="options">
                             <h3 class="center">Less recommended options</h3>
                             <ul class="whiteText">
-                                <li id="pauseGame" aria-hidden="true">Pause game</li>
+                                <li><span id="pauseGame" aria-hidden="true">Pause game</span><button id="reviewEvents" class="extraHover" aria-label="Replay event">Events</button></li>
                                 <li><label id="offlineStorage" for="toggle0">Auto consume offline storage</label><button id="toggle0" class="toggle">ON</button><button id="offlineWarp" class="extraHover">Warp</button></li>
                                 <li aria-hidden="true"><label for="customFontSize">Custom font size (art won't scale)</label>: <input type="number" id="customFontSize" min="10" max="32" step="0.1" value="16" tabindex="-1"> px<button id="fontSizeToggle" class="specialToggle" tabindex="-1">ON</button></li>
                             </ul>
@@ -741,10 +764,11 @@
                 <section id="settingsSubtabStats" class="insideTab" style="display: none;">
                     <div id="stats">
                         <p>Started playing: <span id="firstPlay" class="whiteText">0 seconds ago</span> <!--(<span id="localFirstPlay">time</span>)--></p>
-                        <p id="stageResets">Stage resets: <span id="stageResetsCount" class="whiteText">0</span></p>
                         <p>Storaged offline: <span id="offlineStat" class="whiteText">0</span></p>
                         <p>Max offline: <span id="maxOfflineStat" class="whiteText">2 hours</span></p>
+                        <p id="stageResets">Stage resets: <span id="stageResetsCount" class="whiteText">0</span></p>
                         <p id="maxExportStats">Max export: <span id="maxExportStat" class="greenText">1</span> <span class="whiteText">Strange quarks</span></p>
+                        <p id="stageBest" class="stage5Unlock">Best Stage reset: <span id="stageBestGain" class="greenText">0</span> <span class="whiteText">Strange quarks</span></p>
                         <div id="buildingsAllStats" class="statsWindows">
                             <div id="building0Stats">
                                 <h4 id="building0StatName" class="stageText bigWord">Missing</h4>
@@ -862,17 +886,19 @@
                             </div>
                         </div>
                         <div id="starsStats" class="stage4Only">
-                            <p>Current effect -&gt; after Collapse</p>
-                            <p id="star1Stats" class="redText">Red giants: <span id="star1StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star1StatAfter" class="greenText noMoveSpan">0</span></p>
-                            <p id="star2Stats" class="darkvioletText">Neutron stars: <span id="star2StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star2StatAfter" class="greenText noMoveSpan">0</span></p>
-                            <p id="star3Stats" class="grayText">Black holes: <span id="star3StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star3StatAfter" class="greenText noMoveSpan">0</span></p>
+                            <p>Current effect -&gt; boost after Collapse</p>
+                            <p id="starMassStats" class="cyanText">Main-sequence mass: <span id="starMassStatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="starMassStatAfter" class="greenText noMoveSpan">x1</span></p>
+                            <p id="star1Stats" class="redText">Red giants: <span id="star1StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star1StatAfter" class="greenText noMoveSpan">x1</span></p>
+                            <p id="star2Stats" class="darkvioletText">Neutron stars: <span id="star2StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star2StatAfter" class="greenText noMoveSpan">x1</span></p>
+                            <p id="star3Stats" class="grayText">Black holes: <span id="star3StatCurrent" class="greenText noMoveSpan">0</span> -&gt; <span id="star3StatAfter" class="greenText noMoveSpan">x1</span></p>
                         </div>
                         <p class="redText stage5Only">Self-made Stars: <span id="starsStatTrue" class="orangeText">0</span></p>
                         <p id="energyStats" class="orangeText stage1Only">Most Energy at once: <span id="maxEnergyStat" class="whiteText">0</span></p>
                         <p id="dischargeStats" class="orangeText stage1Only">Discharge goals: <span id="dischargeStat" class="whiteText">0</span> <span id="dischargeStatBonus" class="cyanText">[+0]</span></p>
                         <p id="cloudsStats" class="grayText stage2Only">Most Clouds at once: <span id="maxCloudsStat" class="blueText">1</span></p>
                         <p id="solarMassStats" class="cyanText">Highest Main-sequence mass: <span id="maxSolarMassStat" class="orchidText">0.01235</span></p>
-                        <div id="rankStats" class="imageList stage3Only">
+                        <p class="grayText stage3Only">Effective Rank: <span id="effectiveRank" class="orchidText">0</span></p>
+                        <div class="imageList stage3Only">
                             <h4 class="grayText">Unlocked Ranks:</h4>
                             <img src="Used_art/Ocean%20world.png" alt="Ocean world" id="rankStat0" title="Ocean world" loading="lazy">
                             <img src="Used_art/Dust.png" alt="Cosmic dust" id="rankStat1" title="Cosmic dust" loading="lazy">
@@ -885,7 +911,7 @@
                         <div id="unknownStructures" class="imageList"></div>
                         <p id="preonCap" class="cyanText stage1Only">Preons production hardcap starts at <span id="preonCapStat" class="grayText noMoveSpan">2e13</span><br aria-hidden="true">(before Accretion boost)</p>
                         <p id="dustCap" class="grayText stage3Only">Cosmic dust production hardcap starts at <span id="dustCapStat" class="redText noMoveSpan">5e45</span></p>
-                        <p id="mainCap" class="cyanText">Main-sequence mass gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(10 minutes worth of production)</p>
+                        <p id="mainCap" class="cyanText stage4Only">Main-sequence mass gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(<span id="mainCapLimit">10 minutes</span> worth of production)</p>
                     </div>
                 </section>
             </section>
@@ -928,7 +954,7 @@
                             <button id="AccretionSwitch" class="grayText stage3borderButton stage3Include">Accretion</button>
                             <button id="InterstellarSwitch" class="orangeText stage4borderButton stage4Include">Interstellar</button>
                             <button id="IntergalacticSwitch" class="orchidText stage5borderButton stage5Include">Intergalactic</button>
-                            <button id="VoidSwitch" class="redText stage6borderButton stage6Include">Intergalactic</button>
+                            <button id="VoidSwitch" class="darkvioletText stage6borderButton stage6Include">Void</button>
                         </div>
                     </nav>
                     <aside id="hideToggle" aria-hidden="true">

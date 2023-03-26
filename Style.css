@@ -471,6 +471,11 @@ p > img {
 
 .challengeDiv > input[type="image"]:hover { background-color: var(--button-extra-hover); }
 
+#universeInfo {
+    text-align: center;
+    width: 100%;
+}
+
 .researchSection {
     display: flex;
     align-items: center;
@@ -772,7 +777,7 @@ li > input[type = "number"] {
     width: 3.15em;
 }
 
-#offlineWarp,
+li > button.extraHover,
 li > .windowPopUp > button {
     height: 1.77em;
     padding: 0 0.45em;
@@ -1019,6 +1024,8 @@ li button {
     .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
     .buyBuilding > div > p:first-of-type { width: 14.2em; }
     .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
+    .buyBuilding > div > p:last-of-type > span:last-of-type { margin-left: 0; }
+    .buyBuilding > div > p > span.noMoveSpan { text-align: start; }
 
     .buyBuilding > div:last-of-type {
         row-gap: 0.16em;

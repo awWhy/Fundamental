@@ -52,15 +52,18 @@ export const switchTab = (tab: string, subtab = null as null | string) => {
 };
 
 //In seconds
-export const maxOfflineTime = (): number => !player.inflation.vacuum ?
-/**/((14400 + 14400 * player.researchesAuto[1]) * (1 + player.strangeness[2][7])) :
-/**/(28800 + 28800 * player.researchesAuto[1]);
-export const maxExportTime = (): number => 86400 * (player.inflation.vacuum ? (1 + player.strangeness[4][8]) : 2);
-export const exportMultiplier = (): number => player.strangeness[4][7] * (player.inflation.vacuum ? 2 : 1);
+export const maxOfflineTime = (): number => player.inflation.vacuum ? (28800 + 28800 * player.researchesAuto[1]) : ((14400 + 14400 * player.researchesAuto[1]) * (1 + player.strangeness[2][7]));
+export const maxExportTime = (): number => 86400 * (player.inflation.vacuum ? 2 : (1 + player.strangeness[4][8]));
+export const exportMultiplier = (): number => {
+    if (player.inflation.vacuum) {
+        let mult = player.strangeness[4][7] * 2;
+        if (player.strangeness[4][8] >= 1) { mult += Math.floor(player.stage.best / 5); }
+        return mult;
+    } else { return player.strangeness[4][7]; }
+};
 
 export const timeUpdate = (timeWarp = 0) => { //Time based information
-    const { toggles } = player;
-    const vacuum = player.inflation.vacuum;
+    const { toggles, inflation } = player;
 
     let passedSeconds: number;
     if (timeWarp > 0) {
@@ -76,7 +79,7 @@ export const timeUpdate = (timeWarp = 0) => { //Time based information
             time.offline += passedSeconds;
             return; //To prevent free time warps
         }
-        global.timeSpecial.lastSave += passedSeconds * 1000;
+        global.timeSpecial.lastSave += passedSeconds;
         player.stage.export = Math.min(player.stage.export + passedSeconds, maxExportTime());
         if (passedSeconds > 60) {
             const extraTime = passedSeconds - 60;
@@ -86,26 +89,28 @@ export const timeUpdate = (timeWarp = 0) => { //Time based information
         } else if (time.offline !== 0 && (toggles.normal[0] || player.researchesAuto[0] < 3)) {
             if (time.offline > 0) {
                 const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
-                time.offline -= Math.min(extraTime * (6 / (vacuum && player.strangeness[2][7] >= 1 ? 1.5 * player.strangeness[2][7] : 1)), time.offline);
+                time.offline -= Math.min(extraTime * (6 - (inflation.vacuum ? 1 * player.strangeness[2][7] : 1)), time.offline);
                 passedSeconds += extraTime;
             } else { time.offline += passedSeconds; }
         }
     }
     const { buildingsInfo, automatization } = global;
+    player.stage.time += passedSeconds;
+    inflation.age += passedSeconds;
 
     assignBuildingInformation();
-    if (vacuum && toggles.auto[0]) { stageResetCheck(5, true); }
+    if (inflation.vacuum && toggles.auto[0]) { stageResetCheck(5, true); }
     for (const s of global.stageInfo.activeAll) {
-        if (!vacuum && toggles.auto[0]) { stageResetCheck(s, true); }
+        if (!inflation.vacuum && toggles.auto[0]) { stageResetCheck(s, true); }
         if (s === 4 && toggles.auto[4]) { collapseResetCheck(true); }
         if (s === 3 && toggles.auto[3]) { rankResetCheck(true); }
         if (s === 2 && toggles.auto[2]) { vaporizationResetCheck(true); }
         if (s === 1 && toggles.auto[1]) { dischargeResetCheck('interval'); }
 
         if (s === 4 && automatization.elements.length !== 0) { autoElementsBuy(); }
-        if (automatization.autoE[s].length !== 0) { autoResearchesBuy('researchesExtra', s); }
-        if (automatization.autoR[s].length !== 0) { autoResearchesBuy('researches', s); }
         if (automatization.autoU[s].length !== 0) { autoUpgradesBuy(s); }
+        if (automatization.autoR[s].length !== 0) { autoResearchesBuy('researches', s); }
+        if (automatization.autoE[s].length !== 0) { autoResearchesBuy('researchesExtra', s); }
 
         for (let i = buildingsInfo.maxActive[s] - 1; i >= 1; i--) {
             if (toggles.buildings[s][i] && player.ASR[s] >= i) { buyBuilding(i, s, true); }
@@ -190,7 +195,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                     }
 
                     costName = buildingsInfo.name[extra][e];
-                    currency = cloneArray(player.buildings[extra][e].current);
+                    currency = cloneArray(player.buildings[extra][e].current); //Cloning is not necessary
                 }
 
                 let totalCost: overlimit;
@@ -217,10 +222,10 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 getId(`building${i}BuyX`).textContent = format(totalBuy);
                 if (Limit(totalCost).lessOrEqual(currency)) {
                     getId(`building${i}`).classList.add('availableBuilding');
-                    getId(`building${i}Btn`).textContent = `Make for: ${Limit(totalCost).format()} ${costName}`;
+                    getId(`building${i}Btn`).textContent = `Make for: ${Limit(totalCost).format({ padding: true })} ${costName}`;
                 } else {
                     getId(`building${i}`).classList.remove('availableBuilding');
-                    getId(`building${i}Btn`).textContent = `Need: ${Limit(totalCost).format()} ${costName}`;
+                    getId(`building${i}Btn`).textContent = `Need: ${Limit(totalCost).format({ padding: true })} ${costName}`;
                 }
             }
             if (active === 1) {
@@ -230,13 +235,13 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 getId('reset1Button').textContent = `Next goal is ${format(global.dischargeInfo.next)} Energy`;
             } else if (active === 2) {
                 assignVaporizationInformation();
-                getId('reset1Button').textContent = `Reset for ${Limit(global.vaporizationInfo.get).format()} Clouds`;
+                getId('reset1Button').textContent = `Reset for ${Limit(global.vaporizationInfo.get).format({ padding: true })} Clouds`;
             } else if (active === 4) {
                 const { collapse } = player;
                 const { collapseInfo } = global;
                 assignCollapseInformation();
 
-                getId('reset1Button').textContent = `Collapse to ${format(collapseInfo.newMass)} Mass`;
+                getId('reset1Button').textContent = `Collapse to ${format(collapseInfo.newMass, { padding: true })} Mass`;
                 for (let i = 1; i <= player.researchesExtra[4][0]; i++) {
                     getId(`starSpecial${i}Cur`).textContent = format(collapse.stars[i - 1]);
                     getId(`starSpecial${i}Get`).textContent = format(collapseInfo.starCheck[i - 1]);
@@ -246,7 +251,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
             if (player.time.offline > 0 && (player.toggles.normal[0] || player.researchesAuto[0] < 3)) {
                 const time = Math.max(player.time.offline / 3600, 1);
                 getId('offlineBoostEffect').textContent = `+${format(time * 1, { digits: 0 })} seconds`;
-                getId('offlineBoostWaste').textContent = `${format(time * (6 / (player.inflation.vacuum && player.strangeness[2][7] >= 1 ? 1.5 * player.strangeness[2][7] : 1)), { digits: 0 })} seconds`;
+                getId('offlineBoostWaste').textContent = `${format(time * (6 - (player.inflation.vacuum ? 1 * player.strangeness[2][7] : 1)), { digits: 0 })} seconds`;
             }
             if (global.lastUpgrade[0]) { getUpgradeDescription(global.lastUpgrade[1], 'auto', 'upgrades'); }
         }
@@ -267,13 +272,14 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
     } else if (tab === 'settings') {
         if (subtab.settingsCurrent === 'Settings') {
             assignWithNoMove(getId('exportGain'), format(player.stage.export * exportMultiplier() / 86400, { padding: true }));
-            if (global.timeSpecial.lastSave >= 1000) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, { type: 'time' })} ago`; }
+            if (global.timeSpecial.lastSave >= 1) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, { type: 'time' })} ago`; }
         } else if (subtab.settingsCurrent === 'Stats') {
             const { strange } = player;
 
-            getId('firstPlay').textContent = `${format(Date.now() - player.time.started, { type: 'time' })} ago`;
+            getId('firstPlay').textContent = `${format((Date.now() - player.time.started) / 1000, { type: 'time' })} ago`;
             getId('stageResetsCount').textContent = format(player.stage.resets);
-            getId('offlineStat').textContent = format(player.time.offline * 1000, { type: 'time' });
+            getId('stageBestGain').textContent = format(player.stage.best);
+            getId('offlineStat').textContent = format(player.time.offline, { type: 'time' });
             getId('maxOfflineStat').textContent = `${format(maxOfflineTime() / 3600)} hours`;
             getId('maxExportStat').textContent = format(maxExportTime() * exportMultiplier() / 86400);
             if (active === 1) {
@@ -293,6 +299,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                     buildings[0].highest = Limit(moles.highest).divide([6.02214076, 23]).toArray();
                 }
             } else if (active === 3) {
+                getId('effectiveRank').textContent = format(player.accretion.rank + global.accretionInfo.extra);
                 if (player.inflation.vacuum) {
                     const mass = player.buildings[1][0];
 
@@ -305,24 +312,28 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
             } else if (active === 4 || active === 5) {
                 getId('maxSolarMassStat').textContent = format(player.collapse.massMax);
                 if (player.inflation.vacuum) {
-                    assignWithNoMove(getId('mainCapStat'), Limit(global.buildingsInfo.producing[1][1]).multiply([5.378995670037768, -64]).format({ padding: true }));
+                    assignCollapseInformation();
+                    assignWithNoMove(getId('mainCapStat'), Limit(global.buildingsInfo.producing[1][1]).multiply([8.96499278339628, -67], global.inflationInfo.massCap).format({ padding: true }));
+                    getId('mainCapLimit').textContent = format(global.inflationInfo.massCap, { type: 'time' });
                 }
                 if (active === 4) {
-                    const { starEffect } = global.collapseInfo;
+                    const { starEffect, massEffect } = global.collapseInfo;
 
-                    assignWithNoMove(getId('star1StatCurrent'), format(starEffect[0](), { padding: true }));
-                    assignWithNoMove(getId('star1StatAfter'), format(starEffect[0](true), { padding: true }));
-                    assignWithNoMove(getId('star2StatCurrent'), format(starEffect[1](), { padding: true }));
-                    assignWithNoMove(getId('star2StatAfter'), format(starEffect[1](true), { padding: true }));
-                    assignWithNoMove(getId('star3StatCurrent'), format(starEffect[2](), { padding: true }));
-                    assignWithNoMove(getId('star3StatAfter'), format(starEffect[2](true), { padding: true }));
+                    const before = massEffect();
+                    assignWithNoMove(getId('starMassStatCurrent'), format(before, { padding: true }));
+                    assignWithNoMove(getId('starMassStatAfter'), `x${format(massEffect(true) / before, { padding: true })}`);
+                    for (let i = 0; i <= 2; i++) {
+                        const before = starEffect[i]();
+                        assignWithNoMove(getId(`star${i + 1}StatCurrent`), format(before, { padding: true }));
+                        assignWithNoMove(getId(`star${i + 1}StatAfter`), `x${format(starEffect[i](true) / before, { padding: true })}`);
+                    }
                 } else if (active === 5) {
                     getId('starsStatTrue').textContent = format(global.collapseInfo.trueStars);
                     const stars = player.buildings[4];
 
-                    buildings[0].total = Limit(stars[1].total).plus(stars[2].total, stars[3].total, stars[4].total).toArray();
-                    buildings[0].trueTotal = Limit(stars[1].trueTotal).plus(stars[2].trueTotal, stars[3].trueTotal, stars[4].trueTotal).toArray();
-                    buildings[0].highest = Limit(stars[1].highest).plus(stars[2].highest, stars[3].highest, stars[4].highest).toArray();
+                    buildings[0].total = Limit(stars[1].total).plus(stars[2].total, stars[3].total, stars[4].total, stars[5].total).toArray();
+                    buildings[0].trueTotal = Limit(stars[1].trueTotal).plus(stars[2].trueTotal, stars[3].trueTotal, stars[4].trueTotal, stars[5].trueTotal).toArray();
+                    buildings[0].highest = Limit(stars[1].highest).plus(stars[2].highest, stars[3].highest, stars[4].highest, stars[5].highest).toArray();
                 }
             }
             for (let i = 0; i < buildings.length; i++) {
@@ -365,10 +376,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             const researchAuto0 = player.researchesAuto[0];
             const ASR = player.ASR[active];
 
-            if (player.inflation.vacuum) {
-                getId('stageReset').textContent = stage.current >= 5 ? 'Return back to start' : 'You are not ready';
-                if (player.strange[0].total <= 0 && stage.current < 5) { getId('resetStage').style.display = 'none'; }
-            } else {
+            if (!player.inflation.vacuum) {
                 getId('stageReset').textContent =
                     active === 1 ? (Limit(buildings[3].current).moreOrEqual([1.67, 21]) ? (active === stage.current ? 'Enter next Stage' : 'Reset this Stage') : 'You are not ready') :
                     active === 2 ? (Limit(buildings[1].current).moreOrEqual([1.194, 29]) ? (active === stage.current ? 'Enter next Stage' : 'Reset this Stage') : 'You are not ready') :
@@ -403,10 +411,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (active === 2) {
                 getId('reset1Main').style.display = player.upgrades[2][1] === 1 ? '' : 'none';
                 getId('building2').style.display = Limit(buildings[1].trueTotal).moreOrEqual([3, 2]) ? '' : 'none';
-                getId('building3').style.display = Limit(buildings[1].trueTotal).moreOrEqual([5, 6]) ? '' : 'none';
-                getId('building4').style.display = Limit(buildings[1].trueTotal).moreOrEqual([5, 17]) ? '' : 'none';
-                getId('building5').style.display = Limit(buildings[1].trueTotal).moreOrEqual([5, 22]) ? '' : 'none';
-                if (player.inflation.vacuum) { getId('building6').style.display = 'none'; }
+                getId('building3').style.display = Limit(buildings[1].trueTotal).moreOrEqual([2, 6]) ? '' : 'none';
+                getId('building4').style.display = Limit(buildings[1].trueTotal).moreOrEqual([2, 17]) ? '' : 'none';
+                getId('building5').style.display = Limit(buildings[1].trueTotal).moreOrEqual([2, 22]) ? '' : 'none';
+                if (player.inflation.vacuum) { getId('building6').style.display = player.strangeness[2][9] >= 1 && Limit(buildings[1].trueTotal).moreOrEqual([4, 24]) ? '' : 'none'; }
                 getId('upgrade2').style.display = Limit(buildings[3].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
                 getId('upgrade3').style.display = Limit(buildings[2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
                 getId('upgrade4').style.display = Limit(buildings[2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
@@ -418,7 +426,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('building2').style.display = upgrades[2] === 1 ? '' : 'none';
                 getId('building3').style.display = upgrades[4] === 1 ? '' : 'none';
                 getId('building4').style.display = upgrades[6] === 1 ? '' : 'none';
-                if (player.inflation.vacuum) { getId('building5').style.display = 'none'; }
+                if (player.inflation.vacuum) { getId('building5').style.display = upgrades[6] === 1 && player.strangeness[3][8] >= 1 ? '' : 'none'; }
                 getId('upgrade4').style.display = Limit(buildings[2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
                 if (upgrades[4] === 1) { getId('upgrade6').style.display = ''; }
                 getId('upgrade9').style.display = player.accretion.rank >= 4 && player.strangeness[3][2] >= 3 ? '' : 'none';
@@ -434,7 +442,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                     getId('building2').style.display = upgrades[1] === 1 ? '' : 'none';
                     getId('building3').style.display = upgrades[2] === 1 ? '' : 'none';
                     getId('building4').style.display = player.collapse.mass >= 10 ? '' : 'none';
-                } else { getId('building5').style.display = 'none'; }
+                } else { getId('building5').style.display = player.strangeness[4][10] >= 1 ? '' : 'none'; }
                 getId('upgrade4').style.display = player.strangeness[4][2] >= 1 ? '' : 'none';
             } else if (active === 5) {
                 if (!player.inflation.vacuum) {
@@ -451,10 +459,12 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('building3').style.display = player.strangeness[5][6] >= 1 ? '' : 'none';
                 getId('upgrade3').style.display = Limit(buildings[3].current).moreOrEqual([1, 0]) ? '' : 'none';
             }
+        } else if (subtab.stageCurrent === 'Advanced') {
+            getId('universeAge').textContent = format(player.inflation.age, { type: 'time' });
         }
     } else if (tab === 'research') {
         if (subtab.researchCurrent === 'Researches') {
-            if (player.strangeness[3][6] < 1) { getId('researchAuto3').style.display = 'none'; }
+            getId('researchAuto3').style.display = player.strangeness[3][6] >= 1 ? '' : 'none';
 
             if (active === 1) {
                 if (player.inflation.vacuum) {
@@ -525,8 +535,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('strange6Stage5').style.display = player.milestones[2][0] >= 3 || player.milestones[3][0] >= 3 ? '' : 'none';
             }
         } else if (subtab.strangenessCurrent === 'Milestones') {
-            getId('milestone1Stage5Div').style.display = player.strangeness[5][8] >= 1 ? '' : 'none';
-            getId('milestone2Stage5Div').style.display = player.strangeness[5][8] >= 1 && player.strangeness[5][6] >= 1 ? '' : 'none';
+            if (!player.inflation.vacuum) {
+                getId('milestone1Stage5Div').style.display = player.strangeness[5][8] >= 1 ? '' : 'none';
+                getId('milestone2Stage5Div').style.display = player.strangeness[5][8] >= 1 && player.strangeness[5][6] >= 1 ? '' : 'none';
+            }
         }
     } else if (tab === 'settings') {
         if (subtab.settingsCurrent === 'Settings') {
@@ -556,6 +568,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             }
             if (activeAll.includes(3)) {
                 getId('toggleAuto3').style.display = strangeness[3][4] >= 1 ? '' : 'none';
+                getId('toggleAuto3Mark').style.display = strangeness[3][9] >= 1 ? '' : 'none';
             }
             if (activeAll.includes(4)) {
                 if (stage.true < 5) { getId('collapseToggleReset').style.display = player.collapse.mass > 0.01235 ? '' : 'none'; }
@@ -583,7 +596,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             } else if (active === 4) {
                 const nova = player.researchesExtra[4][0];
 
-                getId('starsStats').style.display = nova >= 1 ? '' : 'none';
+                getId('star1Stats').style.display = nova >= 1 ? '' : 'none';
                 getId('star2Stats').style.display = nova >= 2 ? '' : 'none';
                 getId('star3Stats').style.display = nova >= 3 ? '' : 'none';
             }
@@ -784,14 +797,16 @@ export const format = (input: number | overlimit, settings = {} as { digits?: 0,
             }
         }
         case 'time':
-            if (input >= 172800000) {
-                return `${Math.round(input / 86400000)} days`;
-            } else if (input >= 7200000) {
-                return `${Math.round(input / 3600000)} hours`;
-            } else if (input >= 600000) {
-                return `${Math.round(input / 60000)} minutes`;
+            if (input >= 94670856) {
+                return `${Math.round(input / 31556952)} years`;
+            } else if (input >= 172800) {
+                return `${Math.round(input / 86400)} days`;
+            } else if (input >= 7200) {
+                return `${Math.round(input / 3600)} hours`;
+            } else if (input >= 600) {
+                return `${Math.round(input / 60)} minutes`;
             } else {
-                return `${Math.round(input / 1000)} seconds`;
+                return `${Math.round(input)} seconds`;
             }
     }
 };
@@ -822,14 +837,14 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     const active = stage.active;
 
     for (let s = 1; s <= 6; s++) {
-        for (const i of getClass(`stage${s}Only`)) {
-            i.style.display = active === s ? '' : 'none';
+        for (const element of getClass(`stage${s}Only`)) {
+            element.style.display = active === s ? '' : 'none';
         }
-        for (const i of getClass(`stage${s}Include`)) {
-            i.style.display = stageInfo.activeAll.includes(s) ? '' : 'none';
+        for (const element of getClass(`stage${s}Include`)) {
+            element.style.display = stageInfo.activeAll.includes(s) ? '' : 'none';
         }
-        for (const i of getClass(`stage${s}Unlock`)) {
-            i.style.display = stage.true >= s ? '' : 'none';
+        for (const element of getClass(`stage${s}Unlock`)) {
+            element.style.display = stage.true >= s ? '' : 'none';
         }
     }
 
@@ -838,16 +853,23 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
     if (player.strange[0].total <= 0) {
         getId('strangenessTabBtn').style.display = 'none';
         getId('strangeAllStats').style.display = 'none';
+        getId('stageBest').style.display = 'none';
     }
     if (vacuum) {
-        getId('mainCap').style.display = active === 4 || active === 5 ? '' : 'none';
+        getId('stageReset').textContent = stage.current >= 5 ? 'Return back to start' : 'You are not ready';
+        if (player.strange[0].total <= 0 && stage.current < 5) { getId('resetStage').style.display = 'none'; }
         if (stage.current < 3 && player.strange[0].total <= 0) { getId('researchAuto2').style.display = 'none'; }
     } else {
         getId('strangenessSection2').style.display = stage.resets >= 5 ? '' : 'none';
         getId('strangenessSection3').style.display = stage.resets >= 6 ? '' : 'none';
         getId('strangenessSection4').style.display = stage.resets >= 7 ? '' : 'none';
-        getId('preonCap').style.display = 'none';
-        getId('dustCap').style.display = 'none';
+        if (active === 1) {
+            getId('preonCap').style.display = 'none';
+        } else if (active === 3) {
+            getId('dustCap').style.display = 'none';
+        } else if (active === 4) {
+            getId('mainCap').style.display = 'none';
+        }
     }
 
     if (global.screenReader) {
@@ -863,7 +885,12 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         getId('SRInfo0').style.display = stage.true >= 5 ? '' : 'none';
         getId('SRHotkeyA').style.display = stageInfo.activeAll.length > 1 ? '' : 'none';
     }
-    if (extra === 'soft') { return; }
+    if (extra === 'soft') {
+        updateRankInfo();
+        numbersUpdate();
+        visualUpdate();
+        return;
+    }
 
     for (const text of ['upgrade', 'research', 'element']) {
         getId(`${text}Text`).textContent = 'Hover to see.';
@@ -888,7 +915,7 @@ export const stageCheck = (extra = '' as 'soft' | 'reload') => {
         autoResearchesSet('researchesExtra', 'all');
         autoElementsSet();
 
-        for (const s of stageInfo.activeAll) {
+        for (const s of (vacuum ? [1, 2, 3, 4, 5] : stageInfo.activeAll)) {
             calculateMaxLevel(0, s, 'ASR');
             for (let i = 0; i < global.researchesInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researches'); }
             for (let i = 0; i < global.researchesExtraInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }

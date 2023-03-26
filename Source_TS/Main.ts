@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, checkPlayerValues, buildVersionInfo } from './Player';
 import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
-import { autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
-import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait } from './Special';
+import { assignNewMassCap, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
+import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait, replayEvent } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { prepareVacuum, switchVacuum } from './Vacuum';
 
@@ -16,13 +16,13 @@ export const reLoad = (firstLoad = false) => {
             updatePlayer(load);
 
             const { time } = player;
-            const offlineTime = Date.now() - time.updated;
+            const offlineTime = (Date.now() - time.updated) / 1000;
             const maxOffline = maxOfflineTime();
             time.updated = Date.now();
             global.timeSpecial.lastSave += offlineTime;
-            time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
-            player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
-            Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${offlineTime + (time.offline * 1000) > maxOffline * 1000 ? ' (Your offline time storage is full)' : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}` : `\nCurrent version is ${player.version}`}`);
+            time.offline = Math.min(time.offline + offlineTime, maxOffline);
+            player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
+            Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${offlineTime + time.offline > maxOffline ? ' (Offline storage is full)' : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}` : `\nCurrent version is ${player.version}`}`);
         } else {
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
         }
@@ -36,6 +36,7 @@ export const reLoad = (firstLoad = false) => {
     setTheme(Number(theme), theme === null);
 
     prepareVacuum();
+    assignNewMassCap(player.accretion.input);
     stageCheck('reload'); //Stage information (incuding part of timeUpdate), visualUpdate
     if (firstLoad) {
         getId('body').style.display = '';
@@ -48,6 +49,7 @@ export const reLoad = (firstLoad = false) => {
     (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];
     (getId('stageInput') as HTMLInputElement).value = `${player.stage.input}`;
     (getId('vaporizationInput') as HTMLInputElement).value = `${player.vaporization.input}`;
+    (getId('rankShiftInput') as HTMLInputElement).value = `${player.accretion.input}`;
     (getId('collapseMassInput') as HTMLInputElement).value = `${player.collapse.inputM}`;
     (getId('collapseStarsInput') as HTMLInputElement).value = `${player.collapse.inputS}`;
     getId('vacuumState').textContent = `${player.inflation.vacuum}`;
@@ -197,23 +199,32 @@ reLoad(true); //This will start the game
     /* Settings tab */
     getId('vaporizationInput').addEventListener('blur', () => {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 0), { type: 'input' });
-        player.vaporization.input = Number(input.value);
+        const value = Math.max(Number(input.value), 0);
+        input.value = format(value, { type: 'input' });
+        player.vaporization.input = value;
+    });
+    getId('rankShiftInput').addEventListener('blur', () => {
+        const value = Number((getId('rankShiftInput') as HTMLInputElement).value);
+        player.accretion.input = value;
+        assignNewMassCap(value);
     });
     getId('collapseMassInput').addEventListener('blur', () => {
         const input = getId('collapseMassInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), { type: 'input' });
-        player.collapse.inputM = Number(input.value);
+        const value = Math.max(Number(input.value), 1);
+        input.value = format(value, { type: 'input' });
+        player.collapse.inputM = value;
     });
     getId('collapseStarsInput').addEventListener('blur', () => {
         const input = getId('collapseStarsInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 0), { type: 'input' });
-        player.collapse.inputS = Number(input.value);
+        const value = Math.max(Number(input.value), 1);
+        input.value = format(value, { type: 'input' });
+        player.collapse.inputS = value;
     });
     getId('stageInput').addEventListener('blur', () => {
         const input = getId('stageInput') as HTMLInputElement;
-        input.value = format(Math.max(Number(input.value), 1), { type: 'input' });
-        player.stage.input = Number(input.value);
+        const value = Math.max(Math.floor(Number(input.value)), 1);
+        input.value = format(value, { type: 'input' });
+        player.stage.input = value;
     });
     getId('versionButton').addEventListener('click', () => {
         buildVersionInfo();
@@ -244,6 +255,7 @@ reLoad(true); //This will start the game
     getId('thousandSeparator').addEventListener('blur', () => changeFormat(false));
     getId('decimalPoint').addEventListener('blur', () => changeFormat(true));
     getId('pauseGame').addEventListener('click', () => { void pauseGame(); });
+    getId('reviewEvents').addEventListener('click', () => { void replayEvent(); });
     getId('offlineWarp').addEventListener('click', () => { void timeWarp(); });
     getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
     getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
@@ -329,23 +341,20 @@ async function saveLoad(type: string) {
                 updatePlayer(load);
 
                 const { time } = player;
-                const offlineTime = Date.now() - time.updated;
+                const offlineTime = (Date.now() - time.updated) / 1000;
                 const maxOffline = maxOfflineTime();
                 time.updated = Date.now();
-                global.timeSpecial.lastSave += offlineTime;
-                time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
-                player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
-                Alert(`This save is ${format(offlineTime, { type: 'time' })} old${offlineTime + (time.offline * 1000) > maxOffline * 1000 ? ', storage is maxed' : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}` : `\nSave file version is ${player.version}`}`);
-                global.timeSpecial.lastSave = 0;
-                getId('isSaved').textContent = 'Imported';
+                time.offline = Math.min(time.offline + offlineTime, maxOffline);
+                player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
+                Alert(`This save is ${format(offlineTime, { type: 'time' })} old${offlineTime + time.offline > maxOffline ? ', Offline storage is maxed' : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}` : `\nSave file version is ${player.version}`}`);
 
+                getId('isSaved').textContent = 'Imported';
+                global.timeSpecial.lastSave = 0;
                 reLoad();
             } catch (error) {
-                changeIntervals(); //Unpause game, in case there was an issue;
+                changeIntervals();
                 Alert(`Incorrect save file format.\nFull error is: '${error}'`);
-            } finally {
-                id.value = ''; //Remove inputed file
-            }
+            } finally { id.value = ''; }
             return;
         }
         case 'save': {
@@ -448,7 +457,7 @@ export const timeWarp = async() => {
     const { time } = player;
     if (time.offline <= 0) { return Alert("Can't Warp without any Offline time"); }
 
-    const warpTime = Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? Current Offline time is ${format(time.offline * 1000, { type: 'time' })} (will be used without any loss, 1 minute at a time)\nBigger number will result in more lag`)), time.offline);
+    const warpTime = Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? Current Offline time is ${format(time.offline, { type: 'time' })} (will be used without any loss, 1 minute at a time)\nBigger number will result in more lag`)), time.offline);
     if (warpTime <= 0 || !isFinite(warpTime)) { return; }
 
     time.offline -= warpTime;
@@ -460,12 +469,11 @@ const pauseGame = async() => {
     await AlertWait("Game is currently paused. Press 'confirm' to unpause it. Time spend here will be moved into offline storage");
 
     const { time } = player;
-    const maxOffline = maxOfflineTime();
-    const offlineTime = Date.now() - time.updated;
+    const offlineTime = (Date.now() - time.updated) / 1000;
     time.updated = Date.now();
     global.timeSpecial.lastSave += offlineTime;
-    time.offline = Math.min(time.offline + offlineTime / 1000, maxOffline);
-    player.stage.export = Math.min(player.stage.export + offlineTime / 1000, maxExportTime());
+    time.offline = Math.min(time.offline + offlineTime, maxOfflineTime());
+    player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
 
     changeIntervals();
 };

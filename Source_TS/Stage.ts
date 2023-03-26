@@ -2,7 +2,7 @@ import { checkBuilding, checkUpgrade, milestoneCheck } from './Check';
 import Limit from './Limit';
 import { getId } from './Main';
 import { cloneArray, global, player } from './Player';
-import { reset } from './Reset';
+import { reset, resetStage } from './Reset';
 import { Alert, Confirm, playEvent } from './Special';
 import { overlimit } from './Types';
 import { format, getUpgradeDescription, numbersUpdate, stageCheck, updateRankInfo, visualUpdateUpgrades } from './Update';
@@ -15,11 +15,11 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
     const activeAll = global.stageInfo.activeAll;
     const vacuum = player.inflation.vacuum;
 
-    //Doing through loop is slower (unless loop already created, then it's same speed)
     if (activeAll.includes(1)) {
         const { discharge } = player;
         const v = vacuum ? 0 : 2;
 
+        strangeInfo.stageBoost[1] = strangeness[1][8] >= 1 ? (strangeQuarks + 1) ** (vacuum ? 0.4 : 0.26) : null;
         global.dischargeInfo.bonus = strangeness[1][2];
         upgradesInfo[1].effect[5] = (4 + strangeness[1][0]) * 2 ** researches[1][4];
         upgradesInfo[1].effect[7] = Math.round((1.02 + 0.01 * researches[1][1]) * 100) / 100;
@@ -33,15 +33,14 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         listForMult5.push(prod5Number);
         producing[1][5 - v] = Limit(buildings[1][5 - v].current).multiply(...listForMult5).toArray();
 
-        researchesInfo[1].effect[2] = 12 + strangeness[1][5] * 3 / 10;
+        researchesInfo[1].effect[2] = 12 + strangeness[1][5] * (vacuum ? 4 : 3) / 10;
         researchesExtraInfo[1].effect[1] = researchesExtra[1][1] >= 1 ? (21 - researchesExtra[1][1]) / 10 : Math.E;
-        strangeInfo.stageBoost[1] = strangeness[1][8] >= 1 ? (strangeQuarks + 1) ** 0.26 : null;
         if (Limit(producing[1][5 - v]).moreThan([1, 0])) {
             const listForRadiation = [Limit(researchesInfo[1].effect[2]).power(researches[1][2]).toArray()] as Array<number | overlimit>;
             let radiationProd = 1;
             if (upgrades[1][9] === 1 && discharge.energy > 1) { radiationProd *= discharge.energy; }
             if (researches[1][5] >= 1) { radiationProd *= (discharge.current + global.dischargeInfo.bonus + 1) * researches[1][5]; }
-            if (strangeInfo.stageBoost[1] !== null) { listForRadiation.push(strangeInfo.stageBoost[1]); }
+            if (!vacuum && strangeInfo.stageBoost[1] !== null) { listForRadiation.push(strangeInfo.stageBoost[1]); }
             listForRadiation.push(radiationProd);
             upgradesInfo[1].effect[8] = Limit(producing[1][5 - v]).log(researchesExtraInfo[1].effect[1]).multiply(...listForRadiation).toArray();
         } else { upgradesInfo[1].effect[8] = [0, 0]; }
@@ -84,7 +83,7 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
     if (activeAll.includes(2)) {
         if (vacuum) {
             buildings[2][0].current = Limit(buildings[1][5].current).divide([6.02214076, 23]).toArray();
-            buildings[2][0].total = Limit(buildings[1][5].current).divide([6.02214076, 23]).toArray();
+            buildings[2][0].total = Limit(buildings[1][5].total).divide([6.02214076, 23]).toArray();
         }
         const current5 = buildings[2][5].true;
         let current4 = buildings[2][4].true;
@@ -95,14 +94,17 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         if (upgrades[2][5] === 1) { current3 += current4 * upgradesInfo[2].effect[5]; }
         upgradesInfo[2].effect[4] = 1 + researches[2][4];
         if (upgrades[2][4] === 1) { current2 += current3 * upgradesInfo[2].effect[4]; }
-        buildings[2][5].current = Limit(current5).toArray();
+        //buildings[2][5].current = Limit(current5).toArray();
         buildings[2][4].current = Limit(current4).toArray();
         buildings[2][3].current = Limit(current3).toArray();
         buildings[2][2].current = Limit(current2).toArray();
 
+        producing[2][6] = Limit([2, 0]).multiply(dischargeBoost, buildings[2][6].current).toArray();
+
         const listForMult5 = [dischargeBoost] as Array<number | overlimit>;
         researchesExtraInfo[2].effect[2] = Limit(player.vaporization.clouds).power(0.1).toArray();
         if (researchesExtra[2][2] >= 1) { listForMult5.push(researchesExtraInfo[2].effect[2]); }
+        if (Limit(producing[2][6]).moreThan([1, 0])) { listForMult5.push(producing[2][6]); }
         producing[2][5] = Limit(2 * current5).multiply(...listForMult5).toArray();
 
         const listForMult4 = [dischargeBoost] as Array<number | overlimit>;
@@ -114,11 +116,11 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         producing[2][3] = Limit(2 * current3).multiply(...listForMult3).toArray();
 
         const listForMult2 = [player.vaporization.clouds, dischargeBoost] as Array<number | overlimit>;
-        upgradesInfo[2].effect[2] = 0.02 + researches[2][2] * 0.02;
-        upgradesInfo[2].effect[3] = 0.02 + researches[2][3] * 0.03;
-        researchesExtraInfo[2].effect[1] = vacuum ? 2 ** researchesExtra[2][1] : 10 ** (researchesExtra[2][1] - 1); //Clouds production of Drops (pre Vacuum)
-        strangeInfo.stageBoost[2] = strangeness[2][8] >= 1 ? (strangeQuarks + 1) ** 0.32 : null;
-        let prod2Number = 3 * current2;
+        upgradesInfo[2].effect[2] = 0.02 + researches[2][2] * (vacuum ? 0.03 : 0.02);
+        upgradesInfo[2].effect[3] = 0.02 + researches[2][3] * (vacuum ? 0.02 : 0.03);
+        researchesExtraInfo[2].effect[1] = vacuum ? 1.5 ** researchesExtra[2][1] : 10 ** (researchesExtra[2][1] - 1); //Clouds production of Drops (pre Vacuum)
+        strangeInfo.stageBoost[2] = strangeness[2][8] >= 1 ? (strangeQuarks + 1) ** (vacuum ? 0.22 : 0.32) : null;
+        let prod2Number = 4 * current2;
         if (upgrades[2][2] === 1) { listForMult2.push(Limit(buildings[2][0][researches[2][1] >= 2 ? 'total' : 'current']).power(upgradesInfo[2].effect[2]).toArray()); }
         if (upgrades[2][3] === 1) { listForMult2.push(Limit(buildings[2][1][researches[2][1] >= 1 ? 'total' : 'current']).max([1, 0]).power(upgradesInfo[2].effect[3]).toArray()); }
         if (vacuum && researchesExtra[2][1] >= 1) { prod2Number *= researchesExtraInfo[2].effect[1]; }
@@ -127,8 +129,12 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         if (strangeInfo.stageBoost[2] !== null) { listForMult2.push(strangeInfo.stageBoost[2]); }
         producing[2][2] = Limit(prod2Number).multiply(...listForMult2).toArray();
 
-        const effective = Limit(buildings[2][1].current).minus(buildings[2][1].true).toArray();
-        const listForMult1 = [dischargeBoost, (!vacuum || Limit(effective).lessThan([1, 0]) ? buildings[2][1].current : Limit(effective).power(0.5).plus(buildings[2][1].true).toArray())] as Array<number | overlimit>;
+        let effective: overlimit;
+        if (vacuum) {
+            const excess = Limit(buildings[2][1].current).minus(buildings[2][1].true).toArray();
+            effective = Limit(excess).moreThan([1, 0]) ? Limit(excess).power(0.5).plus(buildings[2][1].true).toArray() : buildings[2][1].current;
+        } else { effective = buildings[2][1].current; }
+        const listForMult1 = [dischargeBoost, effective] as Array<number | overlimit>;
         if (researches[2][0] >= 1) { listForMult1.push(3 ** researches[2][0]); }
         if (upgrades[2][0] === 1) { listForMult1.push(Limit([vacuum ? 1.05 : 1.1, 0]).power(buildings[2][1].true).toArray()); }
         if (strangeness[2][0] >= 1) { listForMult1.push(2 ** strangeness[2][0]); }
@@ -148,9 +154,21 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         }
     }
     if (activeAll.includes(3)) {
-        if (vacuum) { buildings[3][0].current = Limit(buildings[1][0].current).multiply([1.78266192, -33]).toArray(); }
+        if (vacuum) {
+            buildings[3][0].current = Limit(buildings[1][0].current).multiply([1.78266192, -33]).toArray();
+            global.strangeInfo.stageBoost[3] = player.strangeness[3][7] >= 1 ? (strangeQuarks + 1) ** 0.14 - 1 : null;
+            global.accretionInfo.extra = global.strangeInfo.stageBoost[3] ?? 0;
+        } else { global.accretionInfo.extra = 0; }
 
-        producing[3][4] = Limit((upgrades[3][12] === 1 ? [1.14, 0] : [1.1, 0])).power(buildings[3][4].true).multiply(dischargeBoost).toArray();
+        producing[3][5] = Limit([1.1, 0]).power(buildings[3][5].true).toArray();
+        if (buildings[3][5].true > 0) {
+            producing[3][5] = Limit(producing[3][5]).multiply(dischargeBoost).toArray();
+        }
+
+        producing[3][4] = Limit((upgrades[3][12] === 1 ? [1.14, 0] : [1.1, 0])).power(buildings[3][4].true).toArray();
+        if (buildings[3][4].true > 0) {
+            producing[3][4] = Limit(producing[3][4]).multiply(dischargeBoost, producing[3][5]).toArray();
+        }
 
         const listForMult3 = [producing[3][4], dischargeBoost] as Array<number | overlimit>;
         let prod3Number = 0.1;
@@ -180,7 +198,7 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         upgradesInfo[3].effect[7] = 2 * 1.5 ** researches[3][6];
         upgradesInfo[3].effect[10] = vacuum ? (3 * 2 ** researches[3][7]) : (10 * 3 ** researches[3][7]);
         researchesExtraInfo[3].effect[0] = 1.1 ** researchesExtra[3][0];
-        researchesExtraInfo[3].effect[1] = (1 + 0.1 * researchesExtra[3][1]) ** player.accretion.rank;
+        researchesExtraInfo[3].effect[1] = (1 + 0.1 * researchesExtra[3][1]) ** (player.accretion.rank + global.accretionInfo.extra);
         let prod1Number = vacuum ? 1 : 1e-19;
         if (upgrades[3][0] === 1) { listForMult1.push(Limit(upgradesInfo[3].effect[0]).power(buildings[3][1].true).toArray()); }
         if (upgrades[3][1] === 1) { listForMult1.push(upgradesInfo[3].effect[1]); }
@@ -199,12 +217,14 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         producing[3][1] = Limit(buildings[3][1].current).multiply(...listForMult1).toArray();
         if (vacuum) {
             const { elements } = player;
+
             let capGain = 1;
             if (elements[3] === 1) { capGain += 0.25; }
             if (elements[5] === 1) { capGain += 0.0375 * buildings[4][1].true; }
             if (elements[10] === 1) { capGain *= 2; }
             if (elements[14] === 1) { capGain *= 1.4; }
-            inflationInfo.dustCap = Limit([5, 45]).multiply((1 + buildings[4][1].true + (elements[15] === 1 ? buildings[4][2].true + buildings[4][3].true + buildings[4][4].true : 0)) * capGain).toArray();
+            capGain *= 1 + buildings[4][1].true + (elements[15] === 1 ? buildings[4][2].true + buildings[4][3].true + buildings[4][4].true + buildings[4][5].true : 0);
+            inflationInfo.dustCap = Limit(5e45 * (600 / inflationInfo.massCap)).multiply(capGain).toArray();
 
             producing[3][1] = Limit(producing[3][1]).plus([1, 0]).toArray();
             if (Limit(producing[3][1]).moreOrEqual(inflationInfo.dustCap)) { producing[3][1] = inflationInfo.dustCap; }
@@ -221,11 +241,11 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         const { stars } = player.collapse;
         const { starEffect } = global.collapseInfo;
 
-        researchesInfo[4].effect[1] = Limit(1 + (0.01 * Math.min(researches[4][1], 5)) + (researches[4][1] > 5 ? 0.005 * (researches[4][1] - 5) : 0)).power(buildings[4][1].true + buildings[4][2].true + buildings[4][3].true + buildings[4][4].true).toArray();
+        researchesInfo[4].effect[1] = Limit(1 + (0.01 * Math.min(researches[4][1], 5)) + (researches[4][1] > 5 ? 0.005 * (researches[4][1] - 5) : 0)).power(buildings[4][1].true + buildings[4][2].true + buildings[4][3].true + buildings[4][4].true + buildings[4][5].true).toArray();
         if (Limit(researchesInfo[4].effect[1]).moreThan([1, 10])) { researchesInfo[4].effect[1] = Limit(researchesInfo[4].effect[1]).minus([1, 10]).power(0.7).plus([1, 10]).toArray(); }
 
         const listForTotal = [researchesInfo[4].effect[1]] as Array<number | overlimit>;
-        strangeInfo.stageBoost[4] = strangeness[4][9] >= 1 ? (strangeQuarks + 1) ** 0.36 : null;
+        strangeInfo.stageBoost[4] = strangeness[4][9] >= 1 ? (strangeQuarks + 1) ** (vacuum ? 0.2 : 0.36) : null;
         researchesInfo[4].effect[0] = (1.1 + 0.2 * researches[4][2]) ** researches[4][0];
         let totalNumber = researchesInfo[4].effect[0] * dischargeBoost * starEffect[1]();
         if (elements[4] === 1) { totalNumber *= 1.1; }
@@ -237,7 +257,9 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         if (vacuum || player.milestones[1][1] >= 3) { totalNumber *= 4; }
         if (strangeInfo.stageBoost[4] !== null) { listForTotal.push(strangeInfo.stageBoost[4]); }
         listForTotal.push(totalNumber);
-        const totalMultiplier = Limit(player.collapse.mass ** (elements[21] === 1 ? 1.1 : 1)).multiply(...listForTotal).toArray();
+        const totalMultiplier = Limit(global.collapseInfo.massEffect()).multiply(...listForTotal).toArray();
+
+        producing[4][5] = Limit([1, 11]).multiply(buildings[4][5].current, totalMultiplier).toArray();
 
         producing[4][4] = Limit([2, 9]).multiply(buildings[4][4].current, totalMultiplier).toArray();
 
@@ -256,7 +278,7 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         producing[4][1] = Limit(buildings[4][1].current).multiply(...listForMult1).toArray();
     }
     if (activeAll.includes(5)) {
-        producing[5][3] = Limit([1, 1]).power(buildings[5][3].true).toArray();
+        producing[5][3] = Limit(vacuum ? [upgrades[5][2] === 1 ? 3 : 2, 0] : [1, 1]).power(buildings[5][3].true).toArray();
 
         const listForMult2 = [producing[5][3]] as Array<number | overlimit>;
         let prod2Number = 1.5;
@@ -302,7 +324,6 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         if (stageIndex === 5) { stageExtra = 4; }
     }
 
-    let keep = 1;
     let currency: number | overlimit;
     if (galaxy) {
         currency = player.collapse.mass;
@@ -311,12 +332,19 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
             Limit(player.buildings[1][5].current).divide([6.02214076, 23]).toArray() :
             Limit(player.buildings[1][0].current).multiply([1.78266192, -33]).toArray();
     } else {
-        currency = cloneArray(player.buildings[stageExtra][extra].current);
+        currency = cloneArray(player.buildings[stageExtra][extra].current); //Cloning is not necessary
     }
-    if (auto && building.true > 0 && !galaxy) { keep = 2; }
 
-    const cost = calculateBuildingsCost(index, stageIndex);
-    if (Limit(cost).multiply(keep).moreThan(currency)) {
+    let budget = currency;
+    if (auto) {
+        /*if ((stageIndex === 3 || (stageIndex === 1 && index === 1)) && player.strangeness[3][4] >= 2 && Limit(buildingsInfo.producing[3][1]).moreOrEqual(global.inflationInfo.dustCap)) {
+            budget = Limit(currency).divide(global.inflationInfo.massCap * 2).toArray();
+        } else*/ if (building.true > 0 && !galaxy) {
+            budget = Limit(currency).divide([2, 0]).toArray();
+        }
+    }
+
+    if (Limit(calculateBuildingsCost(index, stageIndex)).moreThan(budget)) {
         if (global.screenReader && !auto) { getId('SRMain').textContent = `Coudn't make '${buildingsInfo.name[stageIndex][index]}', because didn't had enough of '${galaxy ? 'Mass' : convert && stageIndex === 2 ? 'Moles' : buildingsInfo.name[stageExtra][extra]}'`; }
         return;
     }
@@ -329,15 +357,14 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         const firstCost = buildingsInfo.firstCost[stageIndex][index];
         const alreadyBought = building.true;
         const totalBefore = Limit(increase).power(alreadyBought).minus([1, 0]).divide(increase - 1).multiply(firstCost).toArray();
-        const maxAfford = Math.floor(Limit(currency).divide(keep).plus(totalBefore).multiply(increase - 1).divide(firstCost).plus([1, 0]).log(10).divide(Math.log10(increase)).toNumber()) - alreadyBought;
+        const maxAfford = Math.floor(Limit(budget).plus(totalBefore).multiply(increase - 1).divide(firstCost).plus([1, 0]).log(10).divide(Math.log10(increase)).toNumber()) - alreadyBought;
 
         if (maxAfford < howMany && howMany !== -1 && player.toggles.shop.strict) { return; }
         canAfford = howMany !== -1 ? Math.min(maxAfford, howMany) : maxAfford;
         total = Limit(increase).power(canAfford + alreadyBought).minus([1, 0]).divide(increase - 1).multiply(firstCost).minus(totalBefore).toArray();
-        if (Limit(total).moreThan(currency)) { return console.warn('Prevented NaN from Structure creation'); } //Floats are a pain
     } else {
         canAfford = 1;
-        total = cost;
+        total = calculateBuildingsCost(index, stageIndex);
     }
 
     currency = Limit(currency).minus(total).toArray();
@@ -363,11 +390,10 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
 
     //Milestones that are based on bought amount
     if (player.inflation.vacuum || stageIndex === 1) {
-        if (player.strangeness[1][9] < 1) {
+        if (!galaxy || player.strangeness[1][9] < 1) {
             global.dischargeInfo.updateEnergy();
-            player.discharge.energy += global.dischargeInfo.energyType[stageIndex][index] * canAfford;
+            assignEnergy(global.dischargeInfo.energyType[stageIndex][index] * canAfford);
         }
-        assignEnergy();
         milestoneCheck(1, 1);
     }
     if (stageIndex === 2) {
@@ -386,24 +412,24 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
     if (!auto && global.screenReader) { getId('SRMain').textContent = `Maded ${format(canAfford)} '${buildingsInfo.name[stageIndex][index]}'`; }
 };
 
-export const assignEnergy = () => {
+export const assignEnergy = (add = 0) => {
     const { discharge } = player;
 
-    if (player.strangeness[1][9] >= 1) {
+    if (add === 0 && player.strangeness[1][9] >= 1) {
         const { dischargeInfo } = global;
         dischargeInfo.updateEnergy();
 
-        let total = 0;
+        add = 0;
         for (let s = 1; s < dischargeInfo.energyType.length; s++) {
             const energyType = dischargeInfo.energyType[s];
             const buildings = player.buildings[s];
 
             for (let i = 1; i < energyType.length; i++) {
-                total += energyType[i] * buildings[i as 1].true;
+                add += energyType[i] * buildings[i as 1].true;
             }
         }
-        discharge.energy = total;
-    }
+        discharge.energy = add;
+    } else { discharge.energy += add; }
     if (!discharge.unlock) { discharge.unlock = discharge.energy >= (player.inflation.vacuum ? 32 : 9); }
     if (discharge.energyMax < discharge.energy) { discharge.energyMax = discharge.energy; }
 };
@@ -426,8 +452,11 @@ export const calculateBuildingsCost = (index: number, stageIndex: number): overl
             }
         }
     } else if (stageIndex === 3) {
-        global.strangeInfo.stageBoost[3] = player.strangeness[3][7] < 1 ? null : player.strange[0].current < 800 ? (player.strange[0].current + 1) ** 1.66 : (player.strange[0].current + 1) ** 0.66 * 800;
-        buildingsInfo.firstCost[3][index] = buildingsInfo.startCost[3][index] / (global.strangeInfo.stageBoost[3] ?? 1);
+        buildingsInfo.firstCost[3][index] = buildingsInfo.startCost[3][index];
+        if (!player.inflation.vacuum) {
+            global.strangeInfo.stageBoost[3] = player.strangeness[3][7] < 1 ? null : player.strange[0].current < 800 ? (player.strange[0].current + 1) ** 1.66 : (player.strange[0].current + 1) ** 0.66 * 800;
+            if (global.strangeInfo.stageBoost[3] !== null) { buildingsInfo.firstCost[3][index] /= global.strangeInfo.stageBoost[3]; }
+        }
         if (index === 4) {
             buildingsInfo.increase[3][4] = player.upgrades[3][11] === 1 ? 5 : 10;
         }
@@ -453,6 +482,7 @@ export const calculateGainedBuildings = (get: number, stageIndex: number, time: 
         }
     }
     if (Limit(add).equal([0, 0])) { return; }
+    if (!Limit(add).isFinite()) { return console.warn('NaN or Infinity detected'); }
 
     let stageGet = stageIndex;
     if (stageIndex === 4) {
@@ -582,44 +612,69 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
         (currency as number) -= pointer.cost[upgrade];
 
         /* Special cases */
-        if ( //Auto only to save space
-            ((stageIndex === 1 || stageIndex === 4) && upgrade === 6) ||
-            ((stageIndex === 2 || stageIndex === 3) && upgrade === 5) ||
-            (stageIndex === 5 && (upgrade === 7 || (upgrade === 6 && player.strangeness[5][6] === 2)))
-        ) {
-            player.ASR[stageIndex] = Math.max(player.strangeness[stageIndex][upgrade], player.ASR[stageIndex]);
-            if (stageIndex === 5 && player.strangeness[5][6] >= 2) { player.ASR[5]++; }
-            calculateMaxLevel(0, stageIndex, 'ASR');
-        } else if (stageIndex === 1) {
-            if (upgrade === 7) {
+        if (stageIndex === 1) {
+            if (upgrade === 6) {
+                player.ASR[1] = Math.max(player.strangeness[1][6], player.ASR[1]);
+                calculateMaxLevel(0, 1, 'ASR');
+            } else if (upgrade === 7) {
                 player.researchesAuto[0] = Math.max(1, player.researchesAuto[0]);
                 calculateMaxLevel(0, 1, 'researchesAuto');
             } else if (upgrade === 9) {
+                assignEnergy();
                 //calculateMaxLevel(3, 1, 'strangeness');
                 //calculateMaxLevel(4, 2, 'strangeness');
+                //calculateMaxLevel(4, 3, 'strangeness');
                 //calculateMaxLevel(5, 4, 'strangeness');
             }
         } else if (stageIndex === 2) {
             if (upgrade === 2) {
                 if (player.strangeness[2][2] < 3) { calculateMaxLevel(4, 2, 'researches'); }
                 if (player.strangeness[2][2] === 2) { calculateMaxLevel(5, 2, 'researches'); }
+            } else if (upgrade === 5) {
+                player.ASR[2] = Math.max(player.strangeness[2][5], player.ASR[2]);
+                calculateMaxLevel(0, 2, 'ASR');
             } else if (upgrade === 6) {
                 player.researchesAuto[1] = Math.max(1, player.researchesAuto[1]);
                 calculateMaxLevel(1, 2, 'researchesAuto');
+            } else if (upgrade === 9) {
+                calculateMaxLevel(0, 2, 'ASR');
+                calculateMaxLevel(5, 2, 'strangeness');
             }
         } else if (stageIndex === 3) {
             if (upgrade === 2) {
                 calculateMaxLevel(0, 3, 'researchesExtra');
                 calculateMaxLevel(1, 3, 'researchesExtra');
+            } else if (upgrade === 5) {
+                player.ASR[3] = Math.max(player.strangeness[3][5], player.ASR[3]);
+                calculateMaxLevel(0, 3, 'ASR');
             } else if (upgrade === 6) {
                 calculateMaxLevel(2, 3, 'researchesAuto');
+            } else if (upgrade === 8) {
+                calculateMaxLevel(0, 3, 'ASR');
+                calculateMaxLevel(5, 3, 'strangeness');
+            } else if (upgrade === 9) {
+                assignNewMassCap(player.accretion.input);
+            }
+        } else if (stageIndex === 4) {
+            if (upgrade === 6) {
+                player.ASR[4] = Math.max(player.strangeness[4][6], player.ASR[4]);
+                calculateMaxLevel(0, 4, 'ASR');
+            } else if (upgrade === 10) {
+                calculateMaxLevel(0, 4, 'ASR');
+                calculateMaxLevel(6, 4, 'strangeness');
             }
         } else if (stageIndex === 5) {
             if (upgrade === 0) {
                 if (!player.inflation.vacuum && !global.stageInfo.activeAll.includes(player.strangeness[5][0])) {
-                    reset('stage', [player.strangeness[5][0]]);
+                    resetStage([player.strangeness[5][0]]);
                     stageCheck('soft');
                 }
+            } else if (upgrade === 5) {
+                if (player.inflation.vacuum) { stageCheck('soft'); }
+            } else if (upgrade === 6 || upgrade === 7) {
+                player.ASR[5] = player.strangeness[5][7];
+                if (player.strangeness[5][6] >= 2) { player.ASR[5]++; }
+                calculateMaxLevel(0, 5, 'ASR');
             }
         }
         if (global.screenReader) { getId('SRMain').textContent = `You have increased strangeness of ${pointer.description[upgrade]} for ${global.stageInfo.word[stageIndex]} stage, level is now ${player.strangeness[stageIndex][upgrade]}${player.strangeness[stageIndex][upgrade] >= pointer.max[upgrade] ? 'maxed' : ''}`; }
@@ -686,6 +741,12 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
     } else if (type === 'ASR') {
         if (stageIndex === 1) {
             global.ASRInfo.max[1] = player.inflation.vacuum ? 5 : 3;
+        } else if (stageIndex === 2) {
+            global.ASRInfo.max[2] = player.strangeness[2][9] >= 1 ? 6 : 5;
+        } else if (stageIndex === 3) {
+            global.ASRInfo.max[3] = player.strangeness[3][8] >= 1 ? 5 : 4;
+        } else if (stageIndex === 4) {
+            global.ASRInfo.max[4] = player.strangeness[4][10] >= 1 ? 5 : 4;
         } else if (stageIndex === 5) {
             global.ASRInfo.max[5] = player.strangeness[5][7];
             if (player.strangeness[5][6] >= 2) { global.ASRInfo.max[5]++; }
@@ -693,10 +754,10 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
     } else if (type === 'researches') {
         if (stageIndex === 2) {
             if (research === 4) {
-                global.researchesInfo[2].max[4] = 2 + Math.min(player.strangeness[2][2], 2);
+                global.researchesInfo[2].max[4] = (player.inflation.vacuum ? 1 : 2) + Math.min(player.strangeness[2][2], 2);
             } else if (research === 5) {
-                global.researchesInfo[2].max[5] = 2;
-                if (player.strangeness[2][2] >= 2) { global.researchesInfo[2].max[5] += 1; }
+                global.researchesInfo[2].max[5] = player.inflation.vacuum ? 1 : 2;
+                if (player.strangeness[2][2] >= 2) { global.researchesInfo[2].max[5]++; }
             }
         } else if (stageIndex === 4) {
             if (research === 0) {
@@ -718,10 +779,14 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
             if (research === 0) {
                 global.researchesExtraInfo[3].max[0] = 12;
                 if (player.accretion.rank >= 3) { global.researchesExtraInfo[3].max[0] += 17; }
-                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[0] += 10 * Math.min(player.strangeness[3][2], 2); }
+                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[0] += player.inflation.vacuum ? 11 : 10 * Math.min(player.strangeness[3][2], 2); }
             } else if (research === 1) {
                 global.researchesExtraInfo[3].max[1] = 5;
-                if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[1] += 1 * Math.min(player.strangeness[3][2], 2); }
+                if (player.inflation.vacuum) {
+                    if (player.strangeness[3][2] >= 2) { global.researchesExtraInfo[3].max[1] += 1; }
+                } else {
+                    if (player.strangeness[3][2] >= 1) { global.researchesExtraInfo[3].max[1] += 1 * Math.min(player.strangeness[3][2], 2); }
+                }
             } else if (research === 3) {
                 global.researchesExtraInfo[3].max[3] = player.inflation.vacuum ? 2 : 20;
             } else if (research === 4) {
@@ -731,18 +796,36 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
         }
     } else if (type === 'strangeness') {
         if (stageIndex === 1) {
-            if (research === 6) {
+            if (research === 3) {
+                //global.strangenessInfo[1].max[3] = player.strangeness[1][9] >= 1 ? 2 : 1;
+            } else if (research === 5) {
+                global.strangenessInfo[1].max[5] = player.inflation.vacuum ? 5 : 10;
+            } else if (research === 6) {
                 global.strangenessInfo[1].max[6] = player.inflation.vacuum ? 5 : 3;
             } else if (research === 7) {
                 global.strangenessInfo[1].max[7] = player.inflation.vacuum ? 1 : 2;
             }
         } else if (stageIndex === 2) {
-            if (research === 6) {
+            if (research === 0) {
+                global.strangenessInfo[2].max[0] = player.inflation.vacuum ? 6 : 9;
+            } else if (research === 4) {
+                //global.strangenessInfo[2].max[4] = player.strangeness[1][9] >= 1 ? 2 : 1;
+            } else if (research === 5) {
+                global.strangenessInfo[2].max[5] = player.strangeness[2][9] >= 1 ? 6 : 5;
+            } else if (research === 6) {
                 global.strangenessInfo[2].max[6] = player.inflation.vacuum ? 7 : 4;
             }
+        } else if (stageIndex === 3) {
+            if (research === 4) {
+                //global.strangenessInfo[3].max[4] = player.strangeness[1][9] >= 1 ? 2 : 1;
+            } else if (research === 5) {
+                global.strangenessInfo[3].max[5] = player.strangeness[3][8] >= 1 ? 5 : 4;
+            }
         } else if (stageIndex === 4) {
-            if (research === 8) {
-                global.strangenessInfo[4].max[8] = player.inflation.vacuum ? 0 : 1;
+            if (research === 5) {
+                //global.strangenessInfo[4].max[5] = player.strangeness[1][9] >= 1 ? 3 : 1;
+            } else if (research === 6) {
+                global.strangenessInfo[4].max[6] = player.strangeness[4][10] >= 1 ? 5 : 4;
             }
         } else if (stageIndex === 5) {
             if (research === 0) {
@@ -765,7 +848,7 @@ export const autoUpgradesSet = (which: 'all' | number) => {
     const { autoU: auto } = global.automatization;
 
     if (which === 'all') {
-        for (const s of global.stageInfo.activeAll) {
+        for (const s of player.inflation.vacuum ? [1, 2, 3, 4, 5] : global.stageInfo.activeAll) {
             auto[s] = [];
             for (let i = 0; i < global.upgradesInfo[s].maxActive; i++) {
                 if (player.upgrades[s][i] < 1) {
@@ -817,7 +900,7 @@ export const autoResearchesSet = (type: 'researches' | 'researchesExtra', which:
     const { [type === 'researches' ? 'autoR' : 'autoE']: auto } = global.automatization;
 
     if (which === 'all') {
-        for (const s of global.stageInfo.activeAll) {
+        for (const s of player.inflation.vacuum ? [1, 2, 3, 4, 5] : global.stageInfo.activeAll) {
             const pointer = global[type + 'Info' as 'researchesInfo'][s];
 
             auto[s] = [];
@@ -935,7 +1018,15 @@ export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto'
                     toggleSwap(i, 'buildings');
                 }
             } else {
-                toggles.buildings[active][0] = toggles.buildings[active].includes(true, 1);
+                let anyOn = false;
+                for (let i = 1; i < global.buildingsInfo.maxActive[active]; i++) {
+                    if (Limit(player.buildings[active][i].highest).lessOrEqual([0, 0])) { continue; }
+                    if (toggles.buildings[active][i]) {
+                        anyOn = true;
+                        break;
+                    }
+                }
+                toggles.buildings[active][0] = anyOn;
                 toggleSwap(0, 'buildings');
             }
         } else {
@@ -1089,9 +1180,10 @@ const stageReset = (stageIndex: number) => {
         const gain = global.strangeInfo.gain(stageIndex);
         player.strange[0].current += gain;
         player.strange[0].total += gain;
+        if (gain > stage.best) { stage.best = gain; }
     }
 
-    reset('stage', resetThese);
+    resetStage(resetThese);
     if (resetThese.includes(stage.active)) { stageCheck(increased ? '' as 'soft' : 'soft'); }
 };
 
@@ -1101,7 +1193,7 @@ const stageNoReset = () => {
     stage.current++;
     if (!player.inflation.vacuum) {
         stage.true = Math.max(stage.current, stage.true);
-        if (!global.stageInfo.activeAll.includes(stage.current)) { reset('stage', [stage.current]); }
+        if (!global.stageInfo.activeAll.includes(stage.current)) { resetStage([stage.current]); }
     }
     stageCheck('soft');
 };
@@ -1119,7 +1211,11 @@ export const switchStage = (stage: number) => {
     if (!player.events[1] && player.stage.active === 5) { playEvent(4, 1); }
 };
 
-export const assignDischargeInformation = () => { global.dischargeInfo.next = Math.round((10 - player.researches[1][3] - player.strangeness[1][1]) ** player.discharge.current); };
+export const assignDischargeInformation = () => {
+    let next = Math.round((10 - player.researches[1][3] - player.strangeness[1][1]) ** player.discharge.current);
+    if (player.inflation.vacuum && global.strangeInfo.stageBoost[1] !== null) { next = Math.ceil(next / global.strangeInfo.stageBoost[1]); }
+    global.dischargeInfo.next = next;
+};
 
 export const dischargeResetCheck = (auto = false as false | 'interval' | 'upgrade'): boolean => {
     if (player.upgrades[1][5] < 1 || player.buildings[1][1].true <= 0) { return false; }
@@ -1160,17 +1256,10 @@ const dischargeReset = () => {
 export const assignVaporizationInformation = () => {
     let get = Limit(player.buildings[2][1][player.researchesExtra[2][0] >= 1 ? 'total' : 'current']).divide(global.vaporizationInfo.effect2U1()).toArray();
     if (Limit(get).moreThan([1, 0])) {
-        if (player.inflation.vacuum) {
-            get = Limit(get).power(0.4).toArray();
-        } else {
-            const cloudsGet = Limit(get).toNumber();
-            if (isFinite(cloudsGet)) {
-                const clouds = Limit(player.vaporization.clouds).toNumber();
-                const check = (cloudsGet ** 0.6) + clouds;
-                const calculate = check > 1e4 ? Math.max(1e4 - clouds, 1) : 1;
-                get = Limit(calculate + ((cloudsGet - calculate) ** (check > 1e4 ? 0.36 : 0.6))).toArray();
-            } else { get = Limit(get).power(0.36).toArray(); }
-        }
+        const base = player.inflation.vacuum ? 0.4 : 0.6;
+        const check = Limit(get).power(base).plus(player.vaporization.clouds).moreThan([1, 4]);
+        const calculate = check ? Limit([1, 4]).minus(player.vaporization.clouds).max([0, 0]).toArray() : [0, 0] as overlimit;
+        get = Limit(get).minus(calculate).power(check ? (player.inflation.vacuum ? 0.2 : 0.36) : base).plus(calculate).toArray();
     }
     global.vaporizationInfo.get = get;
 };
@@ -1252,6 +1341,15 @@ const rankReset = () => {
     updateRankInfo();
 };
 
+export const assignNewMassCap = (value: number) => {
+    const min = 600 / 2 ** player.strangeness[3][9];
+    if (!isFinite(value) || value > 600) {
+        value = 600;
+    } else if (value < min) { value = min; }
+
+    global.inflationInfo.massCap = value;
+};
+
 export const assignCollapseInformation = () => {
     const { starCheck } = global.collapseInfo;
     const { stars } = player.collapse;
@@ -1266,7 +1364,7 @@ export const assignCollapseInformation = () => {
         if (elements[10] === 1) { massGain *= 2; }
         if (elements[14] === 1) { massGain *= 1.4; }
         global.collapseInfo.newMass = (building[1].true + (elements[15] === 1 ? building[2].true + building[3].true + building[4].true : 0)) * massGain * global.collapseInfo.starEffect[2]();
-    } else { global.collapseInfo.newMass = Limit(global.buildingsInfo.producing[1][1]).multiply([6, 2]).min(player.buildings[1][0].current).multiply([8.96499278339628, -67]).toNumber(); } //1.78266192e-33 / 1.98847e33
+    } else { global.collapseInfo.newMass = Limit(global.buildingsInfo.producing[1][1]).multiply(global.inflationInfo.massCap).min(player.buildings[1][0].current).multiply([8.96499278339628, -67]).toNumber(); } //1.78266192e-33 / 1.98847e33
 
     starCheck[0] = Math.max(building[2].true + Math.floor(building[1].true * player.strangeness[4][3] / 4) - stars[0], 0);
     starCheck[1] = Math.max(building[3].true - stars[1], 0);
@@ -1277,19 +1375,18 @@ export const collapseResetCheck = (auto = false): boolean => {
     if (player.upgrades[4][0] < 1) { return false; }
     const { collapseInfo } = global;
     const { collapse } = player;
-    const nova = player.researchesExtra[4][0];
     assignCollapseInformation();
 
     if (auto) {
-        const canIncrease =
-            (nova >= 1 && collapse.stars[0] < (collapse.stars[0] + collapseInfo.starCheck[0]) / collapse.inputS) ||
-            (nova >= 2 && collapse.stars[1] < (collapse.stars[1] + collapseInfo.starCheck[1]) / collapse.inputS) ||
-            (nova >= 3 && collapse.stars[2] < (collapse.stars[2] + collapseInfo.starCheck[2]) / collapse.inputS);
-        if ((collapseInfo.newMass < collapse.mass * collapse.inputM && !canIncrease) || player.strangeness[4][5] < 1) { return false; }
+        const { starEffect } = global.collapseInfo;
+        const starBoost = (starEffect[0](true) / starEffect[0]()) * (starEffect[1](true) / starEffect[1]()) * (starEffect[2](true) / starEffect[2]()) >= collapse.inputS;
+        const massIncrease = (collapseInfo.newMass >= collapse.mass * collapse.inputM) && (!player.inflation.vacuum || Limit(player.buildings[1][0].current).multiply([8.96499278339628, -67]).moreOrEqual(collapseInfo.newMass));
+        if ((!massIncrease && !starBoost) || player.strangeness[4][5] < 1) { return false; }
         collapseReset();
         return true;
     }
 
+    const nova = player.researchesExtra[4][0];
     return (
         (nova >= 1 && collapseInfo.starCheck[0] > 0) ||
         (nova >= 2 && collapseInfo.starCheck[1] > 0) ||

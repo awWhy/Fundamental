@@ -302,7 +302,7 @@ export const switchTheme = () => {
             body.setProperty('--main-text-color', 'var(--blue-text-color)');
             body.setProperty('--gray-text-color', '#9b9b9b');
             body.setProperty('--darkorchid-text-color', '#c71bff');
-            body.setProperty('--darkviolet-text-color', '#a973ff');
+            body.setProperty('--darkviolet-text-color', '#8b6bff');
             body.setProperty('--green-text-color', '#82cb3b');
             body.setProperty('--red-text-color', '#f70000');
             if (player.stage.active === 2) {
@@ -364,10 +364,10 @@ export const switchTheme = () => {
             body.setProperty('--button-text-color', '#d9d900');
             body.setProperty('--main-text-color', 'var(--orange-text-color)');
             body.setProperty('--white-text-color', '#e5e500');
-            body.setProperty('--blue-text-color', '#42a2ff');
+            body.setProperty('--blue-text-color', '#2e96ff');
             body.setProperty('--gray-text-color', '#8b8b8b');
             body.setProperty('--darkorchid-text-color', '#c71bff');
-            body.setProperty('--darkviolet-text-color', '#9859ff');
+            body.setProperty('--darkviolet-text-color', '#9457ff');
             body.setProperty('--red-text-color', 'red');
             body.setProperty('--green-text-color', '#00e600');
             body.setProperty('--yellow-text-color', 'var(--green-text-color)');
@@ -728,9 +728,27 @@ export const assignWithNoMove = (html: HTMLElement, text: string) => {
     html.style.width = `${text.length * 0.63}em`;
 };
 
+export const replayEvent = async() => {
+    if (getId('blocker').style.display !== 'none') { return; }
+    const event = Number(await Prompt('Which event you want to see again?\n(Write a number of that event)'));
+    if (!isFinite(event) || event <= 0) { return; }
+
+    let allowed = false;
+    if ([1, 2, 3, 4].includes(event)) {
+        allowed = player.stage.true > event || (player.events[0] && player.stage.true === event);
+    } else if (event === 5) {
+        allowed = player.events[1];
+    } else if (event === 6) {
+        allowed = player.events[2];
+    }
+    if (!allowed) { return Alert(`Event under number ${event} can't be viewed, because it isn't unlocked`); }
+
+    playEvent(event - 1, -1);
+};
+
 export const playEvent = (event: number, index: number) => {
     if (getId('blocker').style.display !== 'none') { return; }
-    player.events[index] = true;
+    if (index !== -1) { player.events[index] = true; }
 
     switch (event) {
         case 0: //[0] Discharge explanation
@@ -741,7 +759,7 @@ export const playEvent = (event: number, index: number) => {
             break;
         case 2: //[0] Accretion new Rank unlocked
             Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
-            if (player.accretion.rank <= 4) {
+            if (index !== -1 && player.accretion.rank <= 4) {
                 global.accretionInfo.rankCost[4] = 5e29;
                 const button = getId('reset1Button');
                 if (button.textContent === 'Max Rank achieved') { button.textContent = 'Next Rank is 5e29 Mass'; }
