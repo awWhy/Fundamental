@@ -1351,8 +1351,6 @@ export const assignNewMassCap = (value: number) => {
 };
 
 export const assignCollapseInformation = () => {
-    const { starCheck } = global.collapseInfo;
-    const { stars } = player.collapse;
     const building = player.buildings[4];
 
     if (!player.inflation.vacuum) {
@@ -1366,9 +1364,12 @@ export const assignCollapseInformation = () => {
         global.collapseInfo.newMass = (building[1].true + (elements[15] === 1 ? building[2].true + building[3].true + building[4].true : 0)) * massGain * global.collapseInfo.starEffect[2]();
     } else { global.collapseInfo.newMass = Limit(global.buildingsInfo.producing[1][1]).multiply(global.inflationInfo.massCap).min(player.buildings[1][0].current).multiply([8.96499278339628, -67]).toNumber(); } //1.78266192e-33 / 1.98847e33
 
-    starCheck[0] = Math.max(building[2].true + Math.floor(building[1].true * player.strangeness[4][3] / 4) - stars[0], 0);
-    starCheck[1] = Math.max(building[3].true - stars[1], 0);
-    starCheck[2] = Math.max(building[4].true - stars[2], 0);
+    const { starCheck } = global.collapseInfo;
+    const { stars } = player.collapse;
+    const nova = player.researchesExtra[4][0];
+    starCheck[0] = nova >= 1 ? Math.max(building[2].true + Math.floor(building[1].true * player.strangeness[4][3] / 4) - stars[0], 0) : 0;
+    starCheck[1] = nova >= 2 ? Math.max(building[3].true - stars[1], 0) : 0;
+    starCheck[2] = nova >= 3 ? Math.max(building[4].true - stars[2], 0) : 0;
 };
 
 export const collapseResetCheck = (auto = false): boolean => {
@@ -1386,13 +1387,7 @@ export const collapseResetCheck = (auto = false): boolean => {
         return true;
     }
 
-    const nova = player.researchesExtra[4][0];
-    return (
-        (nova >= 1 && collapseInfo.starCheck[0] > 0) ||
-        (nova >= 2 && collapseInfo.starCheck[1] > 0) ||
-        (nova >= 3 && collapseInfo.starCheck[2] > 0) ||
-        collapseInfo.newMass > collapse.mass
-    );
+    return collapseInfo.newMass > collapse.mass || collapseInfo.starCheck[0] > 0 || collapseInfo.starCheck[1] > 0 || collapseInfo.starCheck[2] > 0;
 };
 
 export const collapseAsyncReset = async() => {
@@ -1407,14 +1402,13 @@ export const collapseAsyncReset = async() => {
         let message = player.stage.active === 4 ?
             `This will reset all non automization researches and upgrades. ${collapseInfo.newMass < collapse.mass ? "Your total Mass won't change" : `But your total Mass will be now ${format(collapseInfo.newMass)}`}` :
             `You are trying to Collapse Stars while inside '${global.stageInfo.word[player.stage.active]}'.\nSolar mass will increase by +${format(collapseInfo.newMass - collapse.mass)}`;
+        starMessage:
         if (nova >= 1) {
             message += `, also you will get ${format(collapseInfo.starCheck[0])} Red giants`;
-            if (nova >= 2) {
-                message += `, ${format(collapseInfo.starCheck[1])} Neutron stars`;
-                if (nova >= 3) {
-                    message += ` and ${format(collapseInfo.starCheck[2])} Black holes`;
-                }
-            }
+            if (nova < 2) { break starMessage; }
+            message += `, ${format(collapseInfo.starCheck[1])} Neutron stars`;
+            if (nova < 3) { break starMessage; }
+            message += ` and ${format(collapseInfo.starCheck[2])} Black holes`;
         }
         if (player.stage.active !== 4) { message += '.\nContinue?'; }
         ok = await Confirm(message);
@@ -1422,11 +1416,16 @@ export const collapseAsyncReset = async() => {
     if (ok) {
         assignCollapseInformation(); //Just in case
         collapseReset();
-        if (global.screenReader) { //Not optimal, but I don't think anyone is playing this with SR
+        if (global.screenReader) {
             let message = `Your Mass has increased to ${format(collapse.mass)}`;
-            if (nova >= 1) { message += `, Red giants to ${format(collapse.stars[0])}`; }
-            if (nova >= 2) { message += `, Neutron stars - ${format(collapse.stars[1])}`; }
-            if (nova >= 3) { message += ` and Black holes - ${format(collapse.stars[2])}`; }
+            starMessage:
+            if (nova >= 1) {
+                message += `, Red giants to ${format(collapse.stars[0])}`;
+                if (nova < 2) { break starMessage; }
+                message += `, Neutron stars - ${format(collapse.stars[1])}`;
+                if (nova < 3) { break starMessage; }
+                message += ` and Black holes - ${format(collapse.stars[2])}`;
+            }
             getId('SRMain').textContent = message;
         }
     }
@@ -1440,9 +1439,9 @@ const collapseReset = () => {
         (player.strangeness[5][5] < 1 ? [4, 5] : [4]);
 
     if (collapseInfo.newMass > collapse.mass) { collapse.mass = collapseInfo.newMass; }
-    for (let i = 0; i < player.researchesExtra[4][0]; i++) {
-        collapse.stars[i] += collapseInfo.starCheck[i];
-    }
+    collapse.stars[0] += collapseInfo.starCheck[0];
+    collapse.stars[1] += collapseInfo.starCheck[1];
+    collapse.stars[2] += collapseInfo.starCheck[2];
     if (collapse.massMax < collapse.mass) { collapse.massMax = collapse.mass; }
     milestoneCheck(0, 4);
     milestoneCheck(1, 4);

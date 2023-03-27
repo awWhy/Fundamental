@@ -242,7 +242,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
                 assignCollapseInformation();
 
                 getId('reset1Button').textContent = `Collapse to ${format(collapseInfo.newMass, { padding: true })} Mass`;
-                for (let i = 1; i <= player.researchesExtra[4][0]; i++) {
+                for (let i = 1; i <= 3; i++) {
                     getId(`starSpecial${i}Cur`).textContent = format(collapse.stars[i - 1]);
                     getId(`starSpecial${i}Get`).textContent = format(collapseInfo.starCheck[i - 1]);
                 }

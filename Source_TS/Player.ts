@@ -913,7 +913,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             () => 'Placeholder.',
-            () => 'Most basic Element, increases Brown dwarf production by 2.\nAlso Main-sequence mass effect is now known - boost to all Stars.',
+            () => 'Most basic Element, increases Brown dwarf production by 2.\nAlso Solar mass effect is now known - boost to all Stars.',
             () => `Fusion reaction by product, makes everything Interstellar scale ${format(0.1)} less.`,
             () => `First metal, Mass ${player.inflation.vacuum ? 'hardcap for Cosmic dust' : ''} per Brown dwarf lightly ${player.inflation.vacuum ? 'delayed' : 'increased'}.`,
             () => `Brittle earth metal, so is brittle increase to production. (${format(1.1)}x to all Stars)`,
@@ -930,7 +930,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             () => `One of the Fundamentals of Life and to make all of Stars ${player.inflation.vacuum ? 'delay Mass hardcap (Cosmic dust)' : 'boost Mass'}.`,
             () => "From hot area, to increase max level of 'Star system' by 1.",
             () => "Extremely reactive to extend max level of 'Planetary system', by another 27 levels.",
-            () => `Less noble boost, but Black holes effect scales a little better.\nBlack holes effect is now known - ${player.inflation.vacuum ? 'delay for Preon Mass hardcap' : 'boost to Main-sequence mass gain'}.`,
+            () => `Less noble boost, but Black holes effect scales a little better.\nBlack holes effect is now known - ${player.inflation.vacuum ? 'delay for Preon Mass hardcap' : 'boost to Solar mass gain'}.`,
             () => "Don't forget about it and get a 3x boost to all Stars.",
             () => "Get stronger with 1 extra level of 'Star system'.",
             () => `A new color and a rare bonus of ^${format(1.1)} to Mass effect.`,
@@ -1045,7 +1045,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Unlock automatization for Upgrades / Researches.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
                 () => `Unspend Strange quarks will boost this Stage. (${player.inflation.vacuum ? 'Effective Rank' : 'Cheaper Accretion)\n(Scales slower past 800 Strange quarks'})`,
                 () => "Unlock a new Structure. (Requires level 4 of 'Keep auto Structures')",
-                () => 'Allows to shift Cosmic dust and Main-sequence mass hardcaps (in Rank settings). Extra levels allow for 2 times bigger shift.'
+                () => 'Allows to shift Cosmic dust and Solar mass hardcaps (in Rank settings). Extra levels allow for 2 times bigger shift.'
             ],
             cost: [],
             startCost: [1, 2, 6, 18, 30, 3, 10, 20, 24, 36],
@@ -1072,7 +1072,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Unlock a new Upgrade.\nFirst one is extra good.',
                 () => '25% of Brown dwarfs will turn into Red giants now.',
                 () => `Elements in Research tab will be ${player.inflation.vacuum ? 'auto created' : 'preserved through Collapse reset'}.`,
-                () => `Stars will Collapse automatically.${player.strangeness[1][9] >= 1 ? '\nSecond level - Main sequence mass slowly gained without Reset.\nThird level - Stars from Collapse slowly gained without Reset.' : ''}`,
+                () => `Stars will Collapse automatically.${player.strangeness[1][9] >= 1 ? '\nSecond level - Solar mass is slowly gained without Reset.\nThird level - Stars from Collapse slowly gained without Reset.' : ''}`,
                 () => `Start with auto for ${global.buildingsInfo.name[4][Math.min(player.strangeness[4][6] + 1, global.ASRInfo.max[4])]}.`,
                 () => `Creates +${player.inflation.vacuum ? 2 : 1} Strange quarks per day, can claim only full one's only with export.`,
                 () => !player.inflation.vacuum ? 'Unclaimed Strange quarks max storage is now 1 day longer.' :
@@ -1199,7 +1199,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Biggest of all.'
             ],
             needText: [
-                ['Collapse to at least ', ' Main-sequence mass.'],
+                ['Collapse to at least ', ' Solar mass.'],
                 ['Collapse to ', ' Black holes or more.']
             ],
             need: [
