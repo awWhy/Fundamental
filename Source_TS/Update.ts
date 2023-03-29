@@ -82,14 +82,13 @@ export const timeUpdate = (timeWarp = 0) => { //Time based information
         global.timeSpecial.lastSave += passedSeconds;
         player.stage.export = Math.min(player.stage.export + passedSeconds, maxExportTime());
         if (passedSeconds > 60) {
-            const extraTime = passedSeconds - 60;
             passedSeconds = 60;
-            time.offline += extraTime;
+            time.offline += passedSeconds - 60;
             time.offline = Math.min(time.offline, maxOfflineTime());
         } else if (time.offline !== 0 && (toggles.normal[0] || player.researchesAuto[0] < 3)) {
             if (time.offline > 0) {
                 const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
-                time.offline -= Math.min(extraTime * (6 - (inflation.vacuum ? 1 * player.strangeness[2][7] : 1)), time.offline);
+                time.offline -= Math.min(extraTime * (7 - (inflation.vacuum ? 1 * player.strangeness[2][7] : 0)), time.offline);
                 passedSeconds += extraTime;
             } else { time.offline += passedSeconds; }
         }
@@ -131,7 +130,7 @@ export const timeUpdate = (timeWarp = 0) => { //Time based information
     if (timeWarp > 0) { timeUpdate(timeWarp); }
 };
 
-export const numbersUpdate = () => { //This is for relevant visual info (can be done async)
+export const numbersUpdate = () => { //This is for relevant visual info
     const { tab, subtab } = global;
     const active = player.stage.active;
     const buildings = player.buildings[active];
@@ -251,7 +250,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
             if (player.time.offline > 0 && (player.toggles.normal[0] || player.researchesAuto[0] < 3)) {
                 const time = Math.max(player.time.offline / 3600, 1);
                 getId('offlineBoostEffect').textContent = `+${format(time * 1, { digits: 0 })} seconds`;
-                getId('offlineBoostWaste').textContent = `${format(time * (6 - (player.inflation.vacuum ? 1 * player.strangeness[2][7] : 1)), { digits: 0 })} seconds`;
+                getId('offlineBoostWaste').textContent = `${format(time * (7 - (player.inflation.vacuum ? 1 * player.strangeness[2][7] : 0)), { digits: 0 })} seconds`;
             }
             if (global.lastUpgrade[0]) { getUpgradeDescription(global.lastUpgrade[1], 'auto', 'upgrades'); }
         }
@@ -273,6 +272,8 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
         if (subtab.settingsCurrent === 'Settings') {
             assignWithNoMove(getId('exportGain'), format(player.stage.export * exportMultiplier() / 86400, { padding: true }));
             if (global.timeSpecial.lastSave >= 1) { getId('isSaved').textContent = `${format(global.timeSpecial.lastSave, { type: 'time' })} ago`; }
+        } else if (subtab.settingsCurrent === 'History') {
+            getId('stageTime').textContent = format(player.stage.time, { type: 'time' });
         } else if (subtab.settingsCurrent === 'Stats') {
             const { strange } = player;
 
@@ -348,7 +349,7 @@ export const numbersUpdate = () => { //This is for relevant visual info (can be 
     }
 };
 
-export const visualUpdate = () => { //This is what can appear/disappear when inside Stage (can be done async)
+export const visualUpdate = () => { //This is what can appear/disappear when inside Stage
     const { stage } = player;
     const { tab, subtab } = global;
     const activeAll = global.stageInfo.activeAll;
@@ -426,7 +427,7 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('building2').style.display = upgrades[2] === 1 ? '' : 'none';
                 getId('building3').style.display = upgrades[4] === 1 ? '' : 'none';
                 getId('building4').style.display = upgrades[6] === 1 ? '' : 'none';
-                if (player.inflation.vacuum) { getId('building5').style.display = upgrades[6] === 1 && player.strangeness[3][8] >= 1 ? '' : 'none'; }
+                if (player.inflation.vacuum) { getId('building5').style.display = upgrades[6] === 1 && player.strangeness[3][8] >= 1 && player.accretion.rank >= 5 ? '' : 'none'; }
                 getId('upgrade4').style.display = Limit(buildings[2].trueTotal).moreOrEqual([1, 0]) ? '' : 'none';
                 if (upgrades[4] === 1) { getId('upgrade6').style.display = ''; }
                 getId('upgrade9').style.display = player.accretion.rank >= 4 && player.strangeness[3][2] >= 3 ? '' : 'none';
@@ -551,8 +552,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('stageToggleReset').style.display = 'none';
                 getId('stageSwitchHotkey').style.display = 'none';
             }
+            getId('allStructuresHotkey').style.display = researchesAuto[0] >= 2 ? '' : 'none';
             getId('toggle0').style.display = researchesAuto[0] >= 3 ? '' : 'none';
             getId('offlineStorage').textContent = researchesAuto[0] >= 3 ? 'Auto consume offline storage' : 'Offline storage';
+            getId('offlineHotkey').style.display = researchesAuto[0] >= 3 ? '' : 'none';
             getId('autoTogglesUpgrades').style.display = researchesAuto[2] >= 1 ? '' : 'none';
             getId('autoToggle6').style.display = researchesAuto[2] >= 2 ? '' : 'none';
             getId('autoToggle7').style.display = researchesAuto[2] >= 3 ? '' : 'none';
@@ -575,6 +578,12 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('toggleAuto4').style.display = strangeness[4][5] >= 1 ? '' : 'none';
                 getId('toggleAuto4Mark').style.display = strangeness[4][5] >= 1 ? '' : 'none';
             }
+        } else if (subtab.settingsCurrent === 'History') {
+            const stageBest = player.history.stage.best;
+            getId('stageBestReset1').textContent = `${format(stageBest[0])} Strange quarks`;
+            getId('stageBestReset2').textContent = format(stageBest[1], { type: 'time' });
+            getId('stageBestReset3').textContent = `${format(stageBest[0] / stageBest[1], { padding: true })} per second`;
+            updateHistory(/*'stage'*/);
         } else if (subtab.settingsCurrent === 'Stats') {
             const buildings = player.buildings[active];
 
@@ -660,7 +669,7 @@ export const getUpgradeDescription = (index: number, stageIndex: 'auto' | number
         const { elementsInfo } = global;
         global.lastElement = [elementsInfo.effect[index] !== null, index];
 
-        getId('elementText').textContent = elementsInfo.description[index] + (player.collapse.disabled && player.collapse.show.includes(index) ? ' (Disabled)' : '');
+        getId('elementText').textContent = elementsInfo.description[index];
         getId('elementEffect').textContent = !player.collapse.show.includes(index) ? 'Effect is not yet known.' : elementsInfo.effectText[index]();
         getId('elementCost').textContent = player.elements[index] >= 1 ? 'Obtained.' : `${format(elementsInfo.startCost[index])} ${global.stageInfo.priceName}.`;
     } else if (type === 'strangeness' || type === 'milestones') {
@@ -767,8 +776,23 @@ export const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'u
     }
 };
 
+export const updateHistory = (/*type: 'stage'*/) => {
+    const listID = getId('stageResetsList') as HTMLUListElement;
+    const list = global.historyStorage.stage;
+
+    let text;
+    if (list.length > 0) {
+        text = `<li class="whiteText"><span class="greenText">${format(list[0][0])} Strange quarks</span>, <span class="blueText">${format(list[0][1], { type: 'time' })}</span>, <span class="darkorchidText">${format(list[0][0] / list[0][1], { padding: true })} per second</span></li>`;
+        for (let i = 1; i < list.length; i++) {
+            text += `\n<li class="whiteText"><span class="greenText">${format(list[i][0])} Strange quarks</span>, <span class="blueText">${format(list[i][1], { type: 'time' })}</span>, <span class="darkorchidText">${format(list[i][0] / list[i][1], { padding: true })} per second</span></li>`;
+        }
+    } else { text = '<li class="redText">Reference list is empty</li>'; }
+
+    if (listID.innerHTML !== text) { listID.innerHTML = text; }
+};
+
 export const format = (input: number | overlimit, settings = {} as { digits?: 0, type?: 'number' | 'input' | 'time', padding?: boolean }): string => {
-    if (typeof input === 'object') { return Limit(input).format(settings as any); }
+    if (typeof input === 'object' || typeof input === 'string') { return Limit(input).format(settings as any); }
     const type = settings.type ?? 'number';
 
     switch (type) {

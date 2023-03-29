@@ -5,30 +5,27 @@ import { getUpgradeDescription } from './Update';
 export const checkTab = (tab: string, subtab = null as null | string): boolean => {
     switch (tab) {
         case 'stage':
-            if (subtab === 'Structures') {
-                return true;
-            } else if (subtab === 'Advanced') {
+            if (subtab === 'Advanced') {
                 return player.inflation.vacuum || player.milestones[1][0] >= 5 || player.milestones[2][1] >= 4 || player.milestones[3][1] >= 5 || player.milestones[4][1] >= 5 || player.milestones[5][1] >= 8;
             }
-            return subtab === null;
+            return subtab === 'Structures' || subtab === null;
         case 'research':
             if (player.strange[0].total <= 0 && player.discharge.current < 4) { return false; }
-            if (subtab === 'Researches') {
-                return true;
-            } else if (subtab === 'Elements') {
+            if (subtab === 'Elements') {
                 return (player.stage.active === 4 || player.stage.active === 5) && player.upgrades[4][1] === 1;
             }
-            return subtab === null;
+            return subtab === 'Researches' || subtab === null;
         case 'strangeness':
             if (player.strange[0].total <= 0) { return false; }
-            if (subtab === 'Matter') {
-                return true;
-            } else if (subtab === 'Milestones') {
+            if (subtab === 'Milestones') {
                 return !player.inflation.vacuum;
             }
-            return subtab === null;
+            return subtab === 'Matter' || subtab === null;
         case 'settings':
-            return true;
+            if (subtab === 'History') {
+                return player.strange[0].total > 0;
+            }
+            return subtab === 'Settings' || subtab === 'Stats' || subtab === null;
         case 'special':
             return global.screenReader;
     }
@@ -50,7 +47,7 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
         if (index === 2) { return player.upgrades[3][2] === 1; }
         if (index === 3) { return player.upgrades[3][4] === 1; }
         if (index === 4) { return player.upgrades[3][6] === 1; }
-        if (index === 5) { return player.upgrades[3][6] === 1 && player.strangeness[3][8] >= 1; }
+        if (index === 5) { return player.upgrades[3][6] === 1 && player.strangeness[3][8] >= 1 && player.accretion.rank >= 5; }
     } else if (stageIndex === 4) {
         if (player.collapse.mass < global.collapseInfo.unlockB[index]) { return false; }
         if (index === 1 || index === 4) { return true; }

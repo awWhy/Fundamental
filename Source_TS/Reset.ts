@@ -7,7 +7,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
     if (type === 'discharge' || player.inflation.vacuum) { player.discharge.energy = 0; }
     if (stageIndex.includes(4)) { global.collapseInfo.trueStars = 0; }
     if (type === 'galaxy') {
-        if (!player.inflation.vacuum) { player.collapse.disabled = true; }
         player.collapse.mass = 0.01235;
         player.collapse.stars = [0, 0, 0];
     }
@@ -119,7 +118,6 @@ export const resetStage = (stageIndex: number[]) => {
             collapse.mass = 0.01235;
             collapse.stars = [0, 0, 0];
             if (!player.inflation.vacuum) {
-                collapse.disabled = false;
                 collapse.show = [];
             }
             player.elements = cloneArray(playerStart.elements);
@@ -172,7 +170,6 @@ export const resetVacuum = () => {
     collapse.massMax = 0.01235;
     collapse.stars = [0, 0, 0];
     collapse.show = [];
-    collapse.disabled = false;
     player.elements = cloneArray(playerStart.elements);
 
     //Stage 5 and rest
@@ -180,6 +177,8 @@ export const resetVacuum = () => {
     player.strange[0].current = 0;
     player.strange[0].total = 0;
     player.time.offline = Math.min(player.time.offline, 28800);
+    global.historyStorage.stage = [];
+    player.history.stage.best = [0, 1];
     player.stage.resets = 0;
     player.stage.best = 0;
     player.stage.time = 0;

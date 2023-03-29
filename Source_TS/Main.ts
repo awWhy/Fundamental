@@ -47,11 +47,13 @@ export const reLoad = (firstLoad = false) => {
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
     (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
     (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];
-    (getId('stageInput') as HTMLInputElement).value = `${player.stage.input}`;
-    (getId('vaporizationInput') as HTMLInputElement).value = `${player.vaporization.input}`;
-    (getId('rankShiftInput') as HTMLInputElement).value = `${player.accretion.input}`;
-    (getId('collapseMassInput') as HTMLInputElement).value = `${player.collapse.inputM}`;
-    (getId('collapseStarsInput') as HTMLInputElement).value = `${player.collapse.inputS}`;
+    (getId('stageInput') as HTMLInputElement).value = format(player.stage.input, { type: 'input' });
+    (getId('vaporizationInput') as HTMLInputElement).value = format(player.vaporization.input, { type: 'input' });
+    (getId('rankShiftInput') as HTMLInputElement).value = format(player.accretion.input, { type: 'input' });
+    (getId('collapseMassInput') as HTMLInputElement).value = format(player.collapse.inputM, { type: 'input' });
+    (getId('collapseStarsInput') as HTMLInputElement).value = format(player.collapse.inputS, { type: 'input' });
+    (getId('stageResetsSave') as HTMLInputElement).value = `${player.history.stage.input[0]}`;
+    (getId('stageResetsKeep') as HTMLInputElement).value = `${player.history.stage.input[1]}`;
     getId('vacuumState').textContent = `${player.inflation.vacuum}`;
     getId('stageSelect').classList.remove('active');
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
@@ -204,7 +206,9 @@ reLoad(true); //This will start the game
         player.vaporization.input = value;
     });
     getId('rankShiftInput').addEventListener('blur', () => {
-        const value = Number((getId('rankShiftInput') as HTMLInputElement).value);
+        const input = getId('rankShiftInput') as HTMLInputElement;
+        const value = Number(input.value);
+        input.value = format(value, { type: 'input' });
         player.accretion.input = value;
         assignNewMassCap(value);
     });
@@ -259,6 +263,25 @@ reLoad(true); //This will start the game
     getId('offlineWarp').addEventListener('click', () => { void timeWarp(); });
     getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
     getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
+
+    getId('stageResetsSave').addEventListener('blur', () => {
+        const inputID = getId('stageResetsSave') as HTMLInputElement;
+        const { input } = player.history.stage;
+        const value = Math.min(Math.max(Math.floor(Number(inputID.value)), 0), 20);
+        inputID.value = `${value}`;
+        input[0] = value;
+
+        if (input[1] < input[0]) {
+            (getId('stageResetsKeep') as HTMLInputElement).value = `${value}`;
+            input[1] = value;
+        }
+    });
+    getId('stageResetsKeep').addEventListener('blur', () => {
+        const input = getId('stageResetsKeep') as HTMLInputElement;
+        const value = Math.min(Math.max(Math.floor(Number(input.value)), player.history.stage.input[0], 3), 100);
+        input.value = `${value}`;
+        player.history.stage.input[1] = value;
+    });
 
     /* Only for phones */
     getId('mobileDeviceToggle').addEventListener('click', () => mobileDeviceSupport(true));
@@ -359,6 +382,8 @@ async function saveLoad(type: string) {
         }
         case 'save': {
             try {
+                player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
+
                 const save = btoa(JSON.stringify(player));
                 localStorage.setItem('save', save);
                 clearInterval(global.intervalsId.autoSave);
@@ -371,6 +396,8 @@ async function saveLoad(type: string) {
             return;
         }
         case 'export': {
+            player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
+
             if (player.strangeness[4][7] >= 1) {
                 const multiplier = exportMultiplier();
                 const strangeGain = Math.floor(player.stage.export * multiplier / 86400);

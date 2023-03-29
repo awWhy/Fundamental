@@ -687,13 +687,6 @@
                                         </div>
                                     </div>
                                 </li>
-                                <li><label for="mainInterval">Numbers update and auto speed interval</label> <input type="number" id="mainInterval" min="20" max="1000" value="100"> ms</li>
-                                <li><label for="numbersInterval">Visual numbers update interval</label> <input type="number" id="numbersInterval" min="20" max="1000" value="100"> ms</li>
-                                <li><label for="visualInterval">Visual game update interval</label> <input type="number" id="visualInterval" min="0.2" max="10" value="1" step="0.1"> s</li>
-                                <li><label for="autoSaveInterval">Game autosave interval</label> <input type="number" id="autoSaveInterval" min="10" max="1800" value="60"> s</li>
-                                <li>Format type: <label for="thousandSeparator">separator</label> <input type="text" id="thousandSeparator" class="miniInput" value="" maxlength="1">, <label for="decimalPoint">point</label> <input type="text" id="decimalPoint" class="miniInput" value="." maxlength="1"></li>
-                                <li><label for="mobileDeviceToggle">Mobile device support</label><button id="mobileDeviceToggle" class="specialToggle">OFF</button></li>
-                                <li><label for="screenReaderToggle">Screen reader support</label><button id="screenReaderToggle" class="specialToggle">OFF</button></li>
                                 <li><label for="toggle6">Language type hotkeys (English only)</label><button id="toggle6" class="toggle">ON</button><!--
                                     --><div class="windowPopUp">
                                         <button class="focusButton extraHover" aria-label="Check hotkey list">Check</button>
@@ -708,7 +701,9 @@
                                             <p class="mainText">Enter - <span class="whiteText">confirm close Alert</span></p>
                                             <p class="mainText">Escape - <span class="whiteText">cancel close Alert</span></p>
                                             <div class="center">
+                                                <p id="allStructuresHotkey" class="redText">A - <span class="whiteText">Toggle all auto Structures</span></p>
                                                 <p class="darkvioletText">W - <span class="whiteText">Warp</span></p>
+                                                <p id="offlineHotkey" class="blueText">O - <span class="whiteText">Toggle Offline</span></p>
                                                 <p id="stageSwitchHotkey" class="stageText stage1Unlock">S - <span class="whiteText">Stage</span></p>
                                                 <p class="orangeText stage1Include">D - <span class="whiteText">Discharge</span></p>
                                                 <p class="grayText stage2Include">V - <span class="whiteText">Vaporization</span></p>
@@ -718,6 +713,13 @@
                                         </div>
                                     </div>
                                 </li>
+                                <li><label for="mainInterval">Numbers update and auto speed interval</label> <input type="number" id="mainInterval" min="20" max="1000" value="100"> ms</li>
+                                <li><label for="numbersInterval">Visual numbers update interval</label> <input type="number" id="numbersInterval" min="20" max="1000" value="100"> ms</li>
+                                <li><label for="visualInterval">Visual game update interval</label> <input type="number" id="visualInterval" min="0.2" max="10" value="1" step="0.1"> s</li>
+                                <li><label for="autoSaveInterval">Game autosave interval</label> <input type="number" id="autoSaveInterval" min="10" max="1800" value="60"> s</li>
+                                <li>Format type: <label for="thousandSeparator">separator</label> <input type="text" id="thousandSeparator" class="miniInput" value="" maxlength="1">, <label for="decimalPoint">point</label> <input type="text" id="decimalPoint" class="miniInput" value="." maxlength="1"></li>
+                                <li><label for="mobileDeviceToggle">Mobile device support</label><button id="mobileDeviceToggle" class="specialToggle">OFF</button></li>
+                                <li><label for="screenReaderToggle">Screen reader support</label><button id="screenReaderToggle" class="specialToggle">OFF</button></li>
                             </ul>
                         </div>
                         <div class="options">
@@ -758,6 +760,19 @@
                                 <label for="toggleAuto7" class="whiteText">Special Researches <span class="mainText">-&gt;</span></label>
                                 <button id="toggleAuto7" class="toggleAuto">Auto OFF</button>
                             </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="settingsSubtabHistory" class="insideTab" style="display: none;">
+                    <div id="historyMainDiv">
+                        <div class="stageText">
+                            <p>Stage resets:</p>
+                            <ol id="stageResetsList">
+                                <li class="redText">Reference list is empty</li>
+                            </ol>
+                            <p><label for="stageResetsSave">Save</label> <input id="stageResetsSave" type="number" min="0" max="20" value="5">, <label for="stageResetsKeep">keep</label> <input id="stageResetsKeep" type="number" min="3" max="100" value="10"></p>
+                            <p>Current time: <span id="stageTime" class="whiteText">0 seconds</span></p>
+                            <p>Best reset: <span class="whiteText"><span id="stageBestReset1" class="greenText">0 Strange quarks</span>, <span id="stageBestReset2" class="blueText">1 seconds</span>, <span id="stageBestReset3" class="darkorchidText">0.0000 per second</span></span></p>
                         </div>
                     </div>
                 </section>
@@ -938,12 +953,13 @@
                         <!-- [tabName] + 'SubtabBtn' + [subtabName] -->
                         <button id="stageSubtabBtnStructures" class="tabActive" tabindex="-1" style="display: none;">Structures</button>
                         <button id="stageSubtabBtnAdvanced"  tabindex="-1" style="display: none;">Advanced</button>
-                        <button id="settingsSubtabBtnSettings" class="tabActive" tabindex="-1" style="display: none;">Settings</button>
-                        <button id="settingsSubtabBtnStats" tabindex="-1" style="display: none;">Stats</button>
                         <button id="researchSubtabBtnResearches" class="tabActive" tabindex="-1" style="display: none;">Researches</button>
                         <button id="researchSubtabBtnElements" tabindex="-1" style="display: none;">Elements</button>
                         <button id="strangenessSubtabBtnMatter" class="tabActive" tabindex="-1" style="display: none;">Matter</button>
                         <button id="strangenessSubtabBtnMilestones" tabindex="-1" style="display: none;">Milestones</button>
+                        <button id="settingsSubtabBtnSettings" class="tabActive" tabindex="-1" style="display: none;">Settings</button>
+                        <button id="settingsSubtabBtnHistory" tabindex="-1" style="display: none;">History</button>
+                        <button id="settingsSubtabBtnStats" tabindex="-1" style="display: none;">Stats</button>
                     </nav>
                     <nav id="stageSelect" style="display: none;" aria-hidden="true">
                         <button id="currentSwitch" tabindex="-1" class="stageText">Microworld</button>

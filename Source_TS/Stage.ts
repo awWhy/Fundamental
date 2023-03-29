@@ -958,7 +958,7 @@ export const autoResearchesBuy = (type: 'researches' | 'researchesExtra', stageI
 };
 
 export const autoElementsSet = () => {
-    if (player.inflation.vacuum ? !player.toggles.auto[8] : !player.collapse.disabled) { return; }
+    if (player.inflation.vacuum ? !player.toggles.auto[8] : player.buildings[5][3].true < 1) { return; }
     const { elements: auto } = global.automatization;
     const { elements } = player;
 
@@ -977,7 +977,7 @@ export const autoElementsSet = () => {
 };
 
 export const autoElementsBuy = () => {
-    if (player.strangeness[4][4] < 1 || (player.inflation.vacuum ? !player.toggles.auto[8] : !player.collapse.disabled)) { return; }
+    if (player.strangeness[4][4] < 1 || (player.inflation.vacuum ? !player.toggles.auto[8] : player.buildings[5][3].true < 1)) { return; }
     const { elements: auto } = global.automatization;
     const { elements } = player;
 
@@ -992,8 +992,6 @@ export const autoElementsBuy = () => {
             i--;
         } else { break; }
     }
-
-    if (!player.inflation.vacuum) { player.collapse.disabled = auto.length > 0; }
 };
 
 export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto', change = false) => {
@@ -1013,6 +1011,7 @@ export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto'
             const active = player.stage.active;
             toggles.buildings[active][number] = !toggles.buildings[active][number];
             if (number === 0) {
+                if (player.researchesAuto[0] < 2) { return; }
                 for (let i = 1; i < toggles.buildings[active].length; i++) {
                     toggles.buildings[active][i] = toggles.buildings[active][0];
                     toggleSwap(i, 'buildings');
@@ -1181,6 +1180,15 @@ const stageReset = (stageIndex: number) => {
         player.strange[0].current += gain;
         player.strange[0].total += gain;
         if (gain > stage.best) { stage.best = gain; }
+
+        if (stageIndex >= 4) {
+            const history = global.historyStorage.stage;
+            const sizeLimit = player.history.stage.input[1];
+            const bestReset = player.history.stage.best;
+            history.unshift([gain, player.stage.time]);
+            if (history.length > sizeLimit) { history.length = sizeLimit; }
+            if (gain / player.stage.time > bestReset[0] / bestReset[1]) { player.history.stage.best = [gain, player.stage.time]; }
+        }
     }
 
     resetStage(resetThese);
@@ -1381,8 +1389,7 @@ export const collapseResetCheck = (auto = false): boolean => {
     if (auto) {
         const { starEffect } = global.collapseInfo;
         const starBoost = (starEffect[0](true) / starEffect[0]()) * (starEffect[1](true) / starEffect[1]()) * (starEffect[2](true) / starEffect[2]()) >= collapse.inputS;
-        const massIncrease = (collapseInfo.newMass >= collapse.mass * collapse.inputM) && (!player.inflation.vacuum || Limit(player.buildings[1][0].current).multiply([8.96499278339628, -67]).moreOrEqual(collapseInfo.newMass));
-        if ((!massIncrease && !starBoost) || player.strangeness[4][5] < 1) { return false; }
+        if ((collapseInfo.newMass < collapse.mass * collapse.inputM && !starBoost) || player.strangeness[4][5] < 1) { return false; }
         collapseReset();
         return true;
     }

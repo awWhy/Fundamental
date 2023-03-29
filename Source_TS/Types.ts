@@ -33,9 +33,9 @@ export interface playerType {
         elementsMax: overlimit
         stars: [number, number, number]
         show: number[]
-        disabled: boolean
         inputM: number
         inputS: number
+        //input: [number, number]
     }
     inflation: {
         vacuum: boolean
@@ -87,6 +87,13 @@ export interface playerType {
             howMany: number
             input: number
             strict: boolean
+        }
+    }
+    history: {
+        stage: {
+            best: number[]
+            list: number[][]
+            input: [number, number]
         }
     }
     events: boolean[]
@@ -259,6 +266,9 @@ export interface globalType {
         quarks: number[][]
         unlock: number[]
     }>
+    historyStorage: {
+        stage: number[][]
+    }
 }
 
 export type overlimit = [number, number]; //Also possible as string (~21% slower) and number

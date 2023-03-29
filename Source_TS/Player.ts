@@ -39,7 +39,6 @@ export const player: playerType = { //Only for information that need to be saved
         elementsMax: [1, 0], //Used for Nickel (reset on Stage)
         stars: [0, 0, 0],
         show: [], //What Elements have been bought this Stage reset
-        disabled: false, //Elements
         inputM: 4,
         inputS: 2
     },
@@ -276,7 +275,13 @@ export const player: playerType = { //Only for information that need to be saved
             strict: true
         }
     },
-    //Add history
+    history: {
+        stage: {
+            best: [0, 1],
+            list: [],
+            input: [5, 10]
+        }
+    },
     events: [false, false, false] //One time events, set in playEvent
 };
 
@@ -294,7 +299,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         /* Subtabs format must be: [subtabName] + 'Subtabs' */
         tabs: ['stage', 'research', 'strangeness', 'settings', 'special'], //'special' must be last
         stageSubtabs: ['Structures', 'Advanced'],
-        settingsSubtabs: ['Settings', 'Stats'],
+        settingsSubtabs: ['Settings', 'History', 'Stats'],
         researchSubtabs: ['Researches', 'Elements'],
         strangenessSubtabs: ['Matter', 'Milestones']
     },
@@ -872,7 +877,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         costRange: [ //Random scaling
             [],
             [4000, 12000, 24000, 32000, 44000],
-            [1e10, 1e13, 1e16, 1e24, 1e28, 1e42],
+            [1e10, 1e13, 1e16, 1e24, 1e28, 1e40],
             [1e-7, 1e10, 5e29, 2e30, 1e36],
             [1e6, 1e17, 1e28, 1e39, 1e70],
             [1, 1, 1, 1]
@@ -1238,7 +1243,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             unlock: [4, 8]
         }
-    ]
+    ],
+    historyStorage: {
+        stage: []
+    }
 };
 
 //Extension for Math.log for any base
@@ -1247,13 +1255,11 @@ export const global: globalType = { //For information that doesn't need to be sa
 //Not for deep copy. Actual type is any[], it's because TS is dumb
 export const cloneArray = <ArrayClone extends Array<number | string | boolean | null | undefined>>(array: ArrayClone) => array.slice(0) as ArrayClone; //[...array] is better when >10000 keys
 
-//For non deep clone use {...object} or cloneArray when possible; Allows functions inside
+//For non deep clone use { ...object } or cloneArray when possible; Allows functions inside
 export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
     if (typeof toClone !== 'object' || toClone === null) { return toClone; }
+    //Just like with null check (prevents null turning into {}), add any extra checks if required
     const isArray = Array.isArray(toClone);
-
-    //Just like null check (without it null will turn into {})
-    //Add extra checks if they are required (toClone instanceof Date)
 
     const value = isArray ? [] : {} as any;
     if (isArray) { //Faster this way
@@ -1499,7 +1505,6 @@ export const updatePlayer = (load: playerType) => {
             for (let i = 1; i < load.elements.length; i++) {
                 if (load.elements[i] === 1) { load.collapse.show.push(i); }
             }
-            load.collapse.disabled = false;
         }
         if (load.version === 'v0.1.0') {
             load.version = 'v0.1.1';
@@ -1539,6 +1544,11 @@ export const updatePlayer = (load: playerType) => {
             load.discharge.energyMax = load.discharge.energy;
             load.vaporization.cloudsMax = cloneArray(load.vaporization.clouds);
         }
+        /* Add into next version */
+        //delete load.collapse['disabled' as keyof unknown];
+        //load.collapse.input = [load.collapse['inputM' as keyof unknown] ?? 4, load.collapse['inputS' as keyof unknown] ?? 2];
+        //delete load.collapse['inputM' as keyof unknown];
+        //delete load.collapse['inputS' as keyof unknown];
 
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');
@@ -1653,6 +1663,7 @@ export const updatePlayer = (load: playerType) => {
     const stars = load.buildings[4];
     global.accretionInfo.rankCost[4] = load.stage.true < 3 || (load.stage.true === 3 && !load.events[0]) ? 0 : 5e29;
     global.collapseInfo.trueStars = stars[1].true + stars[2].true + stars[3].true + stars[4].true + stars[5].true;
+    global.historyStorage.stage = load.history.stage.list;
 
     Object.assign(player, load);
 };
@@ -1717,7 +1728,8 @@ export const buildVersionInfo = () => {
                 text += '- Auto Structures now correctly spend currency';
                 break;
             case 'v0.1.3':
-                text = '- Cloud gain is now 1 less, due to bug fix in a formula\n- Puddles production base increased from 3 to 4\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n- Many bug fixes';
+                text = '- Cloud gain is now 1 less, due to bug fix in a formula\n- Puddles production base increased from 3 to 4\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n- Many bug fixes\n\n';
+                text += '- History for Stage resets\n- New hotkeys (A - toggle all Structures, O - toggle Offline)';
         }
         getId('versionText').textContent = text;
         getId('currentVesion').textContent = version;

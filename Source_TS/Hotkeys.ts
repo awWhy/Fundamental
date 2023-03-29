@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { switchTab } from './Update';
-import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, vaporizationAsyncReset } from './Stage';
+import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { timeWarp } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
@@ -27,7 +27,14 @@ export const detectHotkey = (check: KeyboardEvent) => {
         const stringKey = key.replace('Key', '').toLowerCase();
 
         if (!shift) {
-            if (stringKey === 's') {
+            if (stringKey === 'a') {
+                toggleSwap(0, 'buildings', true);
+            } else if (stringKey === 'o') {
+                toggleSwap(0, 'normal', true);
+            } else if (stringKey === 'w') {
+                check.preventDefault();
+                void timeWarp();
+            } else if (stringKey === 's') {
                 void stageAsyncReset();
             } else if (stringKey === 'd') {
                 if (global.stageInfo.activeAll.includes(1)) { void dischargeAsyncReset(); }
@@ -37,9 +44,6 @@ export const detectHotkey = (check: KeyboardEvent) => {
                 if (global.stageInfo.activeAll.includes(3)) { void rankAsyncReset(); }
             } else if (stringKey === 'c') {
                 if (global.stageInfo.activeAll.includes(4)) { void collapseAsyncReset(); }
-            } else if (stringKey === 'w') {
-                check.preventDefault();
-                void timeWarp();
             }
         }
         return;
