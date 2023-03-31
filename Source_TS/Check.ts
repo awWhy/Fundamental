@@ -206,7 +206,7 @@ export const milestoneCheck = (index: number, stageIndex: number) => {
         if (index === 0) {
             award = Limit(player.buildings[1][0].current).moreOrEqual(need);
         } else if (index === 1) {
-            award = player.discharge.energy >= need;
+            award = player.discharge.energy >= (need as number);
         }
     } else if (stageIndex === 2) {
         if (index === 0) {
@@ -222,13 +222,13 @@ export const milestoneCheck = (index: number, stageIndex: number) => {
         }
     } else if (stageIndex === 4) {
         if (index === 0) {
-            award = player.collapse.mass >= need;
+            award = player.collapse.mass >= (need as number);
         } else if (index === 1) {
-            award = player.collapse.stars[2] >= need;
+            award = player.collapse.stars[2] >= (need as number);
         }
     } else if (stageIndex === 5) {
         if (index === 0) {
-            award = global.collapseInfo.trueStars >= need;
+            award = global.collapseInfo.trueStars >= (need as number);
         } else if (index === 1) {
             award = Limit(player.buildings[5][3].current).moreOrEqual(need);
         }

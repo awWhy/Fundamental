@@ -488,21 +488,19 @@ export const overlimit = {
                     exponent++;
                 }
 
-                if (settings.padding === true) { result = result.toFixed(digits); }
-                return settings.type !== 'input' ? `${`${result}`.replace('.', player.separator[1])}e${exponent}` : `${result}e${exponent}`;
+                result = settings.padding === true ? result.toFixed(digits) : `${result}`;
+                return settings.type !== 'input' ? `${result.replace('.', player.separator[1])}e${exponent}` : `${result}e${exponent}`;
             }
 
             //12345
             const digits = power >= 3 ? 0 : settings.digits ?? (power < 0 ? 4 : 2);
-            let formated: number | string = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
-            formated = digits > 0 && settings.padding === true ? formated.toFixed(digits) : `${formated}`;
-            if (settings.type !== 'input') {
-                formated = power >= 3 ?
-                    formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) :
-                    formated.replace('.', player.separator[1]);
-            }
+            const result = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
+            const formated = digits > 0 && settings.padding === true ? result.toFixed(digits) : `${result}`;
 
-            return formated;
+            if (settings.type === 'input') { return formated; }
+            return result >= 1e3 ?
+                formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) :
+                formated.replace('.', player.separator[1]);
         },
         convert: (number: string | number | [number, number]): [number, number] => {
             let result: [number, number];

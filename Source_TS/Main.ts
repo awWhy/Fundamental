@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, checkPlayerValues, buildVersionInfo } from './Player';
 import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
 import { assignNewMassCap, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
-import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait, replayEvent } from './Special';
+import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait, replayEvent, Confirm } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { prepareVacuum, switchVacuum } from './Vacuum';
 
@@ -482,10 +482,11 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
 
 export const timeWarp = async() => {
     const { time } = player;
-    if (time.offline <= 0) { return Alert("Can't Warp without any Offline time"); }
+    if (time.offline < 1200) { return Alert('Need at least 20 minutes of Storaged Offline time to Warp'); }
 
-    const warpTime = Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? Current Offline time is ${format(time.offline, { type: 'time' })} (will be used without any loss, 1 minute at a time)\nBigger number will result in more lag`)), time.offline);
-    if (warpTime <= 0 || !isFinite(warpTime)) { return; }
+    const warpTime = player.researchesAuto[0] < 3 ? (await Confirm(`Do you wish to Warp forward? Current Offline time is ${format(time.offline, { type: 'time' })}, will be consumed up to 1 hour (used without any loss, 1 minute at a time)`) ? Math.min(time.offline, 3600) : 0) :
+        Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? Current Offline time is ${format(time.offline, { type: 'time' })} (will be used without any loss, 1 minute at a time, minimum value is 20 minutes)\nBigger number will result in more lag`)), time.offline);
+    if (warpTime < 1200 || !isFinite(warpTime)) { return; }
 
     time.offline -= warpTime;
     timeUpdate(warpTime);

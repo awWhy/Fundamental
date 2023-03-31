@@ -862,7 +862,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         ],
         effectText: [
             () => !player.inflation.vacuum && player.strange[0].total <= 0 ? 'Unlock ability to make multiple Structures at same time.' :
-            /**/'First level is for making multiple Structures at same time.\nSecond level is to turn OFF/ON all auto toggles at once.\nThird level is to turn OFF/ON auto consumption of Offline storage.',
+            /**/'First level is for making multiple Structures at same time.\nSecond level is to turn OFF/ON all auto toggles at once.\nThird level is to turn OFF/ON auto consumption of Offline storage and better Warp.',
             () => `Research this to make max offline timer +${player.inflation.vacuum ? 8 : 4} hours longer.`,
             () => 'This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.\n(Upgrades > Researches > Special researches)'
         ],
@@ -941,7 +941,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             () => `A new color and a rare bonus of ^${format(1.1)} to Mass effect.`,
             () => 'New alloy allowing Red giants to be added into effective amount of Neutron stars.',
             () => 'Catalyst for production of Elements. Black holes boost all Stars to the decimal logarithm.',
-            () => `No corrosion, only ^${format(0.01)} boost to all Stars based on unspent Elements.`,
+            () => `No corrosion, only boost to all Stars that is based on unspent Elements^${format(0.01)}.`,
             () => "Brittle Element, but not the bonus - 1 more level in 'Star system'.",
             () => `Any further fusion will be an endothermic process. Gain 2x boost to all Stars, ${player.inflation.vacuum ? 'unlock Stage reset.' : 'but what next?\nUnlock ability to switch beetwin Stages. (Also enter a new Stage)'}`,
             () => "While new Elements won't produce much Energy, this one can create 2 extra Strange quark for this Stage reset.",
@@ -1729,7 +1729,8 @@ export const buildVersionInfo = () => {
                 break;
             case 'v0.1.3':
                 text = '- Cloud gain is now 1 less, due to bug fix in a formula\n- Puddles production base increased from 3 to 4\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n- Many bug fixes\n\n';
-                text += '- History for Stage resets\n- New hotkeys (A - toggle all Structures, O - toggle Offline)';
+                text += '- History for Stage resets\n- New hotkeys (A - toggle all Structures, O - toggle Offline)\n\n';
+                text += '- Added minimum required value for Warp, also better control for Warp need to be unlocked';
         }
         getId('versionText').textContent = text;
         getId('currentVesion').textContent = version;

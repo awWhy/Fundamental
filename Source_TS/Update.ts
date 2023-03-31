@@ -802,22 +802,22 @@ export const format = (input: number | overlimit, settings = {} as { digits?: 0,
             const inputAbs = Math.abs(input);
             if (inputAbs >= 1e6 || (inputAbs < 1e-3 && inputAbs > 0)) {
                 let digits = Math.floor(Math.log10(inputAbs));
-                let endValue: number | string = Math.round(input / 10 ** (digits - 2)) / 100;
-                if (Math.abs(endValue) === 10) {
-                    endValue = 1;
+                let result = Math.round(input / 10 ** (digits - 2)) / 100;
+                if (Math.abs(result) === 10) {
+                    result = 1;
                     digits++;
                 }
-                if (settings.padding === true) { endValue = endValue.toFixed(2); }
-                if (type === 'input') { return `${endValue}e${digits}`; }
-                return `${`${endValue}`.replace('.', player.separator[1])}e${digits}`;
+                const formated = settings.padding === true ? result.toFixed(2) : `${result}`;
+                if (type === 'input') { return `${formated}e${digits}`; }
+                return `${formated.replace('.', player.separator[1])}e${digits}`;
             } else {
                 const precision = inputAbs >= 1e3 || settings.digits === 0 ? 0 : (inputAbs < 1 ? 4 : 2);
-                let endValue: number | string = Math.round(input * 10 ** precision) / 10 ** precision;
-                if (settings.padding === true && precision > 0) { endValue = endValue.toFixed(precision); }
-                if (type === 'input') { return `${endValue}`; }
-                return endValue >= 1000 ?
-                    `${endValue}`.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) :
-                    `${endValue}`.replace('.', player.separator[1]);
+                const result = Math.round(input * 10 ** precision) / 10 ** precision;
+                const formated = settings.padding === true && precision > 0 ? result.toFixed(precision) : `${result}`;
+                if (type === 'input') { return formated; }
+                return result >= 1e3 ?
+                    formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) :
+                    formated.replace('.', player.separator[1]);
             }
         }
         case 'time':

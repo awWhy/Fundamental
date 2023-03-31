@@ -606,7 +606,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
         const pointer = global.strangenessInfo[stageIndex];
 
         if (player.strangeness[stageIndex][upgrade] >= pointer.max[upgrade]) { return false; }
-        if (currency < global.strangenessInfo[stageIndex].cost[upgrade]) { return false; }
+        if ((currency as number) < global.strangenessInfo[stageIndex].cost[upgrade]) { return false; }
 
         player.strangeness[stageIndex][upgrade]++;
         (currency as number) -= pointer.cost[upgrade];
