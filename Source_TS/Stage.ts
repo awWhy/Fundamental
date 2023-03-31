@@ -385,7 +385,7 @@ export const buyBuilding = (index: number, stageIndex = player.stage.active, aut
         } else { player.buildings[stageExtra][extra].current = currency; }
 
         assignBuildingInformation();
-        if (stageIndex === player.stage.active) { numbersUpdate(); }
+        if (!auto) { numbersUpdate(); }
     }
 
     //Milestones that are based on bought amount
@@ -698,9 +698,12 @@ export const buyUpgrades = (upgrade: number, stageIndex: 'auto' | number, type: 
         player.buildings[4][0].current = currency as overlimit;
     }
 
+    assignBuildingInformation();
     visualUpdateUpgrades(upgrade, stageIndex, type);
-    if (!auto) { getUpgradeDescription(upgrade, stageIndex, type); }
-    if (!auto || stageIndex === player.stage.active || (type === 'elements' && player.stage.active === 5) || type === 'strangeness') { numbersUpdate(); }
+    if (!auto) {
+        getUpgradeDescription(upgrade, stageIndex, type);
+        numbersUpdate();
+    }
     return true;
 };
 

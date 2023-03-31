@@ -22,7 +22,7 @@ export const reLoad = (firstLoad = false) => {
             global.timeSpecial.lastSave += offlineTime;
             time.offline = Math.min(time.offline + offlineTime, maxOffline);
             player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
-            Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${offlineTime + time.offline > maxOffline ? ' (Offline storage is full)' : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}` : `\nCurrent version is ${player.version}`}`);
+            Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${time.offline >= maxOffline ? ' (Offline storage is full)' : ''}${global.versionInfo.changed ? ` Game has been updated to ${player.version}` : `\nCurrent version is ${player.version}`}`);
         } else {
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
         }
@@ -45,6 +45,10 @@ export const reLoad = (firstLoad = false) => {
     checkPlayerValues(); //Must be after stageCheck
 
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
+    (getId('mainInterval') as HTMLInputElement).value = `${player.intervals.main}`;
+    (getId('numbersInterval') as HTMLInputElement).value = `${player.intervals.numbers}`;
+    (getId('visualInterval') as HTMLInputElement).value = `${player.intervals.visual}`;
+    (getId('autoSaveInterval') as HTMLInputElement).value = `${player.intervals.autoSave}`;
     (getId('thousandSeparator') as HTMLInputElement).value = player.separator[0];
     (getId('decimalPoint') as HTMLInputElement).value = player.separator[1];
     (getId('stageInput') as HTMLInputElement).value = format(player.stage.input, { type: 'input' });
@@ -60,7 +64,7 @@ export const reLoad = (firstLoad = false) => {
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
     toggleBuy(); //Also numbersUpdate
 
-    changeIntervals(false, 'all'); //Unpause game and set input values
+    changeIntervals(); //Unpause game and set input values
 };
 
 reLoad(true); //This will start the game
@@ -201,34 +205,29 @@ reLoad(true); //This will start the game
     /* Settings tab */
     getId('vaporizationInput').addEventListener('blur', () => {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        const value = Math.max(Number(input.value), 0);
-        input.value = format(value, { type: 'input' });
-        player.vaporization.input = value;
+        player.vaporization.input = Math.max(Number(input.value), 0);
+        input.value = format(player.vaporization.input, { type: 'input' });
     });
     getId('rankShiftInput').addEventListener('blur', () => {
         const input = getId('rankShiftInput') as HTMLInputElement;
-        const value = Number(input.value);
-        input.value = format(value, { type: 'input' });
-        player.accretion.input = value;
-        assignNewMassCap(value);
+        player.accretion.input = Number(input.value);
+        input.value = format(player.accretion.input, { type: 'input' });
+        assignNewMassCap(player.accretion.input);
     });
     getId('collapseMassInput').addEventListener('blur', () => {
         const input = getId('collapseMassInput') as HTMLInputElement;
-        const value = Math.max(Number(input.value), 1);
-        input.value = format(value, { type: 'input' });
-        player.collapse.inputM = value;
+        player.collapse.inputM = Math.max(Number(input.value), 1);
+        input.value = format(player.collapse.inputM, { type: 'input' });
     });
     getId('collapseStarsInput').addEventListener('blur', () => {
         const input = getId('collapseStarsInput') as HTMLInputElement;
-        const value = Math.max(Number(input.value), 1);
-        input.value = format(value, { type: 'input' });
-        player.collapse.inputS = value;
+        player.collapse.inputS = Math.max(Number(input.value), 1);
+        input.value = format(player.collapse.inputS, { type: 'input' });
     });
     getId('stageInput').addEventListener('blur', () => {
         const input = getId('stageInput') as HTMLInputElement;
-        const value = Math.max(Math.floor(Number(input.value)), 1);
-        input.value = format(value, { type: 'input' });
-        player.stage.input = value;
+        player.stage.input = Math.max(Math.floor(Number(input.value)), 1);
+        input.value = format(player.stage.input, { type: 'input' });
     });
     getId('versionButton').addEventListener('click', () => {
         buildVersionInfo();
@@ -252,10 +251,30 @@ reLoad(true); //This will start the game
     getId('saveFileHoverButton').addEventListener('focus', () => {
         getId('saveFileNamePreview').textContent = replaceSaveFileSpecials();
     });
-    getId('mainInterval').addEventListener('blur', () => changeIntervals(false, 'main'));
-    getId('numbersInterval').addEventListener('blur', () => changeIntervals(false, 'numbers'));
-    getId('visualInterval').addEventListener('blur', () => changeIntervals(false, 'visual'));
-    getId('autoSaveInterval').addEventListener('blur', () => changeIntervals(false, 'autoSave'));
+    getId('mainInterval').addEventListener('blur', () => {
+        const mainInput = getId('mainInterval') as HTMLInputElement;
+        player.intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 100);
+        mainInput.value = `${player.intervals.main}`;
+        changeIntervals();
+    });
+    getId('numbersInterval').addEventListener('blur', () => {
+        const numberInput = getId('numbersInterval') as HTMLInputElement;
+        player.intervals.numbers = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 50), 200);
+        numberInput.value = `${player.intervals.numbers}`;
+        changeIntervals();
+    });
+    getId('visualInterval').addEventListener('blur', () => {
+        const visualInput = getId('visualInterval') as HTMLInputElement;
+        player.intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.2), 4);
+        visualInput.value = `${player.intervals.visual}`;
+        changeIntervals();
+    });
+    getId('autoSaveInterval').addEventListener('blur', () => {
+        const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
+        player.intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 10), 1800);
+        autoSaveInput.value = `${player.intervals.autoSave}`;
+        changeIntervals();
+    });
     getId('thousandSeparator').addEventListener('blur', () => changeFormat(false));
     getId('decimalPoint').addEventListener('blur', () => changeFormat(true));
     getId('pauseGame').addEventListener('click', () => { void pauseGame(); });
@@ -267,20 +286,18 @@ reLoad(true); //This will start the game
     getId('stageResetsSave').addEventListener('blur', () => {
         const inputID = getId('stageResetsSave') as HTMLInputElement;
         const { input } = player.history.stage;
-        const value = Math.min(Math.max(Math.floor(Number(inputID.value)), 0), 20);
-        inputID.value = `${value}`;
-        input[0] = value;
+        input[0] = Math.min(Math.max(Math.floor(Number(inputID.value)), 0), 20);
+        inputID.value = `${input[0]}`;
 
         if (input[1] < input[0]) {
-            (getId('stageResetsKeep') as HTMLInputElement).value = `${value}`;
-            input[1] = value;
+            (getId('stageResetsKeep') as HTMLInputElement).value = inputID.value;
+            input[1] = input[0];
         }
     });
     getId('stageResetsKeep').addEventListener('blur', () => {
         const input = getId('stageResetsKeep') as HTMLInputElement;
-        const value = Math.min(Math.max(Math.floor(Number(input.value)), player.history.stage.input[0], 3), 100);
-        input.value = `${value}`;
-        player.history.stage.input[1] = value;
+        player.history.stage.input[1] = Math.min(Math.max(Math.floor(Number(input.value)), player.history.stage.input[0], 3), 100);
+        input.value = `${player.history.stage.input[1]}`;
     });
 
     /* Only for phones */
@@ -314,35 +331,16 @@ reLoad(true); //This will start the game
 
 console.timeEnd('Game loaded in'); //Started in Player.ts
 
-function changeIntervals(pause = false, input = '') {
-    const { intervals } = player;
+function changeIntervals(pause = false) {
     const { intervalsId } = global;
-    if (input !== '') {
-        const mainInput = getId('mainInterval') as HTMLInputElement;
-        const numberInput = getId('numbersInterval') as HTMLInputElement;
-        const visualInput = getId('visualInterval') as HTMLInputElement;
-        const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
-        if (input === 'main') {
-            intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 1000);
-            if (intervals.main > intervals.numbers) { intervals.numbers = intervals.main; }
-        } else if (input === 'numbers') {
-            intervals.numbers = Math.min(Math.max(Math.trunc(Number(numberInput.value)), 20), 1000);
-            if (intervals.numbers < intervals.main) { intervals.main = intervals.numbers; }
-        } else if (input === 'visual') {
-            intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.2), 10);
-        } else if (input === 'autoSave') {
-            intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 10), 1800);
-        }
-        mainInput.value = `${intervals.main}`;
-        numberInput.value = `${intervals.numbers}`;
-        visualInput.value = `${intervals.visual}`;
-        autoSaveInput.value = `${intervals.autoSave}`;
-    }
+
     clearInterval(intervalsId.main);
     clearInterval(intervalsId.numbers);
     clearInterval(intervalsId.visual);
     clearInterval(intervalsId.autoSave);
     if (!pause) {
+        const { intervals } = player;
+
         intervalsId.main = setInterval(timeUpdate, intervals.main);
         intervalsId.numbers = setInterval(numbersUpdate, intervals.numbers);
         intervalsId.visual = setInterval(visualUpdate, intervals.visual * 1000);
@@ -369,7 +367,7 @@ async function saveLoad(type: string) {
                 time.updated = Date.now();
                 time.offline = Math.min(time.offline + offlineTime, maxOffline);
                 player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
-                Alert(`This save is ${format(offlineTime, { type: 'time' })} old${offlineTime + time.offline > maxOffline ? ', Offline storage is maxed' : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}` : `\nSave file version is ${player.version}`}`);
+                Alert(`This save is ${format(offlineTime, { type: 'time' })} old${time.offline >= maxOffline ? ', Offline storage is maxed' : ''}.${versionCheck !== player.version ? `\nAlso save file version is ${versionCheck}, while game version is ${player.version}` : `\nSave file version is ${player.version}`}`);
 
                 getId('isSaved').textContent = 'Imported';
                 global.timeSpecial.lastSave = 0;

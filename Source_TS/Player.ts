@@ -47,7 +47,7 @@ export const player: playerType = { //Only for information that need to be saved
         age: 0
     },
     intervals: {
-        main: 100,
+        main: 50,
         numbers: 100,
         visual: 1,
         autoSave: 60
@@ -988,7 +988,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Gain more Energy from creating ${player.inflation.vacuum ? 'Preons, +2' : 'Particles, +1'}.`,
                 () => `Research for improved 'Tritium' upgrade is now better. (+${format(player.inflation.vacuum ? 0.4 : 0.3)})`,
                 () => `Start with auto for ${global.buildingsInfo.name[1][Math.min(player.strangeness[1][6] + 1, global.ASRInfo.max[1])]}.`,
-                () => `Increase max level of 'New toggles'.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
+                () => `Increase max level of 'New toggles'.${player.inflation.vacuum ? '' : ' Also keep them on Stage reset.'}`,
                 () => `Unspend Strange quarks will boost this Stage. (${player.inflation.vacuum ? 'Easier goals' : 'Stronger radiation'})`,
                 () => "Energy is no longer gained on Structure creation, but instead it's based on current self-made amount of Structures.\nFirst step towards something more."
             ],
@@ -1017,7 +1017,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Decrease requirement per Cloud.',
                 () => `Automatically Vaporize when reach certain amount.${player.strangeness[1][9] >= 1 ? '\nSecond level - gain 1% of Clouds per second.' : ''}`,
                 () => `Start with auto for ${global.buildingsInfo.name[2][Math.min(player.strangeness[2][5] + 1, global.ASRInfo.max[2])]}.`,
-                () => `Increase max offline time research level.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
+                () => `Increase max offline time research level.${player.inflation.vacuum ? '' : ' Also keep them on Stage reset.'}`,
                 () => !player.inflation.vacuum ? 'Max offline time is now 2 times longer. (Additive)' : 'Offline time being wasted less, -1 second per level.',
                 () => 'Unspend Strange quarks will boost this Stage. (Puddle production)',
                 () => "Unlock a new Structure. (Requires level 5 of 'Keep auto Structures')"
@@ -1047,7 +1047,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Satellites now improve all Accretion Structures.',
                 () => `Automatically increase Rank when available.${player.strangeness[1][9] >= 1 ? '\nSecond level - once hardcap for Cosmic dust is reached, all Mass related Structures will be made only when 2 times of Main-sequence hardcap.' : ''}`,
                 () => `Start with auto for ${global.buildingsInfo.name[3][Math.min(player.strangeness[3][5] + 1, global.ASRInfo.max[3])]}.`,
-                () => `Unlock automatization for Upgrades / Researches.${player.inflation.vacuum ? '' : 'Also keep them on Stage reset.'}`,
+                () => `Unlock automatization for Upgrades / Researches.${player.inflation.vacuum ? '' : ' Also keep them on Stage reset.'}`,
                 () => `Unspend Strange quarks will boost this Stage. (${player.inflation.vacuum ? 'Effective Rank' : 'Cheaper Accretion)\n(Scales slower past 800 Strange quarks'})`,
                 () => "Unlock a new Structure. (Requires level 4 of 'Keep auto Structures')",
                 () => 'Allows to shift Cosmic dust and Solar mass hardcaps (in Rank settings). Extra levels allow for 2 times bigger shift.'
@@ -1730,7 +1730,7 @@ export const buildVersionInfo = () => {
             case 'v0.1.3':
                 text = '- Cloud gain is now 1 less, due to bug fix in a formula\n- Puddles production base increased from 3 to 4\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n- Many bug fixes\n\n';
                 text += '- History for Stage resets\n- New hotkeys (A - toggle all Structures, O - toggle Offline)\n\n';
-                text += '- Added minimum required value for Warp, also better control for Warp need to be unlocked';
+                text += '- Added minimum required value for Warp, also better control for Warp need to be unlocked\n- Automatically made Structures/Upgrades no longer visually update numbers (as well some other small changes to Intervals)';
         }
         getId('versionText').textContent = text;
         getId('currentVesion').textContent = version;

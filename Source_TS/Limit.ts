@@ -136,6 +136,7 @@ export const overlimit = {
         isNaN: (number: string): boolean => number.includes('NaN'),
         isFinite: (number: string): boolean => !number.includes('Infinity') && !number.includes('NaN'),
         clone: (number: [number, number]): [number, number] => [number[0], number[1]],
+        /* Sort is WIP, need to figure out how to add easy to use return function instead of 'descend' (also maybe some optimization) */
         sort: <sortType extends Array<string | number | [number, number]>>(toSort: sortType, descend = false) => {
             if (toSort.length < 2) { return; }
             const numbers = overlimit.technical.convertAll(toSort);
