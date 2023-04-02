@@ -6,11 +6,11 @@
         <title>Fundamental</title>
         <link rel="icon" href="Used_art/Stage.png">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0"> <!-- Without minimum-scale footer moves like crazy -->
         <meta name="description" content="Explore the Universe with this idle-game">
         <script src="Code.js" defer></script>
     </head>
-    <body class="customColors">
+    <body>
         <aside id="loading">
             <h1 class="bigWord">Fundamental.</h1>
             <p class="whiteText">Game is loading. If it won't load, then can try to report it <a href="https://github.com/awWhy/Fundamental/issues">here</a>.</p>
@@ -20,12 +20,13 @@
             <div id="alertPopUp">
                 <h3 id="alertText" aria-live="assertive">Welcome back</h3>
                 <div>
-                    <input type="text" id="inputArea" tabindex="1" style="display: none;">
+                    <input type="text" id="inputArea" tabindex="1" autocomplete="off" style="display: none;">
                     <button id="confirmBtn" tabindex="1">Confirm</button>
                     <button id="cancelBtn" tabindex="1" style="display: none;">Cancel</button>
                 </div>
             </div>
         </section>
+        <div id="notifications" aria-live="polite"></div>
         <main id="body" style="display: none;">
             <section id="stageTab">
                 <section id="stageSubtabStructures" class="insideTab">
@@ -148,8 +149,8 @@
                             <img src="Used_art/Buy%201x.png" alt="" id="buy1x" class="interactiveImage" aria-hidden="true" loading="lazy">
                             <img src="Used_art/Buy%20any.png" alt="" id="buyAny" class="interactiveImage" aria-hidden="true" loading="lazy">
                             <img src="Used_art/Buy%20max.png" alt="" id="buyMax" class="interactiveImage" aria-hidden="true" loading="lazy">
-                            <input type="number" id="buyAnyInput" min="-1" aria-label="Maxium buildings you want to get at same time. (type -1 for max)">
-                            <button id="buyStrict" tabindex="-1" aria-hidden="true">Strict</button>
+                            <input type="number" id="buyAnyInput" min="-1" aria-label="Maxium Structures to make at same time (type -1 for max)">
+                            <button id="buyStrict" aria-label="Make Structures only when can afford all at once, ON">Strict</button>
                             <button id="toggleBuilding0" class="toggleBuilding">All ON</button>
                         </div>
                     </div>
@@ -180,9 +181,13 @@
                     <p class="reader">Use left or right arrow keys to navigate through tabs. Up or down arrows to navigate through subtabs (when there are any). Can check other hotkeys in settings.</p>
                 </section>
                 <section id="stageSubtabAdvanced" class="insideTab" style="display: none;">
-                    <div class="challengeDiv">
-                        <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum state" id="vacuumSwitch">
-                        <label for="vacuumSwitch" class="orchidText">Vacuum state: <span id="vacuumState" class="redText">false</span></label>
+                    <div class="challengesMain">
+                        <div>
+                            <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum state" id="vacuumSwitch" aria-labelledby="challengeMultiline">
+                        </div>
+                        <div id="challengeMultiline">
+                            <h3 class="orchidText">Vacuum state: <span class="redText">false</span></h3>
+                        </div>
                     </div>
                     <p id="universeInfo" class="grayText">This Universe is <span id="universeAge" class="orangeText">0 seconds</span> old</p>
                 </section>
@@ -560,22 +565,23 @@
                         <p class="whiteText">For every reached Milestone, will earn <span class="greenText">Strange quarks</span> and maybe more</p>
                     </div>
                     <div id="milestones">
-                        <div id="milestone1Stage1Div" class="stage1borderImage stage1windowBackground"><img src="Used_art/Infinity.png" alt="Infinity" id="milestone1Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone2Stage1Div" class="stage1borderImage stage1windowBackground"><img src="Used_art/Energy+.png" alt="Energy+" id="milestone2Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone1Stage2Div" class="stage2borderImage stage2windowBackground"><img src="Used_art/Drop.png" alt="Drop of water" id="milestone1Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone2Stage2Div" class="stage2borderImage stage2windowBackground"><img src="Used_art/Puddle%20big.png" alt="Big Puddle" id="milestone2Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone1Stage3Div" class="stage3borderImage stage3windowBackground"><img src="Used_art/Mass.png" alt="Mass" id="milestone1Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone2Stage3Div" class="stage3borderImage stage3windowBackground"><img src="Used_art/Natural%20satellite.png" alt="Moon" id="milestone2Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone1Stage4Div" class="stage4borderImage stage4windowBackground"><img src="Used_art/Main_sequence%20mass.png" alt="Solar mass" id="milestone1Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone2Stage4Div" class="stage4borderImage stage4windowBackground"><img src="Used_art/Black%20hole.png" alt="Black hole" id="milestone2Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone1Stage5Div" class="stage5borderImage stage5windowBackground"><img src="Used_art/Stars.png" alt="Stars" id="milestone1Stage5" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
-                        <div id="milestone2Stage5Div" class="stage5borderImage stage5windowBackground"><img src="Used_art/Galaxy.png" alt="Galaxy" id="milestone2Stage5" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesEffect milestonesCost milestonesReward"></div>
+                        <div id="milestone1Stage1Div" class="stage1borderImage stage1windowBackground"><img src="Used_art/Infinity.png" alt="Infinity" id="milestone1Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone2Stage1Div" class="stage1borderImage stage1windowBackground"><img src="Used_art/Energy+.png" alt="Energy+" id="milestone2Stage1" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone1Stage2Div" class="stage2borderImage stage2windowBackground"><img src="Used_art/Drop.png" alt="Drop of water" id="milestone1Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone2Stage2Div" class="stage2borderImage stage2windowBackground"><img src="Used_art/Puddle%20big.png" alt="Big Puddle" id="milestone2Stage2" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone1Stage3Div" class="stage3borderImage stage3windowBackground"><img src="Used_art/Mass.png" alt="Mass" id="milestone1Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone2Stage3Div" class="stage3borderImage stage3windowBackground"><img src="Used_art/Natural%20satellite.png" alt="Moon" id="milestone2Stage3" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone1Stage4Div" class="stage4borderImage stage4windowBackground"><img src="Used_art/Main_sequence%20mass.png" alt="Solar mass" id="milestone1Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone2Stage4Div" class="stage4borderImage stage4windowBackground"><img src="Used_art/Black%20hole.png" alt="Black hole" id="milestone2Stage4" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone1Stage5Div" class="stage5borderImage stage5windowBackground"><img src="Used_art/Stars.png" alt="Stars" id="milestone1Stage5" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
+                        <div id="milestone2Stage5Div" class="stage5borderImage stage5windowBackground"><img src="Used_art/Galaxy.png" alt="Galaxy" id="milestone2Stage5" tabindex="1" loading="lazy" aria-labelledby="milestonesText milestonesMultiline"></div>
                     </div>
                     <div class="descriptionText">
                         <h3 class="darkorchidText">Stage: <span id="milestonesStage"></span><span id="milestonesText" class="greenText">Hover to see.</span></h3>
-                        <p id="milestonesCostMain" class="orchidText">Requirement: <span id="milestonesCost" class="greenText">Hover to see.</span></p>
-                        <p id="milestonesRewardMain" class="darkvioletText">Reward: <span id="milestonesReward" class="greenText">Strange quark.</span></p>
-                        <p class="darkvioletText">Unlocks: <span id="milestonesEffect" class="greenText">Hover to see.</span></p>
+                        <div id="milestonesMultiline" class="descriptionText">
+                            <p class="orchidText">Requirement: <span class="greenText">Hover to see.</span></p>
+                            <p class="darkvioletText">Reward: <span class="greenText">Hover to see.</span></p>
+                        </div>
                     </div>
                 </section>
             </section>
@@ -587,7 +593,7 @@
                             <div id="stageToggleReset" class="stage2Unlock">
                                 <img src="Used_art/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorderImage" loading="lazy">
                                 <div>
-                                    <button id="toggle1" class="toggle" aria-label="Toggle for stage reset confirmation, currently ON">ON</button><!--
+                                    <button id="toggle1" class="toggle" aria-label="Toggle for Stage reset confirmation, ON">ON</button><!--
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto0Mark" class="miniButton focusButton">!</button>
                                         <div>
@@ -600,14 +606,14 @@
                             <div id="dischargeToggleReset" class="stage1Include">
                                 <img src="Used_art/Discharge%20toggle.png" alt="Discharge Reset Toggle" loading="lazy">
                                 <div>
-                                    <button id="toggle2" class="toggle" aria-label="Toggle for discharge reset confirmation, currently ON">ON</button>
+                                    <button id="toggle2" class="toggle" aria-label="Toggle for Discharge reset confirmation, ON">ON</button>
                                 </div>
                                 <button id="toggleAuto1" class="toggleAuto">Auto OFF</button>
                             </div>
                             <div id="vaporizationToggleReset" class="stage2Include">
                                 <img src="Used_art/Vaporization%20toggle.png" alt="Vaporization Reset Toggle" loading="lazy">
                                 <div>
-                                    <button id="toggle3" class="toggle" aria-label="Toggle for vaporization reset confirmation, currently ON">ON</button><!--
+                                    <button id="toggle3" class="toggle" aria-label="Toggle for Vaporization reset confirmation, ON">ON</button><!--
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto2Mark" class="miniButton focusButton stage2borderButton">!</button>
                                         <div>
@@ -620,7 +626,7 @@
                             <div id="rankToggleReset" class="stage3Include">
                                 <img src="Used_art/Rank%20toggle.png" alt="Rank Reset Toggle" loading="lazy">
                                 <div>
-                                    <button id="toggle4" class="toggle" aria-label="Toggle for rank reset confirmation, currently ON">ON</button><!--
+                                    <button id="toggle4" class="toggle" aria-label="Toggle for Rank reset confirmation, ON">ON</button><!--
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto3Mark" class="miniButton focusButton stage3borderButton">!</button>
                                         <div>
@@ -633,7 +639,7 @@
                             <div id="collapseToggleReset" class="stage4Include">
                                 <img src="Used_art/Collapse%20toggle.png" alt="Collapse Reset Toggle" loading="lazy">
                                 <div>
-                                    <button id="toggle5" class="toggle" aria-label="Toggle for collapse reset confirmation, currently ON">ON</button><!--
+                                    <button id="toggle5" class="toggle" aria-label="Toggle for Collapse reset confirmation, ON">ON</button><!--
                                  --><div class="windowPopUp">
                                         <button id="toggleAuto4Mark" class="miniButton focusButton stage4borderButton">!</button>
                                         <div>
@@ -650,7 +656,7 @@
                             <img src="Used_art/Elsewhere/discord-mark-white.svg" alt="" loading="lazy">
                             Discord
                         </a>
-                        <button id="versionButton" aria-label="Version Information">
+                        <button id="versionButton" aria-label="Version change log">
                             <img src="Used_art/Elsewhere/files.svg" alt="" loading="lazy">
                             Version
                         </button>
@@ -689,7 +695,7 @@
                                 </li>
                                 <li><label for="toggle6">Language type hotkeys (English only)</label><button id="toggle6" class="toggle">ON</button><!--
                                     --><div class="windowPopUp">
-                                        <button class="focusButton extraHover" aria-label="Check hotkey list">Check</button>
+                                        <button class="focusButton extraHover" aria-label="Check hotkey list">Hotkeys</button>
                                         <div>
                                             <p class="mainText">Arrow left and Arrow right: (None/Shift)</p>
                                             <div class="center">
@@ -926,6 +932,7 @@
                         <div id="unknownStructures" class="imageList"></div>
                         <p id="preonCap" class="cyanText stage1Only">Preons production hardcap starts at <span id="preonCapStat" class="grayText noMoveSpan">2e13</span><br aria-hidden="true">(before Accretion boost)</p>
                         <p id="dustCap" class="grayText stage3Only">Cosmic dust production hardcap starts at <span id="dustCapStat" class="redText noMoveSpan">5e45</span></p>
+                        <p id="massShift" class="grayText stage3Only">Mass shift range: <span id="massShiftMin" class="cyanText">600</span> / <span id="massShiftMax" class="cyanText">600</span></p>
                         <p id="mainCap" class="cyanText stage4Only">Solar gain is limited to <span id="mainCapStat" class="orchidText noMoveSpan">1</span><br aria-hidden="true">(<span id="mainCapLimit">10 minutes</span> worth of production)</p>
                     </div>
                 </section>

@@ -457,14 +457,13 @@ export const overlimit = {
         format: (left: [number, number], settings: { digits?: number, type?: 'number' | 'input', padding?: boolean }): string => {
             const [base, power] = left;
             if (!isFinite(base) || !isFinite(power)) { return overlimit.technical.convertBack(left); }
-            //Minimal optimization possible (changing ?? to === undefined), but very minor
 
             //Self added part
             if (!player.inflation.vacuum && power >= 300) { return 'Infinity'; }
 
             //1.23ee123 (-1.23e-e123)
             if ((power >= 1e4 || power <= -1e4) && settings.type !== 'input') {
-                const digits = settings.digits ?? 2;
+                const digits = settings.digits !== undefined ? settings.digits : 2;
                 let exponent = Math.floor(Math.log10(Math.abs(power)));
                 let result = Math.abs(Math.round(power / 10 ** (exponent - digits)) / 10 ** digits);
                 if (result === 10) {
@@ -473,15 +472,13 @@ export const overlimit = {
                 }
                 if (base < 0) { result *= -1; }
 
-                const formated = settings.padding === true ?
-                    result.toFixed(digits).replace('.', player.separator[1]) :
-                    `${result}`.replace('.', player.separator[1]);
+                const formated = settings.padding === true ? result.toFixed(digits).replace('.', player.separator[1]) : `${result}`.replace('.', player.separator[1]);
                 return `${formated}e${power < 0 ? '-' : ''}e${exponent}`;
             }
 
             //1.23e123
             if (power >= 6 || power < -3) {
-                const digits = settings.digits ?? 2;
+                const digits = settings.digits !== undefined ? settings.digits : 2;
                 let exponent = power;
                 let result: number | string = Math.round(base * 10 ** digits) / 10 ** digits;
                 if (Math.abs(result) === 10) {
@@ -494,14 +491,12 @@ export const overlimit = {
             }
 
             //12345
-            const digits = power >= 3 ? 0 : settings.digits ?? (power < 0 ? 4 : 2);
+            const digits = power >= 3 ? 0 : settings.digits !== undefined ? settings.digits : (power < 0 ? 4 : 2);
             const result = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
             const formated = digits > 0 && settings.padding === true ? result.toFixed(digits) : `${result}`;
 
             if (settings.type === 'input') { return formated; }
-            return result >= 1e3 ?
-                formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) :
-                formated.replace('.', player.separator[1]);
+            return result >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) : formated.replace('.', player.separator[1]);
         },
         convert: (number: string | number | [number, number]): [number, number] => {
             let result: [number, number];
@@ -509,16 +504,9 @@ export const overlimit = {
                 if (typeof number !== 'string') { number = `${number}`; } //Using log10 could cause floating point error
                 const index = number.indexOf('e'); //About 5+ times quicker than regex
                 result = index === -1 ? [Number(number), 0] : [Number(number.slice(0, index)), Number(number.slice(index + 1))];
-            } else {
-                result = [number[0], number[1]]; //Not instant return, because might need a fix
-            }
+            } else { result = [number[0], number[1]]; } //Not instant return, because might need a fix
 
             if (!isFinite(result[0])) { return isNaN(result[0]) ? [NaN, NaN] : [result[0], Infinity]; }
-
-            if (Math.floor(result[1]) !== result[1]) { //Fix non trunc exponent ([2, 10.1] > [2.5, 10])
-                result[0] *= 10 ** (result[1] - Math.floor(result[1]));
-                result[1] = Math.floor(result[1]);
-            }
 
             const after = Math.abs(result[0]);
             if (after === 0) {
@@ -552,24 +540,15 @@ export const overlimit = {
             return result;
         },
         prepare: (number: [number, number]): [number, number] => {
-            if (!isFinite(number[0]) || !isFinite(number[1])) {
-                if (number[0] === 0 || number[1] === -Infinity) { return [0, 0]; }
-                if (isNaN(number[0]) || isNaN(number[1])) { return [NaN, NaN]; }
-                return [number[0] < 0 ? -Infinity : Infinity, Infinity]; //Base can be non Infinity
-            }
-
-            return number;
+            if (isFinite(number[0]) && isFinite(number[1])) { return number; }
+            if (number[0] === 0 || number[1] === -Infinity) { return [0, 0]; }
+            if (isNaN(number[0]) || isNaN(number[1])) { return [NaN, NaN]; }
+            return [number[0] < 0 ? -Infinity : Infinity, Infinity]; //Base can be non Infinity
         },
         convertBack: (number: [number, number]): string => {
             number = overlimit.technical.prepare(number);
             if (!isFinite(number[0])) { return `${number[0]}`; }
-
-            if (Math.abs(number[1]) < 1e16) { return number[1] === 0 ? `${number[0]}` : `${number[0]}e${number[1]}`; }
-
-            const exponent = Math.floor(Math.log10(number[1]));
-            const result = Math.round(number[1] / 10 ** (exponent - 14)) / 1e14;
-
-            return `${number[0]}e${result}e${exponent}`;
+            return number[1] === 0 ? `${number[0]}` : `${number[0]}e${number[1]}`;
         }
     }
 };

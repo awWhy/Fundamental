@@ -1,8 +1,7 @@
-import { getClass, getId } from './Main';
+import { getClass, getId, getQuery } from './Main';
 import { cloneArray, global, player, playerStart } from './Player';
 import { resetVacuum } from './Reset';
 import { Alert, AlertWait, Confirm, specialHTML } from './Special';
-import { stageCheck } from './Update';
 
 export const prepareVacuum = () => {
     const { buildings } = playerStart;
@@ -50,11 +49,12 @@ export const prepareVacuum = () => {
         researchesExtraInfo[1].maxActive = 5;
         researchesExtraInfo[2].maxActive = 4;
         researchesExtraInfo[3].maxActive = 5;
-        //esearchesExtraInfo[4].maxActive = 2;
+        //researchesExtraInfo[4].maxActive = 2;
         //researchesExtraInfo[5].maxActive = 0;
 
         global.accretionInfo.rankCost[5] = 2.47e31;
         global.researchesAutoInfo.startCost[0] = 2000;
+        global.researchesAutoInfo.scaling[0] = 29000;
         global.ASRInfo.costRange[1] = [4000, 12000, 24000, 32000, 44000];
 
         const strangeness1Cost = [2, 1, 20, 40, 2, 1, 2, 4, 20];
@@ -62,7 +62,7 @@ export const prepareVacuum = () => {
         strangenessInfo[1].startCost.splice(0, strangeness1Cost.length, ...strangeness1Cost);
         strangenessInfo[1].scaling.splice(0, strangeness1Scaling.length, ...strangeness1Scaling);
         const strangeness2Cost = [1, 2, 3, 4, 20, 4, 1, 4, 30];
-        const strangeness2Scaling = [1.5, 2, 3, 3, 1, 1.6, 1.6, 4, 1];
+        const strangeness2Scaling = [1.5, 2, 3, 3, 1, 1.6, 2, 4, 1];
         strangenessInfo[2].startCost.splice(0, strangeness2Cost.length, ...strangeness2Cost);
         strangenessInfo[2].scaling.splice(0, strangeness2Scaling.length, ...strangeness2Scaling);
         const strangeness3Cost = [1, 2, 6, 18, 30, 3, 10, 20];
@@ -73,7 +73,7 @@ export const prepareVacuum = () => {
         const strangeness4Scaling = [1.8, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
-        const strangeness5Cost = [1e10, 12, 20, 5, 10, 40, 800, 60, 20];
+        const strangeness5Cost = [1e10, 12, 50, 5, 10, 40, 800, 60, 200];
         const strangeness5Scaling = [1, 1, 1, 1.8, 1.75, 1, 1.5, 1.5, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
@@ -82,6 +82,8 @@ export const prepareVacuum = () => {
         strangenessInfo[3].maxActive = 10;
         strangenessInfo[4].maxActive = 11;
         //strangenessInfo[5].maxActive = 9;
+
+        getQuery('#historyMainDiv p').textContent = 'Stage resets:';
 
         getId('strange10Stage1').style.display = 'none'; //Re enable
         getId('strange10Stage2').style.display = '';
@@ -96,17 +98,14 @@ export const prepareVacuum = () => {
         getId('strange9Stage4').style.display = '';
         getId('strange10Stage4').style.display = '';
         getId('strange6Stage5').style.display = '';
-        getId('strangenessSection2').style.display = '';
-        getId('strangenessSection3').style.display = '';
-        getId('strangenessSection4').style.display = '';
-        getId('strangenessSection5').style.display = '';
-        getId('milestone1Stage5Div').style.display = '';
-        getId('milestone2Stage5Div').style.display = '';
-        getId('preonCap').style.display = '';
-        getId('dustCap').style.display = '';
+        for (let s = 2; s <= 5; s++) {
+            getId(`strangenessSection${s}`).style.display = '';
+            getId(`milestone1Stage${s}Div`).style.display = '';
+            getId(`milestone2Stage${s}Div`).style.display = '';
+        }
         getId('unknownStructures').style.display = 'none';
 
-        const stageWord = getId('stageWord') as HTMLSpanElement;
+        const stageWord = getId('stageWord');
         stageWord.textContent = global.stageInfo.word[6];
         stageWord.style.color = global.stageInfo.textColor[6];
         for (const element of getClass('vacuum')) { element.style.display = ''; }
@@ -157,6 +156,7 @@ export const prepareVacuum = () => {
 
         global.accretionInfo.rankCost[5] = 0;
         global.researchesAutoInfo.startCost[0] = 300;
+        global.researchesAutoInfo.scaling[0] = 21850;
         global.ASRInfo.costRange[1] = [4000, 12000, 20000];
 
         const strangeness1Cost = [1, 1, 2, 4, 4, 1, 2, 2, 10];
@@ -164,7 +164,7 @@ export const prepareVacuum = () => {
         strangenessInfo[1].startCost.splice(0, strangeness1Cost.length, ...strangeness1Cost);
         strangenessInfo[1].scaling.splice(0, strangeness1Scaling.length, ...strangeness1Scaling);
         const strangeness2Cost = [1, 2, 2, 1, 3, 2, 1, 3, 8];
-        const strangeness2Scaling = [0.2, 0.5, 1.5, 2, 0, 1, 1.34, 2.5, 0];
+        const strangeness2Scaling = [0.2, 0.5, 1.5, 2, 0, 1, 0.5, 2.5, 0];
         strangenessInfo[2].startCost.splice(0, strangeness2Cost.length, ...strangeness2Cost);
         strangenessInfo[2].scaling.splice(0, strangeness2Scaling.length, ...strangeness2Scaling);
         const strangeness3Cost = [1, 1, 3, 4, 3, 2, 5, 6];
@@ -185,6 +185,8 @@ export const prepareVacuum = () => {
         strangenessInfo[4].maxActive = 10;
         strangenessInfo[5].maxActive = 9;
 
+        getQuery('#historyMainDiv p').textContent = 'Intergalactic Stage resets:';
+
         for (const element of getClass('vacuum')) { element.style.display = 'none'; }
         for (let s = 1; s < strangenessInfo.length; s++) {
             for (let i = strangenessInfo[s].maxActive + 1; i <= strangenessInfo[s].startCost.length; i++) {
@@ -197,9 +199,10 @@ export const prepareVacuum = () => {
     }
 
     for (let s = 1; s <= 3; s++) {
-        buildings[s][0].total = cloneArray(buildings[s][0].current);
-        buildings[s][0].trueTotal = cloneArray(buildings[s][0].current);
-        buildings[s][0].highest = cloneArray(buildings[s][0].current);
+        const newValue = buildings[s][0].current;
+        buildings[s][0].total = cloneArray(newValue);
+        buildings[s][0].trueTotal = cloneArray(newValue);
+        buildings[s][0].highest = cloneArray(newValue);
     }
 };
 
@@ -213,36 +216,29 @@ export const switchVacuum = async() => {
     if (milestones[3][1] >= 5) { count++; }
     if (milestones[4][1] >= 5) { count++; }
     if (milestones[5][1] >= 8) { count++; }
-
     if (count < 5) { return Alert(`Universe is still stable. Vacuum state is false. ${5 - count} more`); }
 
-    const ready = await Confirm('This will not be possible to undo. Are you ready?');
-    if (!ready) { return; }
-
+    if (!(await Confirm('This will not be possible to undo. Are you ready?'))) { return; }
     await AlertWait('Universe is too unstable. Vacuum instability is imminent');
-    getId('vacuumState').textContent = 'true';
     player.inflation.vacuum = true;
-    player.stage.true = 6;
+    if (player.stage.true < 6) { player.stage.true = 6; }
     player.stage.current = 1;
     player.stage.active = 1;
     prepareVacuum();
     resetVacuum();
-    stageCheck('reload');
 };
 
 export const updateUnknown = () => {
     const { milestones } = player;
-    const div = getId('unknownStructures') as HTMLDivElement;
-
-    div.style.display = milestones[1][0] >= 5 || milestones[2][1] >= 4 || milestones[3][1] >= 5 || milestones[4][1] >= 5 || milestones[5][1] >= 8 ? '' : 'none';
 
     let text = '<h4 class="darkvioletText">Unknown Structures:</h4>';
-    if (milestones[1][0] >= 5) { text += '\n<img src="Used_art/Preon.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[2][1] >= 4) { text += '\n<img src="Used_art/Ocean.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[3][1] >= 5) { text += '\n<img src="Used_art/Subsatellite.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[4][1] >= 5) { text += '\n<img src="Used_art/Quasi%20star.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[5][1] >= 8) { text += '\n<img src="Used_art/Galaxy%20filament.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[1][0] >= 5) { text += '<img src="Used_art/Preon.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[2][1] >= 4) { text += '<img src="Used_art/Ocean.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[3][1] >= 5) { text += '<img src="Used_art/Subsatellite.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[4][1] >= 5) { text += '<img src="Used_art/Quasi%20star.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[5][1] >= 8) { text += '<img src="Used_art/Galaxy%20filament.png" alt="Unknown Structure" loading="lazy">'; }
 
-    if (div.innerHTML === text) { return; }
-    div.innerHTML = text;
+    const div = getId('unknownStructures');
+    div.style.display = milestones[1][0] >= 5 || milestones[2][1] >= 4 || milestones[3][1] >= 5 || milestones[4][1] >= 5 || milestones[5][1] >= 8 ? '' : 'none';
+    if (div.innerHTML !== text) { div.innerHTML = text; }
 };

@@ -5,12 +5,14 @@ import { buyBuilding, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, s
 import { timeWarp } from './Main';
 
 export const detectHotkey = (check: KeyboardEvent) => {
-    const checkEl = document.activeElement as HTMLInputElement;
-    if (checkEl.type === 'text' || checkEl.type === 'number') { return; }
     if (check.code === 'Tab') {
         document.body.classList.add('outlineOnFocus');
         return;
-    } else { document.body.classList.remove('outlineOnFocus'); }
+    } else {
+        const activeType = (document.activeElement as HTMLInputElement).type;
+        if (activeType === 'text' || activeType === 'number') { return; }
+        document.body.classList.remove('outlineOnFocus');
+    }
     if (check.ctrlKey || check.altKey) { return; }
 
     const shift = check.shiftKey;
@@ -89,9 +91,9 @@ export const detectHotkey = (check: KeyboardEvent) => {
                     switchTab(tabs[index]);
                 }
             } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-                if (!Object.hasOwn(global.subtab, global.tab + 'Current')) { return; }
-                const subtabs = global.tabList[global.tab + 'Subtabs' as 'settingsSubtabs'];
-                let index = subtabs.indexOf(global.subtab[global.tab + 'Current' as 'settingsCurrent']);
+                if (!Object.hasOwn(global.subtab, `${global.tab}Current`)) { return; }
+                const subtabs = global.tabList[`${global.tab as 'stage'}Subtabs`];
+                let index = subtabs.indexOf(global.subtab[`${global.tab as 'stage'}Current`]);
 
                 if (key === 'ArrowDown') {
                     do {

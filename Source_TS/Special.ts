@@ -1,5 +1,5 @@
 import Limit from './Limit';
-import { getId } from './Main';
+import { getId, getQuery } from './Main';
 import { global, player } from './Player';
 import { assignCollapseInformation, assignDischargeInformation, assignVaporizationInformation } from './Stage';
 import { format, numbersUpdate, stageCheck, visualUpdate } from './Update';
@@ -224,12 +224,9 @@ export const setTheme = (themeNumber: number, initial = false) => {
     switchTheme();
 };
 
-//Not done through CSS, because worse (?)
 export const switchTheme = () => {
     const { theme } = global;
     const body = document.body.style;
-    const dropStat = document.querySelector('#footerStat2 > p') as HTMLParagraphElement;
-    const waterStat = document.querySelector('#footerStat3 > p') as HTMLParagraphElement;
 
     if (theme.default) {
         theme.stage = player.stage.active;
@@ -238,15 +235,12 @@ export const switchTheme = () => {
         getId('currentTheme').textContent = global.stageInfo.word[theme.stage];
     }
 
-    /* Full reset, for easier out of order theme change */
+    let dropStatColor = '';
+    let waterStatColor = '';
     body.setProperty('--transition-all', '1s');
     body.setProperty('--transition-buttons', '700ms');
-    for (const text of ['upgrade', 'research', 'element']) {
-        getId(`${text}Effect`).style.color = '';
-        getId(`${text}Cost`).style.color = '';
-        if (text === 'upgrade') { continue; } //Not changed anywhere
-        getId(`${text}Text`).style.color = '';
-    }
+
+    /* Full reset, because better response from CSS (also easier) */
     body.removeProperty('--background-color');
     body.removeProperty('--window-color');
     body.removeProperty('--window-border');
@@ -275,17 +269,25 @@ export const switchTheme = () => {
     body.removeProperty('--red-text-color');
     body.removeProperty('--green-text-color');
     body.removeProperty('--yellow-text-color');
-    dropStat.style.color = '';
-    waterStat.style.color = '';
     /* These colors will need to be changed in other places as well: (not just 2, but from 2 to max)
         --window-color > '.stage2windowBackground';
         --button-main-color > '.stage2backgroundButton' and 'global.stageInfo.buttonBackgroundColor[2]';
         --button-main-border > '.stage2borderButton' and 'global.stageInfo.buttonBorderColor[2]'; */
     switch (theme.stage) {
+        case 1:
+            for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = '';
+                getId(`${text}Cost`).style.color = '';
+                if (text === 'upgrade') { continue; } //Not changed anywhere
+                getId(`${text}Text`).style.color = '';
+            }
+            break;
         case 2:
             for (const text of ['upgrade', 'research', 'element']) {
                 getId(`${text}Effect`).style.color = 'var(--green-text-color)';
                 getId(`${text}Cost`).style.color = 'var(--cyan-text-color)';
+                if (text === 'upgrade') { continue; }
+                getId(`${text}Text`).style.color = '';
             }
             body.setProperty('--background-color', '#070026');
             body.setProperty('--window-color', '#000052');
@@ -306,12 +308,13 @@ export const switchTheme = () => {
             body.setProperty('--green-text-color', '#82cb3b');
             body.setProperty('--red-text-color', '#f70000');
             if (player.stage.active === 2) {
-                dropStat.style.color = '#3099ff';
-                waterStat.style.color = '#3099ff';
+                dropStatColor = '#3099ff';
+                waterStatColor = '#3099ff';
             }
             break;
         case 3:
             for (const text of ['upgrade', 'research', 'element']) {
+                getId(`${text}Effect`).style.color = '';
                 getId(`${text}Cost`).style.color = 'var(--green-text-color)';
                 if (text === 'upgrade') { continue; }
                 getId(`${text}Text`).style.color = 'var(--orange-text-color)';
@@ -335,8 +338,8 @@ export const switchTheme = () => {
             body.setProperty('--orange-text-color', '#f58600');
             body.setProperty('--green-text-color', '#00db00');
             if (player.stage.active === 2) {
-                dropStat.style.color = '#3099ff';
-                waterStat.style.color = '#3099ff';
+                dropStatColor = '#3099ff';
+                waterStatColor = '#3099ff';
             }
             break;
         case 4:
@@ -405,6 +408,7 @@ export const switchTheme = () => {
         case 6:
             for (const text of ['upgrade', 'research', 'element']) {
                 getId(`${text}Effect`).style.color = 'var(--red-text-color)';
+                getId(`${text}Cost`).style.color = '';
                 if (text === 'upgrade') { continue; }
                 getId(`${text}Text`).style.color = 'var(--orchid-text-color)';
             }
@@ -431,6 +435,9 @@ export const switchTheme = () => {
             body.setProperty('--red-text-color', 'red');
             body.setProperty('--yellow-text-color', 'var(--red-text-color)');
     }
+    getQuery('#footerStat2 > p').style.color = dropStatColor;
+    getQuery('#footerStat3 > p').style.color = waterStatColor;
+
     setTimeout(() => {
         body.removeProperty('--transition-all');
         body.removeProperty('--transition-buttons');
@@ -440,7 +447,7 @@ export const switchTheme = () => {
 export const Alert = (text: string) => { void AlertWait(text); };
 export const AlertWait = async(text: string): Promise<void> => {
     return await new Promise((resolve) => {
-        const blocker = getId('blocker') as HTMLDivElement;
+        const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             console.warn("Wasn't able to show another window (alert)");
             resolve();
@@ -448,7 +455,7 @@ export const AlertWait = async(text: string): Promise<void> => {
         }
 
         getId('alertText').textContent = text;
-        const confirm = getId('confirmBtn') as HTMLButtonElement;
+        const confirm = getId('confirmBtn');
         blocker.style.display = '';
         confirm.focus();
 
@@ -468,18 +475,18 @@ export const AlertWait = async(text: string): Promise<void> => {
     });
 };
 
-export const Confirm = async(text: string): Promise<boolean> => {
+export const Confirm = async(text: string, rejectValue = false): Promise<boolean> => {
     return await new Promise((resolve) => {
-        const blocker = getId('blocker') as HTMLDivElement;
+        const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             console.warn("Wasn't able to show another window (confirm)");
-            resolve(false);
+            resolve(rejectValue);
             return;
         }
 
         getId('alertText').textContent = text;
-        const cancel = getId('cancelBtn') as HTMLButtonElement;
-        const confirm = getId('confirmBtn') as HTMLButtonElement;
+        const cancel = getId('cancelBtn');
+        const confirm = getId('confirmBtn');
         blocker.style.display = '';
         cancel.style.display = '';
         confirm.focus();
@@ -509,7 +516,7 @@ export const Confirm = async(text: string): Promise<boolean> => {
 
 export const Prompt = async(text: string): Promise<string | null> => {
     return await new Promise((resolve) => {
-        const blocker = getId('blocker') as HTMLDivElement;
+        const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             console.warn("Wasn't able to show another window (prompt)");
             resolve(null);
@@ -518,8 +525,8 @@ export const Prompt = async(text: string): Promise<string | null> => {
 
         getId('alertText').textContent = text;
         const input = getId('inputArea') as HTMLInputElement;
-        const cancel = getId('cancelBtn') as HTMLButtonElement;
-        const confirm = getId('confirmBtn') as HTMLButtonElement;
+        const cancel = getId('cancelBtn');
+        const confirm = getId('confirmBtn');
         blocker.style.display = '';
         cancel.style.display = '';
         input.style.display = '';
@@ -550,53 +557,77 @@ export const Prompt = async(text: string): Promise<string | null> => {
     });
 };
 
+export const notify = (text: string) => {
+    const notification = document.createElement('p');
+    notification.textContent = text;
+    notification.style.animation = 'hideX 1s ease-in-out reverse';
+
+    const mainDiv = getId('notifications');
+    mainDiv.appendChild(notification);
+
+    let timeout: number | undefined;
+    const remove = () => {
+        notification.removeEventListener('click', remove);
+        notification.style.animation = 'hideX 1s ease-in-out forwards';
+        setTimeout(() => mainDiv.removeChild(notification), 1000);
+        clearTimeout(timeout);
+    };
+
+    setTimeout(() => {
+        notification.style.animation = '';
+        timeout = setTimeout(remove, 9000);
+        notification.addEventListener('click', remove);
+    }, 1000);
+};
+
 export const hideFooter = () => {
-    const footer = getId('footer') as HTMLDivElement;
-    const hide = getId('footerColor') as HTMLDivElement;
-    const toggle = getId('hideToggle') as HTMLDivElement;
-    const text = getId('hideText') as HTMLParagraphElement;
-    const arrow = getId('hideArrow') as HTMLDivElement;
+    const footer = getId('footer');
+    const toggle = getId('hideToggle');
+    const arrow = getId('hideArrow');
+
+    const animationReset = () => {
+        footer.style.animation = '';
+        arrow.style.animation = '';
+        toggle.addEventListener('click', hideFooter);
+    };
 
     global.footer = !global.footer;
     toggle.removeEventListener('click', hideFooter);
     if (global.footer) {
-        hide.style.display = '';
+        getId('footerColor').style.display = '';
         arrow.style.transform = '';
-        footer.style.animation = 'hide 1s forwards reverse';
-        arrow.style.animation = 'rotate 1s forwards reverse';
-        text.textContent = 'Hide';
+        footer.style.animation = 'hideY 1s reverse';
+        arrow.style.animation = 'rotate 1s reverse';
+        getId('hideText').textContent = 'Hide';
+        setTimeout(animationReset, 1000);
 
         numbersUpdate();
         visualUpdate();
     } else {
-        footer.style.animation = 'hide 1s backwards';
+        footer.style.animation = 'hideY 1s backwards';
         arrow.style.animation = 'rotate 1s backwards';
-        text.textContent = 'Show';
-        setTimeout(() => { //While forwards would work, I'm lazy to pause animation
-            hide.style.display = 'none';
+        getId('hideText').textContent = 'Show';
+        setTimeout(() => {
+            getId('footerColor').style.display = 'none';
             arrow.style.transform = 'rotate(180deg)';
+            animationReset();
         }, 1000);
     }
-    setTimeout(() => {
-        footer.style.animation = ''; //Better than using a class
-        arrow.style.animation = '';
-        toggle.addEventListener('click', hideFooter);
-    }, 1000);
 };
 
 export const mobileDeviceSupport = (change = false) => {
-    let turnOn = Boolean(localStorage.getItem('mobile device') ?? false);
-    const toggle = getId('mobileDeviceToggle') as HTMLButtonElement;
+    let enabled = Boolean(localStorage.getItem('mobile device'));
+    const toggle = getId('mobileDeviceToggle');
 
-    if (change) { turnOn = !turnOn; }
+    if (change) { enabled = !enabled; }
 
-    if (turnOn) {
+    if (enabled) {
         toggle.textContent = 'ON';
         toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
         localStorage.setItem('mobile device', 'true');
         global.mobileDevice = true;
-        if (change) { Alert('For full support please refresh the page. This will add on touch start check upgrade and touch end create an upgrade.\n(For non mobile device this will cause issues)'); }
+        if (change) { Alert('For full support please refresh the page. This will add touchStart event (as example: touching an upgrade to view description)'); }
     } else {
         toggle.textContent = 'OFF';
         toggle.style.color = '';
@@ -606,111 +637,102 @@ export const mobileDeviceSupport = (change = false) => {
     }
 };
 
-export const screenReaderSupport = (info = false as boolean | number, type = 'toggle' as 'toggle' | 'button', special = 'building' as 'reload' | 'building' | 'resource' | 'information') => {
-    switch (type) {
-        case 'toggle': {
-            const change = info as boolean;
-            let turnOn = Boolean(localStorage.getItem('screen reader') ?? false);
-            const toggle = getId('screenReaderToggle') as HTMLButtonElement;
+export const screenReaderSupport = (change = false) => {
+    let enabled = Boolean(localStorage.getItem('screen reader'));
+    const toggle = getId('screenReaderToggle');
 
-            if (change) { turnOn = !turnOn; }
+    if (change) { enabled = !enabled; }
 
-            if (turnOn) {
-                if (special === 'reload') { player.toggles.shop.strict = false; } //Too lazy to add dynamic aria-label for current status
+    if (enabled) {
+        toggle.textContent = 'ON';
+        toggle.style.color = 'var(--red-text-color)';
+        toggle.style.borderColor = 'crimson';
+        localStorage.setItem('screen reader', 'true');
+        global.screenReader = true;
+        stageCheck();
+        if (change) { Alert("For full support please refresh the page. This will add focus events (as example: can view description of an upgrade by using 'tab'), also will add special tab to check progress and more (need feedback on it)"); }
+    } else {
+        toggle.textContent = 'OFF';
+        toggle.style.color = '';
+        toggle.style.borderColor = '';
+        localStorage.removeItem('screen reader');
+        global.screenReader = false;
+    }
+};
 
-                toggle.textContent = 'ON';
-                toggle.style.color = 'var(--red-text-color)';
-                toggle.style.borderColor = 'crimson';
-                localStorage.setItem('screen reader', 'true');
-                global.screenReader = true;
-                stageCheck();
-                if (change) { Alert('You will get: focus event on upgrades to get description (Refresh page to get it, also I need feedback on it), special tab to check progress and more.\n(For non screen readers this will cause issues)'); }
-            } else {
-                toggle.textContent = 'OFF';
-                toggle.style.color = '';
-                toggle.style.borderColor = '';
-                localStorage.removeItem('screen reader');
-                global.screenReader = false;
-            }
-            break;
+export const getInformationSR = (index: number, special: 'building' | 'resource' | 'information') => {
+    if (special === 'building') {
+        const { buildingsInfo } = global;
+        const active = player.stage.active;
+        const buildings = player.buildings[active];
+
+        let extra = index - 1;
+        if (active === 4 || (active === 5 && index < 3)) { extra = 0; }
+
+        if (index === 0) {
+            getId('SRMain').textContent = `You have ${Limit(buildings[0].current).format()} ${buildingsInfo.name[active][0]}`;
+        } else {
+            getId('SRMain').textContent = `You have ${Limit(buildings[index].current).format()} ${buildingsInfo.name[active][index]}${Limit(buildings[index].current).notEqual(buildings[index as 1].true) ? `, out of them ${format(buildings[index as 1].true)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${Limit(buildingsInfo.producing[active][index]).format()} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${Limit(buildingsInfo.producing[active][index]).format()}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
         }
-        case 'button': {
-            const index = info as number;
-            const invText = getId('SRMain') as HTMLLabelElement;
-
-            if (special === 'building') {
-                const { buildingsInfo } = global;
-                const active = player.stage.active;
-                const buildings = player.buildings[active];
-
-                let extra = index - 1;
-                if (active === 4 || active === 5) { extra = 0; }
-
-                if (index === 0) {
-                    invText.textContent = `You have ${Limit(buildings[0].current).format()} ${buildingsInfo.name[active][0]}`;
-                } else {
-                    invText.textContent = `You have ${Limit(buildings[index].current).format()} ${buildingsInfo.name[active][index]}${Limit(buildings[index].current).notEqual(buildings[index as 1].true) ? `, out of them ${format(buildings[index as 1].true)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${Limit(buildingsInfo.producing[active][index]).format()} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${Limit(buildingsInfo.producing[active][index]).format()}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
-                }
-            } else if (special === 'resource') {
-                if (index === 0) {
-                    invText.textContent = `You have ${format(player.strange[0].current)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.gain(player.stage.active))} on Stage reset`;
-                } else if (index === 1) {
-                    if (player.stage.active === 1) {
-                        assignDischargeInformation();
-                        invText.textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${global.dischargeInfo.bonus > 0 ? `, you also have +${format(global.dischargeInfo.bonus)} free goals.` : ''}`;
-                    } else if (player.stage.active === 2) {
-                        assignVaporizationInformation();
-                        invText.textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan([1, 0]) ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
-                    } else if (player.stage.active === 4) {
-                        assignCollapseInformation();
-                        invText.textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
-                    }
-                }
-            } else if (special === 'information') {
-                let activeStages = '';
-
-                for (let i = 0; i < global.stageInfo.activeAll.length; i++) {
-                    activeStages += (i === 0 ? '' : ', ') + global.stageInfo.word[global.stageInfo.activeAll[i]];
-                }
-
-                invText.textContent = `Current Active Stages are ${activeStages}`;
+    } else if (special === 'resource') {
+        if (index === 0) {
+            getId('SRMain').textContent = `You have ${format(player.strange[0].current)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.gain(player.stage.active))} on Stage reset`;
+        } else if (index === 1) {
+            if (player.stage.active === 1) {
+                assignDischargeInformation();
+                getId('SRMain').textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${global.dischargeInfo.bonus > 0 ? `, you also have +${format(global.dischargeInfo.bonus)} free goals.` : ''}`;
+            } else if (player.stage.active === 2) {
+                assignVaporizationInformation();
+                getId('SRMain').textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan('1') ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
+            } else if (player.stage.active === 4) {
+                assignCollapseInformation();
+                getId('SRMain').textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
             }
+        }
+    } else if (special === 'information') {
+        if (index === 0) {
+            const { activeAll, word } = global.stageInfo;
+
+            let activeStages = word[activeAll[0]];
+            for (let i = 1; i < activeAll.length; i++) {
+                activeStages += `, ${word[activeAll[i]]}`;
+            }
+
+            getId('SRMain').textContent = `Current Active Stages are ${activeStages}`;
         }
     }
 };
 
 export const changeFontSize = (change = false, inputChange = false) => {
-    const body = document.body.style;
-    const input = getId('customFontSize') as HTMLInputElement;
-    const toggle = getId('fontSizeToggle') as HTMLButtonElement;
-    let enable = Boolean(localStorage.getItem('enableCustomFontSize')) ?? false;
-    let size = localStorage.getItem('fontSize');
+    const toggle = getId('fontSizeToggle');
+    let enabled = Boolean(localStorage.getItem('fontSize'));
 
-    if (change) { enable = !enable; }
+    if (change) { enabled = !enabled; }
 
-    if (!enable) {
-        body.removeProperty('--font-size');
+    if (!enabled) {
+        document.body.style.removeProperty('--font-size');
         localStorage.removeItem('fontSize');
-        localStorage.removeItem('enableCustomFontSize');
         toggle.textContent = 'OFF';
         toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
     } else {
-        if (size === null || Number(size) < 10 || Number(size) > 32 || inputChange) {
-            size = `${Math.min(Math.max(Math.trunc(Number(input.value) * 10) / 10, 10), 32)}`;
-            localStorage.setItem('fontSize', size);
+        const input = getId('customFontSize') as HTMLInputElement;
+        let size = Number(localStorage.getItem('fontSize'));
+        if (size < 10 || size > 32 || inputChange) {
+            size = Math.min(Math.max(Math.floor(Number(input.value) * 10) / 10, 10), 32);
         }
-        body.setProperty('--font-size', `${size}px`);
-        input.value = size;
-        localStorage.setItem('enableCustomFontSize', 'true');
+
+        document.body.style.setProperty('--font-size', `${size}px`);
+        localStorage.setItem('fontSize', `${size}`);
         toggle.textContent = 'ON';
         toggle.style.color = '';
         toggle.style.borderColor = '';
+        input.value = `${size}`;
     }
 };
 
 export const changeFormat = (point: boolean) => {
-    const htmlInput = point ? getId('decimalPoint') as HTMLInputElement : getId('thousandSeparator') as HTMLInputElement;
+    const htmlInput = (point ? getId('decimalPoint') : getId('thousandSeparator')) as HTMLInputElement;
     const allowed = ['.', ',', ' ', '_', '^', '"', "'", '`', '|'].includes(htmlInput.value);
     if (!allowed || (point ? player.separator[0] : player.separator[1]) === htmlInput.value) {
         if (point && player.separator[0] === '.') {

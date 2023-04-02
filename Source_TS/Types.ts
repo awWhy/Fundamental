@@ -33,9 +33,7 @@ export interface playerType {
         elementsMax: overlimit
         stars: [number, number, number]
         show: number[]
-        inputM: number
-        inputS: number
-        //input: [number, number]
+        input: [number, number]
     }
     inflation: {
         vacuum: boolean
@@ -114,16 +112,11 @@ export interface globalType {
         researchSubtabs: string[]
         strangenessSubtabs: string[]
     }
+    versionBuild: boolean
+    lastSave: number
     footer: boolean
     mobileDevice: boolean
     screenReader: boolean
-    versionInfo: {
-        build: boolean
-        changed: boolean
-    }
-    timeSpecial: {
-        lastSave: number
-    }
     automatization: {
         autoU: number[][]
         autoR: number[][]
@@ -135,7 +128,7 @@ export interface globalType {
         default: boolean
     }
     dischargeInfo: {
-        updateEnergy: () => void
+        getEnergy: (index: number, stageIndex: number) => number
         energyType: number[][]
         bonus: number
         next: number
@@ -171,10 +164,10 @@ export interface globalType {
         massCap: number
     }
     intervalsId: {
-        main: number
-        numbers: number
-        visual: number
-        autoSave: number
+        main: number | undefined
+        numbers: number | undefined
+        visual: number | undefined
+        autoSave: number | undefined
     }
     stageInfo: {
         word: string[]
@@ -188,7 +181,7 @@ export interface globalType {
     buildingsInfo: {
         maxActive: number[]
         name: string[][]
-        type: Array<Array<'producing' | 'improves'>>
+        type: Array<['', ...Array<'producing' | 'improves'>]>
         firstCost: number[][]
         startCost: number[][]
         increase: number[][]
@@ -260,10 +253,11 @@ export interface globalType {
     lastElement: [boolean, number]
     milestonesInfo: Array<{
         description: string[]
-        needText: string[][]
-        need: Array<Array<number | overlimit>>
+        need: overlimit[]
+        reward: number[]
+        scalingOld: Array<[number[], number[]]>
+        needText: Array<() => string>
         rewardText: string[]
-        quarks: number[][]
         unlock: number[]
     }>
     historyStorage: {

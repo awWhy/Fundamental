@@ -24,35 +24,35 @@
         "max-statements-per-line": ["error", { "max": 2 }], //Because brace-style isn't working. So only allowed for cases like 'if (condition) { do this; }'
         "no-promise-executor-return": "error", //Test
         "no-unsafe-optional-chaining": "error", //Test
-        "no-fallthrough": "error", // add `//falls through` if you need intentional one
+        "no-fallthrough": "error", //falls through; For intentional one
         "no-unused-private-class-members": "warn", //Test
-        "no-unsafe-negation": ["error", { "enforceForOrderingRelations": true }], //Use (!key) or !(a < b), if don't understand it
-        "no-empty": "warn", //Add comment inside empty if testing
-        "no-void": "error", //Test
+        "no-unsafe-negation": ["error", { "enforceForOrderingRelations": true }], //Use (!key) or !(a < b), instead
+        "no-empty": "warn", //If testing then add comment inside
+        "no-void": "error",
         "no-useless-concat": "warn",
         "no-extra-label": "warn",
         "switch-colon-spacing": "error",
         "generator-star-spacing": "error",
-        "no-var": "warn", //Unless there is a good reason, it will be on
+        "no-var": "warn",
         "multiline-ternary": "off", //I don't like it
         //"no-case-declarations": "off", //Can be turned off
         //"no-class-assign": "off", //Can be turned off
         "no-sparse-arrays": "off",
         "operator-assignment": "warn", //Test
         "operator-linebreak": ["error", "after"],
-        //"no-return-assign": "off", //Put inside (), (return a = b)
+        //"no-return-assign": "off", //return (a = b), if intentional
         "eqeqeq": "warn", //Using ===, won't be slower than == (even if need type conversion)
         "no-loop-func": "warn", //Test
         "prefer-object-has-own": "warn", //No 'in' as well (because it's not actually quicker, sad...)
-        "no-labels": "off", //I'm not that bad at coding to use labels instead of continue...
+        "no-labels": "off",
 
         "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
         "@typescript-eslint/semi": ["error", "always"],
         "@typescript-eslint/explicit-function-return-type": "off", //I don't like it
         "@typescript-eslint/space-before-function-paren": ["error", "never"],
         "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }], //Can be changed, also I don't understand "ignoreRestSiblings"
-        "@typescript-eslint/no-empty-function": "warn", //Add comment inside empty if testing
-        "@typescript-eslint/no-empty-interface": "warn", //Add comment inside empty if testing
+        "@typescript-eslint/no-empty-function": "warn", //If testing then add comment inside
+        "@typescript-eslint/no-empty-interface": "warn", //If testing then add comment inside
         "@typescript-eslint/no-invalid-this": "error", //Test
         "@typescript-eslint/no-extra-semi": "error",
         "@typescript-eslint/await-thenable": "error", //Test
@@ -61,19 +61,19 @@
         //"@typescript-eslint/no-unnecessary-condition": "warn", //This one is stupid, just because an object doesn't have type undefined DOES NOT mean it cannot be undefined. I'm not adding into every single object undefined type, probably really easy to guess why
         "@typescript-eslint/no-unnecessary-type-constraint": "warn", //Test
         "@typescript-eslint/no-unnecessary-type-arguments": "warn", //Test
-        "@typescript-eslint/no-require-imports": "warn", //I think it's better this way
+        "@typescript-eslint/no-require-imports": "warn",
         "@typescript-eslint/no-redeclare": ["error", { "builtinGlobals": true }],
         "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn", //Test
         "@typescript-eslint/no-meaningless-void-operator": "warn", //Test
         "@typescript-eslint/no-inferrable-types": "warn",
-        "@typescript-eslint/default-param-last": "error", //For QoL
+        "@typescript-eslint/default-param-last": "error",
         "@typescript-eslint/prefer-namespace-keyword": "warn", //I dont know what this mean...
         "@typescript-eslint/prefer-as-const": "error", //Test
         "@typescript-eslint/restrict-plus-operands": "off", //This is dumb
         "@typescript-eslint/restrict-template-expressions": "off", //I hate it
         "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
         "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }], //I dont know what it means...
-        "@typescript-eslint/no-dynamic-delete": "off" //I can tell when I can delete
+        "@typescript-eslint/no-dynamic-delete": "off"
         //"@typescript-eslint/array-type": ["error", { "default": "array" }] //I rather just to turn it off
     }
 }
