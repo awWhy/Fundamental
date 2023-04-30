@@ -7,9 +7,9 @@ import { prepareVacuum } from './Vacuum';
 console.time('Game loaded in'); //Just for fun (end is in Main.ts file)
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.1.4',
+    version: 'v0.1.5',
     fileName: 'Fundamental, [date] [time], [stage]',
-    separator: ['', '.'], //[0] every 3 numbers, [1] point
+    separator: ['', '.'], //[0] separator, [1] point
     stage: {
         true: 1,
         current: 1,
@@ -38,9 +38,9 @@ export const player: playerType = { //Only for information that need to be saved
     collapse: { //Stage 4, 5
         mass: 0.01235,
         massMax: 0.01235,
-        elementsMax: [1, 0], //Used for Nickel (reset on Stage)
+        elementsMax: [1, 0],
         stars: [0, 0, 0],
-        show: [], //What Elements have been bought this Stage reset
+        show: [],
         input: [4, 2]
     },
     inflation: { //Stage 6
@@ -48,7 +48,7 @@ export const player: playerType = { //Only for information that need to be saved
         age: 0
     },
     intervals: {
-        main: 50,
+        main: 20,
         numbers: 100,
         visual: 1,
         autoSave: 60
@@ -56,22 +56,22 @@ export const player: playerType = { //Only for information that need to be saved
     time: {
         updated: Date.now(),
         started: Date.now(),
-        offline: 0
+        offline: 0,
+        disabled: 0
     },
     buildings: [
-        [] as unknown as [{ current: overlimit, total: overlimit, trueTotal: overlimit, highest: overlimit }, ...Array<{ true: number, current: overlimit, total: overlimit, trueTotal: overlimit, highest: overlimit }>], //Placeholder
-        [ //Stage 1
+        [] as unknown as playerType['buildings'][0], [ //Stage 1
             {
                 current: [3, 0],
                 total: [3, 0],
                 trueTotal: [3, 0],
                 highest: [3, 0]
             }, {
-                true: 0, //How many were bought
+                true: 0, //Bought
                 current: [0, 0], //On hands
-                total: [0, 0], //How many were gained this reset
-                trueTotal: [0, 0], //How many were gained this stage
-                highest: [0, 0] //Highest 'current' that was reached in any stage
+                total: [0, 0], //This reset
+                trueTotal: [0, 0], //This stage
+                highest: [0, 0] //Highest 'current' in any stage
             }, {
                 true: 0,
                 current: [0, 0],
@@ -265,15 +265,14 @@ export const player: playerType = { //Only for information that need to be saved
     toggles: {
         normal: [], //Auto added for every element with a class 'toggle'
         /* Offline auto use[0]; Stage confirm[1]; Discharge confirm[2]; Vaporization confirm[3]; Rank confirm[4]; Collapse confirm[5]
-           Hotkeys type[6] */
+           Hotkeys type[6]; Elements as tab[7] */
         buildings: [], //Class 'toggleBuilding' ([0] everywhere, is toggle all)
         auto: [], //Class 'toggleAuto'
         /* Stage[0], Discharge[1], Vaporization[2], Rank[3], Collapse[4],
            Upgrades[5], Researches[6], ResearchesExtra[7], Elements[8] */
         shop: {
             howMany: 1,
-            input: 10,
-            strict: true
+            input: 10
         }
     },
     history: {
@@ -298,17 +297,19 @@ export const global: globalType = { //For information that doesn't need to be sa
     },
     tabList: { //Tabs and subtab must be in same order as in footer
         /* Subtabs format must be: [subtabName] + 'Subtabs' */
-        tabs: ['stage', 'research', 'strangeness', 'settings', 'special'], //'special' must be last
+        tabs: ['stage', 'research', 'strangeness', 'settings'],
         stageSubtabs: ['Structures', 'Advanced'],
         settingsSubtabs: ['Settings', 'History', 'Stats'],
         researchSubtabs: ['Researches', 'Elements'],
         strangenessSubtabs: ['Matter', 'Milestones']
     },
+    lastActive: null,
     versionBuild: false,
     lastSave: 0,
+    timeMode: true,
     footer: true,
     mobileDevice: false,
-    screenReader: false,
+    screenReader: [false, true], //[0] Enabled; No tabindex [1] on bought upgrades, [2] on main buttons
     automatization: { //Sorted cheapest first
         autoU: [ //Upgrades
             [], //Empty
@@ -363,12 +364,12 @@ export const global: globalType = { //For information that doesn't need to be sa
         get: [0, 0]
     },
     accretionInfo: {
-        extra: 0,
+        effective: 0,
         rankU: [1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5], //Upgrades
         rankR: [1, 1, 2, 2, 3, 3, 4, 5], //Researches
         rankE: [2, 3, 4, 5, 3], //Researches Extra
         rankCost: [5.97e27, 1e-7, 1e10, 1e24, 5e29, 2.47e31, 0],
-        rankName: ['Ocean world', 'Cosmic dust', 'Meteoroid', 'Asteroid', 'Planet', 'Jovian planet', 'Protostar'], //Also alt attribute
+        rankName: ['Ocean world', 'Cosmic dust', 'Meteoroid', 'Asteroid', 'Planet', 'Jovian planet', 'Protostar'],
         rankImage: ['Ocean%20world.png', 'Dust.png', 'Meteoroids.png', 'Asteroid.png', 'Planet.png', 'Giant.png', 'Protostar.png']
     },
     collapseInfo: {
@@ -387,11 +388,9 @@ export const global: globalType = { //For information that doesn't need to be sa
         starCheck: [0, 0, 0],
         starEffect: [
             (post = false) => {
-                global.elementsInfo.effect[6] = player.researchesExtra[4][1] >= 1 ? 2 : 1.5;
-
                 let effect = player.collapse.stars[0] + 1;
                 if (post) { effect += global.collapseInfo.starCheck[0]; }
-                if (player.elements[6] === 1) { effect **= global.elementsInfo.effect[6]; }
+                if (player.elements[6] === 1) { effect **= global.elementsInfo.effect[6] as number; }
                 return effect;
             },
             (post = false) => {
@@ -485,7 +484,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         Element28: () => {
             let effect = Limit(player.collapse.elementsMax).log(10).toNumber() - 52;
             if (!player.inflation.vacuum && player.upgrades[5][2] === 1) { effect **= 1.5; }
-            return (global.elementsInfo.effect[28] = Math.floor(effect));
+            return (global.elementsInfo.effect[28] = Math.max(Math.floor(effect), 0));
         },
         gain: (stage: number) => {
             let gain = 1;
@@ -498,25 +497,19 @@ export const global: globalType = { //For information that doesn't need to be sa
                 if (player.researchesExtra[2][3] >= 1) { gain += global.vaporizationInfo.effect2RE3(); }
             }
             if (player.strangeness[5][1] >= 1) { gain *= 2; }
-            return gain;
+            return Math.floor(gain);
         },
         stageBoost: [null, null, null, null, null, null]
     },
     upgradesInfo: [ //Effect is null if it can't change
-        {
-            description: [],
-            effectText: [],
-            effect: [],
-            startCost: [],
-            maxActive: 0
-        }, { //Stage 1
-            description: [
+        {} as globalType['upgradesInfo'][0], { //Stage 1
+            name: [
                 'Weak force',
                 'Strong force',
                 'Bigger electrons',
                 'Stronger protons',
                 'More neutrons',
-                'Superposition. Unlock a new reset tier',
+                'Superposition',
                 'Protium. Basic',
                 'Deuterium. Heavy',
                 'Tritium. Radioactive',
@@ -538,34 +531,34 @@ export const global: globalType = { //For information that doesn't need to be sa
             startCost: [32, 48, 60, 90, 150, 400, 1600, 4000, 32000, 100000],
             maxActive: 10
         }, { //Stage 2
-            description: [
-                'Molecules to Moles. Even more Moles',
-                'Vaporization. Unlock a new reset tier',
-                'Surface tension. Bigger Puddles',
-                'Surface stress. Biggest Puddles',
-                'Stream. Spreads water around',
-                'River. Spreads even more water',
-                'Tsunami. Spreads water too fast'
+            name: [
+                'Molecules to Moles',
+                'Vaporization',
+                'Surface tension',
+                'Surface stress',
+                'Stream',
+                'River',
+                'Tsunami'
             ],
             effectText: [
                 () => 'Drops will produce Moles even more for every self-made Drops.',
-                () => `Gain ability to convert Drops into Clouds. (Puddles get a boost equal to Cloud amount)\nCurrent Cloud gain is (Drops / ${format(global.vaporizationInfo.effect2U1())})^${Limit(player.vaporization.clouds).moreOrEqual('1e4') ? `${format(player.inflation.vacuum ? 0.2 : 0.36)}. (Softcapped)` : `${format(player.inflation.vacuum ? 0.4 : 0.6)}.`}`,
-                () => `Puddles get boost based on Moles. (Equal to Moles ^ ${format(global.upgradesInfo[2].effect[2] as number)})`,
-                () => `Puddles get boost based on Drops. (Equal to Drops ^ ${format(global.upgradesInfo[2].effect[3] as number)})`,
+                () => `Gain ability to convert Drops into Clouds. (Puddles get a boost equal to Cloud amount)\nCurrent Cloud gain is (Drops / ${format(global.vaporizationInfo.effect2U1())})^${Limit(player.vaporization.clouds).moreOrEqual('1e4') ? `${format(player.inflation.vacuum ? 0.3 : 0.36)}. (Softcapped)` : `${format(player.inflation.vacuum ? 0.4 : 0.6)}.`}`,
+                () => `Puddles get boost based on Moles. (Equal to Moles ^${format(global.upgradesInfo[2].effect[2] as number)})`,
+                () => `Puddles get boost based on Drops. (Equal to Drops ^${format(global.upgradesInfo[2].effect[3] as number)})`,
                 () => `Ponds now create extra Puddles. (${format(global.upgradesInfo[2].effect[4] as number)} extra Puddles per Pond)`,
                 () => `Lakes now create extra Ponds. (${format(global.upgradesInfo[2].effect[5] as number)} extra Ponds per Lake)`,
-                () => 'Each Sea creates 1 extra Lake.'
+                () => 'Spreads enough water to make each Sea create 1 extra Lake.'
             ],
             effect: [null, 1e10, 0.02, 0.02, 1, 1, null],
             startCost: [10, 1e10, 1000, 10000, 2e9, 5e20, 1e28],
             maxActive: 7
         }, { //Stage 3
-            description: [
+            name: [
                 'Brownian motion',
-                'Gas. New substance for Accretion',
-                'Micrometeoroid. Unlock a new Structure',
+                'Gas',
+                'Micrometeoroid',
                 'Streaming instability',
-                'Gravitational field. Unlock a new Structure',
+                'Gravitational field',
                 'Rubble pile',
                 'Satellite system',
                 'Magma ocean',
@@ -577,10 +570,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `Through random collisions every self-made Dust speeds up Accretion speed. (By ${format(global.upgradesInfo[3].effect[0] as number)})`,
-                () => `Accretion speed is now quicker based on current Dust amount. (${Limit(global.upgradesInfo[3].effect[1] as overlimit).format()} boost)`,
-                () => 'Just a small meteoroid, but it will be a good base for what to come. (Also 2x boost to Dust)',
+                () => `New substance for Accretion, will provide boost to Accretion speed based on current Dust amount. (${Limit(global.upgradesInfo[3].effect[1] as overlimit).format()} boost)`,
+                () => 'Just a small meteoroid, but it will be a good base for what to come. (Unlock a new Structure and get 2x boost to Dust)',
                 () => `Small bodies spontaneously concentrate into clumps. (Self-made Planetesimals boost each other by ${format(1.02)})`,
-                () => 'Bodies are now massive enough to affect each other with gravity. (4x boost to Planetesimals)',
+                () => 'Bodies are now massive enough to affect each other with gravity. (Unlock a new Structure and get 4x boost to Planetesimals)',
                 () => 'Shattered pieces fall back together. Mass production is now even bigger. (By 3x)',
                 () => 'Unlock yet another Structure.',
                 () => `Core melted, Accretion speed increased. (Mass production increased by ${format(global.upgradesInfo[3].effect[7] as number)})`,
@@ -594,7 +587,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             startCost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e22, 1e11, 1e22, 1e23, 1e9, 1e26, 1e29],
             maxActive: 13
         }, { //Stage 4
-            description: [
+            name: [
                 'Gravitational collapse',
                 'Proton-proton chain',
                 'Carbon-Nitrogen-Oxygen cycle',
@@ -610,7 +603,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             startCost: [100, 1000, 1e9, 1e50],
             maxActive: 4
         }, { //Stage 5
-            description: [
+            name: [
                 'Jeans instability',
                 'Super star cluster',
                 'Quasar'
@@ -618,30 +611,21 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 () => `Gravitational collapse within Nebulas will increase speed for production of Stars by ${format(global.upgradesInfo[5].effect[0] as number)} times.`,
                 () => `A very massive Star clusters, that will boost Stars by ${format(global.upgradesInfo[5].effect[1] as number)}.`,
-                () => `${player.inflation.vacuum ? 'Boost per Galaxy increased by ' : 'Nickel Element receives super boost of ^'}${format(1.5)}.`
+                () => player.inflation.vacuum ? `Boost per Galaxy increased by +${format(0.2)}` : `'[28] Nickel' Element receives super boost of ^${format(1.5)}.`
             ],
             effect: [4, 6, null],
-            startCost: [1e50, 1e60, 1e100],
+            startCost: [1e50, 1e60, 1e140],
             maxActive: 3
         }
     ],
     researchesInfo: [
-        {
-            description: [],
-            effectText: [],
-            effect: [],
-            cost: [],
-            startCost: [],
-            scaling: [],
-            max: [],
-            maxActive: 0
-        }, { //Stage 1
-            description: [
-                "Stronger 'Protium'",
-                "Better 'Deuterium'",
-                "Bigger 'Tritium'",
-                'Discharge requirement decreased',
-                'Discharge improved',
+        {} as globalType['researchesInfo'][0], { //Stage 1
+            name: [
+                'Stronger Protium',
+                'Better Deuterium',
+                'Improved Tritium',
+                'Requirement decrease',
+                'Discharge improvement',
                 'Radioactive Discharge'
             ],
             effectText: [
@@ -659,7 +643,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [9, 3, 9, 2, 1, 3],
             maxActive: 6
         }, { //Stage 2
-            description: [
+            name: [
                 'Better Mole production',
                 'Condensation',
                 'Stronger surface tension',
@@ -682,7 +666,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [9, 2, 3, 3, 2, 2],
             maxActive: 6
         }, { //Stage 3
-            description: [
+            name: [
                 'More massive bodies',
                 'Adhesion',
                 'Space weathering',
@@ -709,7 +693,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [7, 3, 9, 4, 2, 5, 3, 3],
             maxActive: 8
         }, { //Stage 4
-            description: [
+            name: [
                 'Planetary system',
                 'Star system',
                 'Protoplanetary disk',
@@ -717,7 +701,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `From Planetesimals to Planets, will get ${format(global.researchesInfo[4].effect[0] as number)}x boost to all Stars.`,
-                () => `Each Star boost another Star. (Total to each Star is ${Limit(global.researchesInfo[4].effect[1] as overlimit).format({ padding: true })}x${Limit(global.researchesInfo[4].effect[1] as overlimit).moreOrEqual('1e10') ? ', softcapped' : ''})`,
+                () => `Each Star boost another Star. (Total to each Star is ${Limit(global.researchesInfo[4].effect[1] as overlimit).format({ padding: true })}x${(global.researchesInfo[4].effect[1] as overlimit)[1] >= 10 ? ', softcapped' : ''})`,
                 () => "Improve effect of 'Planetary system', as well increases its max level by +3.",
                 () => 'Matter expelled from Red giants, but get 10x boost to Main-sequence stars anyway.'
             ],
@@ -728,18 +712,18 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [3, 2, 1, 1],
             maxActive: 4
         }, { //Stage 5
-            description: [
+            name: [
                 'Higher density',
                 'Type frequency'
             ],
             effectText: [
                 () => {
                     const index = Math.min(player.researches[5][0] + 2, 4);
-                    return `Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ${Limit(player.buildings[4][index].trueTotal).notEqual('0') ? global.buildingsInfo.name[4][index] : '(unknown)'}.`;
+                    return `Higher density of Nebulas, will allow them to produce higher tier of Stars, but each tier is 4 times slower than previous one. Also will boost Nebulas by 4.\nNext tier will be ${player.buildings[4][index].trueTotal[0] === 0 ? '(unknown)' : global.buildingsInfo.name[4][index]}.`;
                 },
                 () => {
                     const index = Math.max(3 - player.researches[5][1], 1);
-                    return `More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ${Limit(player.buildings[4][index].trueTotal).notEqual('0') ? global.buildingsInfo.name[4][index] : '(unknown)'}.`;
+                    return `More types of Stars are found within Star cluster. Increasing effect by 3, but also boosting lower tier of Stars. (3 times less than higher one)\nNext tier will be ${player.buildings[4][index].trueTotal[0] === 0 ? '(unknown)' : global.buildingsInfo.name[4][index]}.`;
                 }
             ],
             effect: [null, null],
@@ -751,17 +735,8 @@ export const global: globalType = { //For information that doesn't need to be sa
         }
     ],
     researchesExtraInfo: [
-        {
-            description: [],
-            effectText: [],
-            effect: [],
-            cost: [],
-            startCost: [],
-            scaling: [],
-            max: [],
-            maxActive: 0
-        }, {
-            description: [
+        {} as globalType['researchesExtraInfo'][0], { //Stage 1
+            name: [
                 'Extra strong force',
                 'Better radiation base',
                 'Accretion',
@@ -772,7 +747,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Mesons now binds Particles to form Atoms as well. Atoms are affected by strong force.',
                 () => `Improve formula for Radiation, ${player.researchesExtra[1][1] < 1 ? 'logE > log2' : `log${format(global.researchesExtraInfo[1].effect[1] as number)}${player.researchesExtra[1][1] < 10 ? ` > log${format(global.researchesExtraInfo[1].effect[1] as number - 0.1)}` : ''}`}.`,
                 () => 'First level is to begin the Accretion, second level is to Submerge it.\nEverything is connected. All Structures produce Energy on creation.',
-                () => `Hardcap for Mass production from Preons is delayed by current Energy ^ ${format(global.researchesExtraInfo[1].effect[3] as number)}.`,
+                () => `Hardcap for Mass production from Preons is delayed by current Energy ^${format(global.researchesExtraInfo[1].effect[3] as number)}.`,
                 () => `Discharge goals can now boost all Structures from Submerged, Accretion and Interstellar Stages, but at reduced base.\nCurrent base is ${format(global.researchesExtraInfo[1].effect[4] as number)}, total boost is ${Limit(global.researchesExtraInfo[1].effect[4] as number).power(player.discharge.current + global.dischargeInfo.bonus).format()}.`
             ],
             effect: [null, 2, null, 1e13, 1.04],
@@ -782,7 +757,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [1, 10, 2, 4, 1],
             maxActive: 0
         }, { //Stage 2
-            description: [
+            name: [
                 'Natural Vaporization',
                 'Rain Clouds',
                 'Storm Clouds',
@@ -792,7 +767,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Clouds will now use total produced Drops instead, when formed.',
                 () => `Some Clouds will start pouring Drops themselves. (${player.inflation.vacuum ? `Improves Puddles by ${format(global.researchesExtraInfo[2].effect[1] as number)} in total` : `${format(global.researchesExtraInfo[2].effect[1] as number)} per second`})`,
                 () => `Seas get a boost based on amount of Clouds. (Equal to ${Limit(global.researchesExtraInfo[2].effect[2] as overlimit).format({ padding: true })})`,
-                () => `On Stage reset gain extra reward for every new digit of Clouds, as well +1. (Currently +${format(global.vaporizationInfo.effect2RE3())})`
+                () => `On Stage reset gain extra Strange reward for every new digit of Clouds, as well +1. (Currently +${format(global.vaporizationInfo.effect2RE3())})`
             ],
             effect: [null, 0, 0, 1],
             cost: [],
@@ -801,7 +776,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [1, 4, 1, 1],
             maxActive: 3
         }, { //Stage 3
-            description: [
+            name: [
                 'Rank boost',
                 'Efficient growth',
                 'Weight',
@@ -810,7 +785,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `Dust production is increased by another ${format(global.researchesExtraInfo[3].effect[0] as number)}.`,
-                () => `Accretion speed is even quicker. Multiplied by current Rank. (Total boost to Dust: ${format(global.researchesExtraInfo[3].effect[1] as number)})`,
+                () => `Accretion speed is even quicker. Multiplied by effective Rank. (Total boost to Dust: ${format(global.researchesExtraInfo[3].effect[1] as number)})`,
                 () => "'Gravitational field' upgrade will boost Protoplanets now as well. (Only half of effect)",
                 () => "'Gas' upgrade is now stronger.",
                 () => `'Efficient growth' now boost Puddles as well. (Current boost is: ${format(global.researchesExtraInfo[3].effect[4] as number)})`
@@ -822,16 +797,16 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [12, 5, 1, 2, 1],
             maxActive: 4
         }, { //Stage 4
-            description: [
+            name: [
                 'Nova',
                 'White dwarfs'
             ],
             effectText: [
                 () => {
                     const index = Math.min(player.researchesExtra[4][0] + 2, 4);
-                    return `${Limit(player.buildings[4][index].trueTotal).notEqual('0') ? global.buildingsInfo.name[4][index] : '(Unknown)'} Stars are now creating something new, upon collapse reset.`;
+                    return `${player.buildings[4][index].trueTotal[0] === 0 ? '(Unknown)' : global.buildingsInfo.name[4][index]} Stars are now creating something new, upon collapse reset.`;
                 },
-                () => 'Red giants are turning into White dwarfs, this will improve effect of Carbon element.'
+                () => "Red giants are turning into White dwarfs, this will improve effect of '[6] Carbon' Element."
             ],
             effect: [null, null],
             cost: [],
@@ -840,7 +815,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [3, 1],
             maxActive: 2
         }, { //Stage 5
-            description: [],
+            name: [],
             effectText: [],
             effect: [],
             cost: [],
@@ -851,16 +826,16 @@ export const global: globalType = { //For information that doesn't need to be sa
         }
     ],
     researchesAutoInfo: {
-        description: [
+        name: [
             'New toggles',
             'Offline storage capacity',
             'Automatic upgrades'
         ],
         effectText: [
-            () => !player.inflation.vacuum && player.strange[0].total <= 0 ? 'Unlock ability to make multiple Structures at same time.' :
-            /**/'First level is for making multiple Structures at same time.\nSecond level is to turn OFF/ON all auto toggles at once.\nThird level improves control for auto/Warp consumption of Offline storage.',
-            () => `Research this to increase capacity of Offline storage by +${player.inflation.vacuum ? 8 : 4} hours.`,
-            () => 'This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.\n(Upgrades > Researches > Special researches)'
+            () => !player.inflation.vacuum && player.strange[0].total === 0 ? 'Unlock ability to make multiple Structures at same time.' :
+            /**/'First level is for making multiple Structures at same time.\nSecond level is to turn OFF/ON all auto toggles at once.\nThird level improves control over consumption of Offline storage.',
+            () => `Research this to increase capacity of Offline storage by +${player.stage.true >= 6 ? 8 : 4} hours.`,
+            () => 'This is going to create all upgrades automatically. Each level increases highest type of upgrades to create.\n(Enable in settings, order of unlocks is upgrades > researches > special researches)'
         ],
         cost: [],
         startCost: [2000, 1e9, 1],
@@ -881,7 +856,7 @@ export const global: globalType = { //For information that doesn't need to be sa
         max: [0, 5, 5, 4, 4, 0]
     },
     elementsInfo: {
-        description: [
+        name: [
             '[0] Neutronium',
             '[1] Hydrogen',
             '[2] Helium',
@@ -913,7 +888,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             '[28] Nickel'
         ],
         effectText: [
-            () => 'Placeholder.',
+            () => `Element with no protons, true head of this table.\nThis one is ${Math.random() < 0.1 ? (Math.random() < 0.1 ? 'an illusive Tetraneutron, or maybe even Pentaneutron, wait where did it go? Was it even there?' : 'a rare Dineutron, but it is already gone...') : 'a simple Mononeutron, it will stay with you for as long as it can.'}`,
             () => 'Most basic Element, increases Brown dwarf production by 2.\nAlso Solar mass effect is now known - boost to all Stars.',
             () => `Fusion reaction by product, makes everything Interstellar scale ${format(0.1)} less.`,
             () => `First metal, Mass ${player.inflation.vacuum ? 'hardcap for Cosmic dust' : ''} per Brown dwarf lightly ${player.inflation.vacuum ? 'delayed' : 'increased'}.`,
@@ -925,9 +900,9 @@ export const global: globalType = { //For information that doesn't need to be sa
             () => "Highly toxic and reactive, +12 to max level of 'Planetary system'.",
             () => `A noble 2x ${player.inflation.vacuum ? 'delay to Cosmic dust hardcap' : 'boost to Mass gain'}.`,
             () => "Through leaching, get 1 extra level of 'Protoplanetary disk'.",
-            () => 'Stars are inside you, as well Neutrons stars strength is now increased to the decimal logarithm.\nNeutron stars effect is now known - boost to all Stars.',
+            () => 'Stars are inside you, as well Neutrons stars strength is now increased by the decimal logarithm.\nNeutron stars effect is now known - boost to all Stars.',
             () => `Has a great affinity towards Oxygen and to decrease cost of all Stars by ${format(1e3)}.`,
-            () => `Number is 14, group is 14, melts at 1414°C and so is Mass ${player.inflation.vacuum ? 'hardcap for Cosmic dust delayed' : 'gain increased'} by ${format(1.4)}.`,
+            () => `Number is 14, group is 14, melts at ${format(1414)}°C and so is Mass ${player.inflation.vacuum ? 'hardcap for Cosmic dust delayed' : 'gain increased'} by ${format(1.4)}.`,
             () => `One of the Fundamentals of Life and to make all of Stars ${player.inflation.vacuum ? 'delay Mass hardcap (Cosmic dust)' : 'boost Mass'}.`,
             () => "From hot area, to increase max level of 'Star system' by 1.",
             () => "Extremely reactive to extend max level of 'Planetary system', by another 27 levels.",
@@ -936,10 +911,10 @@ export const global: globalType = { //For information that doesn't need to be sa
             () => "Get stronger with 1 extra level of 'Star system'.",
             () => `A new color and a rare bonus of ^${format(1.1)} to Mass effect.`,
             () => 'New alloy allowing Red giants to be added into effective amount of Neutron stars.',
-            () => 'Catalyst for production of Elements. Black holes boost all Stars to the decimal logarithm.',
+            () => 'Catalyst for production of Elements. Black holes boost all Stars by the decimal logarithm.',
             () => `No corrosion, only boost to all Stars that is based on unspent Elements^${format(0.01)}.`,
             () => "Brittle Element, but not the bonus - 1 more level in 'Star system'.",
-            () => `Any further fusion will be an endothermic process. Gain 2x boost to all Stars, ${player.inflation.vacuum ? 'unlock Stage reset.' : 'but what next?\nUnlock ability to switch between Stages. (Also enter a new Stage)'}`,
+            () => `Any further fusion will be an endothermic process. Gain 2x boost to all Stars, ${player.inflation.vacuum ? 'unlock Stage reset.' : 'but what next?\nUnlock ability to switch between active Stages, also enter new Stage.'}`,
             () => "While new Elements won't produce much Energy, this one can create 2 extra Strange quark for this Stage reset.",
             () => `Slow to react, but gain extra Strange quarks for every new reached digit past 52 anyway.\n(+${format(global.strangeInfo.Element28())} for this Stage reset)`
         ],
@@ -948,29 +923,21 @@ export const global: globalType = { //For information that doesn't need to be sa
             null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, 0
         ],
-        startCost: [ //If index 0 to be added, then it should have cost higher than last unlocked before it (or add continue for autoElements)
-            1e308, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
+        startCost: [
+            0, 1000, 4000, 2e4, 1e5, 1e8, 1e10, 4e11, 2e13, 1e14,
             1e16, 1e20, 1e24, 1e25, 1.4e27, 1e30, 1e31, 5e31, 5e33, 1e35,
             1e36, 1e38, 2e39, 3e41, 4e42, 1e45, 1e50, 1e52, 1e55
         ]
     },
     strangenessInfo: [
-        {
-            description: [],
-            effectText: [],
-            cost: [],
-            startCost: [],
-            scaling: [],
-            max: [],
-            maxActive: 0
-        }, { //Stage 1
-            description: [
+        {} as globalType['strangenessInfo'][0], { //Stage 1
+            name: [
                 'Stronger Discharge',
                 'Cheaper Discharge',
                 'Free Discharge',
                 'Automatic Discarge',
                 'Increased Energy',
-                "Better 'Tritium' effect",
+                'Better improvement',
                 'Keep auto Structures',
                 'More toggles',
                 'Strange boost',
@@ -982,10 +949,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Obtain +1 bonus Discharge goal.',
                 () => `Automatically Discharge upon creating an upgrade or reaching next goal.${player.strangeness[1][9] >= 1 ? "\nSecond level - auto Discharge when reaching next goal doesn't cause an reset." : ''}`,
                 () => `Gain more Energy from creating ${player.inflation.vacuum ? 'Preons, +2' : 'Particles, +1'}.`,
-                () => `Research for improved 'Tritium' upgrade is now better. (+${format(player.inflation.vacuum ? 0.4 : 0.3)})`,
+                () => `Research 'Improved Tritium' is now better. (+${format(player.inflation.vacuum ? 0.4 : 0.3)})`,
                 () => `Always have auto for ${global.buildingsInfo.name[1][Math.min(player.strangeness[1][6] + 1, global.ASRInfo.max[1])]}.`,
                 () => `Increase max level of 'New toggles'.${player.inflation.vacuum ? '' : ' Also keep them on Stage reset.'}`,
-                () => `Unspend Strange quarks will boost this Stage. (${player.inflation.vacuum ? 'Easier goals' : 'Stronger radiation'})`,
+                () => `Unspend Strange quarks will boost this Stage. (${player.inflation.vacuum ? 'Bonus goals' : 'Stronger radiation'})`,
                 () => "Energy is no longer gained on Structure creation, but instead it's based on current self-made amount of Structures.\nFirst step towards something more."
             ],
             cost: [],
@@ -994,7 +961,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [4, 4, 2, 1, 2, 5, 3, 1, 1, 1],
             maxActive: 9
         }, { //Stage 2
-            description: [
+            name: [
                 'More Moles',
                 'Bigger Puddles',
                 'More spread',
@@ -1024,8 +991,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [6, 6, 3, 3, 1, 5, 4, 2, 1, 1],
             maxActive: 9
         }, { //Stage 3
-            description: [
-                'Accretion speed increase',
+            name: [
+                'Faster Accretion',
                 'Intense weathering',
                 'More levels',
                 'Improved Satellites',
@@ -1040,7 +1007,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Accretion speed is 2 times faster. (Affected by ${player.inflation.vacuum ? 'hard' : 'soft'}cap)`,
                 () => 'All Accretion Structures that produce another Structure now do it 2 times faster.',
                 () => 'Some Rank researches receive extra Max level.\nFinal level will instead unlock a new upgrade.',
-                () => 'Satellites now improve all Accretion Structures.',
+                () => `Satellites now improve all Accretion Structures${player.inflation.vacuum ? ' with reduced strength' : ''}.`,
                 () => `Automatically increase Rank when available.${player.strangeness[1][9] >= 1 ? '\nSecond level - once hardcap for Cosmic dust is reached, all Mass related Structures will be made only when 2 times of Main-sequence hardcap.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[3][Math.min(player.strangeness[3][5] + 1, global.ASRInfo.max[3])]}.`,
                 () => `Unlock automatization for Upgrades / Researches.${player.inflation.vacuum ? '' : ' (Not affected by Stage reset)'}`,
@@ -1054,7 +1021,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [8, 4, 3, 1, 1, 4, 3, 1, 1, 3],
             maxActive: 8
         }, { //Stage 4
-            description: [
+            name: [
                 'Hotter Stars',
                 'Cheaper Stars',
                 'New Upgrade',
@@ -1076,7 +1043,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Stars will Collapse automatically.${player.strangeness[1][9] >= 1 ? '\nSecond level - Solar mass is slowly gained without Reset.\nThird level - Stars from Collapse slowly gained without Reset.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[4][Math.min(player.strangeness[4][6] + 1, global.ASRInfo.max[4])]}.`,
                 () => `Creates +${player.inflation.vacuum ? 2 : 1} Strange quarks per day, can claim only full one's only with export.`,
-                () => player.stage.true >= 6 ? "Reward from Export is now at least 20% of best Stage reset.\nRequires level 3 of 'Daily gain'." : 'Unclaimed Strange quarks max storage is now 1 day longer.',
+                () => player.stage.true >= 6 ? "Reward from Export is now increased by 20% of best Stage reset.\nRequires level 3 of 'Daily gain'." : 'Unclaimed Strange quarks max storage is now 1 day longer.',
                 () => 'Unspend Strange quarks will boost this Stage. (All Stars production)',
                 () => "Unlock a new Structure. (Requires level 4 of 'Keep auto Structures')"
             ],
@@ -1086,7 +1053,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             max: [8, 4, 3, 2, 1, 1, 4, 3, 1, 1, 1],
             maxActive: 10
         }, { //Stage 5
-            description: [
+            name: [
                 'Omnipresent reality',
                 'Strange gain',
                 'Auto Stage',
@@ -1098,37 +1065,29 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'New Milestones'
             ],
             effectText: [
-                () => `Gain ability to be inside multiple ${player.inflation.vacuum ? '(not yet)' : 'Stages'} at once. (${player.inflation.vacuum ? `Current max is: ${format(player.strangeness[5][0] + 1)}` : `Next one to always be inside is ${global.stageInfo.word[player.strangeness[5][0] + 1]}`})`,
+                () => player.inflation.vacuum ? 'Unlock the Void. (Not in the game, but can be bought for new theme)\nAlso a new color theme.' : `Gain ability to be inside multiple Stages at once. (Next one to always be inside is ${global.stageInfo.word[player.strangeness[5][0] + 1]})\nPermanent Stages do not appear in history or reset timer.`,
                 () => 'Gain 2 times more Strange quarks from Stage resets.',
-                () => 'Allows to auto switch Stage, has some special settings.',
+                () => 'Allows to auto reset Stage, has some special settings.',
                 () => "Bigger Nebulas, more matter for Accretion. 'Jeans instability' upgrade is 3 times stronger.",
                 () => "'Super star cluster' is now even bigger. Effect increased by 4.",
-                () => player.inflation.vacuum ? 'Unlock Intergalactic Stage.' : 'Intergalactic is no longer affected by lower Stage reset types.',
+                () => player.inflation.vacuum ? 'Unlock Intergalactic Stage.' : 'Intergalactic is no longer affected by Collapse reset.',
                 () => 'With this, a new Structure, can be created. Second level unlocks auto for it.',
                 () => "Increase permanent level of auto Structures. It's the only way to do it.",
-                () => `Unlock ${player.inflation.vacuum ? 'Milestones and even more in Advanced subtab (Not yet in game)' : 'Intergalactic Milestones'}.`
+                () => `Unlock ${player.inflation.vacuum ? 'Void' : 'Intergalactic'} Milestones.`
             ],
             cost: [],
-            startCost: [1e10, 12, 50, 5, 10, 40, 800, 60, 200],
+            startCost: [4, 12, 50, 5, 10, 40, 1500, 60, 1500],
             scaling: [1, 1, 1, 1.8, 1.75, 1, 1.5, 1.5, 1],
             max: [3, 1, 1, 9, 9, 1, 2, 2, 1],
             maxActive: 9
         }
     ],
-    lastUpgrade: [false, -1], //One per subtab (to auto update description)
+    lastUpgrade: [false, -1], //One per subtab
     lastResearch: [false, -1, 'researches'],
     lastElement: [false, -1],
     milestonesInfo: [
-        {
-            description: [],
-            needText: [],
-            rewardText: [],
-            need: [],
-            reward: [],
-            scalingOld: [],
-            unlock: []
-        }, { //Stage 1
-            description: [
+        {} as globalType['milestonesInfo'][0], { //Stage 1
+            name: [
                 'Endless Matter',
                 'Energized'
             ],
@@ -1148,7 +1107,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             unlock: [5, 3]
         }, { //Stage 2
-            description: [
+            name: [
                 'A Nebula of Drops',
                 'Just a bigger Puddle'
             ],
@@ -1168,7 +1127,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             unlock: [3, 4]
         }, { //Stage 3
-            description: [
+            name: [
                 'Cluster of Mass',
                 'Satellites of Satellites'
             ],
@@ -1188,8 +1147,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             unlock: [3, 5]
         }, { //Stage 4
-            description: [
-                'Just a little more',
+            name: [
+                'Supermassive',
                 'Biggest of all'
             ],
             needText: [
@@ -1208,7 +1167,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             unlock: [3, 5]
         }, { //Stage 5
-            description: [
+            name: [
                 'Light in the dark',
                 'Greatest of the walls'
             ],
@@ -1234,16 +1193,12 @@ export const global: globalType = { //For information that doesn't need to be sa
     }
 };
 
-//Extension for Math.log for any base
-//export const logAny = (number: number, base: number) => Math.log(number) / Math.log(base);
-
 //Not for deep copy. Actual type is any[], it's because TS is dumb
 export const cloneArray = <ArrayClone extends Array<number | string | boolean | null | undefined>>(array: ArrayClone) => array.slice(0) as ArrayClone; //[...array] is better when >10000 keys
 
-//For non deep clone use { ...object } or cloneArray when possible; Allows functions inside
+//For non deep clone use { ...object } or cloneArray when possible
 export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
     if (typeof toClone !== 'object' || toClone === null) { return toClone; }
-    //Just like with null check (prevents null turning into {}), add any extra checks if required
 
     let value: any;
     if (Array.isArray(toClone)) {
@@ -1256,14 +1211,14 @@ export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
     return value;
 };
 
-const createArray = (amount: number, special: 'toggle' | 'toggleAuto' | 'upgrade') => {
+const createArray = (amount: number, type: 'toggle' | 'toggleAuto' | 'upgrade') => {
     const array = [];
     for (let i = 0; i < amount; i++) {
-        if (special === 'toggle') {
+        if (type === 'toggle') {
             array.push(true);
-        } else if (special === 'toggleAuto') {
+        } else if (type === 'toggleAuto') {
             array.push(false);
-        } else if (special === 'upgrade') {
+        } else if (type === 'upgrade') {
             array.push(0);
         }
     }
@@ -1276,7 +1231,7 @@ for (let s = 0; s < global.buildingsInfo.startCost.length; s++) {
 global.researchesAutoInfo.cost = cloneArray(global.researchesAutoInfo.startCost);
 for (const upgradeType of ['researches', 'researchesExtra', 'strangeness'] as const) {
     const pointer = global[`${upgradeType}Info`];
-    for (let s = 0; s < pointer.length; s++) {
+    for (let s = 1; s < pointer.length; s++) {
         pointer[s].cost = cloneArray(pointer[s].startCost);
     }
 }
@@ -1326,7 +1281,7 @@ Object.assign(player, {
         createArray(global.milestonesInfo[5].need.length, 'upgrade')
     ]
 });
-Object.assign(player.toggles, { //Done separately just in case
+Object.assign(player.toggles, { //Done separately to keep 'shop'
     normal: createArray(document.getElementsByClassName('toggle').length, 'toggle'),
     buildings: [
         [],
@@ -1344,12 +1299,13 @@ export const playerStart = deepClone(player);
 
 export const updatePlayer = (load: playerType): string => {
     if (Object.hasOwn(load, 'player')) { load = load['player' as keyof unknown]; } //Old save had it
-    if (!Object.hasOwn(load, 'discharge')) { throw new ReferenceError('This save file is missing important information and is most likely not from this game'); }
 
-    for (const i in playerStart) {
-        if (!Object.hasOwn(load, i)) {
-            if (i !== 'version') {
-                load[i as 'ASR'] = deepClone(playerStart[i as 'ASR']);
+    for (const key in playerStart) {
+        if (!Object.hasOwn(load, key)) {
+            if (key === 'discharge') {
+                throw new ReferenceError('This save file is missing important information and is most likely not from this game');
+            } else if (key !== 'version') {
+                load[key as 'ASR'] = deepClone(playerStart[key as 'ASR']);
             } else { load.version = '0.0.0'; }
         }
     }
@@ -1390,21 +1346,16 @@ export const updatePlayer = (load: playerType): string => {
             load.version = 'v0.0.9';
             load.stage.active = Math.min(load.stage.current, 4);
             const a = load.stage.active;
-            const oldB = load.buildings as unknown as typeof player.buildings[0];
+            const oldB = load.buildings as unknown as playerType['buildings'][0];
             load.buildings = deepClone(playerStart.buildings);
             load.buildings[a] = oldB;
-            if (load.buildings[a].length > playerStart.buildings[a].length) {
-                for (let i = load.buildings[a].length; i > playerStart.buildings[a].length; i--) {
-                    load.buildings[a].splice(i - 1, 1);
-                }
-            }
-            const oldU = load.upgrades as unknown as typeof player.upgrades[0];
+            const oldU = load.upgrades as unknown as playerType['upgrades'][0];
             load.upgrades = deepClone(playerStart.upgrades);
             load.upgrades[a] = oldU;
-            const oldR = load.researches as unknown as typeof player.researches[0];
+            const oldR = load.researches as unknown as playerType['researches'][0];
             load.researches = deepClone(playerStart.researches);
             load.researches[a] = oldR;
-            const oldE = load.researchesExtra as unknown as typeof player.researchesExtra[0];
+            const oldE = load.researchesExtra as unknown as playerType['researchesExtra'][0];
             load.researchesExtra = deepClone(playerStart.researchesExtra);
             load.researchesExtra[a] = oldE;
             if (load.strangeness.length < 5) { load.strangeness.unshift([]); }
@@ -1413,7 +1364,7 @@ export const updatePlayer = (load: playerType): string => {
         }
         if (load.version === 'v0.0.9') {
             load.version = 'v0.1.0';
-            if (load.upgrades[3].length === 12) { load.upgrades[3].splice(8, 0, 0); }
+            if (load.upgrades[3].length < 13) { load.upgrades[3].splice(8, 0, 0); }
             load.collapse.show = [];
         }
         if (load.version === 'v0.1.0') {
@@ -1447,7 +1398,6 @@ export const updatePlayer = (load: playerType): string => {
             load.stage.time = 0;
             load.inflation.age = 0;
             load.accretion.input = 600;
-            if (load.inflation.vacuum && Limit(load.vaporization.clouds).moreThan('1e4')) { load.vaporization.clouds = [1, 4]; } //After new reset tier can be removed
             load.discharge.energyMax = load.discharge.energy;
             load.vaporization.cloudsMax = cloneArray(load.vaporization.clouds);
         }
@@ -1486,28 +1436,34 @@ export const updatePlayer = (load: playerType): string => {
                 }
             }
         }
+        if (load.version === 'v0.1.4') {
+            load.version = 'v0.1.5';
+            load.time.disabled = 0;
+            delete load.toggles.shop['strict' as keyof unknown];
+        }
 
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');
         }
     }
 
-    if (load.stage.true < 4 && load.accretion.rank === 0) { load.buildings[3][0].current = [5.97, 27]; } //Can be removed next update
-
     for (let s = 1; s < playerStart.buildings.length; s++) {
         if (!Array.isArray(load.buildings[s])) {
             load.buildings[s] = deepClone(playerStart.buildings[s]);
-        } else if (playerStart.buildings[s].length > load.buildings[s].length) {
+        } else {
             for (let i = load.buildings[s].length; i < playerStart.buildings[s].length; i++) {
                 load.buildings[s][i] = deepClone(playerStart.buildings[s][i]);
             }
         }
     }
+    for (let i = load.strange.length; i < playerStart.strange.length; i++) {
+        load.strange[i] = deepClone(playerStart.strange[i]);
+    }
 
     for (let s = 1; s < playerStart.upgrades.length; s++) {
         if (!Array.isArray(load.upgrades[s])) {
             load.upgrades[s] = cloneArray(playerStart.upgrades[s]);
-        } else if (playerStart.upgrades[s].length > load.upgrades[s].length) {
+        } else {
             for (let i = load.upgrades[s].length; i < playerStart.upgrades[s].length; i++) {
                 load.upgrades[s][i] = 0;
             }
@@ -1516,7 +1472,7 @@ export const updatePlayer = (load: playerType): string => {
     for (let s = 1; s < playerStart.researches.length; s++) {
         if (!Array.isArray(load.researches[s])) {
             load.researches[s] = cloneArray(playerStart.researches[s]);
-        } else if (playerStart.researches[s].length > load.researches[s].length) {
+        } else {
             for (let i = load.researches[s].length; i < playerStart.researches[s].length; i++) {
                 load.researches[s][i] = 0;
             }
@@ -1525,31 +1481,25 @@ export const updatePlayer = (load: playerType): string => {
     for (let s = 1; s < playerStart.researchesExtra.length; s++) {
         if (!Array.isArray(load.researchesExtra[s])) {
             load.researchesExtra[s] = cloneArray(playerStart.researchesExtra[s]);
-        } else if (playerStart.researchesExtra[s].length > load.researchesExtra[s].length) {
+        } else {
             for (let i = load.researchesExtra[s].length; i < playerStart.researchesExtra[s].length; i++) {
                 load.researchesExtra[s][i] = 0;
             }
         }
     }
-    if (playerStart.researchesAuto.length > load.researchesAuto.length) {
-        for (let i = load.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
-            load.researchesAuto[i] = 0;
-        }
+    for (let i = load.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
+        load.researchesAuto[i] = 0;
     }
-    if (playerStart.ASR.length > load.ASR.length) {
-        for (let i = load.ASR.length; i < playerStart.ASR.length; i++) {
-            load.ASR[i] = 0;
-        }
+    for (let i = load.ASR.length; i < playerStart.ASR.length; i++) {
+        load.ASR[i] = 0;
     }
-    if (playerStart.elements.length > load.elements.length) {
-        for (let i = load.elements.length; i < playerStart.elements.length; i++) {
-            load.elements[i] = 0;
-        }
+    for (let i = load.elements.length; i < playerStart.elements.length; i++) {
+        load.elements[i] = 0;
     }
     for (let s = 0; s < playerStart.strangeness.length; s++) {
         if (!Array.isArray(load.strangeness[s])) {
             load.strangeness[s] = cloneArray(playerStart.strangeness[s]);
-        } else if (playerStart.strangeness[s].length > load.strangeness[s].length) {
+        } else {
             for (let i = load.strangeness[s].length; i < playerStart.strangeness[s].length; i++) {
                 load.strangeness[s][i] = 0;
             }
@@ -1558,37 +1508,31 @@ export const updatePlayer = (load: playerType): string => {
     for (let s = 0; s < playerStart.milestones.length; s++) {
         if (!Array.isArray(load.milestones[s])) {
             load.milestones[s] = cloneArray(playerStart.milestones[s]);
-        } else if (playerStart.milestones[s].length > load.milestones[s].length) {
+        } else {
             for (let i = load.milestones[s].length; i < playerStart.milestones[s].length; i++) {
                 load.milestones[s][i] = 0;
             }
         }
     }
 
-    if (playerStart.toggles.normal.length > load.toggles.normal.length) {
-        for (let i = load.toggles.normal.length; i < playerStart.toggles.normal.length; i++) {
-            load.toggles.normal[i] = playerStart.toggles.normal[i];
-        }
-    }
     for (let s = 1; s < playerStart.toggles.buildings.length; s++) {
         if (!Array.isArray(load.toggles.buildings[s])) {
             load.toggles.buildings[s] = cloneArray(playerStart.toggles.buildings[s]);
-        } else if (playerStart.toggles.buildings[s].length > load.toggles.buildings[s].length) {
+        } else {
             for (let i = load.toggles.buildings[s].length; i < playerStart.toggles.buildings[s].length; i++) {
                 load.toggles.buildings[s][i] = false;
             }
         }
     }
-    if (playerStart.toggles.auto.length > load.toggles.auto.length) {
-        for (let i = load.toggles.auto.length; i < playerStart.toggles.auto.length; i++) {
-            load.toggles.auto[i] = false;
-        }
+    for (let i = load.toggles.normal.length; i < playerStart.toggles.normal.length; i++) {
+        load.toggles.normal[i] = playerStart.toggles.normal[i];
+    }
+    for (let i = load.toggles.auto.length; i < playerStart.toggles.auto.length; i++) {
+        load.toggles.auto[i] = false;
     }
 
-    if (playerStart.events.length > load.events.length) {
-        for (let i = load.events.length; i < playerStart.events.length; i++) {
-            load.events[i] = false;
-        }
+    for (let i = load.events.length; i < playerStart.events.length; i++) {
+        load.events[i] = false;
     }
 
     Object.assign(player, load);
@@ -1636,7 +1580,6 @@ export const updatePlayer = (load: playerType): string => {
             calculateMaxLevel(i, s, 'researchesExtra');
             if (extra[i] > extraMax[i]) {
                 extra[i] = extraMax[i];
-                visualUpdateResearches(i, s, 'researchesExtra');
                 console.warn(`Special research (${i + 1} of ${s}) level reduced`);
             }
         }
@@ -1646,7 +1589,6 @@ export const updatePlayer = (load: playerType): string => {
             calculateMaxLevel(i, s, 'researches');
             if (researches[i] > researchesMax[i]) {
                 researches[i] = researchesMax[i];
-                visualUpdateResearches(i, s, 'researches');
                 console.warn(`Stage research (${i + 1} of ${s}) level reduced`);
             }
         }
@@ -1680,9 +1622,8 @@ export const buildVersionInfo = () => {
                 break;
             case 'v0.0.5':
                 text = '- New content (Stage 4)\n- Basic loading screen\n- Full visual update\n- New formula for multi making Structures\n- Visual indication for how many Structures can be made\n\n';
-                text += '- Created Elements will still show effects, after Collapse\n- Improved transition when changing themes\n- Fixed being able to create automatization research when can\'t afford them\n\n';
-                text += '- Added hotkeys\n- Stage event reset due to small changes\n\n';
-                text += '- Fixed unable to progress in Stage 1, but rework is coming';
+                text += '- Created Elements will show effects, even after Collapse\n- Improved transition when changing themes\n- Fixed being able to create automatization research when can\'t afford them\n\n';
+                text += '- Added hotkeys\n- Stage event reset due to small changes';
                 break;
             case 'v0.0.6':
                 text = '- List of hotkeys can be seen now\n\n';
@@ -1698,7 +1639,6 @@ export const buildVersionInfo = () => {
                 break;
             case 'v0.0.9':
                 text = '- New content (Milestones)\n- Stage 4 speed up\n- Fixed export reward not being saved into exported file\n- Auto Structures toggles have been reset\n\n';
-                text += '- Fix being unable to play with save file that was recently created\n\n';
                 text += '- Fixed F1 - F12 buttons working as digits\n- Milestones are now unlocked instanly (with Stage 5)\n- New event that must be triggered to progress, for changing Active Stage for the first time\n\n';
                 text += '- Max offline base and research is increased by 2 times, related Strangeness cost and max level have been balanced\n\n';
                 text += '- Some quick balance changes for Stage 3 and 5';
@@ -1710,23 +1650,27 @@ export const buildVersionInfo = () => {
                 text = '- More balance for Stage 5\n- New stats for Stage 2 and 4, max energy no longer resets\n- New hotkeys to change Active Stage';
                 break;
             case 'v0.1.2':
-                text = '- New content (Vacuum)\n- Some descriptions have been expanded\n- Added self-made break infinity\n- Heavy optimization\n- Offline time been reworked\n- Added version window (removed automatic change log)\n- Removed option to remove text movement, because it\'s now always on\n\n';
-                text += "- New color theme\n- Offline warp now unlocked instantly, while Offline storage control toggle isn't\n- New stats for Stage 4\n\n";
+                text = '- New content (Vacuum)\n- Some descriptions have been expanded\n- Added self-made break infinity\n- Heavy optimization\n- Offline time been reworked\n- Added version window (removed automatic change log)\n- Removed option to remove text movement (always on now)\n\n';
+                text += '- New color theme\n- Offline warp now unlocked instantly\n- New stats for Stage 4\n\n';
                 text += '- Auto Structures now correctly spend currency';
                 break;
             case 'v0.1.3':
-                text = '- Cloud gain is now 1 less, due to bug fix in a formula\n- Puddles production base increased from 3 to 4\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n\n';
+                text = '- Puddles production base increased from 3 to 4, Clouds gain decreased by -1 (formula fix)\n- New stats for Stage 3, 4 and 5\n- More Stage 6 balance (Strangeness, reduced max level and adjusted cost; Submerged proper balance; Strange boost new effects)\n- Replay event button\n\n';
                 text += '- History for Stage resets\n- New hotkeys (A - toggle all Structures, O - toggle Offline)\n\n';
                 text += '- Added requirement to unlock better control over Warp (also Warp now has a minimum value)\n- Automatically made Structures/Upgrades no longer visually update numbers';
                 break;
             case 'v0.1.4':
                 text = '- Warps now waste offline (half of normal); Max offline from upgrades decreased, cost adjusted\n- Custom scrolls\n- Notifications\n- Fixed and updated special supports\n- Auto Collapse settings reset';
+                break;
+            case 'v0.1.5':
+                text = "- Stage 6 minor balance changes\n-Images should no longer unload on Stage change\n- Footer now affects page height\n- Many small changes to improve quality of life\n- 'Any' make toggle is now always Strict, related button removed\n- More information for save files\n- New hotkeys\n- Small visual update\n- Screen reader support rework (also removed special tab)";
+                text += '\n\nNew content is delayed due to planned rework for all Stages (because of endless complains about an idle game being slow)';
         }
         getId('versionText').textContent = text;
         getId('currentVesion').textContent = version;
     };
 
-    const max = 14; //v0.2.4 -> 24
+    const max = 15; //v0.2.4 -> 24
     let autoText = '';
     for (let i = 1; i <= max; i++) {
         const index = i < 10 ? `0${i}` : `${i}`;

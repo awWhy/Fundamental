@@ -1,12 +1,4 @@
 import { player } from './Player';
-/* Some JS rules are altered:
-    '-+1 ** Infinity', '1 ** NaN' now returns 1 instead of NaN
-    '0 ** 0', 'Infinity ** 0', 'NaN ** 0' now retuns NaN instead of 1
-    '0 * Infinity', '0 * NaN' now returns 0 instead of NaN
-    'Infinity / 0' now returns NaN instead of Infinity
-    '0 / NaN' now returns 0 instead of NaN
-    'NaN ** (-Infinity)' now returns 0 instead of NaN (I allow X ** (-Infinity) to be 0 because floating points)
-*/
 
 /* This is version has all settings (and other stuff) removed (for better speed) */
 export const overlimit = {
@@ -91,8 +83,8 @@ export const overlimit = {
 
                 let allEqual = technical.equal(result, array[0]);
                 for (let i = 1; i < array.length; i++) {
-                    //&&= will not call equal function if itself is false
-                    allEqual &&= technical.equal(array[i - 1], array[i]);
+                    if (!allEqual) { return false; }
+                    allEqual = technical.equal(array[i - 1], array[i]);
                 }
 
                 return allEqual;
@@ -288,7 +280,7 @@ export const overlimit = {
             return left;
         },
         pow: (left: [number, number], power: number): [number, number] => {
-            if (power === 0) { return left[0] === 0 || !isFinite(left[0]) ? [NaN, NaN] : [1, 0]; }
+            if (power === 0) { return left[0] === 0 || isNaN(left[0]) ? [NaN, NaN] : [1, 0]; }
             if (left[0] === 0) { return power < 0 ? [NaN, NaN] : [0, 0]; }
             if (!isFinite(power)) {
                 if (left[1] === 0 && (left[0] === 1 || (left[0] === -1 && !isNaN(power)))) { return [1, 0]; }

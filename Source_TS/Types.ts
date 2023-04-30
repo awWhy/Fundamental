@@ -49,6 +49,7 @@ export interface playerType {
         updated: number
         started: number
         offline: number
+        disabled: number
     }
     buildings: Array<[
         {
@@ -56,8 +57,7 @@ export interface playerType {
             total: overlimit
             trueTotal: overlimit
             highest: overlimit
-        },
-        ...Array<{
+        }, ...Array<{
             true: number
             current: overlimit
             total: overlimit
@@ -84,7 +84,6 @@ export interface playerType {
         shop: {
             howMany: number
             input: number
-            strict: boolean
         }
     }
     history: {
@@ -112,11 +111,13 @@ export interface globalType {
         researchSubtabs: string[]
         strangenessSubtabs: string[]
     }
+    lastActive: null | number
     versionBuild: boolean
     lastSave: number
+    timeMode: boolean
     footer: boolean
     mobileDevice: boolean
-    screenReader: boolean
+    screenReader: boolean[]
     automatization: {
         autoU: number[][]
         autoR: number[][]
@@ -139,7 +140,7 @@ export interface globalType {
         get: overlimit
     }
     accretionInfo: {
-        extra: number
+        effective: number
         rankU: number[]
         rankR: number[]
         rankE: number[]
@@ -193,14 +194,14 @@ export interface globalType {
         stageBoost: Array<number | null>
     }
     upgradesInfo: Array<{
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         effect: Array<number | overlimit | null>
         startCost: number[]
         maxActive: number
     }>
     researchesInfo: Array<{
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         effect: Array<number | overlimit | null>
         cost: number[]
@@ -210,7 +211,7 @@ export interface globalType {
         maxActive: number
     }>
     researchesExtraInfo: Array<{
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         effect: Array<number | overlimit | null>
         cost: number[]
@@ -220,7 +221,7 @@ export interface globalType {
         maxActive: number
     }>
     researchesAutoInfo: {
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         cost: number[]
         startCost: number[]
@@ -234,13 +235,13 @@ export interface globalType {
         max: number[]
     }
     elementsInfo: {
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         effect: Array<number | overlimit | null>
         startCost: number[]
     }
     strangenessInfo: Array<{
-        description: string[]
+        name: string[]
         effectText: Array<() => string>
         cost: number[]
         startCost: number[]
@@ -252,7 +253,7 @@ export interface globalType {
     lastResearch: [boolean, number, 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']
     lastElement: [boolean, number]
     milestonesInfo: Array<{
-        description: string[]
+        name: string[]
         need: overlimit[]
         reward: number[]
         scalingOld: Array<[number[], number[]]>
@@ -265,4 +266,4 @@ export interface globalType {
     }
 }
 
-export type overlimit = [number, number]; //Also possible as string (~21% slower) and number
+export type overlimit = [number, number]; //Also possible as String or Number

@@ -15,6 +15,8 @@ body {
     color: var(--main-text-color);
     background-color: var(--background-color);
     font-size: var(--font-size);
+    overscroll-behavior: none;
+    overflow-anchor: none;
 
     /* Default color variables */
     --background-color: #030012;
@@ -243,6 +245,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #inputArea {
     width: 100%;
+    height: 2em;
     margin: 0 1em;
     padding: 0.26em;
     background-color: black;
@@ -268,6 +271,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 6px 0 0 6px;
     padding: 0.2em 0.4em;
     text-align: center;
+    white-space: pre-line;
     width: 33vw;
 }
 
@@ -278,7 +282,6 @@ button, input { appearance: none; }
 #load, button {
     height: 2.08em;
     cursor: pointer;
-    transition: border-color var(--transition-buttons), background-color var(--transition-buttons);
     background-color: var(--button-main-color);
     border: 2px solid var(--button-main-border);
     color: var(--button-text-color);
@@ -287,7 +290,7 @@ button, input { appearance: none; }
 }
 
 .bigButton {
-    width: 10.6em;
+    width: 10.8em;
     height: 2.2em;
     font-size: 1.05em;
 }
@@ -322,6 +325,7 @@ button, input { appearance: none; }
 }
 
 .extraHover { background-color: var(--background-color); }
+input[type = "image"], button, #load { transition: border-color var(--transition-buttons), background-color var(--transition-buttons); }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
 .footerArea button:hover { background-color: #181818; }
@@ -330,21 +334,18 @@ button:hover, #load:hover { background-color: var(--button-main-hover); }
 .toggle:hover, .toggleBuilding:hover, .toggleAuto:hover,
 .specialToggle:hover, .interactiveImage:hover, .extraHover:hover { background-color: var(--button-extra-hover); }
 
-input[type = "number"] {
-    width: 5.4em;
-    height: 1.85em;
-    appearance: textfield;
-    text-align: center;
-}
-
+input[type = "number"] { appearance: textfield; }
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
-input:invalid { border-color: crimson; }
 
-input[type = "number"], input[type = "text"] {
+input[type = "number"],
+input[type = "text"] {
+    text-align: center;
     border: 2px solid var(--input-border-color);
     border-radius: 2px;
     color: var(--input-text-color);
     background-color: var(--background-color);
+    width: 5.4em;
+    height: 1.7em;
     font-size: 0.84em;
     padding: 0.1em 0.2em;
 }
@@ -359,7 +360,6 @@ input:-webkit-autofill { /* You can't find worse pain that this */
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
-    margin-bottom: 6em;
     gap: 1.6em;
 }
 
@@ -386,8 +386,7 @@ input:-webkit-autofill { /* You can't find worse pain that this */
 
 p > img {
     float: left;
-    margin-right: 0.4em;
-    margin-top: 0.35em;
+    margin: 0.5em 0.5em 0 0.2em;
 }
 
 .bigWord { font-size: 1.1em; }
@@ -399,7 +398,25 @@ p > img {
     row-gap: 0.44em;
 }
 
-.buyStrange,
+#starsSpecial {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-around;
+}
+
+.specialStar {
+    display: flex;
+    align-items: center;
+    column-gap: 0.6em;
+}
+
+.specialStar p {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.3em;
+    font-size: 0.92em;
+}
+
 .buyBuilding {
     display: flex;
     align-items: center;
@@ -464,37 +481,13 @@ p > img {
 }
 
 #toggleBuy > img { height: 22px; }
-#buyAnyInput { margin: 0 0.3em; }
 
-#buyStrict {
-    border-color: forestgreen;
-    color: var(--green-text-color);
-    background-color: var(--background-color);
-    padding: 0 0.5em;
-    height: 1.92em;
-    font-size: 0.85em;
+#buyAnyInput {
+    height: 1.88em;
+    margin-left: 0.3em;
 }
 
-#buyStrict:hover { background-color: var(--button-extra-hover); }
-
-#starsSpecial {
-    display: flex;
-    flex-wrap: wrap-reverse;
-    justify-content: space-around;
-}
-
-.specialStar {
-    display: flex;
-    align-items: center;
-    column-gap: 0.6em;
-}
-
-.specialStar p {
-    display: flex;
-    flex-direction: row;
-    column-gap: 0.3em;
-    font-size: 0.92em;
-}
+#toggleBuilding0 { margin-left: 0.3em; }
 
 #upgrades {
     display: flex;
@@ -512,25 +505,27 @@ p > img {
 
 #upgrades > h3 { margin-bottom: 0.05em; }
 
-#offlineBoost {
+#stageTimeDiv {
     text-align: center;
     width: 100%;
 }
 
-.challengesMain {
+#stageTimeDiv > p:not(:first-of-type) { margin-top: 0.05em; }
+
+#challengesMain {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 0.6em;
 }
 
-.challengesMain input[type = "image"] {
+#challengesMain input[type = "image"] {
     width: 48px;
     height: 48px;
     border-radius: 0;
 }
 
-.challengesMain input[type = "image"]:hover { background-color: var(--button-extra-hover); }
+#challengesMain input[type = "image"]:hover { background-color: var(--button-extra-hover); }
 
 #challengeMultiline { text-align: center; }
 
@@ -585,6 +580,7 @@ p > img {
 .descriptionText > p { max-width: 80%; }
 
 #elementsGrid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(18, 1fr);
     gap: 0.25em;
@@ -605,23 +601,55 @@ p > img {
 .Elements10App #element2 { grid-column: 8; }
 #elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
 
-#elementsExtra {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+#element0 {
+    position: absolute;
+    top: 0.65em;
+    right: calc(-38px - 0.65em);
+    opacity: 0;
+    cursor: help;
+    transition: opacity 1s 3s;
 }
+
+#element0:hover { opacity: 100; }
 
 .strangeWelcome { width: 100%; }
 .strangeWelcome > p { margin-top: 0.3em; }
+
+#strangeStructures {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.6em;
+}
+
+#strangeStructures > div {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    row-gap: 0.2em;
+}
+
+#strangeStructures > div > div { display: flex; }
+#strangeStructures > div > div > img { border-radius: 0; }
+
+#strangeStructures > div > div > p {
+    border: 2px solid #006400;
+    border-left: none;
+    line-height: 28px;
+    padding: 0 0.25em;
+    background-color: black;
+    width: 6em;
+}
 
 #strangenessResearch {
     display: flex;
     flex-direction: column;
     border: 2px solid darkgreen;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: var(--window-color);
     padding: 0.5em 0.25em;
-    margin-top: -1px;
+    margin-top: -0.5em;
+    margin-bottom: -0.2em;
 }
 
 #strangenessResearch > div {
@@ -782,46 +810,6 @@ p > img {
     font-size: 0.9em;
 }
 
-#themeArea > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#themeArea > div > div {
-    position: absolute;
-    width: min-content;
-    display: none;
-}
-
-#switchTheme0 {
-    background-color: var(--stage-button-color);
-    border-color: var(--stage-button-border);
-}
-
-#themeArea { text-align: center; }
-#themeArea > div:focus-within > div { display: block; }
-#themeArea > div:focus-within > button { clip-path: circle(0); }
-#themeArea button { width: 7em; }
-#themeArea > div > div button:not(:last-of-type) { margin-bottom: 0.25em; }
-#themeArea > h3 { margin-bottom: 0.3em; }
-
-#autoTogglesUpgrades {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 0.8em;
-    row-gap: 0.5em;
-}
-
-#autoTogglesUpgrades > div {
-    display: flex;
-    align-items: center;
-    column-gap: 0.4em;
-}
-
-.options:not(:last-of-type) { margin-bottom: 0.5em; }
-
 .options > ul {
     display: flex;
     flex-direction: column;
@@ -835,13 +823,10 @@ p > img {
     list-style-type: ">  ";
 }
 
-li > input[type = "number"] {
-    height: 1.7em;
-    width: 3.15em;
-}
+li > input[type = "number"] { width: 3.15em; }
 
-li > button.extraHover,
-li > .windowPopUp > button {
+.options button.extraHover,
+.options .windowPopUp > button {
     height: 1.77em;
     padding: 0 0.45em;
 }
@@ -861,6 +846,7 @@ li button {
     transform: translateX(50%);
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
+    border-radius: 7px;
     width: min(23em, 80vw);
     padding: 0.6em 0.7em 0.7em;
     margin-top: 0.38em;
@@ -868,25 +854,26 @@ li button {
     line-height: 1.26em;
 }
 
-.windowPopUp > div > div {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.3em;
-}
-
 .windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
 .windowPopUp:focus-within > div { display: flex; }
 .windowPopUp > button { margin-left: 0.4em; }
 
-.miniInput {
+input.miniInput {
     width: 1.3em;
     height: 1.6em;
-    text-align: center;
 }
 
 #saveFileNameInput {
     width: 17.2em;
+    height: 1.82em;
     font-size: 0.88em;
+}
+
+.hotkeysGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+    gap: 0.3em;
 }
 
 #allStructuresHotkey { grid-column: 1 / 3; }
@@ -897,7 +884,62 @@ li button {
     width: max-content;
 }
 
+.options > div:not(:first-of-type) { margin-top: 1.2em; }
+
+#autoTogglesUpgrades {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.45em;
+}
+
+#autoTogglesUpgrades > div {
+    display: flex;
+    align-items: center;
+    column-gap: 0.4em;
+}
+
+#autoTogglesUpgrades label { font-size: 0.92em; }
+#autoTogglesUpgrades button { font-size: 0.8em; }
+
+#autoTogglesUpgrades button.toggle {
+    width: 2.9em;
+    height: 1.68em;
+}
+
+#autoTogglesUpgrades button.extraHover { height: 1.82em; }
+
+#themeArea > h3 {
+    text-align: center;
+    margin-bottom: 0.3em;
+}
+
+#themeArea > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#themeArea > div > div {
+    position: absolute;
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 25em;
+    gap: 0.25em;
+}
+
+#themeArea button { width: 7em; }
+#themeArea > div:focus-within > div { display: flex; }
+#themeArea > div:focus-within > button { clip-path: circle(0); }
+
+#switchTheme0 {
+    background-color: var(--stage-button-color);
+    border-color: var(--stage-button-border);
+}
+
 #historyMainDiv > div { text-align: center; }
+#historyMainDiv > div > p:first-of-type { margin-bottom: 0.24em; }
 
 #historyMainDiv > div > ol {
     list-style-type: none;
@@ -951,6 +993,13 @@ li button {
     margin-top: 0.1em;
 }
 
+#fakeFooter {
+    visibility: hidden;
+    height: calc(32px + min(5.1vh, 4em) + 5.8472em);
+}
+
+#body:has(#footerColor.hidden) > #fakeFooter { height: calc(3.8272em + min(1.2vh, 1.6em)); }
+
 #footer {
     position: fixed;
     width: 100%;
@@ -975,6 +1024,7 @@ li button {
 }
 
 .tabActive { border-color: var(--button-tab-active) !important; }
+/* #ElementsTabBtn.tabActive { border-color: #9f6700 !important; } */
 #strangenessTabBtn.tabActive { border-color: #00b100 !important; }
 
 .footerArea, .footerArea > nav, #subtabs {
@@ -1131,7 +1181,7 @@ li button {
     }
 
     #buildings { row-gap: 0.2em; }
-    .buyBuilding, .specialStar, .buyStrange { column-gap: 0.45em; }
+    .buyBuilding, .specialStar { column-gap: 0.45em; }
     .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
     .buyBuilding > div > p:first-of-type { width: 14.2em; }
     .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
@@ -1169,6 +1219,13 @@ li button {
         width: 32px;
         height: 32px;
         object-fit: scale-down;
+    }
+
+    #element0 { display: none; }
+
+    #strangenessResearch {
+        margin-top: -0.2em;
+        margin-bottom: 0;
     }
 
     #themeArea > div > div { width: 80vw; }

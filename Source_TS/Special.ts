@@ -1,8 +1,6 @@
-import Limit from './Limit';
 import { getId, getQuery } from './Main';
 import { global, player } from './Player';
-import { assignCollapseInformation, assignDischargeInformation, assignVaporizationInformation } from './Stage';
-import { format, numbersUpdate, stageCheck, visualUpdate } from './Update';
+import { numbersUpdate, stageUpdate, visualUpdate, visualUpdateResearches } from './Update';
 
 //Eventually might move more HTML into here
 export const specialHTML = {
@@ -10,54 +8,24 @@ export const specialHTML = {
         '',
         '<span class="bigWord orangeText">Discharge</span>. Reset current Structures and Energy. Will also boost production by <span id="dischargeEffect" class="orangeText"></span>, if to reset with enough Energy.',
         '<span class="bigWord grayText">Vaporization</span>. Structures, upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.',
-        '<img id="rankImage" src="Used_art/Missing.png" alt="Missing">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName" class="blueText"></span>. <span id="rankMessage"></span>',
+        '<img id="rankImage" src="Used_art/Missing.png" alt="">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName" class="blueText"></span>. <span id="rankMessage"></span>',
         '<span class="bigWord orchidText">Collapse</span> - Everything will be lost, but at same time gained. Each of the Stars will produce something unique and special.',
         ''
     ],
-    longestBuilding: 7, //Max +1; If max will increase then new HTML need to be added into index.html
+    longestBuilding: 7, //Actual HTML count +1
     buildingHTML: [ //outerHTML is slow
         [],
-        [
-            ['Preon.png', 'Preon'], //[0] === image; [1] === alt
-            ['Quarks.png', 'Quarks'],
-            ['Particle.png', 'Particle'],
-            ['Atom.png', 'Atom'],
-            ['Molecule.png', 'Molecule']
-        ],
-        [
-            ['Drop.png', 'Drop of water'],
-            ['Puddle.png', 'Puddle'],
-            ['Pond.png', 'Pond'],
-            ['Lake.png', 'Lake'],
-            ['Sea.png', 'Sea'],
-            ['Ocean.png', 'Ocean']
-        ],
-        [
-            ['Cosmic%20dust.png', 'Cosmic dust'],
-            ['Planetesimal.png', 'Planetesimal'],
-            ['Protoplanet.png', 'Protoplanet'],
-            ['Natural%20satellite.png', 'Moon'],
-            ['Subsatellite.png', 'Submoon']
-        ],
-        [
-            ['Brown%20dwarf.png', 'Brown dwarf'],
-            ['Orange%20dwarf.png', 'Orange dwarf'],
-            ['Red%20supergiant.png', 'Red supergiant'],
-            ['Blue%20hypergiant.png', 'Blue hypergiant'],
-            ['Quasi%20star.png', 'Quasi star']
-        ],
-        [
-            ['Nebula.png', 'Nebula'],
-            ['Star%20cluster.png', 'Star cluster'],
-            ['Galaxy.png', 'Galaxy'],
-            ['Galaxy%20filament.png', 'Galaxy filaments']
-        ]
+        ['Preon.png', 'Quarks.png', 'Particle.png', 'Atom.png', 'Molecule.png'], //[0] === src
+        ['Drop.png', 'Puddle.png', 'Pond.png', 'Lake.png', 'Sea.png', 'Ocean.png'],
+        ['Cosmic%20dust.png', 'Planetesimal.png', 'Protoplanet.png', 'Natural%20satellite.png', 'Subsatellite.png'],
+        ['Brown%20dwarf.png', 'Orange%20dwarf.png', 'Red%20supergiant.png', 'Blue%20hypergiant.png', 'Quasi%20star.png'],
+        ['Nebula.png', 'Star%20cluster.png', 'Galaxy.png', 'Galaxy%20Filaments.png']
     ],
-    longestUpgrade: 13, //If max will increase then new HTML need to be added into index.html
+    longestUpgrade: 13, //Actual HTML count
     upgradeHTML: [
         [],
         [
-            ['UpgradeQ1.png', 'Weak force'],
+            ['UpgradeQ1.png', 'Weak force'], //[1] === alt
             ['UpgradeQ2.png', 'Strong force'],
             ['UpgradeQ3.png', 'Electron'],
             ['UpgradeQ4.png', 'Proton'],
@@ -104,7 +72,7 @@ export const specialHTML = {
             ['UpgradeG3.png', 'Quasar']
         ]
     ],
-    longestResearch: 8, //If max will increase then new HTML need to be added into index.html
+    longestResearch: 8, //Actual HTML count
     researchHTML: [
         [],
         [
@@ -144,13 +112,13 @@ export const specialHTML = {
             ['ResearchG2.png', 'Frequency', 'stage6borderImage']
         ]
     ],
-    longestResearchExtra: 5, //If max will increase then new HTML need to be added into index.html
+    longestResearchExtra: 5, //Actual HTML count
     researchExtraDivHTML: [
         [],
-        ['Energy%20Researches.png', 'Energy researches', 'stage4borderImage'],
-        ['Cloud%20Researches.png', 'Cloud researches', 'stage2borderImage'],
-        ['Rank%20Researches.png', 'Rank researches', 'stage6borderImage'],
-        ['Star%20Researches.png', 'Star researches', 'stage6borderImage'],
+        ['Energy%20Researches.png', 'stage4borderImage'],
+        ['Cloud%20Researches.png', 'stage2borderImage'],
+        ['Rank%20Researches.png', 'stage6borderImage'],
+        ['Star%20Researches.png', 'stage6borderImage'],
         []
     ],
     researchExtraHTML: [
@@ -181,35 +149,68 @@ export const specialHTML = {
         ],
         []
     ],
-    longestFooterStats: 3, //If max will increase then new HTML need to be added into index.html
+    longestFooterStats: 3, //Actual HTML count
     footerStatsHTML: [
         [],
         [
-            ['Energy%20mass.png', 'Energy mass', 'stage1borderImage cyanText', 'Mass'], //[3] === textcontent
-            ['Energy.png', 'Energy', 'stage4borderImage orangeText', 'Energy']
+            ['Energy%20mass.png', 'stage1borderImage cyanText', 'Mass'], //[2] === textcontent
+            ['Energy.png', 'stage4borderImage orangeText', 'Energy']
         ],
         [
-            ['Clouds.png', 'Clouds', 'stage3borderImage grayText', 'Clouds'],
-            ['Water.png', 'H2O', 'stage2borderImage blueText', 'Moles'],
-            ['Drop.png', 'Drop of water', 'stage2borderImage blueText', 'Drops']
+            ['Clouds.png', 'stage3borderImage grayText', 'Clouds'],
+            ['Water.png', 'stage2borderImage blueText', 'Moles'],
+            ['Drop.png', 'stage2borderImage blueText', 'Drops']
         ],
         [
-            ['Mass.png', 'Mass', 'stage3borderImage grayText', 'Mass']
+            ['Mass.png', 'stage3borderImage grayText', 'Mass']
         ],
         [
-            ['Main_sequence%20mass.png', 'Solar mass', 'stage1borderImage cyanText', 'Mass'],
-            ['Elements.png', 'Elements', 'stage4borderImage orangeText', 'Elements']
+            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
+            ['Elements.png', 'stage4borderImage orangeText', 'Elements']
         ],
         [
-            ['Main_sequence%20mass.png', 'Solar mass', 'stage1borderImage cyanText', 'Mass'],
-            ['Elements.png', 'Elements', 'stage4borderImage orangeText', 'Elements'],
-            ['Stars.png', 'Stars', 'stage7borderImage redText', 'Stars']
+            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
+            ['Elements.png', 'stage4borderImage orangeText', 'Elements'],
+            ['Stars.png', 'stage7borderImage redText', 'Stars']
         ]
-    ]
+    ],
+    imageCache: document.createElement('div')
+};
+
+export const preventImageUnload = () => {
+    const { footerStatsHTML: footer, buildingHTML: build, upgradeHTML: upgrade, researchHTML: research, researchExtraHTML: extra, researchExtraDivHTML: extraDiv } = specialHTML;
+    //Duplicates are ignored, unless they are from Strangeness, because duplicates from there could become unique in future
+
+    let images = '';
+    for (let s = 1; s <= 5; s++) {
+        for (let i = 0; i < footer[s].length; i++) {
+            if (s === 2) {
+                if (i === 2) { continue; }
+            } else if (s === 5 && i < 2) { continue; }
+            images += `<img src="Used_art/${footer[s][i][0]}" loading="lazy">`;
+        }
+        for (let i = 0; i < build[s].length; i++) {
+            images += `<img src="Used_art/${build[s][i]}" loading="lazy">`;
+        }
+        for (let i = 0; i < upgrade[s].length; i++) {
+            images += `<img src="Used_art/${upgrade[s][i][0]}" loading="lazy">`;
+        }
+        for (let i = 0; i < research[s].length; i++) {
+            images += `<img src="Used_art/${research[s][i][0]}" loading="lazy">`;
+        }
+        for (let i = 0; i < extra[s].length; i++) {
+            if (s === 2 && i === 3) { continue; }
+            images += `<img src="Used_art/${extra[s][i][0]}" loading="lazy">`;
+        }
+        if (extraDiv[s].length > 0) { images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`; }
+        images += `<img src="Used_art/Stage${s}%20border.png" loading="lazy">`;
+    }
+    specialHTML.imageCache.innerHTML = images; //Saved just in case
 };
 
 export const setTheme = (themeNumber: number, initial = false) => {
     if (!initial) {
+        if (themeNumber === 6 && player.stage.true < 7 && player.strangeness[5][0] < 0) { initial = true; }
         if (player.stage.true < themeNumber) { initial = true; }
     }
 
@@ -461,6 +462,7 @@ export const AlertWait = async(text: string): Promise<void> => {
 
         const key = async(button: KeyboardEvent) => {
             if (button.key === 'Escape' || button.key === 'Enter') {
+                button.preventDefault();
                 close();
             }
         };
@@ -495,8 +497,10 @@ export const Confirm = async(text: string, rejectValue = false): Promise<boolean
         const no = () => { close(false); };
         const key = (button: KeyboardEvent) => {
             if (button.key === 'Escape') {
+                button.preventDefault();
                 no();
             } else if (button.key === 'Enter') {
+                button.preventDefault();
                 yes();
             }
         };
@@ -514,7 +518,7 @@ export const Confirm = async(text: string, rejectValue = false): Promise<boolean
     });
 };
 
-export const Prompt = async(text: string): Promise<string | null> => {
+export const Prompt = async(text: string, inputValue = ''): Promise<string | null> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
@@ -530,15 +534,17 @@ export const Prompt = async(text: string): Promise<string | null> => {
         blocker.style.display = '';
         cancel.style.display = '';
         input.style.display = '';
-        input.value = '';
+        input.value = inputValue;
         input.focus();
 
         const yes = () => { close(input.value); };
         const no = () => { close(null); };
         const key = (button: KeyboardEvent) => {
             if (button.key === 'Escape') {
+                button.preventDefault();
                 no();
             } else if (button.key === 'Enter') {
+                button.preventDefault();
                 yes();
             }
         };
@@ -561,6 +567,7 @@ export const notify = (text: string) => {
     const notification = document.createElement('p');
     notification.textContent = text;
     notification.style.animation = 'hideX 1s ease-in-out reverse';
+    if (global.screenReader[0]) { notification.role = 'alert'; }
 
     const mainDiv = getId('notifications');
     mainDiv.appendChild(notification);
@@ -582,6 +589,7 @@ export const notify = (text: string) => {
 
 export const hideFooter = () => {
     const footer = getId('footer');
+    const footerArea = getId('footerColor');
     const toggle = getId('hideToggle');
     const arrow = getId('hideArrow');
 
@@ -594,7 +602,8 @@ export const hideFooter = () => {
     global.footer = !global.footer;
     toggle.removeEventListener('click', hideFooter);
     if (global.footer) {
-        getId('footerColor').style.display = '';
+        footerArea.classList.remove('hidden');
+        footerArea.style.display = '';
         arrow.style.transform = '';
         footer.style.animation = 'hideY 1s reverse';
         arrow.style.animation = 'rotate 1s reverse';
@@ -608,7 +617,8 @@ export const hideFooter = () => {
         arrow.style.animation = 'rotate 1s backwards';
         getId('hideText').textContent = 'Show';
         setTimeout(() => {
-            getId('footerColor').style.display = 'none';
+            footerArea.classList.add('hidden');
+            footerArea.style.display = 'none';
             arrow.style.transform = 'rotate(180deg)';
             animationReset();
         }, 1000);
@@ -616,8 +626,8 @@ export const hideFooter = () => {
 };
 
 export const mobileDeviceSupport = (change = false) => {
-    let enabled = Boolean(localStorage.getItem('mobile device'));
-    const toggle = getId('mobileDeviceToggle');
+    let enabled = localStorage.getItem('support') === 'MD';
+    const toggle = getId('MDMainToggle');
 
     if (change) { enabled = !enabled; }
 
@@ -625,21 +635,22 @@ export const mobileDeviceSupport = (change = false) => {
         toggle.textContent = 'ON';
         toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
-        localStorage.setItem('mobile device', 'true');
+        localStorage.setItem('support', 'MD');
         global.mobileDevice = true;
-        if (change) { Alert('For full support please refresh the page. This will add touchStart event (as example: touching an upgrade to view description)'); }
+        if (change) { Alert('To enable touchStart events (as example: touching an upgrade to view description), will need to reload'); }
+        if (global.screenReader[0]) { screenReaderSupport(); }
     } else {
         toggle.textContent = 'OFF';
         toggle.style.color = '';
         toggle.style.borderColor = '';
-        localStorage.removeItem('mobile device');
         global.mobileDevice = false;
+        if (change) { localStorage.removeItem('support'); }
     }
 };
 
 export const screenReaderSupport = (change = false) => {
-    let enabled = Boolean(localStorage.getItem('screen reader'));
-    const toggle = getId('screenReaderToggle');
+    let enabled = localStorage.getItem('support') === 'SR';
+    const toggle = getId('SRMainToggle');
 
     if (change) { enabled = !enabled; }
 
@@ -647,88 +658,105 @@ export const screenReaderSupport = (change = false) => {
         toggle.textContent = 'ON';
         toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
-        localStorage.setItem('screen reader', 'true');
-        global.screenReader = true;
-        stageCheck();
-        if (change) { Alert("For full support please refresh the page. This will add focus events (as example: can view description of an upgrade by using 'tab'), also will add special tab to check progress and more (need feedback on it)"); }
+        localStorage.setItem('support', 'SR');
+        global.screenReader[0] = true;
+        if (change) { Alert("To enable focus events (as example: view description of an upgrade by pressing 'tab'), will need to reload"); }
+        if (global.mobileDevice) { mobileDeviceSupport(); }
+        SRCreateHTML();
+        stageUpdate();
     } else {
         toggle.textContent = 'OFF';
         toggle.style.color = '';
         toggle.style.borderColor = '';
-        localStorage.removeItem('screen reader');
-        global.screenReader = false;
+        global.screenReader[0] = false;
+        if (change) { localStorage.removeItem('support'); }
     }
 };
 
-export const getInformationSR = (index: number, special: 'building' | 'resource' | 'information') => {
-    if (special === 'building') {
-        const { buildingsInfo } = global;
-        const active = player.stage.active;
-        const buildings = player.buildings[active];
+const SRCreateHTML = () => {
+    if (getId('SRMain') !== null) { return; }
+    global.screenReader[2] = true;
 
-        let extra = index - 1;
-        if (active === 4 || (active === 5 && index < 3)) { extra = 0; }
+    const tab = document.createElement('h5');
+    const stage = document.createElement('h5');
+    const main = document.createElement('h6');
+    tab.classList.add('reader');
+    stage.classList.add('reader');
+    main.classList.add('reader');
+    tab.ariaLive = 'polite';
+    stage.ariaLive = 'polite';
+    main.ariaLive = 'assertive';
+    tab.id = 'SRTab';
+    stage.id = 'SRStage';
+    main.id = 'SRMain';
+    getId('fakeFooter').insertAdjacentElement('beforebegin', tab);
+    tab.insertAdjacentElement('afterend', stage);
+    stage.insertAdjacentElement('afterend', main);
 
-        if (index === 0) {
-            getId('SRMain').textContent = `You have ${Limit(buildings[0].current).format()} ${buildingsInfo.name[active][0]}`;
-        } else {
-            getId('SRMain').textContent = `You have ${Limit(buildings[index].current).format()} ${buildingsInfo.name[active][index]}${Limit(buildings[index].current).notEqual(buildings[index as 1].true) ? `, out of them ${format(buildings[index as 1].true)} are self-made ones` : ''}, they are ${buildingsInfo.type[active][index] === 'producing' ? `producing ${Limit(buildingsInfo.producing[active][index]).format()} ${buildingsInfo.name[active][extra]} per second` : `improving production of ${buildingsInfo.name[active][extra]} by ${Limit(buildingsInfo.producing[active][index]).format()}`}${player.ASR[active] >= index ? `, auto is ${player.toggles.buildings[active][index] ? 'on' : 'off'}` : ''}`;
-        }
-    } else if (special === 'resource') {
-        if (index === 0) {
-            getId('SRMain').textContent = `You have ${format(player.strange[0].current)} Strange quarks${global.strangeInfo.stageBoost[player.stage.active] !== null ? ` they are boosting production of current stage by ${format(global.strangeInfo.stageBoost[player.stage.active] as number)}` : ''}, you will gain ${format(global.strangeInfo.gain(player.stage.active))} on Stage reset`;
-        } else if (index === 1) {
-            if (player.stage.active === 1) {
-                assignDischargeInformation();
-                getId('SRMain').textContent = `You have ${format(player.discharge.energy)} Energy${player.upgrades[1][5] === 1 ? `, next discharge goal is ${format(global.dischargeInfo.next)} Energy, you reached goal ${format(player.discharge.current)} times` : ''}${global.dischargeInfo.bonus > 0 ? `, you also have +${format(global.dischargeInfo.bonus)} free goals.` : ''}`;
-            } else if (player.stage.active === 2) {
-                assignVaporizationInformation();
-                getId('SRMain').textContent = `You have ${Limit(player.vaporization.clouds).format()} Clouds${Limit(global.vaporizationInfo.get).moreThan('1') ? `, you can get +${Limit(global.vaporizationInfo.get).format()} if you reset now` : ''}`;
-            } else if (player.stage.active === 4) {
-                assignCollapseInformation();
-                getId('SRMain').textContent = `You have ${format(player.collapse.mass)} Mass${global.collapseInfo.newMass >= player.collapse.mass ? `, you can get +${format(global.collapseInfo.newMass - player.collapse.mass)} if you reset now` : ''}${player.researchesExtra[4][0] >= 1 ? `, also ${format(global.collapseInfo.starCheck[0])} Red giants` : ''}${player.researchesExtra[4][0] >= 2 ? `,  ${format(global.collapseInfo.starCheck[1])} Neutron stars` : ''}${player.researchesExtra[4][0] >= 3 ? ` and also ${format(global.collapseInfo.starCheck[2])} Black holes` : ''}`;
+    const message1 = getId('SRMessage1');
+    const message2 = document.createElement('p');
+    const message3 = document.createElement('p');
+    message1.innerHTML = 'Current list of tabs: <span id="SRTabList">work in progress</span> (use arrows left and right to change tab)';
+    message2.innerHTML = 'Current list of subtabs: <span id="SRSubtabList">work in progress</span> (use arrows up and down to change subtab)';
+    message3.innerHTML = 'Current list of active Stages: <span id="SRStageList"></span> (use shift + arrows left and right to change active Stage)';
+    message2.classList.add('reader');
+    message3.classList.add('reader', 'stage5Unlock');
+    message1.insertAdjacentElement('afterend', message2);
+    message2.insertAdjacentElement('afterend', message3);
+
+    const toggle1 = document.createElement('button');
+    const toggle2 = document.createElement('button');
+    toggle1.textContent = 'Return tab to created Upgrades/Researches and etc.';
+    toggle2.textContent = 'Return tab to primary buttons';
+    toggle1.classList.add('reader');
+    toggle2.classList.add('reader');
+    toggle1.id = 'SRToggle1';
+    toggle2.id = 'SRToggle2';
+    getId('SRMainToggleLi').insertAdjacentElement('afterend', toggle1);
+    toggle1.insertAdjacentElement('afterend', toggle2);
+
+    const hangleToggle = (number: number) => {
+        global.screenReader[number] = !global.screenReader[number];
+        const toggleHTML = getId(`SRToggle${number}`) as { textContent: string };
+        toggleHTML.textContent = toggleHTML.textContent.replace(global.screenReader[number] ? 'Remove tab from' : 'Return tab to', global.screenReader[number] ? 'Return tab to' : 'Remove tab from');
+    };
+    toggle1.addEventListener('click', () => {
+        hangleToggle(1);
+        stageUpdate('reload');
+        for (let i = 0; i < player.researchesAuto.length; i++) { visualUpdateResearches(i, global.researchesAutoInfo.autoStage[i], 'researchesAuto'); }
+        for (let s = 1; s < player.strangeness.length; s++) {
+            for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) {
+                visualUpdateResearches(i, s, 'strangeness');
             }
         }
-    } else if (special === 'information') {
-        if (index === 0) {
-            const { activeAll, word } = global.stageInfo;
-
-            let activeStages = word[activeAll[0]];
-            for (let i = 1; i < activeAll.length; i++) {
-                activeStages += `, ${word[activeAll[i]]}`;
-            }
-
-            getId('SRMain').textContent = `Current Active Stages are ${activeStages}`;
+    });
+    toggle2.addEventListener('click', () => {
+        hangleToggle(2);
+        const newTab = global.screenReader[2] ? -1 : 0;
+        getId('stageReset').tabIndex = newTab;
+        getId('reset1Button').tabIndex = newTab;
+        for (let i = 1; i < specialHTML.longestBuilding; i++) {
+            getId(`building${i}Btn`).tabIndex = newTab;
+            getId(`toggleBuilding${i}`).tabIndex = newTab;
         }
-    }
+        getId('toggleBuilding0').tabIndex = newTab;
+    });
 };
 
-export const changeFontSize = (change = false, inputChange = false) => {
-    const toggle = getId('fontSizeToggle');
-    let enabled = Boolean(localStorage.getItem('fontSize'));
+export const changeFontSize = (change = false) => {
+    const input = getId('customFontSize') as HTMLInputElement;
+    let size = Number(change ? input.value : localStorage.getItem('fontSize'));
+    if (size === 0) { size = 16; }
 
-    if (change) { enabled = !enabled; }
-
-    if (!enabled) {
+    if (size === 16) {
         document.body.style.removeProperty('--font-size');
         localStorage.removeItem('fontSize');
-        toggle.textContent = 'OFF';
-        toggle.style.color = 'var(--red-text-color)';
-        toggle.style.borderColor = 'crimson';
     } else {
-        const input = getId('customFontSize') as HTMLInputElement;
-        let size = Number(localStorage.getItem('fontSize'));
-        if (size < 10 || size > 32 || inputChange) {
-            size = Math.min(Math.max(Math.floor(Number(input.value) * 10) / 10, 10), 32);
-        }
-
+        size = Math.floor(Math.min(Math.max(size, 10), 32) * 10) / 10;
         document.body.style.setProperty('--font-size', `${size}px`);
         localStorage.setItem('fontSize', `${size}`);
-        toggle.textContent = 'ON';
-        toggle.style.color = '';
-        toggle.style.borderColor = '';
-        input.value = `${size}`;
     }
+    input.value = `${size}`;
 };
 
 export const changeFormat = (point: boolean) => {
@@ -747,12 +775,13 @@ export const changeFormat = (point: boolean) => {
 //If done for span, then add class="noMoveSpan";
 export const assignWithNoMove = (html: HTMLElement, text: string) => {
     html.textContent = text;
-    html.style.width = `${text.length * 0.63}em`;
+    const newWidth = `${text.length * 0.63}em`;
+    if (newWidth !== html.style.width) { html.style.width = newWidth; }
 };
 
 export const replayEvent = async() => {
     if (getId('blocker').style.display !== 'none') { return; }
-    const event = Number(await Prompt('Which event you want to see again?\n(Write a number of that event)'));
+    const event = Number(await Prompt('Which event do you want to see again?\n(Write a number of that event)'));
     if (!isFinite(event) || event <= 0) { return; }
 
     let allowed = false;
@@ -794,6 +823,6 @@ export const playEvent = (event: number, index: number) => {
             Alert("There doesn't seem to be anything here. Let's try going back to start and find what is missing");
             break;
         case 5: //[2] Creating Galaxy
-            Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until can afford them again');
+            Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until afforded again (will reactivate automatically)');
     }
 };

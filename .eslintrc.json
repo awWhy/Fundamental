@@ -13,7 +13,6 @@
     },
     "rules": { /* https://eslint.org/docs/latest/rules/ */ /* https://typescript-eslint.io/rules/ */
         /* To see all used rules type `npx eslint --print-config file.ts > eslintconifg.txt`, this will create a text file */
-        //forEach(); is banned (because it's slower and harder to maintain)
         "semi": "off", //Already in @typescript
         "space-before-function-paren": "off", //Already in @typescript
         "spaced-comment": "off",
@@ -22,58 +21,57 @@
         "object-shorthand": ["warn", "consistent-as-needed"],
         "comma-dangle": ["warn", "never"],
         "max-statements-per-line": ["error", { "max": 2 }], //Because brace-style isn't working. So only allowed for cases like 'if (condition) { do this; }'
-        "no-promise-executor-return": "error", //Test
-        "no-unsafe-optional-chaining": "error", //Test
+        "no-promise-executor-return": "error",
+        "no-unsafe-optional-chaining": "error",
         "no-fallthrough": "error", //falls through; For intentional one
-        "no-unused-private-class-members": "warn", //Test
+        "no-unused-private-class-members": "warn",
         "no-unsafe-negation": ["error", { "enforceForOrderingRelations": true }], //Use (!key) or !(a < b), instead
-        "no-empty": "warn", //If testing then add comment inside
-        "no-void": "error",
+        "no-empty": "warn", //When testing add comment inside
+        "no-void": "off", //Bugs, doesn't allow to void promises
         "no-useless-concat": "warn",
         "no-extra-label": "warn",
         "switch-colon-spacing": "error",
         "generator-star-spacing": "error",
         "no-var": "warn",
-        "multiline-ternary": "off", //I don't like it
-        //"no-case-declarations": "off", //Can be turned off
-        //"no-class-assign": "off", //Can be turned off
+        "multiline-ternary": "off",
         "no-sparse-arrays": "off",
-        "operator-assignment": "warn", //Test
+        "operator-assignment": "warn",
         "operator-linebreak": ["error", "after"],
         //"no-return-assign": "off", //return (a = b), if intentional
-        "eqeqeq": "warn", //Using ===, won't be slower than == (even if need type conversion)
-        "no-loop-func": "warn", //Test
-        "prefer-object-has-own": "warn", //No 'in' as well (because it's not actually quicker, sad...)
+        "eqeqeq": "warn",
+        "no-loop-func": "warn",
+        "prefer-object-has-own": "warn", //No 'in' as well
         "no-labels": "off",
+        //Function forEach() is also banned
 
-        "@typescript-eslint/indent": "off", //https://github.com/typescript-eslint/typescript-eslint/issues/1824
+        "@typescript-eslint/indent": "off", //Buggy
         "@typescript-eslint/semi": ["error", "always"],
-        "@typescript-eslint/explicit-function-return-type": "off", //I don't like it
+        "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/space-before-function-paren": ["error", "never"],
-        "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }], //Can be changed, also I don't understand "ignoreRestSiblings"
-        "@typescript-eslint/no-empty-function": "warn", //If testing then add comment inside
-        "@typescript-eslint/no-empty-interface": "warn", //If testing then add comment inside
-        "@typescript-eslint/no-invalid-this": "error", //Test
+        "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }],
+        "@typescript-eslint/no-empty-function": "warn", //When testing add comment inside
+        "@typescript-eslint/no-empty-interface": "warn", //When testing add comment inside
+        "@typescript-eslint/no-invalid-this": "error",
         "@typescript-eslint/no-extra-semi": "error",
-        "@typescript-eslint/await-thenable": "error", //Test
-        "@typescript-eslint/consistent-type-definitions": "off", //Don't see a reason for it
-        "@typescript-eslint/unified-signatures": ["error", { "ignoreDifferentlyNamedParameters": true}], //Test
-        //"@typescript-eslint/no-unnecessary-condition": "warn", //This one is stupid, just because an object doesn't have type undefined DOES NOT mean it cannot be undefined. I'm not adding into every single object undefined type, probably really easy to guess why
-        "@typescript-eslint/no-unnecessary-type-constraint": "warn", //Test
-        "@typescript-eslint/no-unnecessary-type-arguments": "warn", //Test
+        "@typescript-eslint/await-thenable": "error",
+        "@typescript-eslint/consistent-type-definitions": "off",
+        "@typescript-eslint/unified-signatures": ["error", { "ignoreDifferentlyNamedParameters": true}],
+        //"@typescript-eslint/no-unnecessary-condition": "warn", //Objects can be undefined, even without proper type (TS will annoy if turn it on)
+        "@typescript-eslint/no-unnecessary-type-constraint": "warn",
+        "@typescript-eslint/no-unnecessary-type-arguments": "warn",
         "@typescript-eslint/no-require-imports": "warn",
         "@typescript-eslint/no-redeclare": ["error", { "builtinGlobals": true }],
-        "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn", //Test
-        "@typescript-eslint/no-meaningless-void-operator": "warn", //Test
+        "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn",
+        "@typescript-eslint/no-meaningless-void-operator": "warn",
         "@typescript-eslint/no-inferrable-types": "warn",
         "@typescript-eslint/default-param-last": "error",
-        "@typescript-eslint/prefer-namespace-keyword": "warn", //I dont know what this mean...
-        "@typescript-eslint/prefer-as-const": "error", //Test
-        "@typescript-eslint/restrict-plus-operands": "off", //This is dumb
-        "@typescript-eslint/restrict-template-expressions": "off", //I hate it
+        "@typescript-eslint/prefer-namespace-keyword": "warn",
+        "@typescript-eslint/prefer-as-const": "error",
+        "@typescript-eslint/restrict-plus-operands": "warn",
+        "@typescript-eslint/restrict-template-expressions": "off", //Doesn't work with Errors
         "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
-        "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }], //I dont know what it means...
+        "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
         "@typescript-eslint/no-dynamic-delete": "off"
-        //"@typescript-eslint/array-type": ["error", { "default": "array" }] //I rather just to turn it off
+        //"@typescript-eslint/array-type": ["error", { "default": "array" }] //I rather to turn it off
     }
 }

@@ -1,7 +1,7 @@
 import { allowedToBeReset } from './Check';
 import { cloneArray, global, player, playerStart } from './Player';
 import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet, assignEnergy, assignNewMassCap, calculateMilestoneInformation } from './Stage';
-import { numbersUpdate, stageCheck, updateRankInfo, visualUpdate, visualUpdateResearches, visualUpdateUpgrades } from './Update';
+import { numbersUpdate, stageUpdate, updateRankInfo, visualUpdate, visualUpdateResearches, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy', stageIndex: number[]) => {
     if (type === 'discharge' || player.inflation.vacuum) { player.discharge.energy = 0; }
@@ -15,6 +15,8 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
         const { elements } = player;
 
         for (let i = 1; i < elements.length; i++) {
+            if (!allowedToBeReset(i, 4, 'elements')) { continue; }
+
             elements[i] = 0;
             visualUpdateUpgrades(i, 4, 'elements');
         }
@@ -111,7 +113,6 @@ export const resetStage = (stageIndex: number[], update = 'normal' as false | 'n
                 player.accretion.rank = 1;
             }
         } else if (s === 4) {
-            player.stage.time = 0;
             global.collapseInfo.trueStars = 0;
             player.collapse.elementsMax = [1, 0];
             player.collapse.mass = 0.01235;
@@ -119,6 +120,7 @@ export const resetStage = (stageIndex: number[], update = 'normal' as false | 'n
             if (!player.inflation.vacuum) { player.collapse.show = []; }
             player.elements = cloneArray(playerStart.elements);
             autoElementsSet();
+            for (let i = 0; i < player.elements.length; i++) { visualUpdateUpgrades(i, 4, 'elements'); }
         } else if (s === 5) {
             if (player.strangeness[5][6] >= 2) { player.ASR[5]++; }
         }
@@ -136,15 +138,12 @@ export const resetStage = (stageIndex: number[], update = 'normal' as false | 'n
     assignBuildingInformation();
 
     if (update !== false) {
-        stageCheck(update);
+        global.lastActive = null;
+        stageUpdate(update);
         if (update === 'soft') {
             const active = player.stage.active;
             for (let i = 0; i < global.upgradesInfo[active].maxActive; i++) { visualUpdateUpgrades(i, active, 'upgrades'); }
-            if (active === 3) {
-                updateRankInfo();
-            } else if (active === 4) {
-                for (let i = 1; i < player.elements.length; i++) { visualUpdateUpgrades(i, 4, 'elements'); }
-            }
+            if (active === 3) { updateRankInfo(); }
         }
     }
 };
@@ -191,7 +190,6 @@ export const resetVacuum = () => {
     } else {
         player.accretion.rank = 1;
     }
-    assignNewMassCap();
 
     //Stage 4
     global.collapseInfo.trueStars = 0;
@@ -219,17 +217,18 @@ export const resetVacuum = () => {
         calculateMaxLevel(0, s, 'ASR');
     }
     const autoStage = global.researchesAutoInfo.autoStage;
-    for (let i = 0; i < player.researchesAuto.length; i++) { calculateMaxLevel(i, autoStage[i], 'researchesAuto'); }
+    for (let i = 0; i < playerStart.researchesAuto.length; i++) { calculateMaxLevel(i, autoStage[i], 'researchesAuto'); }
     for (let s = 1; s < playerStart.strangeness.length; s++) {
         for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) {
             calculateMaxLevel(i, s, 'strangeness');
         }
     }
     for (let s = 1; s < playerStart.milestones.length; s++) {
-        for (let i = 0; i < player.milestones[s].length; i++) {
+        for (let i = 0; i < playerStart.milestones[s].length; i++) {
             calculateMilestoneInformation(i, s);
         }
     }
+    assignNewMassCap();
 
-    stageCheck('reload');
+    stageUpdate('reload');
 };

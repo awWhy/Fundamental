@@ -14,24 +14,27 @@ export const detectHotkey = (check: KeyboardEvent) => {
         document.body.classList.remove('outlineOnFocus');
     }
     if (check.ctrlKey || check.altKey) { return; }
+    const key = check.key;
 
-    const shift = check.shiftKey;
-    const isNumber = !isNaN(Number(check.code.slice(-1)));
-    const key = !player.toggles.normal[6] || (isNumber && shift) ? check.code : check.key;
+    if (key.length === 1) {
+        const numberKey = Number(check.code.slice(-1));
 
-    if (isNumber) {
-        if (check.code[0] === 'F') { return; }
-        const numberKey = Number(key.slice(-1));
+        if (!isNaN(numberKey)) { //Spacebar goes here as 0
+            if (check.code[0] === 'F' || numberKey < 1) { return; }
+            if (check.shiftKey) {
+                toggleSwap(numberKey, 'buildings', true);
+            } else { buyBuilding(numberKey); }
+            return;
+        }
 
-        if (!shift && numberKey >= 1) { buyBuilding(numberKey); }
-        return;
-    } else if (check.key.length === 1) {
-        const stringKey = key.replace('Key', '').toLowerCase();
+        const stringKey = (player.toggles.normal[6] ? check.code.replace('Key', '') : key).toLowerCase();
 
-        if (!shift) {
+        if (check.shiftKey) {
             if (stringKey === 'a') {
                 toggleSwap(0, 'buildings', true);
-            } else if (stringKey === 'o') {
+            }
+        } else {
+            if (stringKey === 'o') {
                 toggleSwap(0, 'normal', true);
             } else if (stringKey === 'w') {
                 check.preventDefault();
@@ -52,7 +55,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
     }
 
     if (!check.repeat) {
-        if (shift) {
+        if (check.shiftKey) {
             if (key === 'ArrowLeft' || key === 'ArrowRight') {
                 const { activeAll } = global.stageInfo;
                 if (activeAll.length === 1) { return; }

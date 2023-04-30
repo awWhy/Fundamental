@@ -8,14 +8,14 @@ export const prepareVacuum = () => {
     const { buildingsInfo, upgradesInfo, researchesInfo, researchesExtraInfo, strangenessInfo } = global;
 
     if (player.inflation.vacuum) {
-        specialHTML.footerStatsHTML[1][0] = ['Energy%20mass.png', 'Energy mass', 'stage1borderImage cyanText', 'Mass'];
+        specialHTML.footerStatsHTML[1][0] = ['Energy%20mass.png', 'stage1borderImage cyanText', 'Mass'];
         buildings[1][0].current = [5.476, -3];
         buildings[2][0].current = [0, 0];
         buildings[3][0].current = [0, 0];
         const maxBuildings = [6, 7, 6, 6, 5];
         buildingsInfo.maxActive.splice(1, maxBuildings.length, ...maxBuildings);
         if (buildingsInfo.name[1][0] !== 'Mass') {
-            specialHTML.buildingHTML[1].unshift(['Preon.png', 'Preon'], ['Quarks.png', 'Quarks']);
+            specialHTML.buildingHTML[1].unshift('Preon.png', 'Quarks.png');
             buildingsInfo.name[1].unshift('Mass', 'Preons');
         }
         buildingsInfo.startCost[1] = [0, 0.005476, 6, 3, 24, 3];
@@ -73,7 +73,7 @@ export const prepareVacuum = () => {
         const strangeness4Scaling = [1.8, 2, 3, 4, 1, 1, 1.8, 1.8, 1, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
-        const strangeness5Cost = [1e10, 12, 50, 5, 10, 40, 800, 60, 200];
+        const strangeness5Cost = [4, 12, 50, 5, 10, 40, 1500, 60, 1500];
         const strangeness5Scaling = [1, 1, 1, 1.8, 1.75, 1, 1.5, 1.5, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
@@ -83,14 +83,13 @@ export const prepareVacuum = () => {
         strangenessInfo[4].maxActive = 11;
         //strangenessInfo[5].maxActive = 9;
 
-        getQuery('#historyMainDiv p').textContent = 'Stage resets:';
-
         getId('strange10Stage1').style.display = 'none'; //Re enable
         getId('strange10Stage2').style.display = '';
         getId('strange9Stage3').style.display = '';
         getId('strange10Stage3').style.display = '';
         getId('strange11Stage4').style.display = '';
 
+        getId('strangeBoostMain').style.display = '';
         getId('strange9Stage1').style.display = '';
         getId('strange8Stage2').style.display = '';
         getId('strange9Stage2').style.display = '';
@@ -104,13 +103,10 @@ export const prepareVacuum = () => {
             getId(`milestone2Stage${s}Div`).style.display = '';
         }
         getId('unknownStructures').style.display = 'none';
-
-        const stageWord = getId('stageWord');
-        stageWord.textContent = global.stageInfo.word[6];
-        stageWord.style.color = global.stageInfo.textColor[6];
+        getQuery('#stageInput ~ span').style.display = 'none';
         for (const element of getClass('vacuum')) { element.style.display = ''; }
     } else {
-        specialHTML.footerStatsHTML[1][0] = ['Quarks.png', 'Quarks', 'stage1borderImage cyanText', 'Quarks'];
+        specialHTML.footerStatsHTML[1][0] = ['Quarks.png', 'stage1borderImage cyanText', 'Quarks'];
         buildings[1][0].current = [3, 0];
         buildings[2][0].current = [2.8, -3];
         buildings[3][0].current = [1, -19];
@@ -185,8 +181,6 @@ export const prepareVacuum = () => {
         strangenessInfo[4].maxActive = 10;
         strangenessInfo[5].maxActive = 9;
 
-        getQuery('#historyMainDiv p').textContent = 'Intergalactic Stage resets:';
-
         for (const element of getClass('vacuum')) { element.style.display = 'none'; }
         for (let s = 1; s < strangenessInfo.length; s++) {
             for (let i = strangenessInfo[s].maxActive + 1; i <= strangenessInfo[s].startCost.length; i++) {
@@ -195,7 +189,8 @@ export const prepareVacuum = () => {
         }
 
         getId('rankStat0').style.display = '';
-        getId('elementsExtra').style.display = 'none';
+        getId('autoToggle8').style.display = 'none';
+        getQuery('#stageInput ~ span').style.display = '';
     }
 
     for (let s = 1; s <= 3; s++) {
@@ -218,7 +213,7 @@ export const switchVacuum = async() => {
     if (milestones[5][1] >= 8) { count++; }
     if (count < 5) { return Alert(`Universe is still stable. Vacuum state is false. ${5 - count} more`); }
 
-    if (!(await Confirm('This will not be possible to undo. Are you ready?'))) { return; }
+    if (!(await Confirm('This will not be possible to undo. Confirm?'))) { return; }
     await AlertWait('Universe is too unstable. Vacuum instability is imminent');
     player.inflation.vacuum = true;
     if (player.stage.true < 6) { player.stage.true = 6; }
@@ -236,7 +231,7 @@ export const updateUnknown = () => {
     if (milestones[2][1] >= 4) { text += '<img src="Used_art/Ocean.png" alt="Unknown Structure" loading="lazy">'; }
     if (milestones[3][1] >= 5) { text += '<img src="Used_art/Subsatellite.png" alt="Unknown Structure" loading="lazy">'; }
     if (milestones[4][1] >= 5) { text += '<img src="Used_art/Quasi%20star.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[5][1] >= 8) { text += '<img src="Used_art/Galaxy%20filament.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[5][1] >= 8) { text += '<img src="Used_art/Galaxy%20Filaments.png" alt="Unknown Structure" loading="lazy">'; }
 
     const div = getId('unknownStructures');
     div.style.display = milestones[1][0] >= 5 || milestones[2][1] >= 4 || milestones[3][1] >= 5 || milestones[4][1] >= 5 || milestones[5][1] >= 8 ? '' : 'none';

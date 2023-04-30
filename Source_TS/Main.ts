@@ -1,7 +1,7 @@
 import { player, global, playerStart, updatePlayer, buildVersionInfo, deepClone } from './Player';
-import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, stageCheck, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
+import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, stageUpdate, maxOfflineTime, exportMultiplier, maxExportTime } from './Update';
 import { assignNewMassCap, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleSwap, vaporizationAsyncReset } from './Stage';
-import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait, replayEvent, Confirm, getInformationSR } from './Special';
+import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, AlertWait, replayEvent, Confirm, preventImageUnload } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { prepareVacuum, switchVacuum } from './Vacuum';
 
@@ -12,18 +12,20 @@ export const getQuery = (query: string) => document.querySelector(query) as HTML
 
 export const reLoad = (firstLoad = false) => {
     if (firstLoad) {
+        preventImageUnload(); //Must be done before prepareVacuum
         const save = localStorage.getItem('save');
         if (save !== null) {
             const load = JSON.parse(atob(save));
             const versionCheck = updatePlayer(load);
 
             const { time } = player;
-            const offlineTime = (Date.now() - time.updated) / 1000;
+            const timeNow = Date.now();
+            const offlineTime = (timeNow - time.updated) / 1000;
             const maxOffline = maxOfflineTime();
-            time.updated = Date.now();
+            time.updated = timeNow;
             global.lastSave += offlineTime;
             time.offline = Math.min(time.offline + offlineTime, maxOffline);
-            player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
+            player.stage.export = Math.min(player.stage.export + Math.min(offlineTime, maxOffline), maxExportTime());
             Alert(`Welcome back, you were away for ${format(offlineTime, { type: 'time' })}.${time.offline >= maxOffline ? ' (Offline storage is full)' : ''}\n${versionCheck !== player.version ? `Game have been updated from ${versionCheck} to ${player.version}` : `Current version is ${player.version}`}`);
         } else {
             prepareVacuum();
@@ -40,7 +42,7 @@ export const reLoad = (firstLoad = false) => {
     const theme = localStorage.getItem('theme');
     setTheme(Number(theme), theme === null);
 
-    stageCheck('reload');
+    stageUpdate('reload');
     if (firstLoad) {
         getId('body').style.display = '';
         getId('loading').style.display = 'none';
@@ -65,14 +67,14 @@ export const reLoad = (firstLoad = false) => {
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
     toggleBuy();
 
-    changeIntervals(); //Unpause game
+    changeIntervals();
 };
-
-reLoad(true); //This will start the game
+reLoad(true); //Start everything
 
 {
     /* Global */
-    const { mobileDevice: MD, screenReader: SR } = global;
+    const SR = global.screenReader[0];
+    const hover = global.mobileDevice ? 'touchstart' : 'mouseover';
     document.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
         getId(`toggle${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
@@ -84,15 +86,32 @@ reLoad(true); //This will start the game
         getId(`toggleAuto${i}`).addEventListener('click', () => toggleSwap(i, 'auto', true));
     }
 
+    if (!player.toggles.normal[7]) {
+        const elementsArea = getId('researchSubtabElements');
+        elementsArea.remove();
+        elementsArea.id = 'ElementsTab';
+        getId('researchTab').insertAdjacentElement('afterend', elementsArea);
+
+        const elementsButton = getId('researchSubtabBtnElements');
+        elementsButton.remove();
+        elementsButton.id = 'ElementsTabBtn';
+        elementsButton.classList.add('stage4Include');
+        elementsButton.style.display = global.stageInfo.activeAll.includes(4) ? '' : 'none';
+        getId('researchTabBtn').insertAdjacentElement('afterend', elementsButton);
+
+        const tabList = global.tabList;
+        tabList.researchSubtabs.splice(tabList.researchSubtabs.indexOf('Elements'), 1);
+        tabList.tabs.splice(tabList.tabs.indexOf('research') + 1, 0, 'Elements');
+    }
+
     /* Stage tab */
     for (let i = 1; i < specialHTML.longestBuilding; i++) {
         getId(`building${i}Btn`).addEventListener('click', () => buyBuilding(i));
     }
     for (let i = 0; i < specialHTML.longestUpgrade; i++) {
         const image = getId(`upgrade${i + 1}`);
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, player.stage.active, 'upgrades')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, player.stage.active, 'upgrades')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(i, player.stage.active, 'upgrades'));
+        image.addEventListener(hover, () => getUpgradeDescription(i, player.stage.active, 'upgrades'));
         image.addEventListener('click', () => buyUpgrades(i, player.stage.active, 'upgrades'));
     }
     getId('stageReset').addEventListener('click', () => { void stageAsyncReset(); });
@@ -112,46 +131,40 @@ reLoad(true); //This will start the game
     getId('buyAny').addEventListener('click', () => toggleBuy('any'));
     getId('buyAnyInput').addEventListener('blur', () => toggleBuy('any'));
     getId('buyMax').addEventListener('click', () => toggleBuy('max'));
-    getId('buyStrict').addEventListener('click', () => toggleBuy('strict'));
 
-    getId('vacuumSwitch').addEventListener('click', switchVacuum);
+    getId('challenge0').addEventListener('click', switchVacuum);
 
     /* Research tab */
     for (let i = 0; i < specialHTML.longestResearch; i++) {
         const image = getId(`research${i + 1}Image`);
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, player.stage.active, 'researches')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, player.stage.active, 'researches')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(i, player.stage.active, 'researches'));
+        image.addEventListener(hover, () => getUpgradeDescription(i, player.stage.active, 'researches'));
         image.addEventListener('click', () => buyUpgrades(i, player.stage.active, 'researches'));
     }
     for (let i = 0; i < specialHTML.longestResearchExtra; i++) {
         const image = getId(`researchExtra${i + 1}Image`);
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, player.stage.active, 'researchesExtra')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, player.stage.active, 'researchesExtra')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(i, player.stage.active, 'researchesExtra'));
+        image.addEventListener(hover, () => getUpgradeDescription(i, player.stage.active, 'researchesExtra'));
         image.addEventListener('click', () => buyUpgrades(i, player.stage.active, 'researchesExtra'));
     }
     for (let i = 0; i < global.researchesAutoInfo.startCost.length; i++) {
         const image = getId(`researchAuto${i + 1}Image`);
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, player.stage.active, 'researchesAuto')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, player.stage.active, 'researchesAuto')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(i, player.stage.active, 'researchesAuto'));
+        image.addEventListener(hover, () => getUpgradeDescription(i, player.stage.active, 'researchesAuto'));
         image.addEventListener('click', () => buyUpgrades(i, player.stage.active, 'researchesAuto'));
     }
     {
         const image = getId('ASRImage');
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(0, player.stage.active, 'ASR')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(0, player.stage.active, 'ASR')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(0, player.stage.active, 'ASR'));
+        image.addEventListener(hover, () => getUpgradeDescription(0, player.stage.active, 'ASR'));
         image.addEventListener('click', () => buyUpgrades(0, player.stage.active, 'ASR'));
     }
 
-    getId('toggleAuto8').addEventListener('click', () => autoElementsSet());
+    getId('element0').addEventListener('dblclick', () => getUpgradeDescription(0, 4, 'elements'));
     for (let i = 1; i < global.elementsInfo.startCost.length; i++) {
         const image = getId(`element${i}`);
-        if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, 4, 'elements')); }
         if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, 4, 'elements')); }
-        image.addEventListener('mouseover', () => getUpgradeDescription(i, 4, 'elements'));
+        image.addEventListener(hover, () => getUpgradeDescription(i, 4, 'elements'));
         image.addEventListener('click', () => buyUpgrades(i, 4, 'elements'));
     }
 
@@ -159,18 +172,16 @@ reLoad(true); //This will start the game
     for (let s = 1; s < global.strangenessInfo.length; s++) {
         for (let i = 0; i < global.strangenessInfo[s].startCost.length; i++) {
             const image = getId(`strange${i + 1}Stage${s}Image`);
-            if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, s, 'strangeness')); }
             if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, s, 'strangeness')); }
-            image.addEventListener('mouseover', () => getUpgradeDescription(i, s, 'strangeness'));
+            image.addEventListener(hover, () => getUpgradeDescription(i, s, 'strangeness'));
             image.addEventListener('click', () => buyUpgrades(i, s, 'strangeness'));
         }
     }
     for (let s = 1; s < global.milestonesInfo.length; s++) {
         for (let i = 0; i < global.milestonesInfo[s].need.length; i++) {
-            const image = getId(`milestone${i + 1}Stage${s}`);
-            if (MD) { image.addEventListener('touchstart', () => getUpgradeDescription(i, s, 'milestones')); }
+            const image = getQuery(`#milestone${i + 1}Stage${s}Div > img`);
             if (SR) { image.addEventListener('focus', () => getUpgradeDescription(i, s, 'milestones')); }
-            image.addEventListener('mouseover', () => getUpgradeDescription(i, s, 'milestones'));
+            image.addEventListener(hover, () => getUpgradeDescription(i, s, 'milestones'));
         }
     }
 
@@ -206,22 +217,22 @@ reLoad(true); //This will start the game
         getId('versionInfo').style.display = '';
     });
     getId('save').addEventListener('click', () => { void saveLoad('save'); });
-    getId('file').addEventListener('change', () => { void saveLoad('load'); });
+    getId('file').addEventListener('change', () => { void saveLoad('import'); });
     getId('export').addEventListener('click', () => { void saveLoad('export'); });
     getId('delete').addEventListener('click', () => { void saveLoad('delete'); });
     getId('switchTheme0').addEventListener('click', () => setTheme(0, true));
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     }
+    getId('toggleAuto8').addEventListener('click', () => autoElementsSet());
     getId('toggleAuto5').addEventListener('click', () => autoUpgradesSet('all'));
     getId('toggleAuto6').addEventListener('click', () => autoResearchesSet('researches', 'all'));
     getId('toggleAuto7').addEventListener('click', () => autoResearchesSet('researchesExtra', 'all'));
     getId('saveFileNameInput').addEventListener('blur', () => changeSaveFileName());
     {
         const image = getId('saveFileHoverButton');
-        if (MD) { image.addEventListener('touchstart', () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials())); }
         if (SR) { image.addEventListener('focus', () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials())); }
-        image.addEventListener('mouseover', () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials()));
+        image.addEventListener(hover, () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials()));
     }
     getId('mainInterval').addEventListener('blur', () => {
         const mainInput = getId('mainInterval') as HTMLInputElement;
@@ -249,11 +260,12 @@ reLoad(true); //This will start the game
     });
     getId('thousandSeparator').addEventListener('blur', () => changeFormat(false));
     getId('decimalPoint').addEventListener('blur', () => changeFormat(true));
+    getId('MDMainToggle').addEventListener('click', () => mobileDeviceSupport(true));
+    getId('SRMainToggle').addEventListener('click', () => screenReaderSupport(true));
     getId('pauseGame').addEventListener('click', () => { void pauseGame(); });
     getId('reviewEvents').addEventListener('click', () => { void replayEvent(); });
     getId('offlineWarp').addEventListener('click', () => { void timeWarp(); });
-    getId('fontSizeToggle').addEventListener('click', () => changeFontSize(true));
-    getId('customFontSize').addEventListener('blur', () => changeFontSize(false, true));
+    getId('customFontSize').addEventListener('blur', () => changeFontSize(true));
 
     getId('stageResetsSave').addEventListener('blur', () => {
         const inputID = getId('stageResetsSave') as HTMLInputElement;
@@ -272,25 +284,13 @@ reLoad(true); //This will start the game
         input.value = `${player.history.stage.input[1]}`;
     });
 
-    /* Only for phones */
-    getId('mobileDeviceToggle').addEventListener('click', () => mobileDeviceSupport(true));
-
-    /* Only for screen readers */
-    getId('screenReaderToggle').addEventListener('click', () => screenReaderSupport(true));
-    if (SR) {
-        for (let i = 0; i < specialHTML.longestBuilding; i++) {
-            getId(`SRBuild${i}`).addEventListener('click', () => getInformationSR(i, 'building'));
-        }
-        getId('SRExtra0').addEventListener('click', () => getInformationSR(0, 'resource'));
-        getId('SRExtra1').addEventListener('click', () => getInformationSR(1, 'resource'));
-        getId('SRInfo0').addEventListener('click', () => getInformationSR(0, 'information'));
-    }
+    getId('firstPlay').addEventListener('click', () => { global.timeMode = !global.timeMode; });
 
     /* Footer */
     getId('hideToggle').addEventListener('click', hideFooter);
-    const tabList = global.tabList.tabs.slice(0, -1);
-    for (const tabText of tabList) {
+    for (const tabText of global.tabList.tabs) {
         getId(`${tabText}TabBtn`).addEventListener('click', () => switchTab(tabText));
+        if (!Object.hasOwn(global.tabList, `${tabText}Subtabs`)) { continue; }
         for (const subtabText of global.tabList[`${tabText as 'stage'}Subtabs`]) {
             getId(`${tabText}SubtabBtn${subtabText}`).addEventListener('click', () => switchTab(tabText, subtabText));
         }
@@ -305,37 +305,35 @@ console.timeEnd('Game loaded in'); //Started in Player.ts
 
 function changeIntervals(pause = false) {
     const { intervalsId } = global;
+    const { intervals } = player;
 
     clearInterval(intervalsId.main);
     clearInterval(intervalsId.numbers);
     clearInterval(intervalsId.visual);
     clearInterval(intervalsId.autoSave);
-    if (!pause) {
-        const { intervals } = player;
-
-        intervalsId.main = setInterval(timeUpdate, intervals.main);
-        intervalsId.numbers = setInterval(numbersUpdate, intervals.numbers);
-        intervalsId.visual = setInterval(visualUpdate, intervals.visual * 1000);
-        intervalsId.autoSave = setInterval(saveLoad, intervals.autoSave * 1000, 'save');
-    }
+    intervalsId.main = pause ? undefined : setInterval(timeUpdate, intervals.main);
+    intervalsId.numbers = pause ? undefined : setInterval(numbersUpdate, intervals.numbers);
+    intervalsId.visual = pause ? undefined : setInterval(visualUpdate, intervals.visual * 1000);
+    intervalsId.autoSave = pause ? undefined : setInterval(saveLoad, intervals.autoSave * 1000, 'save');
 }
 
-async function saveLoad(type: string) {
+async function saveLoad(type: 'import' | 'save' | 'export' | 'delete'): Promise<void> {
     switch (type) {
-        case 'load': {
+        case 'import': {
             const id = getId('file') as HTMLInputElement;
             changeIntervals(true);
 
             try {
-                const load = JSON.parse(atob(await (id.files as FileList)[0].text()));
-                const versionCheck = updatePlayer(load);
+                const save = await (id.files as FileList)[0].text();
+                const versionCheck = updatePlayer(JSON.parse(atob(save)));
 
                 const { time } = player;
-                const offlineTime = (Date.now() - time.updated) / 1000;
+                const timeNow = Date.now();
+                const offlineTime = (timeNow - time.updated) / 1000;
                 const maxOffline = maxOfflineTime();
-                time.updated = Date.now();
+                time.updated = timeNow;
                 time.offline = Math.min(time.offline + offlineTime, maxOffline);
-                player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
+                player.stage.export = Math.min(player.stage.export + Math.min(offlineTime, maxOffline), maxExportTime());
                 Alert(`This save is ${format(offlineTime, { type: 'time' })} old${time.offline >= maxOffline ? ', Offline storage is maxed' : ''}.\n${versionCheck !== player.version ? `Also save file version is ${versionCheck}, while game version is ${player.version}` : `Save file version is ${player.version}`}`);
 
                 getId('isSaved').textContent = 'Imported';
@@ -348,6 +346,14 @@ async function saveLoad(type: string) {
             return;
         }
         case 'save': {
+            if (player.time.disabled !== 0) {
+                if (Date.now() < player.time.disabled) {
+                    Alert(`Not allowed to save until ${new Date(player.time.disabled).toLocaleString()}\nReason: time manipulations`);
+                    clearInterval(global.intervalsId.autoSave);
+                    global.intervalsId.autoSave = setInterval(saveLoad, 3600000, 'save');
+                    return;
+                } else { player.time.disabled = 0; }
+            }
             try {
                 player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
 
@@ -373,6 +379,7 @@ async function saveLoad(type: string) {
                 player.stage.export -= strangeGain * 86400 / multiplier;
             }
 
+            if (player.time.disabled !== 0) { return void saveLoad('save'); }
             const save = btoa(JSON.stringify(player));
             const a = document.createElement('a');
             a.href = `data:text/plain;charset=utf-8,${save}`;
@@ -411,12 +418,16 @@ const replaceSaveFileSpecials = (): string => {
     const special = [
         '[stage]',
         '[true]',
+        '[strange]',
+        '[vacuum]',
         '[date]',
         '[time]'
     ];
     const replaceWith = [
         global.stageInfo.word[player.stage.active],
         global.stageInfo.word[player.stage.true],
+        `${global.strangeInfo.gain(player.stage.active)}`,
+        `${player.inflation.vacuum}`,
         getDate('dateDMY'),
         getDate('timeHMS')
     ];
@@ -445,11 +456,11 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
 export const timeWarp = async() => {
     const { time } = player;
     const waste = (6 - (player.stage.true >= 6 ? player.strangeness[2][7] : 0)) / 2;
-    if (time.offline < 600 * waste) { return Alert(`Need at least ${format(600 * waste, { type: 'time' })} (10 minutes effective) of Storaged Offline time to Warp`); }
+    if (time.offline < 900 * waste) { return Alert(`Need at least ${format(900 * waste, { type: 'time' })} (15 minutes effective) of Storaged Offline time to Warp`); }
 
-    const warpTime = Math.min(player.researchesAuto[0] < 3 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })}, will be consumed up to 1 hour (uses ${format(waste)} seconds per added second)\nCalculates a minute per tick`) ? 3600 : 0) :
-        Number(await Prompt(`How many seconds do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second, minimum value is 10 minutes)\nBigger number will result in more lag (calculates a minute per tick)`)), time.offline / waste);
-    if (warpTime < 600 || !isFinite(warpTime)) { return; }
+    const warpTime = Math.min(player.researchesAuto[0] < 3 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })}, will be consumed up to half an hour (uses ${format(waste)} seconds per added second)\nCalculates a minute per tick`) ? 1800 : 0) :
+        Number(await Prompt(`How many seconds do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second, minimum value is 15 minutes)\nBigger number will result in more lag (calculates a minute per tick)`, '900')), time.offline / waste);
+    if (warpTime < 900 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Alert('Warp failed, possible reason: not enough offline time or incorrect value'); }
 
     time.offline -= warpTime * waste;
     timeUpdate(warpTime);
@@ -460,11 +471,13 @@ const pauseGame = async() => {
     await AlertWait("Game is currently paused. Press 'confirm' to unpause it. Time spend here will be moved into offline storage");
 
     const { time } = player;
-    const offlineTime = (Date.now() - time.updated) / 1000;
-    time.updated = Date.now();
+    const timeNow = Date.now();
+    const offlineTime = (timeNow - time.updated) / 1000;
+    const maxOffline = maxOfflineTime();
+    time.updated = timeNow;
     global.lastSave += offlineTime;
-    time.offline = Math.min(time.offline + offlineTime, maxOfflineTime());
-    player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
+    time.offline = Math.min(time.offline + offlineTime, maxOffline);
+    player.stage.export = Math.min(player.stage.export + Math.min(offlineTime, maxOffline), maxExportTime());
 
     changeIntervals();
     numbersUpdate();
