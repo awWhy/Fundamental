@@ -81,20 +81,14 @@ export const timeUpdate = (timeWarp = 0) => { //Time based information
         time.updated = Date.now();
         if (passedSeconds < 0) {
             time.offline += passedSeconds;
-            return; //To prevent free time warps
+            return;
         }
         global.lastSave += passedSeconds;
         player.stage.export = Math.min(player.stage.export + passedSeconds, maxExportTime());
-        if (passedSeconds > 60) {
-            passedSeconds = 60;
-            time.offline += passedSeconds - 60;
-            time.offline = Math.min(time.offline, maxOfflineTime());
-        } else if (time.offline !== 0 && (toggles.normal[0] || player.researchesAuto[0] < 3)) {
-            if (time.offline > 0) {
-                const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
-                time.offline -= Math.min(extraTime * (6 - (player.stage.true >= 6 ? player.strangeness[2][7] : 0)), time.offline);
-                passedSeconds += extraTime;
-            } else { time.offline += passedSeconds; }
+        if (time.offline > 0 && (toggles.normal[0] || player.researchesAuto[0] < 3)) {
+            const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
+            time.offline -= Math.min(extraTime * (6 - (player.stage.true >= 6 ? player.strangeness[2][7] : 0)), time.offline);
+            passedSeconds += extraTime;
         }
     }
     const { buildingsInfo, automatization } = global;
@@ -172,7 +166,6 @@ export const numbersUpdate = () => { //This is for relevant visual info
         if (subtab.stageCurrent === 'Structures') {
             const { buildingsInfo } = global;
             const howMany = player.toggles.shop.howMany;
-            const strict = player.toggles.shop.strict;
 
             for (let i = 1; i < buildingsInfo.maxActive[active]; i++) {
                 const trueCountID = getId(`building${i}True`);
@@ -207,22 +200,19 @@ export const numbersUpdate = () => { //This is for relevant visual info
                     currency = player.buildings[extra][e].current;
                 }
 
-                let totalCost: overlimit;
-                let totalBuy: number;
-                if (howMany === 1 || player.researchesAuto[0] === 0) {
-                    totalCost = calculateBuildingsCost(i, active);
-                    totalBuy = 1;
-                } else {
+                let totalBuy = 1;
+                let totalCost = calculateBuildingsCost(i, active);
+                if (howMany !== 1 && player.researchesAuto[0] > 0) {
                     const increase = buildingsInfo.increase[active][i];
                     const firstCost = buildingsInfo.firstCost[active][i];
                     const alreadyBought = buildings[i as 1].true;
                     const totalBefore = Limit(increase).power(alreadyBought).minus('1').divide(increase - 1).multiply(firstCost).toArray();
 
-                    if (howMany === -1 || !strict) {
+                    if (howMany === -1 || !player.toggles.shop.strict) {
                         const maxAfford = Math.floor(Limit(totalBefore).plus(currency).multiply(increase - 1).divide(firstCost).plus('1').log(10).divide(Math.log10(increase)).toNumber()) - alreadyBought;
-                        totalBuy = Math.max(howMany === -1 ? maxAfford : Math.min(maxAfford, howMany), 1);
+                        if (maxAfford > 1) { totalBuy = howMany === -1 ? maxAfford : Math.min(maxAfford, howMany); }
                     } else { totalBuy = howMany; }
-                    totalCost = Limit(increase).power(totalBuy + alreadyBought).minus('1').divide(increase - 1).multiply(firstCost).minus(totalBefore).toArray();
+                    if (totalBuy > 1) { totalCost = Limit(increase).power(totalBuy + alreadyBought).minus('1').divide(increase - 1).multiply(firstCost).minus(totalBefore).toArray(); }
                 }
 
                 getId(`building${i}BuyX`).textContent = format(totalBuy);
@@ -706,7 +696,7 @@ export const getUpgradeDescription = (index: number, stageIndex: number, type: '
             if (Limit(pointer.need[index]).notEqual('0')) {
                 getId('milestonesMultiline').innerHTML = `<p class="orchidText">Requirement: <span class="greenText">${pointer.needText[index]()}</span></p>
                 <p class="darkvioletText">Reward: <span class="greenText">You will gain ${format(pointer.reward[index])} Strange quarks for reaching this milestone.</span></p>
-                <p class="darkvioletText">Unlocks: <span class="greenText">Additional reward unlocked after ${pointer.unlock[index] - player.milestones[stageIndex][index]} more completions.</span></p>`;
+                <p class="darkvioletText">Unlocks: <span class="greenText">${player.milestones[stageIndex][index] >= pointer.unlock[index] ? pointer.rewardText[index] : `Additional reward unlocked after ${pointer.unlock[index] - player.milestones[stageIndex][index]} more completions.`}</span></p>`;
             } else { getId('milestonesMultiline').innerHTML = `<p class="darkvioletText">Unlocks: <span class="greenText">${pointer.rewardText[index]}</span></p>`; }
         }
     }

@@ -1465,6 +1465,7 @@ export const updatePlayer = (load: playerType): string => {
                     load.upgrades[s] = cloneArray(playerStart.upgrades[s]);
                     load.researches[s] = cloneArray(playerStart.researches[s]);
                     load.researchesExtra[s] = cloneArray(playerStart.researchesExtra[s]);
+                    if (s !== 5) { load.ASR[s] = 0; }
 
                     if (s === 1) {
                         load.buildings[1][0].current = [3, 0];
@@ -1490,6 +1491,8 @@ export const updatePlayer = (load: playerType): string => {
             throw new ReferenceError('Save file version is higher than game version');
         }
     }
+
+    if (load.stage.true < 4 && load.accretion.rank === 0) { load.buildings[3][0].current = [5.97, 27]; } //Can be removed next update
 
     for (let s = 1; s < playerStart.buildings.length; s++) {
         if (!Array.isArray(load.buildings[s])) {
@@ -1728,10 +1731,10 @@ export const buildVersionInfo = () => {
     for (let i = 1; i <= max; i++) {
         const index = i < 10 ? `0${i}` : `${i}`;
         const version = `v0.${index[0]}.${index[1]}`;
-        autoText += `<button id="${version}" style="width: 3.8em; height: 2em; font-size: 0.88em;">${version}</button>`;
+        autoText += `<button id="${version}">${version}</button>`;
     }
 
-    /* All related CSS is here, because I don't want it to be part of main HTML */
+    /* All related CSS is here, because I don't want it to be part of main HTML; also inserted rules with insertRule() gets auto deleted after some time... */
     getId('versionInfo').innerHTML = `<div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: clamp(42vw, 36em, 80vw); height: clamp(26vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em;">
         <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.06em;">${autoText}</div>
         <div style="width: 100%; overflow-y: auto;">
@@ -1740,6 +1743,7 @@ export const buildVersionInfo = () => {
         </div>
         <button id="closeVersionInfo" style="width: 6em; border-radius: 4px; font-size: 0.92em;">Close</button>
     </div>`;
+    document.head.appendChild(document.createElement('style')).textContent = '#versionInfo > div > div:first-of-type > button { width: 3.8em; height: 2em; font-size: 0.88em; }';
     getId('closeVersionInfo').addEventListener('click', () => { getId('versionInfo').style.display = 'none'; });
     for (let i = 1; i <= max; i++) {
         const index = i < 10 ? `0${i}` : `${i}`;

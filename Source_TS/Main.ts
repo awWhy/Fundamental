@@ -28,6 +28,7 @@ export const reLoad = (firstLoad = false) => {
         } else {
             prepareVacuum();
             updatePlayer(deepClone(playerStart));
+            player.buildings[3][0].current = [5.97, 27];
             Alert(`Welcome to 'Fundamental'.\nThis is a test-project made by awWhy. Should be supported by modern browsers, phones and screen readers (need to turn support ON in settings).\nWas inspired by 'Synergism', 'Antimatter Dimensions' and others.\nCurrent version is ${player.version}`);
         }
 
@@ -447,7 +448,7 @@ export const timeWarp = async() => {
     if (time.offline < 600 * waste) { return Alert(`Need at least ${format(600 * waste, { type: 'time' })} (10 minutes effective) of Storaged Offline time to Warp`); }
 
     const warpTime = Math.min(player.researchesAuto[0] < 3 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })}, will be consumed up to 1 hour (uses ${format(waste)} seconds per added second)\nCalculates a minute per tick`) ? 3600 : 0) :
-        Number(await Prompt(`How many seconds do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second, minimum value is 10 minutes)\nBigger number will result in more lag (calculates a minute per tick)`)), time.offline);
+        Number(await Prompt(`How many seconds do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second, minimum value is 10 minutes)\nBigger number will result in more lag (calculates a minute per tick)`)), time.offline / waste);
     if (warpTime < 600 || !isFinite(warpTime)) { return; }
 
     time.offline -= warpTime * waste;
