@@ -33,11 +33,11 @@
                     <div id="resets" role="region" aria-label="Resets">
                         <div id="resetStage" class="stage2Unlock" role="region" aria-label="Stage reset (hotkey S)">
                             <p class="whiteText">Lose all progress, but move to the next Stage. Each Stage has its own unique theme.<br>Current Stage: <span id="stageWord" class="bigWord stageText">Microworld</span>.</p>
-                            <button id="stageReset" class="bigButton" tabindex="-1">Not ready for more</button>
+                            <button id="stageReset" class="bigButton allowSelect" tabindex="-1">Not ready for more</button>
                         </div>
                         <div id="reset1Main" role="region" aria-label="Placeholder reset (hotkey ?)">
                             <p id="reset1Text" class="whiteText"></p><!-- InnerHTML changes, and will add new ID's -->
-                            <button id="reset1Button" class="mediumButton" tabindex="-1"></button>
+                            <button id="reset1Button" class="mediumButton allowSelect" tabindex="-1"></button>
                         </div>
                     </div>
                     <div id="buildings" class="stage1Unlock" role="region" aria-label="Structures (hotkeys are numbers to make, shift + number to toggle auto)">
@@ -66,7 +66,7 @@
                                     <p>x<span id="building1BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building1Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building1Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding1" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                     <p>x<span id="building2BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building2Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building2Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding2" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                                     <p>x<span id="building3BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building3Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building3Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding3" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                                     <p>x<span id="building4BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building4Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building4Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding4" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -126,7 +126,7 @@
                                     <p>x<span id="building5BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building5Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building5Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding5" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -141,7 +141,7 @@
                                     <p>x<span id="building6BuyX" class="whiteText">1</span></p>
                                     <div></div>
                                 </div>
-                                <button id="building6Btn" tabindex="-1">Need: Missing</button>
+                                <button id="building6Btn" class="allowSelect" tabindex="-1">Need: Missing</button>
                                 <button id="toggleBuilding6" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </div>
@@ -587,8 +587,8 @@
             </div>
             <div id="settingsTab" style="display: none;">
                 <section id="settingsSubtabSettings" class="insideTab" aria-label="Settings">
-                    <div id="resetToggles" class="stage2Unlock">
-                        <h3>Confirmation toggles</h3>
+                    <div id="resetToggles" class="stage2Unlock" role="region" aria-label="Confirmation toggles and Reset settings">
+                        <h3 aria-hidden="true">Confirmation toggles</h3>
                         <div>
                             <div id="stageToggleReset" class="stage2Unlock">
                                 <img src="Used_art/Stage%20toggle.png" alt="Stage Reset Toggle" class="stageBorderImage" title="Stage" loading="lazy">
@@ -651,7 +651,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="logoLinks">
+                    <div id="logoLinks" role="region" aria-label="Links">
                         <a href="https://discord.gg/DfpuhDTseN" target="_blank" rel="noopener noreferrer" aria-label="Official Discord">
                             <img src="Used_art/Elsewhere/discord-mark-white.svg" alt="" loading="lazy">
                             Discord
@@ -661,7 +661,7 @@
                             Version
                         </button>
                     </div>
-                    <div class="saveButtonGroup">
+                    <div class="saveButtonGroup" role="region" aria-label="Save file buttons">
                         <h3 class="bigWord">Please export save file regularly</h3>
                         <p id="exportSpecial" class="whiteText">Gain <span id="exportGain" class="greenText noMoveSpan">0</span> <span id="exportType">Strange quarks</span> for doing it</p>
                         <div>
@@ -675,7 +675,7 @@
                         </div>
                         <p class="whiteText">Last time saved: <span id="isSaved" class="mainText">Not in current session</span></p>
                     </div>
-                    <div class="options">
+                    <div class="options" role="region">
                         <h3 class="center">Options</h3>
                         <ul class="whiteText">
                             <li><input id="saveFileNameInput" type="text" value="Fundamental" aria-label="Save file name" minlength="4"> + '<span class="mainText">.txt</span>'<!--
@@ -734,7 +734,7 @@
                         </ul>
                     </div>
                     <div class="options">
-                        <div id="autoTogglesUpgrades">
+                        <div id="autoTogglesUpgrades" role="region">
                             <h3>Automatization</h3>
                             <div id="autoToggle8">
                                 <label for="toggleAuto8" class="orangeText">Elements <span class="mainText">-&gt;</span></label>
@@ -976,15 +976,15 @@
                 </div>
                 <div id="footerColor">
                     <div id="footerStats" class="footerArea">
-                        <div id="footerStat1" class="statFoot" aria-label="Placeholder stat 1">
+                        <div id="footerStat1" class="statFoot">
                             <img src="Used_art/Missing.png" alt="" loading="lazy">
                             <p class="stage7borderImage redText"><span id="footerStat1Name">Missing</span>: <span id="footerStat1Span">0</span></p>
                         </div>
-                        <div id="footerStat2" class="statFoot" aria-label="Placeholder stat 1">
+                        <div id="footerStat2" class="statFoot">
                             <img src="Used_art/Missing.png" alt="" loading="lazy">
                             <p class="stage7borderImage redText"><span id="footerStat2Name">Missing</span>: <span id="footerStat2Span">0</span></p>
                         </div>
-                        <div id="footerStat3" class="statFoot" aria-label="Placeholder stat 1">
+                        <div id="footerStat3" class="statFoot">
                             <img src="Used_art/Missing.png" alt="" loading="lazy">
                             <p class="stage7borderImage redText"><span id="footerStat3Name">Missing</span>: <span id="footerStat3Span">0</span></p>
                         </div>
