@@ -5,20 +5,12 @@ body *, body {
     padding: 0;
     font-size: inherit;
 
-    /* No text color, because it's really awkwardly behind... */
-    transition: background-color var(--transition-all),
-        border-color var(--transition-all),
-        background-image var(--transition-all);
+    /* No text color, because of lags and overall being behind */
+    transition-property: border-color, background-color;
+    transition-duration: var(--transition-all);
 }
 
-body {
-    color: var(--main-text-color);
-    background-color: var(--background-color);
-    font-size: var(--font-size);
-    overscroll-behavior: none;
-    overflow-anchor: none;
-
-    /* Default color variables */
+body { /* Default color variables */
     --background-color: #030012;
     --window-color: #12121c;
     --window-border: cornflowerblue;
@@ -60,6 +52,14 @@ body {
     --image-border-main: url(Used_art/Stage1%20border.png);
     --image-stage-outer: #008b8b; /* Same color as image outer border */
     --font-size: 1rem;
+}
+
+body {
+    color: var(--main-text-color);
+    background-color: var(--background-color);
+    font-size: var(--font-size);
+    overscroll-behavior: none;
+    overflow-anchor: none;
 }
 
 .stageText { color: var(--stage-text-color); }
@@ -325,7 +325,16 @@ button, input { appearance: none; }
 }
 
 .extraHover { background-color: var(--background-color); }
-input[type = "image"], button, #load { transition: border-color var(--transition-buttons), background-color var(--transition-buttons); }
+
+img, input[type = "image"], button, #load, #logoLinks > a {
+    user-select: none;
+
+    /* Text color here works fine, but for consistency and less lag not added */
+    transition-property: border-color, background-color, background-image;
+    transition-duration: var(--transition-buttons);
+}
+
+.allowSelect { user-select: initial; }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
 .footerArea button:hover { background-color: #181818; }
@@ -607,7 +616,7 @@ p > img {
     right: calc(-38px - 0.65em);
     opacity: 0;
     cursor: help;
-    transition: opacity 1s 3s;
+    transition: opacity 1s 3s, background-color var(--transition-buttons);
 }
 
 #element0:hover { opacity: 100; }
@@ -737,16 +746,7 @@ p > img {
     column-gap: 0.6em;
 }
 
-#logoLinks > button {
-    height: unset;
-    font-size: unset;
-    transition: background-color var(--transition-all),
-        border-color var(--transition-all),
-        background-image var(--transition-all);
-}
-
-#logoLinks > button,
-#logoLinks > a {
+#logoLinks > * {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -757,13 +757,15 @@ p > img {
     padding: 0.4em 0.3em 0.2em;
     color: var(--main-text-color);
     text-decoration: none;
+    height: initial;
+    font-size: 1em;
 }
 
 #logoLinks img {
     background-color: inherit;
     object-fit: scale-down;
     height: 25px;
-    width: unset;
+    width: initial;
 }
 
 .saveButtonGroup {

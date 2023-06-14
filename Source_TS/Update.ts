@@ -942,9 +942,6 @@ export const stageUpdate = (extra = 'normal' as 'normal' | 'soft' | 'reload') =>
                 getId(`building${i}`).ariaLabel = `${buildingsInfo.name[active][i]} (hotkey ${i})`;
             }
             getId('extraResearch').ariaLabel = `${['', 'Energy', 'Cloud', 'Rank', 'Star'][active]} researches`;
-            for (let i = 0; i < specialHTML.footerStatsHTML[active].length; i++) {
-                getId(`footerStat${i + 1}`).ariaLabel = specialHTML.footerStatsHTML[active][i][2];
-            }
             getId('SRStage').textContent = `Current Active Stage is '${stageInfo.word[active]}'`;
         }
     }

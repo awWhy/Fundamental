@@ -16,17 +16,21 @@ export const detectHotkey = (check: KeyboardEvent) => {
     if (check.ctrlKey || check.altKey) { return; }
     const key = check.key;
 
-    if (key.length === 1) {
-        const numberKey = Number(check.code.slice(-1));
+    const numberKey = Number(check.code.slice(-1));
+    if (!isNaN(numberKey)) { //Spacebar goes here as 0
+        if (check.code[0] === 'F' || numberKey < 1) { return; }
 
-        if (!isNaN(numberKey)) { //Spacebar goes here as 0
-            if (check.code[0] === 'F' || numberKey < 1) { return; }
-            if (check.shiftKey) {
-                toggleSwap(numberKey, 'buildings', true);
-            } else { buyBuilding(numberKey); }
-            return;
+        let isShift = check.shiftKey;
+        if (isNaN(Number(key)) && !isShift) {
+            isShift = true;
+            check.preventDefault(); //Some buttons move screen up and down
         }
 
+        if (isShift) {
+            if (check.repeat) { return; }
+            toggleSwap(numberKey, 'buildings', true);
+        } else { buyBuilding(numberKey); }
+    } else if (key.length === 1) {
         const stringKey = (player.toggles.normal[6] ? check.code.replace('Key', '') : key).toLowerCase();
 
         if (check.shiftKey) {
@@ -51,69 +55,63 @@ export const detectHotkey = (check: KeyboardEvent) => {
                 if (global.stageInfo.activeAll.includes(4)) { void collapseAsyncReset(); }
             }
         }
-        return;
-    }
-
-    if (!check.repeat) {
+    } else if (key === 'ArrowLeft' || key === 'ArrowRight') {
+        if (check.repeat) { return; }
         if (check.shiftKey) {
-            if (key === 'ArrowLeft' || key === 'ArrowRight') {
-                const { activeAll } = global.stageInfo;
-                if (activeAll.length === 1) { return; }
-                let index = activeAll.indexOf(player.stage.active);
+            const activeAll = global.stageInfo.activeAll;
+            if (activeAll.length === 1) { return; }
+            let index = activeAll.indexOf(player.stage.active);
 
-                if (key === 'ArrowLeft') {
-                    if (index <= 0) {
-                        index = activeAll.length - 1;
-                    } else { index--; }
-                    switchStage(activeAll[index]);
-                } else {
-                    if (index >= activeAll.length - 1) {
-                        index = 0;
-                    } else { index++; }
-                    switchStage(activeAll[index]);
-                }
+            if (key === 'ArrowLeft') {
+                if (index <= 0) {
+                    index = activeAll.length - 1;
+                } else { index--; }
+                switchStage(activeAll[index]);
+            } else {
+                if (index >= activeAll.length - 1) {
+                    index = 0;
+                } else { index++; }
+                switchStage(activeAll[index]);
             }
         } else {
-            if (key === 'ArrowLeft' || key === 'ArrowRight') {
-                const { tabs } = global.tabList;
-                let index = tabs.indexOf(global.tab);
+            const tabs = global.tabList.tabs;
+            let index = tabs.indexOf(global.tab);
 
-                if (key === 'ArrowLeft') {
-                    do {
-                        if (index <= 0) {
-                            index = tabs.length - 1;
-                        } else { index--; }
-                    } while (!checkTab(tabs[index]));
-                    switchTab(tabs[index]);
-                } else {
-                    do {
-                        if (index >= tabs.length - 1) {
-                            index = 0;
-                        } else { index++; }
-                    } while (!checkTab(tabs[index]));
-                    switchTab(tabs[index]);
-                }
-            } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-                if (!Object.hasOwn(global.subtab, `${global.tab}Current`)) { return; }
-                const subtabs = global.tabList[`${global.tab as 'stage'}Subtabs`];
-                let index = subtabs.indexOf(global.subtab[`${global.tab as 'stage'}Current`]);
-
-                if (key === 'ArrowDown') {
-                    do {
-                        if (index <= 0) {
-                            index = subtabs.length - 1;
-                        } else { index--; }
-                    } while (!checkTab(global.tab, subtabs[index]));
-                    switchTab(global.tab, subtabs[index]);
-                } else {
-                    do {
-                        if (index >= subtabs.length - 1) {
-                            index = 0;
-                        } else { index++; }
-                    } while (!checkTab(global.tab, subtabs[index]));
-                    switchTab(global.tab, subtabs[index]);
-                }
+            if (key === 'ArrowLeft') {
+                do {
+                    if (index <= 0) {
+                        index = tabs.length - 1;
+                    } else { index--; }
+                } while (!checkTab(tabs[index]));
+                switchTab(tabs[index]);
+            } else {
+                do {
+                    if (index >= tabs.length - 1) {
+                        index = 0;
+                    } else { index++; }
+                } while (!checkTab(tabs[index]));
+                switchTab(tabs[index]);
             }
+        }
+    } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+        if (check.shiftKey || check.repeat || !Object.hasOwn(global.subtab, `${global.tab}Current`)) { return; }
+        const subtabs = global.tabList[`${global.tab as 'stage'}Subtabs`];
+        let index = subtabs.indexOf(global.subtab[`${global.tab as 'stage'}Current`]);
+
+        if (key === 'ArrowDown') {
+            do {
+                if (index <= 0) {
+                    index = subtabs.length - 1;
+                } else { index--; }
+            } while (!checkTab(global.tab, subtabs[index]));
+            switchTab(global.tab, subtabs[index]);
+        } else {
+            do {
+                if (index >= subtabs.length - 1) {
+                    index = 0;
+                } else { index++; }
+            } while (!checkTab(global.tab, subtabs[index]));
+            switchTab(global.tab, subtabs[index]);
         }
     }
 };

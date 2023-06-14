@@ -37,7 +37,7 @@ export const specialHTML = {
             ['UpgradeQ10.png', 'Fusion']
         ],
         [
-            ['UpgradeW1.png', 'Mole'],
+            ['UpgradeW1.png', 'H2O'],
             ['UpgradeW2.png', 'Vaporization'],
             ['UpgradeW3.png', 'Tension'],
             ['UpgradeW4.png', 'Stress'],
@@ -84,8 +84,8 @@ export const specialHTML = {
             ['ResearchQ6.png', 'Discharge++', 'stage4borderImage']
         ],
         [
-            ['ResearchW1.png', 'Moles+', 'stage2borderImage'],
-            ['ResearchW2.png', 'Moles++', 'stage2borderImage'],
+            ['ResearchW1.png', 'H2O+', 'stage2borderImage'],
+            ['ResearchW2.png', 'H2O++', 'stage2borderImage'],
             ['ResearchW3.png', 'Tension+', 'stage2borderImage'],
             ['ResearchW4.png', 'Stress+', 'stage2borderImage'],
             ['ResearchW5.png', 'Streams+', 'stage2borderImage'],
