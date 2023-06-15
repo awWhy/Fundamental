@@ -1,5 +1,6 @@
 import Limit from './Limit';
 import { getId } from './Main';
+import { notify } from './Special';
 import { assignNewMassCap, calculateMaxLevel, calculateMilestoneInformation } from './Stage';
 import { globalType, overlimit, playerType } from './Types';
 import { format, visualUpdateResearches } from './Update';
@@ -1521,6 +1522,12 @@ export const updatePlayer = (load: playerType): string => {
         } else {
             for (let i = load.toggles.buildings[s].length; i < playerStart.toggles.buildings[s].length; i++) {
                 load.toggles.buildings[s][i] = false;
+            }
+
+            /* Temporary */
+            if (load.toggles.buildings[s].length > playerStart.toggles.buildings[s].length) {
+                notify(`Bug in save file detected and fixed:\n${global.stageInfo.word[s]} Stage had ${load.toggles.buildings[s].length - playerStart.toggles.buildings[s].length} extra toggles\nDo not press Shift + Number that is bigger than Structure count for current Active Stage\n(will be properly fixed way later)`);
+                load.toggles.buildings[s].length = playerStart.toggles.buildings[s].length;
             }
         }
     }
