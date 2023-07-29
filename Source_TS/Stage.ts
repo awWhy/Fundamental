@@ -1015,12 +1015,12 @@ export const toggleSwap = (number: number, type: 'normal' | 'buildings' | 'auto'
         toggle.style.color = 'var(--red-text-color)';
         toggle.style.borderColor = 'crimson';
         toggle.textContent = `${extraText}OFF`;
-        if (global.screenReader[0] && toggle.ariaLabel !== null) { toggle.ariaLabel = toggle.ariaLabel.replace('ON', 'OFF'); }
+        if (global.screenReader[0] && toggle.ariaLabel != null) { toggle.ariaLabel = toggle.ariaLabel.replace('ON', 'OFF'); }
     } else {
         toggle.style.color = '';
         toggle.style.borderColor = '';
         toggle.textContent = `${extraText}ON`;
-        if (global.screenReader[0] && toggle.ariaLabel !== null) { toggle.ariaLabel = toggle.ariaLabel.replace('OFF', 'ON'); }
+        if (global.screenReader[0] && toggle.ariaLabel != null) { toggle.ariaLabel = toggle.ariaLabel.replace('OFF', 'ON'); }
     }
 };
 
