@@ -1,27 +1,27 @@
 import { getId, getQuery } from './Main';
 import { global, player } from './Player';
+import { calculateMaxLevel } from './Stage';
 import { numbersUpdate, stageUpdate, visualUpdate, visualUpdateResearches } from './Update';
 
-//Eventually might move more HTML into here
-export const specialHTML = {
-    resetHTML: [ /* All new ID's need to be checked for being null */
+export const specialHTML = { //First values for images from here must be from true vacuum
+    resetHTML: [
         '',
         '<span class="bigWord orangeText">Discharge</span>. Reset current Structures and Energy. Will also boost production by <span id="dischargeEffect" class="orangeText"></span>, if to reset with enough Energy.',
         '<span class="bigWord grayText">Vaporization</span>. Structures, upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.',
         '<img id="rankImage" src="Used_art/Missing.png" alt="">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName" class="blueText"></span>. <span id="rankMessage"></span>',
-        '<span class="bigWord orchidText">Collapse</span> - Everything will be lost, but at same time gained. Each of the Stars will produce something unique and special.',
+        '<span class="bigWord orchidText">Collapse</span> - Everything will be lost, but at same time gained. Even remnants have their own unique strength and effects.',
         ''
     ],
-    longestBuilding: 7, //Actual HTML count +1
+    longestBuilding: 7, //+1
     buildingHTML: [ //outerHTML is slow
         [],
         ['Preon.png', 'Quarks.png', 'Particle.png', 'Atom.png', 'Molecule.png'], //[0] === src
         ['Drop.png', 'Puddle.png', 'Pond.png', 'Lake.png', 'Sea.png', 'Ocean.png'],
         ['Cosmic%20dust.png', 'Planetesimal.png', 'Protoplanet.png', 'Natural%20satellite.png', 'Subsatellite.png'],
         ['Brown%20dwarf.png', 'Orange%20dwarf.png', 'Red%20supergiant.png', 'Blue%20hypergiant.png', 'Quasi%20star.png'],
-        ['Nebula.png', 'Star%20cluster.png', 'Galaxy.png', 'Galaxy%20Filaments.png']
+        ['Nebula.png', 'Star%20cluster.png', 'Galaxy.png']
     ],
-    longestUpgrade: 13, //Actual HTML count
+    longestUpgrade: 13,
     upgradeHTML: [
         [],
         [
@@ -38,12 +38,14 @@ export const specialHTML = {
         ],
         [
             ['UpgradeW1.png', 'H2O'],
-            ['UpgradeW2.png', 'Vaporization'],
-            ['UpgradeW3.png', 'Tension'],
-            ['UpgradeW4.png', 'Stress'],
-            ['UpgradeW5.png', 'Stream'],
-            ['UpgradeW6.png', 'River'],
-            ['UpgradeW7.png', 'Tsunami']
+            ['UpgradeW2.png', 'Spread'],
+            ['UpgradeW3.png', 'Vaporization'],
+            ['UpgradeW4.png', 'Tension'],
+            ['UpgradeW5.png', 'Stress'],
+            ['UpgradeW6.png', 'Stream'],
+            ['UpgradeW7.png', 'River'],
+            ['UpgradeW8.png', 'Tsunami'],
+            ['UpgradeW9.png', 'Tide']
         ],
         [
             ['UpgradeA1.png', 'Motion'],
@@ -72,7 +74,7 @@ export const specialHTML = {
             ['UpgradeG3.png', 'Quasar']
         ]
     ],
-    longestResearch: 8, //Actual HTML count
+    longestResearch: 9,
     researchHTML: [
         [],
         [
@@ -95,30 +97,32 @@ export const specialHTML = {
             ['ResearchA1.png', 'Mass+', 'stage3borderImage'],
             ['ResearchA2.png', 'Adhesion', 'stage2borderImage'],
             ['ResearchA3.png', 'Weathering', 'stage3borderImage'],
-            ['ResearchA4.png', 'Collision', 'stage3borderImage'],
-            ['ResearchA5.png', 'Binary', 'stage3borderImage'],
-            ['ResearchA6.png', 'Gravity+', 'stage1borderImage'],
-            ['ResearchA7.png', 'Layers', 'stage7borderImage'],
-            ['ResearchA8.png', 'Drag', 'stage1borderImage']
+            ['ResearchA4.png', 'Shattering', 'stage3borderImage'],
+            ['ResearchA5.png', 'Collision', 'stage3borderImage'],
+            ['ResearchA6.png', 'Binary', 'stage3borderImage'],
+            ['ResearchA7.png', 'Gravity+', 'stage1borderImage'],
+            ['ResearchA8.png', 'Layers', 'stage7borderImage'],
+            ['ResearchA9.png', 'Drag', 'stage1borderImage']
         ],
         [
             ['ResearchS1.png', 'Orbit', 'stage5borderImage'],
             ['ResearchS2.png', '2 stars', 'stage5borderImage'],
             ['ResearchS3.png', 'Protodisc', 'stage7borderImage'],
-            ['ResearchS4.png', 'Planetary nebula', 'stage5borderImage']
+            ['ResearchS4.png', 'Planetary nebula', 'stage5borderImage'],
+            ['Missing.png'/*'ResearchS5.png'*/, 'Gamma-rays', 'stage7borderImage']
         ],
         [
             ['ResearchG1.png', 'Density', 'stage1borderImage'],
             ['ResearchG2.png', 'Frequency', 'stage6borderImage']
         ]
     ],
-    longestResearchExtra: 5, //Actual HTML count
+    longestResearchExtra: 5,
     researchExtraDivHTML: [
         [],
         ['Energy%20Researches.png', 'stage4borderImage'],
         ['Cloud%20Researches.png', 'stage2borderImage'],
         ['Rank%20Researches.png', 'stage6borderImage'],
-        ['Star%20Researches.png', 'stage6borderImage'],
+        ['Collapse%20Researches.png', 'stage6borderImage'],
         []
     ],
     researchExtraHTML: [
@@ -134,7 +138,7 @@ export const specialHTML = {
             ['ResearchClouds1.png', 'Vaporization+', 'stage3borderImage'],
             ['ResearchClouds2.png', 'Rain', 'stage2borderImage'],
             ['ResearchClouds3.png', 'Storm', 'stage4borderImage'],
-            ['Ocean%20world.png', 'Ocean world', 'stage2borderImage']
+            ['Missing.png'/*'ResearchClouds4.png'*/, 'Water Accretion', 'stage2borderImage']
         ],
         [
             ['ResearchRank1.png', 'Ocean', 'stage3borderImage'],
@@ -144,12 +148,13 @@ export const specialHTML = {
             ['ResearchRank5.png', 'Water rank', 'stage2borderImage']
         ],
         [
-            ['ResearchStar1.png', 'Supernova', 'stage6borderImage'],
-            ['ResearchStar2.png', 'White dwarf', 'stage1borderImage']
+            ['ResearchCollapse1.png', 'Supernova', 'stage6borderImage'],
+            ['Missing.png'/*'ResearchCollapse2.png'*/, 'Mass transfer', 'stage4borderImage'],
+            ['ResearchCollapse3.png', 'White dwarf', 'stage1borderImage']
         ],
         []
     ],
-    longestFooterStats: 3, //Actual HTML count
+    longestFooterStats: 3,
     footerStatsHTML: [
         [],
         [
@@ -174,7 +179,12 @@ export const specialHTML = {
             ['Stars.png', 'stage7borderImage redText', 'Stars']
         ]
     ],
-    imageCache: document.createElement('div')
+    cache: {
+        imagesDiv: document.createElement('div'),
+        idMap: new Map<string, HTMLElement>(),
+        classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
+        queryMap: new Map<string, HTMLElement>()
+    }
 };
 
 export const preventImageUnload = () => {
@@ -205,36 +215,25 @@ export const preventImageUnload = () => {
         if (extraDiv[s].length > 0) { images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`; }
         images += `<img src="Used_art/Stage${s}%20border.png" loading="lazy">`;
     }
-    specialHTML.imageCache.innerHTML = images; //Saved just in case
+    specialHTML.cache.imagesDiv.innerHTML = images; //Saved just in case
 };
 
-export const setTheme = (themeNumber: number, initial = false) => {
-    if (!initial) {
-        if (themeNumber === 6 && player.stage.true < 7 && player.strangeness[5][0] < 0) { initial = true; }
-        if (player.stage.true < themeNumber) { initial = true; }
+export const setTheme = (theme: number | null) => {
+    if (theme !== null) {
+        if (theme === 6) {
+            if (player.stage.true < 7 && player.strangeness[5][0] < 1) { theme = null; }
+        } else if (player.stage.true < theme) { theme = null; }
     }
 
-    if (initial) {
-        global.theme.default = true;
-        localStorage.removeItem('theme');
-    } else {
-        global.theme.default = false;
-        global.theme.stage = themeNumber;
-        localStorage.setItem('theme', `${themeNumber}`);
-    }
+    global.theme = theme;
+    theme === null ? localStorage.removeItem('theme') : localStorage.setItem('theme', `${theme}`);
     switchTheme();
 };
 
 export const switchTheme = () => {
-    const { theme } = global;
     const body = document.body.style;
-
-    if (theme.default) {
-        theme.stage = player.stage.active;
-        getId('currentTheme').textContent = 'Default';
-    } else {
-        getId('currentTheme').textContent = global.stageInfo.word[theme.stage];
-    }
+    const theme = global.theme ?? player.stage.active;
+    getId('currentTheme').textContent = global.theme === null ? 'Default' : global.stageInfo.word[theme];
 
     let dropStatColor = '';
     let waterStatColor = '';
@@ -252,6 +251,8 @@ export const switchTheme = () => {
     body.removeProperty('--building-can-buy');
     body.removeProperty('--button-tab-border');
     body.removeProperty('--button-tab-active');
+    body.removeProperty('--button-tab-elements');
+    body.removeProperty('--button-tab-strangeness');
     body.removeProperty('--button-extra-hover');
     body.removeProperty('--button-delete-color');
     body.removeProperty('--button-delete-hover');
@@ -274,7 +275,7 @@ export const switchTheme = () => {
         --window-color > '.stage2windowBackground';
         --button-main-color > '.stage2backgroundButton' and 'global.stageInfo.buttonBackgroundColor[2]';
         --button-main-border > '.stage2borderButton' and 'global.stageInfo.buttonBorderColor[2]'; */
-    switch (theme.stage) {
+    switch (theme) {
         case 1:
             for (const text of ['upgrade', 'research', 'element']) {
                 getId(`${text}Effect`).style.color = '';
@@ -329,6 +330,7 @@ export const switchTheme = () => {
             body.setProperty('--button-main-hover', '#361f52');
             body.setProperty('--button-tab-border', '#484848');
             body.setProperty('--button-tab-active', '#8d4c00');
+            body.setProperty('--button-tab-elements', 'var(--button-tab-active)');
             body.setProperty('--button-extra-hover', '#5a2100');
             body.setProperty('--button-delete-color', '#891313');
             body.setProperty('--button-delete-hover', '#a10a0a');
@@ -360,6 +362,8 @@ export const switchTheme = () => {
             body.setProperty('--building-can-buy', '#007f95');
             body.setProperty('--button-tab-border', '#af5d00');
             body.setProperty('--button-tab-active', '#008297');
+            body.setProperty('--button-tab-elements', 'var(--button-tab-active)');
+            body.setProperty('--button-tab-strangeness', '#00a500');
             body.setProperty('--button-extra-hover', '#605100');
             body.setProperty('--button-delete-color', '#8f0000');
             body.setProperty('--button-delete-hover', '#ad0000');
@@ -445,13 +449,12 @@ export const switchTheme = () => {
     }, 1000);
 };
 
-export const Alert = (text: string) => { void AlertWait(text); };
-export const AlertWait = async(text: string): Promise<void> => {
+export const Alert = async(text: string): Promise<void> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
-            console.warn("Wasn't able to show another window (alert)");
             resolve();
+            Notify('Another Alert is already active');
             return;
         }
 
@@ -477,12 +480,12 @@ export const AlertWait = async(text: string): Promise<void> => {
     });
 };
 
-export const Confirm = async(text: string, rejectValue = false): Promise<boolean> => {
+export const Confirm = async(text: string): Promise<boolean> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
-            console.warn("Wasn't able to show another window (confirm)");
-            resolve(rejectValue);
+            resolve(false);
+            Notify('Another Alert is already active');
             return;
         }
 
@@ -522,8 +525,8 @@ export const Prompt = async(text: string, inputValue = ''): Promise<string | nul
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
-            console.warn("Wasn't able to show another window (prompt)");
             resolve(null);
+            Notify('Another Alert is already active');
             return;
         }
 
@@ -563,11 +566,13 @@ export const Prompt = async(text: string, inputValue = ''): Promise<string | nul
     });
 };
 
-export const notify = (text: string) => {
+export const Notify = (text: string) => {
+    const div = getId('notifications');
     const notification = document.createElement('p');
     notification.textContent = text;
     notification.style.animation = 'hideX 1s ease-in-out reverse';
-    if (global.screenReader[0]) { notification.role = 'alert'; }
+    div.style.pointerEvents = '';
+    if (global.screenReader[0]) { notification.setAttribute('role', 'alert'); } //Firefox doesn't support any Aria shorthands
 
     const mainDiv = getId('notifications');
     mainDiv.appendChild(notification);
@@ -576,12 +581,16 @@ export const notify = (text: string) => {
     const remove = () => {
         notification.removeEventListener('click', remove);
         notification.style.animation = 'hideX 1s ease-in-out forwards';
-        setTimeout(() => mainDiv.removeChild(notification), 1000);
+        setTimeout(() => {
+            mainDiv.removeChild(notification);
+            div.style.pointerEvents = '';
+        }, 1000);
         clearTimeout(timeout);
     };
 
     setTimeout(() => {
         notification.style.animation = '';
+        div.style.pointerEvents = 'auto';
         timeout = setTimeout(remove, 9000);
         notification.addEventListener('click', remove);
     }, 1000);
@@ -589,7 +598,7 @@ export const notify = (text: string) => {
 
 export const hideFooter = () => {
     const footer = getId('footer');
-    const footerArea = getId('footerColor');
+    const footerArea = getId('footerMain');
     const toggle = getId('hideToggle');
     const arrow = getId('hideArrow');
 
@@ -602,7 +611,6 @@ export const hideFooter = () => {
     global.footer = !global.footer;
     toggle.removeEventListener('click', hideFooter);
     if (global.footer) {
-        footerArea.classList.remove('hidden');
         footerArea.style.display = '';
         arrow.style.transform = '';
         footer.style.animation = 'hideY 1s reverse';
@@ -617,7 +625,6 @@ export const hideFooter = () => {
         arrow.style.animation = 'rotate 1s backwards';
         getId('hideText').textContent = 'Show';
         setTimeout(() => {
-            footerArea.classList.add('hidden');
             footerArea.style.display = 'none';
             arrow.style.transform = 'rotate(180deg)';
             animationReset();
@@ -637,7 +644,7 @@ export const mobileDeviceSupport = (change = false) => {
         toggle.style.borderColor = 'crimson';
         localStorage.setItem('support', 'MD');
         global.mobileDevice = true;
-        if (change) { Alert('To enable touchStart events (as example: touching an upgrade to view description), will need to reload'); }
+        if (change) { void Alert('To enable touchStart events (as example: touching an upgrade to view description), will need to reload'); }
         if (global.screenReader[0]) { screenReaderSupport(); }
     } else {
         toggle.textContent = 'OFF';
@@ -660,7 +667,7 @@ export const screenReaderSupport = (change = false) => {
         toggle.style.borderColor = 'crimson';
         localStorage.setItem('support', 'SR');
         global.screenReader[0] = true;
-        if (change) { Alert("To enable focus events (as example: view description of an upgrade by pressing 'tab'), will need to reload"); }
+        if (change) { void Alert("To enable focus events (as example: view description of an upgrade by pressing 'tab'), will need to reload"); }
         if (global.mobileDevice) { mobileDeviceSupport(); }
         SRCreateHTML();
         stageUpdate();
@@ -674,63 +681,38 @@ export const screenReaderSupport = (change = false) => {
 };
 
 const SRCreateHTML = () => {
-    if (getId('SRMain') !== null) { return; }
+    getId('stageSelect').classList.add('active');
+    if (getId('SRMain', false) !== null) { return; }
     global.screenReader[2] = true;
+    getId('SRMessage1', false).remove();
 
-    const tab = document.createElement('h5');
-    const stage = document.createElement('h5');
-    const main = document.createElement('h6');
-    tab.classList.add('reader');
-    stage.classList.add('reader');
-    main.classList.add('reader');
-    tab.ariaLive = 'polite';
-    stage.ariaLive = 'polite';
-    main.ariaLive = 'assertive';
-    tab.id = 'SRTab';
-    stage.id = 'SRStage';
-    main.id = 'SRMain';
-    getId('fakeFooter').insertAdjacentElement('beforebegin', tab);
-    tab.insertAdjacentElement('afterend', stage);
-    stage.insertAdjacentElement('afterend', main);
+    const SRMainDiv = document.createElement('article');
+    SRMainDiv.innerHTML = '<p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
+    SRMainDiv.classList.add('reader');
+    SRMainDiv.setAttribute('aria-label', 'Information for Screen reader');
+    getId('fakeFooter').before(SRMainDiv);
 
-    const message1 = getId('SRMessage1');
-    const message2 = document.createElement('p');
-    const message3 = document.createElement('p');
-    message1.innerHTML = 'Current list of tabs: <span id="SRTabList">work in progress</span> (use arrows left and right to change tab)';
-    message2.innerHTML = 'Current list of subtabs: <span id="SRSubtabList">work in progress</span> (use arrows up and down to change subtab)';
-    message3.innerHTML = 'Current list of active Stages: <span id="SRStageList"></span> (use shift + arrows left and right to change active Stage)';
-    message2.classList.add('reader');
-    message3.classList.add('reader', 'stage5Unlock');
-    message1.insertAdjacentElement('afterend', message2);
-    message2.insertAdjacentElement('afterend', message3);
-
-    const toggle1 = document.createElement('button');
-    const toggle2 = document.createElement('button');
-    toggle1.textContent = 'Return tab to created Upgrades/Researches and etc.';
-    toggle2.textContent = 'Return tab to primary buttons';
-    toggle1.classList.add('reader');
-    toggle2.classList.add('reader');
-    toggle1.id = 'SRToggle1';
-    toggle2.id = 'SRToggle2';
-    getId('SRMainToggleLi').insertAdjacentElement('afterend', toggle1);
-    toggle1.insertAdjacentElement('afterend', toggle2);
+    const SRSettings = document.createElement('section');
+    SRSettings.innerHTML = '<button type="button" id="SRToggle1">Return index tab to created Upgrades/Researches and etc.</button><button type="button" id="SRToggle2">Return index tab to primary buttons</button>';
+    SRSettings.classList.add('reader');
+    SRSettings.setAttribute('aria-label', 'Settings for Screen reader');
+    getQuery('#settingsSubtabSettings .options').before(SRSettings);
 
     const hangleToggle = (number: number) => {
         global.screenReader[number] = !global.screenReader[number];
         const toggleHTML = getId(`SRToggle${number}`) as { textContent: string };
         toggleHTML.textContent = toggleHTML.textContent.replace(global.screenReader[number] ? 'Remove tab from' : 'Return tab to', global.screenReader[number] ? 'Return tab to' : 'Remove tab from');
     };
-    toggle1.addEventListener('click', () => {
+    getId('SRToggle1').addEventListener('click', () => {
         hangleToggle(1);
         stageUpdate('reload');
-        for (let i = 0; i < player.researchesAuto.length; i++) { visualUpdateResearches(i, global.researchesAutoInfo.autoStage[i], 'researchesAuto'); }
         for (let s = 1; s < player.strangeness.length; s++) {
             for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) {
                 visualUpdateResearches(i, s, 'strangeness');
             }
         }
     });
-    toggle2.addEventListener('click', () => {
+    getId('SRToggle2').addEventListener('click', () => {
         hangleToggle(2);
         const newTab = global.screenReader[2] ? -1 : 0;
         getId('stageReset').tabIndex = newTab;
@@ -740,6 +722,16 @@ const SRCreateHTML = () => {
             getId(`toggleBuilding${i}`).tabIndex = newTab;
         }
         getId('toggleBuilding0').tabIndex = newTab;
+        for (const tabText of global.tabList.tabs) {
+            getId(`${tabText}TabBtn`).tabIndex = newTab;
+            if (!Object.hasOwn(global.tabList, `${tabText}Subtabs`)) { continue; }
+            for (const subtabText of global.tabList[`${tabText as 'stage'}Subtabs`]) {
+                getId(`${tabText}SubtabBtn${subtabText}`).tabIndex = newTab;
+            }
+        }
+        for (let i = 1; i < global.stageInfo.word.length; i++) {
+            getId(`${global.stageInfo.word[i]}Switch`).tabIndex = newTab;
+        }
     });
 };
 
@@ -749,11 +741,11 @@ export const changeFontSize = (change = false) => {
     if (size === 0) { size = 16; }
 
     if (size === 16) {
-        document.body.style.removeProperty('--font-size');
+        document.body.style.fontSize = '';
         localStorage.removeItem('fontSize');
     } else {
         size = Math.floor(Math.min(Math.max(size, 10), 32) * 10) / 10;
-        document.body.style.setProperty('--font-size', `${size}px`);
+        document.body.style.fontSize = `${size}px`;
         localStorage.setItem('fontSize', `${size}`);
     }
     input.value = `${size}`;
@@ -781,18 +773,20 @@ export const assignWithNoMove = (html: HTMLElement, text: string) => {
 
 export const replayEvent = async() => {
     if (getId('blocker').style.display !== 'none') { return; }
-    const event = Number(await Prompt('Which event do you want to see again?\n(Write a number of that event)'));
-    if (!isFinite(event) || event <= 0) { return; }
+    const { events } = player;
 
-    let allowed = false;
-    if ([1, 2, 3, 4].includes(event)) {
-        allowed = player.stage.true > event || (player.events[0] && player.stage.true === event);
-    } else if (event === 5) {
-        allowed = player.events[1];
-    } else if (event === 6) {
-        allowed = player.events[2];
+    let last;
+    if (events[2]) {
+        last = 6;
+    } else if (events[1]) {
+        last = 5;
+    } else {
+        last = player.stage.true - (events[0] ? 0 : 1);
     }
-    if (!allowed) { return Alert(`Event under number ${event} can't be viewed, because it isn't unlocked`); }
+
+    const event = Number(await Prompt(`Which event do you want to see again?\n(Number of highest unlocked event is ${last})`, `${last}`));
+    if (!isFinite(event) || event <= 0) { return; }
+    if (event > last) { return void Alert(`Event ${event} isn't unlocked`); }
 
     playEvent(event - 1, -1);
 };
@@ -803,26 +797,18 @@ export const playEvent = (event: number, index: number) => {
 
     switch (event) {
         case 0: //[0] Discharge explanation
-            Alert("Energy that had been spent, can't be obtained again. But doing Discharge will reset spent Energy");
-            break;
+            return void Alert("Energy that had been spent, can't be obtained again. But doing Discharge will reset spent Energy\nHow much Energy is missing can be seen in stats");
         case 1: //[0] Clouds softcap
-            Alert('Cloud density is too high... Getting more will be harder now');
-            break;
+            return void Alert('Cloud density is too high... Strength of new Clouds will be weaker (strength can be seen in stats)');
         case 2: //[0] Accretion new Rank unlocked
-            Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
-            if (index !== -1 && player.accretion.rank <= 4) {
-                global.accretionInfo.rankCost[4] = 5e29;
-                const button = getId('reset1Button');
-                if (button.textContent === 'Max Rank achieved') { button.textContent = 'Next Rank is 5e29 Mass'; }
-            }
-            break;
-        case 3: //[0] Collapse explanation
-            Alert('Any Collapse reset from now on will give even more rewards. Collapse is only possible when can increase any of rewards.\nRewards effects are unknown, but with more Elements will be revealed');
-            break;
+            if (index !== -1) { global.accretionInfo.rankCost[4] = 5e29; }
+            return void Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
+        case 3: //[0] Element activation
+            return void Alert("Elements require Collapse to be activated. Soon even more Star remnants will be obtained through from Collapse (Solar mass doesn't decrease), effects from remnants can be seen in stats and will be known with proper Elements (Like Solar mass effect and '[1] Hydrogen')");
         case 4: //[1] Entering Intergalactic
-            Alert("There doesn't seem to be anything here. Let's try going back to start and find what is missing");
-            break;
+            return void Alert("There doesn't seem to be anything here. Let's try going back to start and find what is missing");
         case 5: //[2] Creating Galaxy
-            Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade.\nElements are disabled until afforded again (will reactivate automatically)');
+            if (index !== -1) { calculateMaxLevel(4, 4, 'strangeness', true); }
+            return void Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade and even Elements.');
     }
 };

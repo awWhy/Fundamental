@@ -14,16 +14,17 @@ export const detectHotkey = (check: KeyboardEvent) => {
         document.body.classList.remove('outlineOnFocus');
     }
     if (check.ctrlKey || check.altKey) { return; }
-    const key = check.key;
+    const { key, code } = check;
 
-    const numberKey = Number(check.code.slice(-1));
-    if (!isNaN(numberKey)) { //Spacebar goes here as 0
-        if (check.code[0] === 'F' || numberKey < 1) { return; }
-
+    const numberKey = Number(code.slice(-1));
+    if (!isNaN(numberKey)) {
         let isShift = check.shiftKey;
-        if (isNaN(Number(key)) && !isShift) {
-            isShift = true;
-            check.preventDefault(); //Some buttons move screen up and down
+        if (isNaN(Number(key))) {
+            if (code[0] === 'F') { return; }
+            if (!isShift) { //Numpad
+                isShift = true;
+                check.preventDefault();
+            }
         }
 
         if (isShift) {
@@ -31,8 +32,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
             toggleSwap(numberKey, 'buildings', true);
         } else { buyBuilding(numberKey); }
     } else if (key.length === 1) {
-        const stringKey = (player.toggles.normal[6] ? check.code.replace('Key', '') : key).toLowerCase();
-
+        const stringKey = (player.toggles.normal[1] ? code.replace('Key', '') : key).toLowerCase();
         if (check.shiftKey) {
             if (stringKey === 'a') {
                 toggleSwap(0, 'buildings', true);

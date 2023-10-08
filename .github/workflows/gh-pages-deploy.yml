@@ -28,12 +28,14 @@ jobs:
       - name: Move into a folder
         run: | # Please, I don't know anymore
           mkdir -p please
-          mv index.html Style.css Used_art Code.js Code.js.map please/
+          mv index.html Style.css Used_art Fonts Code.js Code.js.map please/
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: please
           clean: true
-          clean-exclude: README.md
+          clean-exclude: |
+            README.md
+            LICENSE
           # Default settings should be fine (I think)

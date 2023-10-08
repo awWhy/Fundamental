@@ -334,7 +334,7 @@ export const overlimit = {
             const tooSmall = left[1] < 0; //Minor issue with negative power
             const base10 = Math.log10(Math.abs(Math.log10(left[0]) + left[1]));
             const target = Math.floor(base10);
-            left[0] = (10 ** (base10 - target));
+            left[0] = 10 ** (base10 - target);
             left[1] = target;
 
             if (tooSmall) { left[0] *= -1; } //Already can be negative
@@ -351,7 +351,7 @@ export const overlimit = {
 
             if (base < 0 || negative) { //Special test for negative numbers
                 if (left[1] < 0) { return [NaN, NaN]; }
-                //Due to floats (1.1 * 100 !== 110), test is done in this way (also we assume that numbers are never uneven)
+                //Due to floats (1.1 * 100 !== 110), test is done in this way
                 const test = left[1] < 16 ? Math.abs(Math.round(left[0] * 1e14) / 10 ** (14 - left[1])) % 2 : 0;
                 if (base < 0 && !negative) {
                     if (test !== 0) { return [NaN, NaN]; } //Result must be even
@@ -449,9 +449,6 @@ export const overlimit = {
         format: (left: [number, number], settings: { digits?: number, type?: 'number' | 'input', padding?: boolean }): string => {
             const [base, power] = left;
             if (!isFinite(base) || !isFinite(power)) { return overlimit.technical.convertBack(left); }
-
-            //Self added part
-            if (!player.inflation.vacuum && power >= 300) { return 'Infinity'; }
 
             //1.23ee123 (-1.23e-e123)
             if ((power >= 1e4 || power <= -1e4) && settings.type !== 'input') {
