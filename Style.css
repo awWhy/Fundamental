@@ -3,12 +3,19 @@
     src: url("Fonts/Inter/Inter-Regular.ttf");
 }
 
+@font-face {
+    font-family: Tight;
+    src: url("Fonts/Inter/InterTight-Regular.ttf");
+    unicode-range: U+0030-0039;
+}
+
 body *, body {
-    font-family: Inter, serif;
+    font-family: Tight, Inter, serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     font-size: inherit;
+    font-variant-numeric: tabular-nums;
 
     /* No text color, because of lags and overall being behind */
     transition-property: border-color, background-color;
@@ -28,9 +35,10 @@ body { /* Default color variables */
     --button-tab-active: #8b00c5;
     --button-tab-elements: #9f6700;
     --button-tab-strangeness: #00b100;
-    --button-extra-hover: #170089;
+    --button-image-hover: #170089;
+    --button-footer-hover: #181818;
     --button-delete-color: firebrick;
-    --button-delete-hover: #ce0000;
+    --button-delete-hover: #db0000;
     --input-border-color: #831aa5;
     --input-text-color: #cf71ff;
     --button-text-color: #e3e3e3;
@@ -68,7 +76,6 @@ body {
     overflow-y: overlay;
     overflow-anchor: none;
     touch-action: manipulation;
-    /* font-variant-numeric: tabular-nums; */
 }
 
 .stageText { color: var(--stage-text-color); }
@@ -170,8 +177,8 @@ img {
 ul, ol { padding-left: 1.6em; }
 
 #footerStats img,
-#strangenessResearch input[type = "image"],
-.researchSection input[type = "image"] {
+#strangenessResearch .interactiveImage,
+.researchSection .interactiveImage {
     border-radius: 3px;
     z-index: 2;
 }
@@ -194,11 +201,6 @@ p > img {
     position: absolute;
     clip-path: circle(0);
     pointer-events: none;
-}
-
-.noMoveSpan {
-    display: inline-block;
-    text-align: center;
 }
 
 .bigWord { font-size: 1.1em; }
@@ -318,9 +320,9 @@ button, input { appearance: none; }
     height: 1.75em;
 }
 
-.extraHover { background-color: var(--background-color); }
+.hollowButton { background-color: var(--background-color); }
 
-img, input[type = "image"], button, #load, #logoLinks > a {
+img, input[type = "image"], button, #load, a {
     user-select: none;
 
     /* Text color here works fine, but for consistency and less lag not added */
@@ -329,11 +331,10 @@ img, input[type = "image"], button, #load, #logoLinks > a {
 }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
-#footerMain button:hover { background-color: #181818; }
 button:hover, #load:hover { background-color: var(--button-main-hover); }
 #delete:hover { background-color: var(--button-delete-hover); }
 .toggle:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleAuto:hover,
-.specialToggle:hover, .interactiveImage:hover, .extraHover:hover { background-color: var(--button-extra-hover); }
+.specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--button-image-hover); }
 
 input[type = "number"] { appearance: textfield; }
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
@@ -349,6 +350,8 @@ input[type = "text"] {
     height: 1.7em;
     font-size: 0.84em;
     padding: 0.1em 0.2em;
+    font-family: Inter, serif;
+    font-variant-numeric: normal;
 }
 
 input:-webkit-autofill { /* Chrome related pain */
@@ -383,7 +386,7 @@ input:-webkit-autofill { /* Chrome related pain */
     border: 2px solid var(--window-border);
 }
 
-#resets > section > button:not(#stageReset) {
+#resets button:not(#stageReset) {
     width: 15.5em;
     height: 2.2em;
     font-size: 0.86em;
@@ -442,8 +445,9 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 .buyBuilding p { color: inherit; }
-.buyBuilding > div > p:first-of-type { width: 19.8em; }
-.buyBuilding > div > p:last-of-type { width: 10.7em; }
+.buyBuilding > div > p:first-of-type { width: 19.4em; }
+.buyBuilding > div > p:first-of-type > span.whiteText { padding-right: 0.06em; }
+.buyBuilding > div > p:last-of-type { width: 10.6em; }
 
 .buyBuilding > div > div {
     grid-area: buy;
@@ -452,7 +456,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 .buyBuilding > div > div > p {
-    width: 6em;
+    width: 5.8em;
     font-size: 0.92em;
     text-align: end;
 }
@@ -467,7 +471,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 .buyBuilding button:first-of-type {
     grid-area: button;
-    width: 16em;
+    width: 15em;
 }
 
 .toggleBuilding {
@@ -530,7 +534,7 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.6em;
 }
 
-#challengesMain input[type = "image"] {
+#challengesMain .interactiveImage {
     width: 48px;
     height: 48px;
     border-radius: 0;
@@ -540,8 +544,6 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     gap: 0.44em;
 }
-
-#challengesMain input[type = "image"]:hover { background-color: var(--button-extra-hover); }
 
 #challengeMultiline { text-align: center; }
 #challengeMultiline p { white-space: pre-line; }
@@ -553,11 +555,10 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: 0.3em;
 }
 
-#voidRewards button  {
+#voidRewards button {
     height: 1.9em;
     padding: 0 0.4em;
     border-radius: 4px;
-    background-color: var(--background-color);
 }
 
 #voidRewards > div:first-of-type {
@@ -613,7 +614,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--window-color);
 }
 
-.researchSection > div > div > p {
+.researchSection p {
     border: 2px solid;
     border-color: inherit;
     border-left: none;
@@ -674,12 +675,12 @@ input:-webkit-autofill { /* Chrome related pain */
 #element0:hover { opacity: 1; }
 
 /* Easier to do this through CSS (extra background value to prevent flashing) */
-#elementsGrid > .elementType1.awaiting { background: #780000 linear-gradient(45deg, #780000 50%, var(--background-color) 50%); }
-#elementsGrid > .elementType2.awaiting { background: #a55900 linear-gradient(45deg, #a55900 50%, var(--background-color) 50%); }
-#elementsGrid > .elementType3.awaiting { background: #0000c1 linear-gradient(45deg, #0000c1 50%, var(--background-color) 50%); }
-#elementsGrid > .elementType1.created, #elementsGrid > .elementType1.awaiting:hover { background: #780000; }
-#elementsGrid > .elementType2.created, #elementsGrid > .elementType2.awaiting:hover { background: #a55900; }
-#elementsGrid > .elementType3.created, #elementsGrid > .elementType3.awaiting:hover { background: #0000c1; }
+.elementType1.awaiting { background: #780000 linear-gradient(45deg, #780000 50%, var(--background-color) 50%); }
+.elementType2.awaiting { background: #a55900 linear-gradient(45deg, #a55900 50%, var(--background-color) 50%); }
+.elementType3.awaiting { background: #0000c1 linear-gradient(45deg, #0000c1 50%, var(--background-color) 50%); }
+.elementType1.created, .elementType1.awaiting:hover { background: #780000; }
+.elementType2.created, .elementType2.awaiting:hover { background: #a55900; }
+.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; }
 
 .strangeWelcome { width: 100%; }
 .strangeWelcome > p { margin-top: 0.3em; }
@@ -699,7 +700,11 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #strangeStructures > div > div { display: flex; }
-#strangeStructures > div > div > img { border-radius: 0; }
+
+#strangeStructures img {
+    background-color: black;
+    border-radius: 0;
+}
 
 #strangeStructures > div > div > p {
     border: 2px solid #006400;
@@ -731,12 +736,12 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.5em;
 }
 
-#strangenessResearch > section > div {
+#strangenessResearch div {
     display: flex;
     align-items: center;
 }
 
-#strangenessResearch > section > div > p {
+#strangenessResearch p {
     border: 2px solid;
     border-left: none;
     line-height: 28px;
@@ -764,7 +769,7 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-grow: 1;
 }
 
-#milestones > div > img {
+#milestones img {
     cursor: help;
     border-radius: 3px;
 }
@@ -781,14 +786,14 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.6em;
 }
 
-#resetToggles > div > section {
+#resetToggles section {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 0.3em;
 }
 
-#resetToggles > div > section > div {
+#resetToggles section > div {
     display: flex;
     column-gap: 0.3em;
 }
@@ -805,7 +810,7 @@ input:-webkit-autofill { /* Chrome related pain */
     font-size: 0.77em;
 }
 
-#resetToggles .extraHover {
+#resetToggles .hollowButton {
     width: 1.45em;
     height: 1.68em;
     font-size: 0.82em;
@@ -901,7 +906,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 li input[type = "number"] { width: 3.15em; }
 
-.options button.extraHover,
+.options .hollowButton,
 .options .windowPopUp > button {
     height: 1.77em;
     padding: 0 0.45em;
@@ -976,7 +981,7 @@ input.miniInput {
     height: 1.68em;
 }
 
-#autoTogglesUpgrades button.extraHover { height: 1.82em; }
+#autoTogglesUpgrades .hollowButton { height: 1.82em; }
 
 #themeArea > h3 {
     text-align: center;
@@ -1007,20 +1012,20 @@ input.miniInput {
     border-color: var(--stage-button-border);
 }
 
-#historyMainDiv > div { text-align: center; }
-#historyMainDiv > div > p:first-of-type { margin-bottom: 0.24em; }
+#historyMainDiv > section { text-align: center; }
+#historyMainDiv h4 { margin-bottom: 0.24em; }
 
-#historyMainDiv > div > ol {
+#historyMainDiv ol {
     list-style-type: none;
     overflow-y: overlay;
     margin: 0.5em 0;
     padding: 0;
-    height: 3.82em;
+    height: 7.5em;
     max-height: 70vh;
     resize: vertical;
 }
 
-#historyMainDiv > div input {
+#historyMainDiv input {
     height: 1.7em;
     width: 2.6em;
 }
@@ -1050,9 +1055,9 @@ input.miniInput {
     padding: 0.4em 0.6em 0.5em;
 }
 
-.statsWindows > section > div > p { margin-bottom: 0.08em; }
+.statsWindows p { margin-bottom: 0.08em; }
 
-#strangeAllStats > div { border-color: darkgreen; }
+#strangeAllStats > section { border-color: darkgreen; }
 
 .imageList {
     display: flex;
@@ -1089,7 +1094,7 @@ input.miniInput {
     margin: 0 auto;
 }
 
-#footerMain > nav > button {
+#footerMain button {
     border-radius: 10px;
     border-color: var(--button-tab-border);
     padding: 0 0.7em;
@@ -1106,7 +1111,7 @@ input.miniInput {
 #footer img { background-color: black; }
 #footerStats > div { display: flex; }
 
-#footerStats > div > p {
+#footerStats p {
     line-height: 28px;
     text-align: center;
     border: 2px solid;
@@ -1120,7 +1125,7 @@ input.miniInput {
     z-index: 1; /* Text color issue */
 }
 
-#footerStats p > span:last-of-type {
+#footerStats span:last-of-type {
     display: inline-block;
     width: 5.2em;
 }
@@ -1175,7 +1180,7 @@ input.miniInput {
 }
 
 #currentSwitch { border-color: var(--stage-button-border); }
-#subtabs button:hover, #stageSelect button:hover { background-color: var(--button-extra-hover); }
+#footer button:hover { background-color: var(--button-footer-hover); }
 #stageSelect.active > #currentSwitch { clip-path: circle(0); }
 #stageSelect.active > div { display: flex; }
 
@@ -1221,7 +1226,7 @@ input.miniInput {
 /* Firefox related pain */
 @supports not (overflow-y: overlay) {
     body { overflow-y: auto; }
-    #historyMainDiv > div > ol {
+    #historyMainDiv ol {
         scrollbar-gutter: stable;
         overflow-y: auto;
     }
@@ -1247,9 +1252,8 @@ input.miniInput {
     #buildings { row-gap: 0.2em; }
     .buyBuilding, .specialStar { column-gap: 0.15em; }
     .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
-    .buyBuilding > div > p:first-of-type { width: 14em; }
+    .buyBuilding > div > p:first-of-type { width: 13.8em; }
     .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
-    .buyBuilding > div > p > span.noMoveSpan { text-align: start; }
 
     .buyBuilding > div:last-of-type {
         row-gap: 0.16em;
@@ -1268,7 +1272,7 @@ input.miniInput {
     .buyBuilding > div > div > div { display: none; }
     .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
 
-    #starsSpecial { max-width: 30em; }
+    #starsSpecial { max-width: 29em; }
 
     #researchTab .descriptionText { margin-top: -0.25em; }
 

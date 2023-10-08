@@ -20,7 +20,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
     if (!isNaN(numberKey)) {
         let isShift = check.shiftKey;
         if (isNaN(Number(key))) {
-            if (code[0] === 'F') { return; }
+            if (code === '' || code[0] === 'F') { return; }
             if (!isShift) { //Numpad
                 isShift = true;
                 check.preventDefault();

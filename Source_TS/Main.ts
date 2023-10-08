@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, buildVersionInfo, deepClone } from './Player';
-import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, maxOfflineTime, exportMultiplier, maxExportTime, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription } from './Update';
-import { assignNewMassCap, assignStrangeBoost, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, enterChallenge, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleConfirm, toggleSwap, vaporizationAsyncReset } from './Stage';
+import { getUpgradeDescription, timeUpdate, switchTab, numbersUpdate, visualUpdate, format, maxOfflineTime, exportMultiplier, maxExportTime, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription, offlineWaste } from './Update';
+import { assignStrangeBoost, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, collapseAsyncReset, dischargeAsyncReset, enterExitChallenge, rankAsyncReset, stageAsyncReset, switchStage, toggleBuy, toggleConfirm, toggleSwap, vaporizationAsyncReset } from './Stage';
 import { Alert, hideFooter, Prompt, setTheme, changeFontSize, screenReaderSupport, mobileDeviceSupport, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify } from './Special';
 import { detectHotkey } from './Hotkeys';
 import { prepareVacuum, switchVacuum } from './Vacuum';
@@ -57,7 +57,8 @@ const handleOfflineTime = (): number => {
     const timeNow = Date.now();
     const offlineTime = (timeNow - time.updated) / 1000;
     time.updated = timeNow;
-    time.offline = Math.min(time.offline + offlineTime, maxOfflineTime());
+    const maxOffline = maxOfflineTime();
+    if (time.offline < maxOffline) { time.offline = Math.min(time.offline + offlineTime, maxOffline); }
     player.stage.export = Math.min(player.stage.export + offlineTime, maxExportTime());
     return offlineTime;
 };
@@ -72,8 +73,8 @@ const changeIntervals = (pause = false) => {
     clearInterval(intervalsId.autoSave);
     intervalsId.main = pause ? undefined : setInterval(timeUpdate, intervals.main);
     intervalsId.numbers = pause ? undefined : setInterval(numbersUpdate, intervals.numbers);
-    intervalsId.visual = pause ? undefined : setInterval(visualUpdate, intervals.visual * 1000);
-    intervalsId.autoSave = pause ? undefined : setInterval(saveLoad, intervals.autoSave * 1000, 'save');
+    intervalsId.visual = pause ? undefined : setInterval(visualUpdate, intervals.visual);
+    intervalsId.autoSave = pause ? undefined : setInterval(saveLoad, intervals.autoSave, 'save');
 };
 
 try { //Start everything
@@ -85,7 +86,7 @@ try { //Start everything
         const versionCheck = updatePlayer(load);
         void Alert(`Welcome back, you were away for ${format(handleOfflineTime(), { type: 'time' })}\n${versionCheck !== player.version ? `Game have been updated from ${versionCheck} to ${player.version}` : `Current version is ${player.version}`}`);
     } else {
-        prepareVacuum();
+        prepareVacuum(false); //Set buildings values
         updatePlayer(deepClone(playerStart));
         void Alert(`Welcome to 'Fundamental' ${player.version}, a test-project created by awWhy\n(This idle game is not meant to be fast)`);
     }
@@ -164,7 +165,7 @@ try { //Start everything
         const image = getId(`challenge${i + 1}`);
         if (SR) { image.addEventListener('focus', () => getChallengeDescription(i)); }
         image.addEventListener(hover, () => getChallengeDescription(i));
-        image.addEventListener('click', i === -1 ? switchVacuum : () => { void enterChallenge(i); });
+        image.addEventListener('click', i === -1 ? switchVacuum : () => { void enterExitChallenge(i); });
     }
     for (let i = 1; i < global.challengesInfo.rewardText[0].length; i++) {
         if (i === 5) { continue; } //Missing for now
@@ -222,12 +223,6 @@ try { //Start everything
         player.vaporization.input = Math.max(Number(input.value), 0);
         input.value = format(player.vaporization.input, { type: 'input' });
     });
-    getId('rankShiftInput').addEventListener('change', () => {
-        const input = getId('rankShiftInput') as HTMLInputElement;
-        player.accretion.input = Number(input.value);
-        input.value = format(player.accretion.input, { type: 'input' });
-        assignNewMassCap();
-    });
     getId('collapseStarsInput').addEventListener('change', () => {
         const input = getId('collapseStarsInput') as HTMLInputElement;
         player.collapse.input = Math.max(Number(input.value), 1);
@@ -274,14 +269,14 @@ try { //Start everything
     });
     getId('visualInterval').addEventListener('change', () => {
         const visualInput = getId('visualInterval') as HTMLInputElement;
-        player.intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10) / 10, 0.2), 4);
-        visualInput.value = `${player.intervals.visual}`;
+        player.intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 10), 2), 40) * 100;
+        visualInput.value = `${player.intervals.visual / 1000}`;
         changeIntervals();
     });
     getId('autoSaveInterval').addEventListener('change', () => {
         const autoSaveInput = getId('autoSaveInterval') as HTMLInputElement;
-        player.intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 10), 1800);
-        autoSaveInput.value = `${player.intervals.autoSave}`;
+        player.intervals.autoSave = Math.min(Math.max(Math.trunc(Number(autoSaveInput.value)), 4), 1800) * 1000;
+        autoSaveInput.value = `${player.intervals.autoSave / 1000}`;
         changeIntervals();
     });
     getId('thousandSeparator').addEventListener('change', () => changeFormat(false));
@@ -346,8 +341,8 @@ try { //Start everything
         a.click();
     });
     getId('deleteError').addEventListener('click', async() => {
-        if (!(await Confirm("Press 'Confirm' to delete your save file\nThis will not be possible to undo, so export save file first"))) { return; }
-        if (!(await Confirm("Last warning, press 'Confirm' to delete your save file"))) { return; }
+        if (!await Confirm("Press 'Confirm' to delete your save file\nThis will not be possible to undo, so export save file first")) { return; }
+        if (!await Confirm("Last warning, press 'Confirm' to delete your save file")) { return; }
         localStorage.removeItem('save');
         window.location.reload();
         void Alert('Game will auto refresh. If not then do it manually');
@@ -355,7 +350,7 @@ try { //Start everything
     void Alert(`Error detected during game loading:\n${error}`);
 }
 
-const saveLoad = async(type: 'import' | 'save' | 'export' | 'delete'): Promise<void> => {
+async function saveLoad(type: 'import' | 'save' | 'export' | 'delete'): Promise<void> {
     switch (type) {
         case 'import': {
             const id = getId('file') as HTMLInputElement;
@@ -378,13 +373,14 @@ const saveLoad = async(type: 'import' | 'save' | 'export' | 'delete'): Promise<v
             return;
         }
         case 'save': {
+            if (player.time.offline < 0) { return Notify(`Saving is disabled until ${new Date(Date.now() - player.time.offline * 1000).toLocaleString()}\nReason: possible time manipulation`); }
             try {
                 player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
 
                 const save = btoa(JSON.stringify(player));
                 localStorage.setItem('save', save);
                 clearInterval(global.intervalsId.autoSave);
-                global.intervalsId.autoSave = setInterval(saveLoad, player.intervals.autoSave * 1000, 'save');
+                global.intervalsId.autoSave = setInterval(saveLoad, player.intervals.autoSave, 'save');
                 getId('isSaved').textContent = 'Saved';
                 global.lastSave = 0;
             } catch (error) {
@@ -393,6 +389,7 @@ const saveLoad = async(type: 'import' | 'save' | 'export' | 'delete'): Promise<v
             return;
         }
         case 'export': {
+            if (player.time.offline < 0) { return; }
             player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
 
             if (player.strange[0].total > 0 && player.stage.export > 0) {
@@ -433,7 +430,7 @@ const saveLoad = async(type: 'import' | 'save' | 'export' | 'delete'): Promise<v
             void Alert('Game will auto refresh. If not then do it manually');
         }
     }
-};
+}
 
 const changeSaveFileName = () => {
     const input = getId('saveFileNameInput') as HTMLInputElement;
@@ -478,34 +475,36 @@ const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
     const current = new Date();
     switch (type) {
         case 'dateDMY': {
-            const day = current.getDate();
-            const month = current.getMonth() + 1;
-            return `${day < 10 ? `0${day}` : day}.${month < 10 ? `0${month}` : month}.${current.getFullYear()}`;
+            const day = `${current.getDate()}`.padStart(2, '0');
+            const month = `${current.getMonth() + 1}`.padStart(2, '0');
+            return `${day}.${month}.${current.getFullYear()}`;
         }
         case 'timeHMS': {
-            const minutes = current.getMinutes();
-            const seconds = current.getSeconds();
-            return `${current.getHours()}-${minutes < 10 ? `0${minutes}` : minutes}-${seconds < 10 ? `0${seconds}` : seconds}`;
+            const minutes = `${current.getMinutes()}`.padStart(2, '0');
+            const seconds = `${current.getSeconds()}`.padStart(2, '0');
+            return `${current.getHours()}-${minutes}-${seconds}`;
         }
     }
 };
 
 export const timeWarp = async() => {
     const { time } = player;
-    const waste = (8 - (player.stage.true >= 6 ? player.strangeness[2][7] : 0)) / 2;
-    if (time.offline < 900 * waste) { return void Alert(`Need at least ${format(15 * waste)} minutes (effective is 15 minutes) of storaged Offline time to Warp`); }
+    const waste = offlineWaste() / 1.5;
+    if (time.offline < 600 * waste) { return void Alert(`Need at least ${format(10 * waste)} minutes of storaged Offline time to Warp`); }
 
-    const warpTime = Math.min(player.strangeness[1][7] < 2 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })}, will be consumed up to half an hour (uses ${format(waste)} seconds per added second)\nCalculates a minute per tick`) ? 1800 : 0) :
-        Number(await Prompt(`How many seconds do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second, minimum value is 15 minutes)\nBigger number will result in more lag (calculates a minute per tick)`, '900')), time.offline / waste);
-    if (warpTime < 900 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Notify('Warp failed, input or storage is below minimum value or invalid'); }
+    const warpTime = Math.min(player.strangeness[1][7] < 2 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second), will be consumed up to half an hour`) ? 1800 : 0) :
+        Number(await Prompt(`How many seconds do you wish to Warp forward? (Minimum value is 10 minutes)\nCurrent effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second)`, '600')), time.offline / waste);
+    if (warpTime < 600 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Notify('Warp failed, input or storage is below minimum value or invalid'); }
 
     time.offline -= warpTime * waste;
-    timeUpdate(warpTime);
+    try {
+        timeUpdate(warpTime / 1000, warpTime);
+    } catch (error) { Notify(`Warp failed due to Error:\n${error}`); }
 };
 
 const pauseGame = async() => {
     changeIntervals(true);
-    await Alert("Game is currently paused. Press 'confirm' to unpause it. Time spend here will be moved into offline storage");
+    await Alert("Game is currently paused. Press 'confirm' to unpause it. Time spent here will be moved into offline storage");
 
     Notify(`Game was paused for ${format(handleOfflineTime(), { type: 'time' })}`);
     changeIntervals();

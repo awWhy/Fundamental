@@ -24,12 +24,10 @@ export interface playerType {
     }
     accretion: {
         rank: number
-        input: number
     }
     collapse: {
         mass: number
         massMax: number
-        elementsMax: overlimit
         stars: [number, number, number]
         show: number
         input: number
@@ -115,7 +113,6 @@ export interface globalType {
         strangenessSubtabs: string[]
     }
     debug: {
-        versionBuild: boolean
         errorID: boolean
         errorQuery: boolean
         errorGain: boolean
@@ -143,6 +140,7 @@ export interface globalType {
         effect2U2: () => number
         oceanWorld: () => number
         cloudEffect: (post?: boolean) => overlimit
+        rainEffect: (post?: boolean) => number
         tension: number
         stress: number
         get: overlimit

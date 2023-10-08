@@ -8,7 +8,7 @@ export const specialHTML = { //First values for images from here must be from tr
         '',
         '<span class="bigWord orangeText">Discharge</span>. Reset current Structures and Energy. Will also boost production by <span id="dischargeEffect" class="orangeText"></span>, if to reset with enough Energy.',
         '<span class="bigWord grayText">Vaporization</span>. Structures, upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.',
-        '<img id="rankImage" src="Used_art/Missing.png" alt="">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName" class="blueText"></span>. <span id="rankMessage"></span>',
+        '<img id="rankImage" src="Used_art/Missing.png" alt="">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName"></span>. <span id="rankMessage"></span>',
         '<span class="bigWord orchidText">Collapse</span> - Everything will be lost, but at same time gained. Even remnants have their own unique strength and effects.',
         ''
     ],
@@ -54,9 +54,9 @@ export const specialHTML = { //First values for images from here must be from tr
             ['UpgradeA4.png', 'Instability'],
             ['UpgradeA5.png', 'Gravity'],
             ['UpgradeA6.png', 'Pile'],
-            ['UpgradeA7.png', 'Orbit'],
-            ['UpgradeA8.png', 'Magma'],
-            ['UpgradeA9.png', 'Equilibrium'],
+            ['UpgradeA7.png', 'Magma'],
+            ['UpgradeA8.png', 'Equilibrium'],
+            ['UpgradeA9.png', 'Orbit'],
             ['UpgradeA10.png', 'Atmosphere'],
             ['UpgradeA11.png', 'Pebble'],
             ['UpgradeA12.png', 'Tidal force'],
@@ -109,7 +109,7 @@ export const specialHTML = { //First values for images from here must be from tr
             ['ResearchS2.png', '2 stars', 'stage5borderImage'],
             ['ResearchS3.png', 'Protodisc', 'stage7borderImage'],
             ['ResearchS4.png', 'Planetary nebula', 'stage5borderImage'],
-            ['Missing.png'/*'ResearchS5.png'*/, 'Gamma-rays', 'stage7borderImage']
+            ['ResearchS5.png', 'Gamma-rays', 'stage6borderImage']
         ],
         [
             ['ResearchG1.png', 'Density', 'stage1borderImage'],
@@ -138,18 +138,18 @@ export const specialHTML = { //First values for images from here must be from tr
             ['ResearchClouds1.png', 'Vaporization+', 'stage3borderImage'],
             ['ResearchClouds2.png', 'Rain', 'stage2borderImage'],
             ['ResearchClouds3.png', 'Storm', 'stage4borderImage'],
-            ['Missing.png'/*'ResearchClouds4.png'*/, 'Water Accretion', 'stage2borderImage']
+            ['ResearchClouds4.png', 'Water Accretion', 'stage2borderImage']
         ],
         [
             ['ResearchRank1.png', 'Ocean', 'stage3borderImage'],
             ['ResearchRank2.png', 'Rank', 'stage3borderImage'],
             ['ResearchRank3.png', 'Weight', 'stage3borderImage'],
             ['ResearchRank4.png', 'Viscosity', 'stage2borderImage'],
-            ['ResearchRank5.png', 'Water rank', 'stage2borderImage']
+            ['ResearchRank5.png', 'Water Rank', 'stage2borderImage']
         ],
         [
             ['ResearchCollapse1.png', 'Supernova', 'stage6borderImage'],
-            ['Missing.png'/*'ResearchCollapse2.png'*/, 'Mass transfer', 'stage4borderImage'],
+            ['ResearchCollapse2.png', 'Mass transfer', 'stage7borderImage'],
             ['ResearchCollapse3.png', 'White dwarf', 'stage1borderImage']
         ],
         []
@@ -195,8 +195,8 @@ export const preventImageUnload = () => {
     for (let s = 1; s <= 5; s++) {
         for (let i = 0; i < footer[s].length; i++) {
             if (s === 2) {
-                if (i === 2) { continue; }
-            } else if (s === 5 && i < 2) { continue; }
+                if (i === 2) { continue; } //Drops
+            } else if (s === 5 && i < 2) { continue; } //Solar mass and Elements
             images += `<img src="Used_art/${footer[s][i][0]}" loading="lazy">`;
         }
         for (let i = 0; i < build[s].length; i++) {
@@ -209,7 +209,6 @@ export const preventImageUnload = () => {
             images += `<img src="Used_art/${research[s][i][0]}" loading="lazy">`;
         }
         for (let i = 0; i < extra[s].length; i++) {
-            if (s === 2 && i === 3) { continue; }
             images += `<img src="Used_art/${extra[s][i][0]}" loading="lazy">`;
         }
         if (extraDiv[s].length > 0) { images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`; }
@@ -220,9 +219,8 @@ export const preventImageUnload = () => {
 
 export const setTheme = (theme: number | null) => {
     if (theme !== null) {
-        if (theme === 6) {
-            if (player.stage.true < 7 && player.strangeness[5][0] < 1) { theme = null; }
-        } else if (player.stage.true < theme) { theme = null; }
+        if (player.stage.true < theme) { theme = null; }
+        if (theme === 6 && player.stage.true < 7 && player.strangeness[5][0] < 1) { theme = null; }
     }
 
     global.theme = theme;
@@ -253,7 +251,8 @@ export const switchTheme = () => {
     body.removeProperty('--button-tab-active');
     body.removeProperty('--button-tab-elements');
     body.removeProperty('--button-tab-strangeness');
-    body.removeProperty('--button-extra-hover');
+    body.removeProperty('--button-image-hover');
+    body.removeProperty('--button-footer-hover');
     body.removeProperty('--button-delete-color');
     body.removeProperty('--button-delete-hover');
     body.removeProperty('--input-border-color');
@@ -297,10 +296,10 @@ export const switchTheme = () => {
             body.setProperty('--footer-color', '#0000db');
             body.setProperty('--button-main-color', 'blue');
             body.setProperty('--button-main-border', '#427be1');
-            body.setProperty('--button-main-hover', '#1515cf');
+            body.setProperty('--button-main-hover', '#1111b0');
             body.setProperty('--button-tab-border', '#376ac5');
             body.setProperty('--button-tab-active', '#990000');
-            body.setProperty('--button-extra-hover', '#2400d7');
+            body.setProperty('--button-image-hover', '#2400d7');
             body.setProperty('--input-border-color', '#4747ff');
             body.setProperty('--input-text-color', 'dodgerblue');
             body.setProperty('--main-text-color', 'var(--blue-text-color)');
@@ -327,13 +326,14 @@ export const switchTheme = () => {
             body.setProperty('--footer-color', '#221a00');
             body.setProperty('--button-main-color', '#291344');
             body.setProperty('--button-main-border', '#404040');
-            body.setProperty('--button-main-hover', '#361f52');
+            body.setProperty('--button-main-hover', '#382055');
             body.setProperty('--button-tab-border', '#484848');
             body.setProperty('--button-tab-active', '#8d4c00');
             body.setProperty('--button-tab-elements', 'var(--button-tab-active)');
-            body.setProperty('--button-extra-hover', '#5a2100');
+            body.setProperty('--button-image-hover', '#5a2100');
+            body.setProperty('--button-footer-hover', '#1a1a1a');
             body.setProperty('--button-delete-color', '#891313');
-            body.setProperty('--button-delete-hover', '#a10a0a');
+            body.setProperty('--button-delete-hover', '#a80b0b');
             body.setProperty('--input-border-color', '#8b4a00');
             body.setProperty('--input-text-color', '#e77e00');
             body.setProperty('--main-text-color', 'var(--gray-text-color)');
@@ -364,7 +364,8 @@ export const switchTheme = () => {
             body.setProperty('--button-tab-active', '#008297');
             body.setProperty('--button-tab-elements', 'var(--button-tab-active)');
             body.setProperty('--button-tab-strangeness', '#00a500');
-            body.setProperty('--button-extra-hover', '#605100');
+            body.setProperty('--button-image-hover', '#605100');
+            body.setProperty('--button-footer-hover', '#212121');
             body.setProperty('--button-delete-color', '#8f0000');
             body.setProperty('--button-delete-hover', '#ad0000');
             body.setProperty('--input-border-color', '#008399');
@@ -397,7 +398,8 @@ export const switchTheme = () => {
             body.setProperty('--building-can-buy', '#8603ff');
             body.setProperty('--button-tab-border', '#9d0054');
             body.setProperty('--button-tab-active', '#8500ff');
-            body.setProperty('--button-extra-hover', '#3b0080');
+            body.setProperty('--button-image-hover', '#3b0080');
+            body.setProperty('--button-footer-hover', '#1a1a1a');
             body.setProperty('--button-delete-color', '#800000');
             body.setProperty('--button-delete-hover', '#9b1212');
             body.setProperty('--input-border-color', '#3656a1');
@@ -427,7 +429,7 @@ export const switchTheme = () => {
             body.setProperty('--building-can-buy', '#a80000');
             body.setProperty('--button-tab-border', '#6719c8');
             body.setProperty('--button-tab-active', '#8d0000');
-            body.setProperty('--button-extra-hover', '#490070');
+            body.setProperty('--button-image-hover', '#490070');
             body.setProperty('--button-delete-color', '#930606');
             body.setProperty('--button-delete-hover', '#b80000');
             body.setProperty('--input-border-color', '#a50000');
@@ -464,7 +466,7 @@ export const Alert = async(text: string): Promise<void> => {
         confirm.focus();
 
         const key = async(button: KeyboardEvent) => {
-            if (button.key === 'Escape' || button.key === 'Enter') {
+            if (button.key === 'Escape' || button.key === 'Enter' || button.key === ' ') {
                 button.preventDefault();
                 close();
             }
@@ -502,9 +504,11 @@ export const Confirm = async(text: string): Promise<boolean> => {
             if (button.key === 'Escape') {
                 button.preventDefault();
                 no();
-            } else if (button.key === 'Enter') {
-                button.preventDefault();
-                yes();
+            } else if (button.key === 'Enter' || button.key === ' ') {
+                if (document.activeElement !== cancel) {
+                    button.preventDefault();
+                    yes();
+                }
             }
         };
         const close = (result: boolean) => {
@@ -546,9 +550,11 @@ export const Prompt = async(text: string, inputValue = ''): Promise<string | nul
             if (button.key === 'Escape') {
                 button.preventDefault();
                 no();
-            } else if (button.key === 'Enter') {
-                button.preventDefault();
-                yes();
+            } else if (button.key === 'Enter' || button.key === ' ') {
+                if (document.activeElement !== cancel) {
+                    button.preventDefault();
+                    yes();
+                }
             }
         };
         const close = (result: string | null) => {
@@ -646,12 +652,14 @@ export const mobileDeviceSupport = (change = false) => {
         global.mobileDevice = true;
         if (change) { void Alert('To enable touchStart events (as example: touching an upgrade to view description), will need to reload'); }
         if (global.screenReader[0]) { screenReaderSupport(); }
+        (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
     } else {
         toggle.textContent = 'OFF';
         toggle.style.color = '';
         toggle.style.borderColor = '';
         global.mobileDevice = false;
         if (change) { localStorage.removeItem('support'); }
+        (getId('file') as HTMLInputElement).accept = '.txt';
     }
 };
 
@@ -764,13 +772,6 @@ export const changeFormat = (point: boolean) => {
     point ? player.separator[1] = htmlInput.value : player.separator[0] = htmlInput.value;
 };
 
-//If done for span, then add class="noMoveSpan";
-export const assignWithNoMove = (html: HTMLElement, text: string) => {
-    html.textContent = text;
-    const newWidth = `${text.length * 0.63}em`;
-    if (newWidth !== html.style.width) { html.style.width = newWidth; }
-};
-
 export const replayEvent = async() => {
     if (getId('blocker').style.display !== 'none') { return; }
     const { events } = player;
@@ -797,18 +798,18 @@ export const playEvent = (event: number, index: number) => {
 
     switch (event) {
         case 0: //[0] Discharge explanation
-            return void Alert("Energy that had been spent, can't be obtained again. But doing Discharge will reset spent Energy\nHow much Energy is missing can be seen in stats");
+            return void Alert("Energy that had been spent, can't be obtained again. But doing Discharge will reset spent Energy\n(How much Energy should be if none was used can be seen in stats)");
         case 1: //[0] Clouds softcap
             return void Alert('Cloud density is too high... Strength of new Clouds will be weaker (strength can be seen in stats)');
         case 2: //[0] Accretion new Rank unlocked
             if (index !== -1) { global.accretionInfo.rankCost[4] = 5e29; }
-            return void Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be Softcapped');
+            return void Alert('Getting more Mass, seems impossible. We need to change our approach, next Rank is going to be softcapped');
         case 3: //[0] Element activation
-            return void Alert("Elements require Collapse to be activated. Soon even more Star remnants will be obtained through from Collapse (Solar mass doesn't decrease), effects from remnants can be seen in stats and will be known with proper Elements (Like Solar mass effect and '[1] Hydrogen')");
+            return void Alert("Elements require Collapse to be activated. Soon even more Star remnants will be obtained through Collapse (Solar mass cannot decrease), remnants strength can be seen in stats, effects will be known with proper Elements (Like Solar mass effect and '[1] Hydrogen')");
         case 4: //[1] Entering Intergalactic
             return void Alert("There doesn't seem to be anything here. Let's try going back to start and find what is missing");
         case 5: //[2] Creating Galaxy
             if (index !== -1) { calculateMaxLevel(4, 4, 'strangeness', true); }
-            return void Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade and even Elements.');
+            return void Alert('Galaxy will boost production of Nebulas and Star clusters, but for the cost of every other structure/upgrade and even Elements');
     }
 };

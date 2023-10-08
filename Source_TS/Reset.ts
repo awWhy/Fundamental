@@ -1,6 +1,6 @@
 import { allowedToBeReset } from './Check';
 import { cloneArray, global, player, playerStart } from './Player';
-import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet, assignEnergy, assignNewMassCap, calculateMilestoneInformation, assignStrangeBoost } from './Stage';
+import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, assignBuildingInformation, autoElementsSet, assignEnergy, calculateMilestoneInformation, assignStrangeBoost } from './Stage';
 import { numbersUpdate, stageUpdate, updateRankInfo, visualUpdate, visualUpdateResearches, visualUpdateUpgrades } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy', stageIndex: number[]) => {
@@ -21,7 +21,6 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
 
     for (const s of stageIndex) {
         if (s === 2) {
-            if (player.strangeness[2][11] >= 1 && type !== 'vaporization' && type !== 'discharge') { continue; }
             global.researchesInfo[2].effect[0] = 0;
             global.researchesInfo[2].effect[1] = 0;
         } else if (s === 4) {
@@ -128,11 +127,10 @@ export const resetStage = (stageIndex: number[], update = 'normal' as false | 'n
             }
         } else if (s === 4) {
             global.collapseInfo.trueStars = 0;
-            player.collapse.elementsMax = [1, 0];
             player.collapse.mass = 0.01235;
             player.collapse.stars = [0, 0, 0];
             player.elements = cloneArray(playerStart.elements);
-            player.elements[0] = player.strangeness[4][11] >= 1 ? 1 : 0;
+            player.elements[0] = player.strangeness[4][10] >= 1 ? 1 : 0;
             autoElementsSet();
             for (let i = 0; i < player.elements.length; i++) { visualUpdateUpgrades(i, 4, 'elements'); }
             global.lastElement = -1;
@@ -209,17 +207,14 @@ export const resetVacuum = () => {
     }
 
     //Stage 4
-    const { collapse } = player;
     global.collapseInfo.trueStars = 0;
-    collapse.elementsMax = [0, 0];
-    collapse.mass = 0.01235;
-    collapse.massMax = 0.01235;
-    collapse.stars = [0, 0, 0];
-    collapse.show = 0;
+    player.collapse.mass = 0.01235;
+    player.collapse.massMax = 0.01235;
+    player.collapse.stars = [0, 0, 0];
+    player.collapse.show = 0;
     player.elements = cloneArray(playerStart.elements);
 
     //Stage 5 and rest
-    if (player.time.offline > 28800) { player.time.offline = 28800; }
     global.historyStorage.stage = [];
     player.history.stage.best = [0, 1, 0];
     player.stage.resets = 0;
@@ -231,7 +226,6 @@ export const resetVacuum = () => {
     }
 
     assignStrangeBoost();
-    assignNewMassCap();
     for (let s = 1; s <= 5; s++) {
         for (let i = 0; i < global.researchesInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researches'); }
         for (let i = 0; i < global.researchesExtraInfo[s].maxActive; i++) { calculateMaxLevel(i, s, 'researchesExtra'); }

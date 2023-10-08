@@ -8,6 +8,7 @@ export const overlimit = {
 
         return {
             plus: function(...numbers: Array<string | number | [number, number]>) {
+                if (numbers.length < 1) { return this; }
                 const array = technical.convertAll(numbers);
 
                 for (let i = 0; i < array.length; i++) {
@@ -17,6 +18,7 @@ export const overlimit = {
                 return this;
             },
             minus: function(...numbers: Array<string | number | [number, number]>) {
+                if (numbers.length < 1) { return this; }
                 const array = technical.convertAll(numbers);
 
                 for (let i = 0; i < array.length; i++) {
@@ -26,6 +28,7 @@ export const overlimit = {
                 return this;
             },
             multiply: function(...numbers: Array<string | number | [number, number]>) {
+                if (numbers.length < 1) { return this; }
                 const array = technical.convertAll(numbers);
 
                 for (let i = 0; i < array.length; i++) {
@@ -35,6 +38,7 @@ export const overlimit = {
                 return this;
             },
             divide: function(...numbers: Array<string | number | [number, number]>) {
+                if (numbers.length < 1) { return this; }
                 const array = technical.convertAll(numbers);
 
                 for (let i = 0; i < array.length; i++) {
@@ -79,6 +83,7 @@ export const overlimit = {
             moreOrEqual: (compare: string | number | [number, number]): boolean => technical.moreOrEqual(result, technical.convert(compare)),
             notEqual: (compare: string | number | [number, number]): boolean => technical.notEqual(result, technical.convert(compare)),
             equal: (...compare: Array<string | number | [number, number]>): boolean => {
+                if (compare.length < 1) { return true; }
                 const array = technical.convertAll(compare);
 
                 let allEqual = technical.equal(result, array[0]);
@@ -90,6 +95,7 @@ export const overlimit = {
                 return allEqual;
             },
             max: function(...compare: Array<string | number | [number, number]>) {
+                if (compare.length < 1) { return this; }
                 const array = technical.convertAll(compare);
 
                 for (let i = 0; i < array.length; i++) {
@@ -104,6 +110,7 @@ export const overlimit = {
                 return this;
             },
             min: function(...compare: Array<string | number | [number, number]>) {
+                if (compare.length < 1) { return this; }
                 const array = technical.convertAll(compare);
 
                 for (let i = 0; i < array.length; i++) {
@@ -480,12 +487,13 @@ export const overlimit = {
             }
 
             //12345
-            const digits = power >= 3 ? 0 : settings.digits !== undefined ? settings.digits : (power < 0 ? 4 : 2);
+            const digits = settings.digits !== undefined ? settings.digits : Math.max(4 - Math.max(power, 0), 0);
             const result = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
-            const formated = digits > 0 && settings.padding === true ? result.toFixed(digits) : `${result}`;
+            let formated = digits > 0 && settings.padding === true ? result.toFixed(digits) : `${result}`;
 
             if (settings.type === 'input') { return formated; }
-            return result >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) : formated.replace('.', player.separator[1]);
+            formated = formated.replace('.', player.separator[1]);
+            return result >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) : formated;
         },
         convert: (number: string | number | [number, number]): [number, number] => {
             let result: [number, number];
