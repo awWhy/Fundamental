@@ -1,2 +1,2 @@
 # Fundamental
-#### Only what inside within this repository is being published
+#### This is what deployed, can also be downloaded to play offline (will only need to open index.html file)
