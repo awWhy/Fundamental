@@ -67,10 +67,12 @@
         "@typescript-eslint/default-param-last": "error",
         "@typescript-eslint/prefer-namespace-keyword": "warn",
         "@typescript-eslint/prefer-as-const": "error",
+        "@typescript-eslint/prefer-nullish-coalescing": "off", //It can't tell apart undefined from null
         "@typescript-eslint/restrict-plus-operands": "warn",
         "@typescript-eslint/restrict-template-expressions": "off", //Doesn't work with Errors
         "@typescript-eslint/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
         "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
+        "@typescript-eslint/no-confusing-void-expression": "off", //Honestly this is just stupid
         "@typescript-eslint/no-dynamic-delete": "off"
         //"@typescript-eslint/array-type": ["error", { "default": "array" }] //I rather to turn it off
     }

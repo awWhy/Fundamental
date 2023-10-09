@@ -2,7 +2,7 @@ import Limit from './Limit';
 import { getId } from './Main';
 import { setTheme } from './Special';
 import { assignEnergy, assignStrangeBoost, calculateInstability, calculateMaxLevel, calculateMilestoneInformation, toggleBuy, toggleConfirm, toggleSwap } from './Stage';
-import { globalType, overlimit, playerType } from './Types';
+import type { globalType, overlimit, playerType } from './Types';
 import { format, visualUpdateResearches } from './Update';
 import { prepareVacuum } from './Vacuum';
 

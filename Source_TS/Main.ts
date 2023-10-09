@@ -74,7 +74,160 @@ const changeIntervals = (pause = false) => {
     intervalsId.main = pause ? undefined : setInterval(timeUpdate, intervals.main);
     intervalsId.numbers = pause ? undefined : setInterval(numbersUpdate, intervals.numbers);
     intervalsId.visual = pause ? undefined : setInterval(visualUpdate, intervals.visual);
-    intervalsId.autoSave = pause ? undefined : setInterval(saveLoad, intervals.autoSave, 'save');
+    intervalsId.autoSave = pause ? undefined : setInterval(saveGame, intervals.autoSave);
+};
+
+const saveGame = async() => {
+    if (player.time.offline < 0) { return Notify(`Saving is disabled until ${new Date(Date.now() - player.time.offline * 1000).toLocaleString()}\nReason: possible time manipulation`); }
+    try {
+        player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
+
+        const save = btoa(JSON.stringify(player));
+        localStorage.setItem('save', save);
+        clearInterval(global.intervalsId.autoSave);
+        global.intervalsId.autoSave = setInterval(saveGame, player.intervals.autoSave);
+        getId('isSaved').textContent = 'Saved';
+        global.lastSave = 0;
+    } catch (error) {
+        void Alert(`Failed to save file\nFull error is: '${error}'`);
+    }
+};
+const loadFileGame = async() => {
+    const id = getId('file') as HTMLInputElement;
+    changeIntervals(true);
+
+    try {
+        const save = await (id.files as FileList)[0].text();
+        const versionCheck = updatePlayer(JSON.parse(atob(save)));
+
+        Notify(`This save is ${format(handleOfflineTime(), { type: 'time' })} old. Save file version is ${versionCheck}`);
+        getId('isSaved').textContent = 'Imported';
+        global.lastSave = 0;
+        stageUpdate('reload');
+    } catch (error) {
+        void Alert(`Incorrect save file format\nFull error is: '${error}'`);
+    } finally {
+        changeIntervals();
+        id.value = '';
+    }
+};
+const exportFileGame = async() => {
+    if (player.time.offline < 0) { return; }
+    player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
+
+    if (player.strange[0].total > 0 && player.stage.export > 0) {
+        const rewardType = player.strangeness[5][10];
+        const multiplier = exportMultiplier();
+
+        let strangeGain;
+        if (rewardType >= 1) {
+            strangeGain = player.stage.export * multiplier / 86400 / 1e12 ** rewardType;
+            player.stage.export = 0;
+        } else {
+            strangeGain = Math.floor(player.stage.export * multiplier / 86400);
+            player.stage.export -= strangeGain * 86400 / multiplier;
+        }
+        player.strange[rewardType].current += strangeGain;
+        player.strange[rewardType].total += strangeGain;
+        if (rewardType === 0) { assignStrangeBoost(); }
+    }
+
+    const save = btoa(JSON.stringify(player));
+    const a = document.createElement('a');
+    a.href = `data:text/plain,${save}`;
+    a.download = replaceSaveFileSpecials();
+    a.click();
+};
+const deleteGame = async() => {
+    const ok = await Prompt("Type 'delete' to confirm delete your save file (there is no reward for doing it)\nOr 'clear' to clear local storage (this will delete all data from domain, including other games)");
+    if (ok === null || ok === '') { return; }
+    const lower = ok.toLowerCase();
+    if (lower !== 'delete' && lower !== 'clear') { return Notify(`Deletion canceled, wrong input '${ok}'`); }
+
+    changeIntervals(true);
+    if (lower === 'delete') {
+        localStorage.removeItem('save');
+    } else { localStorage.clear(); }
+    window.location.reload();
+    void Alert('Game will auto refresh. If not then do it manually');
+};
+
+const changeSaveFileName = () => {
+    const input = getId('saveFileNameInput') as HTMLInputElement;
+    const newValue = input.value.length === 0 ? playerStart.fileName : input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
+
+    try {
+        btoa(newValue); //Test for any illegal characters
+        player.fileName = newValue;
+        input.value = newValue;
+    } catch (error) {
+        void Alert(`Save file name is not allowed\nFull error is: '${error}'`);
+    }
+};
+const replaceSaveFileSpecials = (): string => {
+    let realName = player.fileName;
+    const special = [
+        '[stage]',
+        '[true]',
+        '[strange]',
+        '[matter]',
+        '[vacuum]',
+        '[date]',
+        '[time]'
+    ];
+    const replaceWith = [
+        global.stageInfo.word[player.stage.active],
+        global.stageInfo.word[player.stage.true],
+        `${global.strangeInfo.gain(player.stage.active)}`,
+        `${global.strangeInfo.name[player.strangeness[5][10]]}`,
+        `${player.inflation.vacuum}`,
+        getDate('dateDMY'),
+        getDate('timeHMS')
+    ];
+    for (let i = 0; i < special.length; i++) {
+        realName = realName.replaceAll(special[i], replaceWith[i]);
+    }
+    return `${realName}.txt`;
+};
+const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
+    const current = new Date();
+    switch (type) {
+        case 'dateDMY': {
+            const day = `${current.getDate()}`.padStart(2, '0');
+            const month = `${current.getMonth() + 1}`.padStart(2, '0');
+            return `${day}.${month}.${current.getFullYear()}`;
+        }
+        case 'timeHMS': {
+            const minutes = `${current.getMinutes()}`.padStart(2, '0');
+            const seconds = `${current.getSeconds()}`.padStart(2, '0');
+            return `${current.getHours()}-${minutes}-${seconds}`;
+        }
+    }
+};
+
+export const timeWarp = async() => {
+    const { time } = player;
+    const waste = offlineWaste() / 1.5;
+    if (time.offline < 600 * waste) { return void Alert(`Need at least ${format(10 * waste)} minutes of storaged Offline time to Warp`); }
+
+    const warpTime = Math.min(player.strangeness[1][7] < 2 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second), will be consumed up to half an hour`) ? 1800 : 0) :
+        Number(await Prompt(`How many seconds do you wish to Warp forward? (Minimum value is 10 minutes)\nCurrent effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second)`, '600')), time.offline / waste);
+    if (warpTime < 600 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Notify('Warp failed, input or storage is below minimum value or invalid'); }
+
+    time.offline -= warpTime * waste;
+    try {
+        timeUpdate(warpTime / 1000, warpTime);
+    } catch (error) { Notify(`Warp failed due to Error:\n${error}`); }
+};
+
+const pauseGame = async() => {
+    changeIntervals(true);
+    await Alert("Game is currently paused. Press 'confirm' to unpause it. Time spent here will be moved into offline storage");
+
+    Notify(`Game was paused for ${format(handleOfflineTime(), { type: 'time' })}`);
+    changeIntervals();
+    numbersUpdate();
+    visualUpdate();
 };
 
 try { //Start everything
@@ -237,10 +390,10 @@ try { //Start everything
         buildVersionInfo();
         getId('versionInfo').style.display = '';
     });
-    getId('save').addEventListener('click', () => { void saveLoad('save'); });
-    getId('file').addEventListener('change', () => { void saveLoad('import'); });
-    getId('export').addEventListener('click', () => { void saveLoad('export'); });
-    getId('delete').addEventListener('click', () => { void saveLoad('delete'); });
+    getId('save').addEventListener('click', () => { void saveGame(); });
+    getId('file').addEventListener('change', () => { void loadFileGame(); });
+    getId('export').addEventListener('click', () => { void exportFileGame(); });
+    getId('delete').addEventListener('click', () => { void deleteGame(); });
     getId('switchTheme0').addEventListener('click', () => setTheme(null));
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
@@ -349,165 +502,3 @@ try { //Start everything
     });
     void Alert(`Error detected during game loading:\n${error}`);
 }
-
-async function saveLoad(type: 'import' | 'save' | 'export' | 'delete'): Promise<void> {
-    switch (type) {
-        case 'import': {
-            const id = getId('file') as HTMLInputElement;
-            changeIntervals(true);
-
-            try {
-                const save = await (id.files as FileList)[0].text();
-                const versionCheck = updatePlayer(JSON.parse(atob(save)));
-
-                Notify(`This save is ${format(handleOfflineTime(), { type: 'time' })} old. Save file version is ${versionCheck}`);
-                getId('isSaved').textContent = 'Imported';
-                global.lastSave = 0;
-                stageUpdate('reload');
-            } catch (error) {
-                void Alert(`Incorrect save file format\nFull error is: '${error}'`);
-            } finally {
-                changeIntervals();
-                id.value = '';
-            }
-            return;
-        }
-        case 'save': {
-            if (player.time.offline < 0) { return Notify(`Saving is disabled until ${new Date(Date.now() - player.time.offline * 1000).toLocaleString()}\nReason: possible time manipulation`); }
-            try {
-                player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
-
-                const save = btoa(JSON.stringify(player));
-                localStorage.setItem('save', save);
-                clearInterval(global.intervalsId.autoSave);
-                global.intervalsId.autoSave = setInterval(saveLoad, player.intervals.autoSave, 'save');
-                getId('isSaved').textContent = 'Saved';
-                global.lastSave = 0;
-            } catch (error) {
-                void Alert(`Failed to save file\nFull error is: '${error}'`);
-            }
-            return;
-        }
-        case 'export': {
-            if (player.time.offline < 0) { return; }
-            player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
-
-            if (player.strange[0].total > 0 && player.stage.export > 0) {
-                const rewardType = player.strangeness[5][10];
-                const multiplier = exportMultiplier();
-
-                let strangeGain;
-                if (rewardType >= 1) {
-                    strangeGain = player.stage.export * multiplier / 86400 / 1e12 ** rewardType;
-                    player.stage.export = 0;
-                } else {
-                    strangeGain = Math.floor(player.stage.export * multiplier / 86400);
-                    player.stage.export -= strangeGain * 86400 / multiplier;
-                }
-                player.strange[rewardType].current += strangeGain;
-                player.strange[rewardType].total += strangeGain;
-                if (rewardType === 0) { assignStrangeBoost(); }
-            }
-
-            const save = btoa(JSON.stringify(player));
-            const a = document.createElement('a');
-            a.href = `data:text/plain,${save}`;
-            a.download = replaceSaveFileSpecials();
-            a.click();
-            return;
-        }
-        case 'delete': {
-            const ok = await Prompt("Type 'delete' to confirm delete your save file (there is no reward for doing it)\nOr 'clear' to clear local storage (this will delete all data from domain, including other games)");
-            if (ok === null || ok === '') { return; }
-            const lower = ok.toLowerCase();
-            if (lower !== 'delete' && lower !== 'clear') { return Notify(`Deletion canceled, wrong input '${ok}'`); }
-
-            changeIntervals(true);
-            if (lower === 'delete') {
-                localStorage.removeItem('save');
-            } else { localStorage.clear(); }
-            window.location.reload();
-            void Alert('Game will auto refresh. If not then do it manually');
-        }
-    }
-}
-
-const changeSaveFileName = () => {
-    const input = getId('saveFileNameInput') as HTMLInputElement;
-    const newValue = input.value.length === 0 ? playerStart.fileName : input.value.replaceAll(/[\\/:*?"<>|]/g, '_');
-
-    try {
-        btoa(newValue); //Test for any illegal characters
-        player.fileName = newValue;
-        input.value = newValue;
-    } catch (error) {
-        void Alert(`Save file name is not allowed\nFull error is: '${error}'`);
-    }
-};
-
-const replaceSaveFileSpecials = (): string => {
-    let realName = player.fileName;
-    const special = [
-        '[stage]',
-        '[true]',
-        '[strange]',
-        '[matter]',
-        '[vacuum]',
-        '[date]',
-        '[time]'
-    ];
-    const replaceWith = [
-        global.stageInfo.word[player.stage.active],
-        global.stageInfo.word[player.stage.true],
-        `${global.strangeInfo.gain(player.stage.active)}`,
-        `${global.strangeInfo.name[player.strangeness[5][10]]}`,
-        `${player.inflation.vacuum}`,
-        getDate('dateDMY'),
-        getDate('timeHMS')
-    ];
-    for (let i = 0; i < special.length; i++) {
-        realName = realName.replaceAll(special[i], replaceWith[i]);
-    }
-    return `${realName}.txt`;
-};
-
-const getDate = (type: 'dateDMY' | 'timeHMS'): string => {
-    const current = new Date();
-    switch (type) {
-        case 'dateDMY': {
-            const day = `${current.getDate()}`.padStart(2, '0');
-            const month = `${current.getMonth() + 1}`.padStart(2, '0');
-            return `${day}.${month}.${current.getFullYear()}`;
-        }
-        case 'timeHMS': {
-            const minutes = `${current.getMinutes()}`.padStart(2, '0');
-            const seconds = `${current.getSeconds()}`.padStart(2, '0');
-            return `${current.getHours()}-${minutes}-${seconds}`;
-        }
-    }
-};
-
-export const timeWarp = async() => {
-    const { time } = player;
-    const waste = offlineWaste() / 1.5;
-    if (time.offline < 600 * waste) { return void Alert(`Need at least ${format(10 * waste)} minutes of storaged Offline time to Warp`); }
-
-    const warpTime = Math.min(player.strangeness[1][7] < 2 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second), will be consumed up to half an hour`) ? 1800 : 0) :
-        Number(await Prompt(`How many seconds do you wish to Warp forward? (Minimum value is 10 minutes)\nCurrent effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second)`, '600')), time.offline / waste);
-    if (warpTime < 600 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Notify('Warp failed, input or storage is below minimum value or invalid'); }
-
-    time.offline -= warpTime * waste;
-    try {
-        timeUpdate(warpTime / 1000, warpTime);
-    } catch (error) { Notify(`Warp failed due to Error:\n${error}`); }
-};
-
-const pauseGame = async() => {
-    changeIntervals(true);
-    await Alert("Game is currently paused. Press 'confirm' to unpause it. Time spent here will be moved into offline storage");
-
-    Notify(`Game was paused for ${format(handleOfflineTime(), { type: 'time' })}`);
-    changeIntervals();
-    numbersUpdate();
-    visualUpdate();
-};

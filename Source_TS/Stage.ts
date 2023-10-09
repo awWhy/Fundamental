@@ -4,7 +4,7 @@ import { getId } from './Main';
 import { cloneArray, global, logAny, player } from './Player';
 import { reset, resetStage } from './Reset';
 import { Alert, Confirm, Notify, playEvent } from './Special';
-import { overlimit } from './Types';
+import type { overlimit } from './Types';
 import { format, getChallengeDescription, getStrangenessDescription, numbersUpdate, stageUpdate, switchTab, updateRankInfo, visualUpdateResearches, visualUpdateUpgrades } from './Update';
 
 export const assignBuildingInformation = () => { //Sets buildingInfo.producing for all active buildings, also most of effects

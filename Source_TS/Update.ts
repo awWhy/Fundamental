@@ -4,7 +4,7 @@ import { getClass, getId, getQuery } from './Main';
 import { global, player } from './Player';
 import { playEvent, specialHTML, switchTheme } from './Special';
 import { autoElementsBuy, autoElementsSet, autoResearchesBuy, autoResearchesSet, autoUpgradesBuy, autoUpgradesSet, buyBuilding, calculateBuildingsCost, calculateGainedBuildings, assignBuildingInformation, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleSwap, vaporizationResetCheck, assignDischargeInformation, assignVaporizationInformation, assignCollapseInformation, calculateGainedStrangeness, switchStage } from './Stage';
-import { overlimit } from './Types';
+import type { overlimit } from './Types';
 import { updateUnknown } from './Vacuum';
 
 export const switchTab = (tab: string, subtab = null as null | string) => {

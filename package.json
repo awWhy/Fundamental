@@ -1,7 +1,7 @@
 {
   "name": "fundamental",
   "description": "Explore the Universe with this idle-game",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "main": "Code.js",
   "repository": {
     "type": "git",
@@ -23,13 +23,13 @@
     "watch:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=chrome63,firefox57,safari14,edge41,opera50 --outfile=Code.js --watch"
   },
   "devDependencies": {
-    "esbuild": "^0.15.18",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "eslint": "^8.29.0",
-    "eslint-config-standard-with-typescript": "^22.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.6.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "esbuild": "^0.19.4",
+    "eslint": "^8.51.0",
+    "eslint-config-standard-with-typescript": "^39.1.1",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-n": "^16.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "typescript": "^4.9.4"
+    "typescript": "^5.2.2"
   }
 }
