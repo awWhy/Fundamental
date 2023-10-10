@@ -109,14 +109,13 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         vaporizationInfo.tension = upgrades[2][3] === 1 ? Limit(buildings[2][0].current).max('1').power(upgradesInfo[2].effect[3]).toNumber() : 1;
         vaporizationInfo.stress = upgrades[2][4] === 1 ? Limit(buildings[2][1].current).max('1').power(upgradesInfo[2].effect[4]).toNumber() : 1;
         let prod2Number = (inVoid ? 0.0025 : 2) * current2 * vaporizationInfo.tension * vaporizationInfo.stress * rain * (1.5 ** strangeness[2][1]);
-        if (upgrades[2][1] === 1) {
-            if (inVoid) {
-                listForMult2.push(Limit('1.01').power((current2 - buildings[2][2].true) ** 0.7 + buildings[2][2].true).toArray());
-            } else {
-                listForMult2.push(Limit('1.02').power((current2 - buildings[2][2].true) ** 0.7 + Math.min(buildings[2][2].true, 200)).toArray());
-                if (buildings[2][2].true > 200) { listForMult2.push(Limit('1.01').power(buildings[2][2].true - 200).toArray()); }
-            }
+        if (inVoid) {
+            upgradesInfo[2].effect[1] = Limit('1.01').power((current2 - buildings[2][2].true) ** 0.7 + buildings[2][2].true).toArray();
+        } else {
+            upgradesInfo[2].effect[1] = Limit('1.02').power((current2 - buildings[2][2].true) ** 0.7 + Math.min(buildings[2][2].true, 200)).toArray();
+            if (buildings[2][2].true > 200) { upgradesInfo[2].effect[1] = Limit('1.01').power(buildings[2][2].true - 200).multiply(upgradesInfo[2].effect[1]).toArray(); }
         }
+        if (upgrades[2][1] === 1) { listForMult2.push(upgradesInfo[2].effect[1]); }
         if (researches[2][1] >= 1) {
             if (researchesInfo[2].effect[1] !== researches[2][1]) {
                 const scaling = researchesInfo[2].scaling[1];
@@ -265,7 +264,7 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         let prod2Number = 1.5 * (3 ** researches[5][1]);
         upgradesInfo[5].effect[1] = 2 * (3 ** strangeness[5][4]);
         if (upgrades[5][1] === 1) { prod2Number *= upgradesInfo[5].effect[1]; }
-        producing[5][2] = Limit(prod2Number).multiply(...listForMult2).toArray();
+        producing[5][2] = Limit(prod2Number).multiply(...listForMult2).max('1').toArray();
 
         const listForMult1 = [buildings[5][1].current, producing[5][3]];
         let prod1Number = 4 ** researches[5][0];
@@ -273,13 +272,10 @@ export const assignBuildingInformation = () => { //Sets buildingInfo.producing f
         if (upgrades[5][0] === 1) { prod1Number *= upgradesInfo[5].effect[0]; }
         producing[5][1] = Limit(prod1Number).multiply(...listForMult1).toArray();
 
-        const clusterBoost = producing[5][2];
-        if (clusterBoost[0] > 0) {
-            producing[4][4] = Limit(producing[4][4]).multiply(clusterBoost).toArray();
-            if (researches[5][1] >= 1) { producing[4][3] = Limit(producing[4][3]).multiply(clusterBoost).divide('3').toArray(); }
-            if (researches[5][1] >= 2) { producing[4][2] = Limit(producing[4][2]).multiply(clusterBoost).divide('9').toArray(); }
-            if (researches[5][1] >= 3) { producing[4][1] = Limit(producing[4][1]).multiply(clusterBoost).divide('27').toArray(); }
-        }
+        producing[4][4] = Limit(producing[4][4]).multiply(producing[5][2]).toArray();
+        if (researches[5][1] >= 1) { producing[4][3] = Limit(producing[4][3]).multiply(producing[5][2]).divide('3').toArray(); }
+        if (researches[5][1] >= 2) { producing[4][2] = Limit(producing[4][2]).multiply(producing[5][2]).divide('9').toArray(); }
+        if (researches[5][1] >= 3) { producing[4][1] = Limit(producing[4][1]).multiply(producing[5][2]).divide('27').toArray(); }
     }
     if (vacuum) {
         const { inflationInfo } = global;
@@ -1526,12 +1522,9 @@ export const collapseResetCheck = (auto = false, remnants = false): boolean => {
 
     if (auto) {
         if (player.strangeness[4][5] < 1) { return false; }
-        if (player.toggles.buildings[5][3] && player.strangeness[5][6] >= 2) {
-            const galaxyCost = calculateBuildingsCost(3, 5);
-            if (Limit(galaxyCost).lessOrEqual(info.newMass) && Limit(galaxyCost).moreThan(player.collapse.mass)) {
-                collapseReset();
-                return true;
-            }
+        if (player.toggles.buildings[5][3] && player.strangeness[5][6] >= 2 && Limit(calculateBuildingsCost(3, 5)).lessOrEqual(info.newMass)) {
+            collapseReset();
+            return true;
         }
 
         if (player.strangeness[4][5] < 2) {
@@ -1681,15 +1674,15 @@ export const calculateMilestoneInformation = (index: number, stageIndex: number)
                 need[0] = Limit('1e4').power(level).multiply('1e4').toArray();
                 reward[0] = 1.05 ** level;
             } else if (index === 1) {
-                need[1] = Limit(20 + 20 * level).toArray();
-                reward[1] = 1.02 ** level;
+                need[1] = Limit(40 + 40 * level).toArray();
+                reward[1] = 1.03 ** level;
             }
         } else if (stageIndex === 5) {
             if (index === 0) {
                 need[0] = Limit(160 + 160 * level).toArray();
-                reward[0] = 1.03 ** level;
+                reward[0] = 1.02 ** level;
             } else if (index === 1) {
-                need[1] = Limit(2 + 2 * level).toArray();
+                need[1] = Limit(1 + level).toArray();
                 reward[1] = level / 40;
             }
         }

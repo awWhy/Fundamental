@@ -373,9 +373,9 @@ export const global: globalType = { //For information that doesn't need to be sa
         },
         rainEffect: (post = false) => {
             if (player.researchesExtra[2][1] < 1) { return 1; }
-            let effect = Limit(player.vaporization.clouds).plus('1').toArray();
+            let effect = player.vaporization.clouds;
             if (post) { effect = Limit(effect).plus(global.vaporizationInfo.get).toArray(); }
-            return Limit(effect).power(player.researchesExtra[2][2] >= 1 ? 0.11 : 0.1).toNumber();
+            return Limit(effect).max('1').power(player.researchesExtra[2][2] >= 1 ? 0.11 : 0.1).toNumber();
         },
         tension: 1,
         stress: 1,
@@ -592,8 +592,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `Drops will produce Moles ${format(1.04)} times faster for every self-made Drop.`,
-                () => 'Spread water faster with every Puddle, weaker for non self-made ones.',
-                () => `Gain ability to convert Drops into Clouds. (Puddles get a boost from Clouds)\nCurrent Cloud gain is (Drops / ${format(global.vaporizationInfo.effect2U2())})^${format(player.inflation.vacuum ? 0.4 : 0.6)}.`,
+                () => `Spread water faster with every Puddle, weaker for non self-made ones.\n(Total effect is ${Limit(global.upgradesInfo[2].effect[1] as overlimit).format({ padding: true })})`,
+                () => `Gain ability to convert Drops into Clouds. (Puddles get a boost from Clouds, can be seen in Stats)\nCurrent Cloud gain is (Drops / ${format(global.vaporizationInfo.effect2U2())})^${format(player.inflation.vacuum ? 0.4 : 0.6)}.`,
                 () => `Puddles get boost based on Moles ^${format(global.upgradesInfo[2].effect[3] as number)}.\n(Boost is equal to ${format(global.vaporizationInfo.tension, { padding: true })})`,
                 () => `Puddles get boost based on Drops ^${format(global.upgradesInfo[2].effect[4] as number)}.\n(Boost is equal to ${format(global.vaporizationInfo.stress, { padding: true })})`,
                 () => `Ponds now create extra Puddles. (${format(global.upgradesInfo[2].effect[5] as number)} extra Puddles per Pond)`,
@@ -1239,10 +1239,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 let text = '<span class="orangeText">- Energy gain is decreased by 20%\n- Discharge base reduced</span>';
                 if (progress[1] >= 3) { text += `\n\n<span class="blueText">- ${progress[2] > 0 ? `Effective Drops amount softcap is stronger and no longer delayed by self-made ones (^${format(0.2)} > ^${format(0.1)})\n- Puddles are 800 times weaker\n- 'Water spread' scales slower` : 'Unknown, but maybe if deeper'}</span>`; }
                 if (progress[1] >= 2) { text += `\n\n<span class="grayText">- ${progress[3] > 0 ? `'Jovian planet' Rank softcap starts immediately (^${format(0.92)})\n- Softcap is stronger after reaching that Rank (^${format(0.84)})` : 'Unknown, but maybe if more Mass'}</span>`; }
-                if (progress[3] >= 5) {
-                    text += `\n\n<span class="darkorchidText">- ${progress[4] > 0 ? `Solar mass is 20 times weaker\n- Solar mass strength scales slower (-^${format(0.2)})\n- 'Star system' is weaker` : 'Unknown, but maybe if long enough'}</span>`;
-                    text += `\n\n<span class="cyanText">- ${progress[5] > 0 ? 'Intergalactic Stage unlocked later' : 'Unknown, but maybe if far enough'}</span>`;
-                }
+                if (progress[3] >= 5) { text += `\n\n<span class="darkorchidText">- ${progress[4] > 0 ? `Solar mass is 20 times weaker\n- Solar mass strength scales slower (-^${format(0.2)})\n- 'Star system' is weaker` : 'Unknown, but maybe if long enough'}</span>`; }
                 return text;
             }
         ],

@@ -69,7 +69,7 @@ export const maxExportTime = (): number => player.strange[0].total > 0 ? 172800 
 export const offlineWaste = (): number => 6 - player.strangeness[2][6];
 export const exportMultiplier = (): number => (1 + player.stage.best / 10) * (player.strangeness[4][7] + 1);
 
-export const timeUpdate = (maxTick = 1, timeWarp = 0) => { //Time based information
+export const timeUpdate = (timeWarp = 0, tick = 1) => { //Time based information
     const { auto, buildings: autoBuy } = player.toggles;
     const { vacuum } = player.inflation;
     const { maxActive, type } = global.buildingsInfo;
@@ -77,7 +77,7 @@ export const timeUpdate = (maxTick = 1, timeWarp = 0) => { //Time based informat
 
     let passedSeconds: number;
     if (timeWarp > 0) {
-        const extraTime = Math.min(maxTick, timeWarp);
+        const extraTime = Math.min(tick, timeWarp);
         passedSeconds = extraTime;
         timeWarp -= extraTime;
     } else {
@@ -91,12 +91,9 @@ export const timeUpdate = (maxTick = 1, timeWarp = 0) => { //Time based informat
         if (passedSeconds < 0) {
             time.offline += passedSeconds;
             return;
-        } else if (time.offline < 0) {
-            time.offline = Math.min(time.offline + passedSeconds, 0);
-        } else if (passedSeconds > maxTick) {
-            if (maxTick < passedSeconds / 1000) { maxTick = passedSeconds / 1000; }
-            timeWarp = passedSeconds - maxTick;
-            passedSeconds = maxTick;
+        } else if (passedSeconds > 60) {
+            time.offline = Math.min(time.offline + passedSeconds - 60, maxOfflineTime());
+            passedSeconds = 60;
         } else if (time.offline > 0 && player.toggles.normal[0] && player.strangeness[1][7] >= 2) {
             const extraTime = Math.min(Math.max(time.offline / 3600, 1) * passedSeconds, time.offline);
             time.offline -= Math.min(extraTime * offlineWaste(), time.offline);
@@ -145,7 +142,7 @@ export const timeUpdate = (maxTick = 1, timeWarp = 0) => { //Time based informat
         }
     }
 
-    if (timeWarp > 0) { timeUpdate(maxTick, timeWarp); }
+    if (timeWarp > 0) { timeUpdate(timeWarp, tick); }
 };
 
 export const numbersUpdate = () => { //This is for relevant visual info
@@ -293,8 +290,8 @@ export const numbersUpdate = () => { //This is for relevant visual info
 
             getId('firstPlay').textContent = `${new Date(player.time.started).toLocaleString()} (${format((Date.now() - player.time.started) / 1000, { type: 'time' })} ago)`;
             getId('stageResetsCount').textContent = format(player.stage.resets);
-            getId('stageBestGain').textContent = format(player.stage.best);
-            getId('offlineStat').textContent = format(Math.max(player.time.offline, 0), { type: 'time' });
+            getId('stageBestGain').textContent = format(player.stage.best / 1e12 ** player.strangeness[5][10]);
+            getId('offlineStat').textContent = format(player.time.offline, { type: 'time' });
             getId('maxOfflineStat').textContent = format(maxOfflineTime(), { type: 'time' });
             getId('maxExportStat').textContent = format(exportMultiplier() * maxTimeExp / 86400 / 1e12 ** player.strangeness[5][10]);
             getId('maxExportTime').textContent = format(maxTimeExp, { type: 'time' });
@@ -671,12 +668,13 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             getId('stageBestReset3').textContent = `${format(converted / stageBest[1], { padding: true })} per second`;
             updateHistory(/*'stage'*/);
         } else if (subtab.settingsCurrent === 'Stats') {
-            const { strange } = player;
+            const { strange, strangeness } = player;
             const buildings = player.buildings[active];
 
             getId('maxExportStats').style.display = strange[0].total > 0 ? '' : 'none';
-            getId('maxExportType').textContent = global.strangeInfo.name[player.strangeness[5][10]];
+            getId('maxExportType').textContent = global.strangeInfo.name[strangeness[5][10]];
             getId('stageBest').style.display = strange[0].total > 0 ? '' : 'none';
+            getId('stageBestType').textContent = global.strangeInfo.name[strangeness[5][10]];
             getId('stageResets').style.display = player.stage.resets > 0 ? '' : 'none';
             for (let i = 1; i < global.buildingsInfo.maxActive[active]; i++) {
                 getId(`building${i}Stats`).style.display = buildings[i].trueTotal[0] > 0 ? '' : 'none';
@@ -685,12 +683,12 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
             for (let i = 1; i < strange.length; i++) {
                 getId(`strange${i}Stats`).style.display = strange[i].total > 0 ? '' : 'none';
             }
-            getId('strange0StatProdDiv').style.display = player.strangeness[5][10] >= 1 ? '' : 'none';
+            getId('strange0StatProdDiv').style.display = strangeness[5][10] >= 1 ? '' : 'none';
 
             getId('solarMassStats').style.display = active === 4 || active === 5 ? '' : 'none';
             if (!player.inflation.vacuum) { updateUnknown(); }
             if (active === 1) {
-                getId('energyTrue').style.display = player.strangeness[1][11] < 1 && player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
+                getId('energyTrue').style.display = strangeness[1][11] < 1 && player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
                 getId('energyStats').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
                 getId('dischargeStats').style.display = player.discharge.current + global.dischargeInfo.bonus > 0 ? '' : 'none';
                 getId('dischargeStatTrue').style.display = global.dischargeInfo.bonus > 0 ? '' : 'none';
@@ -698,10 +696,10 @@ export const visualUpdate = () => { //This is what can appear/disappear when ins
                 getId('cloudsEffect').style.display = player.upgrades[2][2] === 1 ? '' : 'none';
                 getId('rainEffect').style.display = player.researchesExtra[2][1] >= 1 ? '' : 'none';
                 getId('cloudsStats').style.display = player.vaporization.cloudsMax[0] > 0 ? '' : 'none';
-                getId('oceanWorld').style.display = player.strangeness[2][9] >= 1 ? '' : 'none';
+                getId('oceanWorld').style.display = strangeness[2][9] >= 1 ? '' : 'none';
             } else if (active === 3) {
                 if (player.inflation.vacuum) {
-                    getId('rankStat0').style.display = player.strangeness[2][9] >= 1 ? '' : 'none';
+                    getId('rankStat0').style.display = strangeness[2][9] >= 1 ? '' : 'none';
                 }
                 for (let i = 1; i < global.accretionInfo.rankImage.length; i++) { getId(`rankStat${i}`).style.display = player.accretion.rank >= i ? '' : 'none'; }
             } else if (active === 4) {
@@ -811,7 +809,7 @@ export const getChallengeReward = (index: number/*, type: 'void'*/) => {
     const level = player.challenges.void[index];
     let text = '';
     for (let i = 0; i < need.length; i++) {
-        text += `<div><p><span class="${level > i ? 'greenText' : 'redText'}">→</span> ${need[i]}</p>
+        text += `<div><p><span class="${level > i ? 'greenText' : 'redText'}">→</span> ${index === 2 && i === 1 ? need[i].replace('1e4', `${format(1e4)}`) : need[i]}</p>
         <p><span class="${level > i ? 'greenText' : 'redText'}">Reward:</span> ${level > i ? reward[i] : 'Not yet unlocked'}</p></div>`;
     }
 

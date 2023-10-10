@@ -78,7 +78,6 @@ const changeIntervals = (pause = false) => {
 };
 
 const saveGame = async() => {
-    if (player.time.offline < 0) { return Notify(`Saving is disabled until ${new Date(Date.now() - player.time.offline * 1000).toLocaleString()}\nReason: possible time manipulation`); }
     try {
         player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
 
@@ -112,7 +111,6 @@ const loadFileGame = async() => {
     }
 };
 const exportFileGame = async() => {
-    if (player.time.offline < 0) { return; }
     player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
 
     if (player.strange[0].total > 0 && player.stage.export > 0) {
@@ -210,13 +208,20 @@ export const timeWarp = async() => {
     const waste = offlineWaste() / 1.5;
     if (time.offline < 600 * waste) { return void Alert(`Need at least ${format(10 * waste)} minutes of storaged Offline time to Warp`); }
 
-    const warpTime = Math.min(player.strangeness[1][7] < 2 ? (await Confirm(`Do you wish to Warp forward? Current effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second), will be consumed up to half an hour`) ? 1800 : 0) :
-        Number(await Prompt(`How many seconds do you wish to Warp forward? (Minimum value is 10 minutes)\nCurrent effective Offline time is ${format(time.offline / waste, { type: 'time' })} (uses ${format(waste)} seconds per added second)`, '600')), time.offline / waste);
-    if (warpTime < 600 || !isFinite(warpTime)) { return warpTime === 0 ? undefined : Notify('Warp failed, input or storage is below minimum value or invalid'); }
+    let warpTime: number;
+    const improved = player.strangeness[1][7] >= 2;
+    if (improved) {
+        warpTime = Math.min(Number(await Prompt(`How many seconds do you wish to Warp forward? (Minimum value is 10 minutes)\nCurrent Offline time is ${format(time.offline, { type: 'time' })} (${format(time.offline / waste, { type: 'time' })} effective, ${format(waste)} seconds per added second)\n(One tick will be equal to warp time / 1000)`, '600')), time.offline / waste);
+        if (!isFinite(warpTime)) { return Notify('Warp failed, input is invalid'); }
+    } else {
+        const minimum = Math.min(1200, time.offline / waste);
+        warpTime = await Confirm(`Do you wish to Warp ${format(minimum, { type: 'time' })} forward? Current Offline time is ${format(time.offline, { type: 'time' })} (${format(time.offline / waste, { type: 'time' })} effective), will consume ${format(minimum * waste, { type: 'time' })}\n(One tick is 20 seconds)`) ? minimum : 0;
+    }
+    if (warpTime < 600) { return warpTime === 0 ? undefined : Notify('Warp failed, storage or input is below minimum value'); }
 
     time.offline -= warpTime * waste;
     try {
-        timeUpdate(warpTime / 1000, warpTime);
+        timeUpdate(warpTime, improved ? warpTime / 1000 : 20);
     } catch (error) { Notify(`Warp failed due to Error:\n${error}`); }
 };
 
@@ -322,7 +327,12 @@ try { //Start everything
     }
     for (let i = 1; i < global.challengesInfo.rewardText[0].length; i++) {
         if (i === 5) { continue; } //Missing for now
-        getId(`voidReward${global.stageInfo.word[i]}`).addEventListener('click', () => getChallengeReward(i/*, 'void'*/));
+        const image = getId(`voidReward${global.stageInfo.word[i]}`);
+        image.addEventListener('click', () => getChallengeReward(i/*, 'void'*/));
+        if (global.mobileDevice) { //Buggy phones
+            image.addEventListener('focus', () => { getQuery('#voidRewards > div:last-of-type').style.display = 'block'; });
+            image.addEventListener('blur', () => { getQuery('#voidRewards > div:last-of-type').style.display = ''; });
+        }
     }
 
     /* Research tab */
