@@ -329,10 +329,12 @@ try { //Start everything
         if (i === 5) { continue; } //Missing for now
         const image = getId(`voidReward${global.stageInfo.word[i]}`);
         image.addEventListener('click', () => getChallengeReward(i/*, 'void'*/));
-        if (global.mobileDevice) { //Buggy phones
-            image.addEventListener('focus', () => { getQuery('#voidRewards > div:last-of-type').style.display = 'block'; });
-            image.addEventListener('blur', () => { getQuery('#voidRewards > div:last-of-type').style.display = ''; });
+        if (global.mobileDevice) { //Safari bugs with no focus events
+            image.addEventListener('click', () => { getId('voidRewardsDiv').style.display = 'block'; });
         }
+    }
+    if (global.mobileDevice) {
+        getId('voidRewardsDiv').addEventListener('click', () => { getId('voidRewardsDiv').style.display = ''; });
     }
 
     /* Research tab */

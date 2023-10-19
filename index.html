@@ -200,7 +200,7 @@
                                 <button type="button" id="voidRewardAccretion" class="hollowButton stage3borderButton grayText" aria-haspopup="menu">Accretion</button>
                                 <button type="button" id="voidRewardInterstellar" class="hollowButton stage4borderButton orangeText" aria-haspopup="menu">Interstellar</button>
                             </div>
-                            <div role="menu" aria-lable="Reward list">
+                            <div id="voidRewardsDiv" role="menu" aria-label="Reward list">
                                 <p class="greenText center">All rewards are connected to Strangeness</p>
                                 <div id="voidRewardsDivText" class="whiteText"></div>
                             </div>
@@ -637,7 +637,7 @@
                                     <button type="button" id="toggleConfirm0" class="toggleConfirm" title="Stage Confirmation">All</button><!--
                                  --><div id="toggleAuto0Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton" aria-haspopup="menu" aria-label="Settings">!</button>
-                                        <div role="menu" aria-lable="Settings menu">
+                                        <div role="menu" aria-label="Settings menu">
                                             <label>Perform Interstellar Stage reset when can get at least <input type="number" id="stageInput" value="1" autocomplete="off"> <span id="stageReward">Strange quarks</span></label>
                                             <p id="stageInstant">(Other Stages will reset instanly)</p>
                                         </div>
@@ -658,7 +658,7 @@
                                     <button type="button" id="toggleConfirm2" class="toggleConfirm" title="Vaporization Confirmation">All</button><!--
                                  --><div id="toggleAuto2Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton stage2borderButton" aria-haspopup="menu" aria-label="Settings">!</button>
-                                        <div role="menu" aria-lable="Settings menu">
+                                        <div role="menu" aria-label="Settings menu">
                                             <label>Vaporize when boost from new Clouds reached at least <input type="number" id="vaporizationInput" value="3" autocomplete="off"></label>
                                         </div>
                                     </div>
@@ -678,7 +678,7 @@
                                     <button type="button" id="toggleConfirm4" class="toggleConfirm" title="Collapse Confirmation">All</button><!--
                                  --><div id="toggleAuto4Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton stage4borderButton" aria-haspopup="menu" aria-label="Settings">!</button>
-                                        <div role="menu" aria-lable="Settings menu">
+                                        <div role="menu" aria-label="Settings menu">
                                             <p><label>Collapse when boost from it reached at least <input type="number" id="collapseStarsInput" value="2" autocomplete="off"></label><span id="collapseGalaxy">, or if will be able to afford a new Galaxy and its auto is enabled</span></p>
                                         </div>
                                     </div>
@@ -716,7 +716,7 @@
                             <li><input id="saveFileNameInput" type="text" value="Fundamental" aria-label="Save file name" minlength="4"> + '<span class="mainText">.txt</span>'<!--
                                 --><div class="windowPopUp">
                                     <button type="button" id="saveFileHoverButton" class="focusButton hollowButton" aria-haspopup="menu">Preview</button>
-                                    <div role="menu" aria-lable="Save file name preview">
+                                    <div role="menu" aria-label="Save file name preview">
                                         <p id="saveFileNamePreview" class="mainText bigWord">Fundamental.txt</p>
                                         <p class="whiteText center">Any of these can be added for extra information of a save file</p>
                                         <p class="stageText">[true] - <span class="whiteText">for current true Stage</span></p>
@@ -733,7 +733,7 @@
                             <li><label title="Turn OFF, if using non QWERTY layout keyboard">Any language hotkeys<button type="button" id="toggle1" class="toggle">ON</button></label><!--
                                 --><div class="windowPopUp">
                                     <button type="button" class="focusButton hollowButton" aria-label="Check hotkey list" aria-haspopup="menu">Hotkeys</button>
-                                    <div role="menu" aria-lable="Hotkeys list">
+                                    <div role="menu" aria-label="Hotkeys list">
                                         <p class="mainText">Arrows left and right - <span class="whiteText">change tab</span></p>
                                         <p class="mainText">Arrows up and down - <span class="whiteText">change subtab</span></p>
                                         <p class="mainText">Numbers - <span class="whiteText">make a new Structure</span></p>

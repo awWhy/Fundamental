@@ -1027,7 +1027,7 @@ export const stageUpdate = (extra = 'normal' as 'normal' | 'soft' | 'reload') =>
             getId(`building${i}`).setAttribute('aria-label', `${buildingsInfo.name[active][i]} (hotkey ${i})`);
         }
         getId('extraResearch').setAttribute('aria-label', `${['', 'Energy', 'Cloud', 'Rank', 'Collapse', ''][active]} researches`);
-        getId('SRStage').textContent = `Current Active Stage is '${stageInfo.word[active]}'${extra === 'reload' && player.challenges.active !== 0 ? `, also inside '${global.challengesInfo.name[player.challenges.active - 1]}' challenge` : ''}`;
+        getId('SRStage').textContent = `Current Active Stage is '${stageInfo.word[active]}'${extra === 'reload' && player.challenges.active !== -1 ? `, also inside '${global.challengesInfo.name[player.challenges.active]}'` : ''}`;
     }
 
     for (const text of ['upgrade', 'research', 'element']) {
