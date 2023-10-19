@@ -46,6 +46,9 @@ export interface playerType {
         updated: number
         started: number
         offline: number
+        online: number
+        stage: number
+        universe: number
     }
     buildings: Array<[
         {
@@ -94,7 +97,7 @@ export interface playerType {
             input: [number, number]
         }
     }
-    events: boolean[]
+    event: boolean
 }
 
 export interface globalType {
@@ -102,26 +105,29 @@ export interface globalType {
     subtab: {
         stageCurrent: string
         settingsCurrent: string
-        researchCurrent: string
+        upgradeCurrent: string
         strangenessCurrent: string
     }
     tabList: {
         tabs: string[]
         stageSubtabs: string[]
         settingsSubtabs: string[]
-        researchSubtabs: string[]
+        upgradeSubtabs: string[]
         strangenessSubtabs: string[]
     }
     debug: {
         errorID: boolean
         errorQuery: boolean
         errorGain: boolean
+        rankUpdated: number
+        historyUpdatedS: boolean
     }
-    lastActive: null | number
+    trueActive: number
     lastSave: number
     footer: boolean
     mobileDevice: boolean
-    screenReader: boolean[]
+    screenReader: boolean
+    supportSettings: boolean[]
     automatization: {
         autoU: number[][]
         autoR: number[][]
@@ -133,16 +139,18 @@ export interface globalType {
         getEnergy: (index: number, stageIndex: number) => number
         energyType: number[][]
         energyTrue: number
-        bonus: number
+        tritium: overlimit
+        base: number
+        total: number
         next: number
     }
     vaporizationInfo: {
-        effect2U2: () => number
-        oceanWorld: () => number
-        cloudEffect: (post?: boolean) => overlimit
-        rainEffect: (post?: boolean) => number
+        strength: overlimit
+        dropsEff: overlimit
         tension: number
         stress: number
+        research0: number
+        research1: number
         get: overlimit
     }
     accretionInfo: {
@@ -151,22 +159,23 @@ export interface globalType {
         rankR: number[]
         rankE: number[]
         rankCost: number[]
+        rankColor: string[]
         rankName: string[]
         rankImage: string[]
     }
     collapseInfo: {
-        effect4RE1: () => number
+        massEffect: number
+        starEffect: [number, number, number]
         unlockB: number[]
         unlockG: number[]
         unlockU: number[]
         unlockR: number[]
         newMass: number
-        massEffect: (post?: boolean) => number
         starCheck: [number, number, number]
-        starEffect: [(post?: boolean) => number, (post?: boolean) => number, (post?: boolean) => number]
         trueStars: number
     }
     inflationInfo: {
+        globalSpeed: number
         preonCap: overlimit
         dustCap: overlimit
         massCap: number
@@ -182,8 +191,7 @@ export interface globalType {
     stageInfo: {
         word: string[]
         textColor: string[]
-        buttonBackgroundColor: string[]
-        buttonBorderColor: string[]
+        buttonBorder: string[]
         imageBorderColor: string[]
         priceName: string
         activeAll: number[]
@@ -199,7 +207,6 @@ export interface globalType {
         producing: overlimit[][]
     }
     strangeInfo: {
-        Element27: () => number
         gain: (stage: number) => number
         name: string[]
         stageBoost: Array<number | null>
@@ -208,14 +215,12 @@ export interface globalType {
     upgradesInfo: Array<{
         name: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null>
         startCost: number[]
         maxActive: number
     }>
     researchesInfo: Array<{
         name: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null>
         cost: number[]
         startCost: number[]
         scaling: number[]
@@ -225,7 +230,6 @@ export interface globalType {
     researchesExtraInfo: Array<{
         name: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null>
         cost: number[]
         startCost: number[]
         scaling: number[]
@@ -240,7 +244,6 @@ export interface globalType {
     elementsInfo: {
         name: string[]
         effectText: Array<() => string>
-        effect: Array<number | overlimit | null>
         startCost: number[]
     }
     strangenessInfo: Array<{
@@ -252,9 +255,9 @@ export interface globalType {
         max: number[]
         maxActive: number
     }>
-    lastUpgrade: number[]
-    lastResearch: Array<[number, 'researches' | 'researchesExtra' | 'ASR']>
+    lastUpgrade: Array<[number, 'upgrades' | 'researches' | 'researchesExtra' | 'ASR']>
     lastElement: number
+    lastStrangeness: [number, number]
     milestonesInfo: Array<{
         name: string[]
         need: overlimit[]
@@ -263,7 +266,7 @@ export interface globalType {
         needText: Array<() => string>
         rewardText: Array<() => string>
     }>
-    challengesInfo: { //Each challenge is allowed to have individual types
+    challengesInfo: {
         name: string[]
         description: string[]
         effectText: Array<() => string>
@@ -276,4 +279,4 @@ export interface globalType {
     }
 }
 
-export type overlimit = [number, number]; //Also possible as String or Number
+export type overlimit = [number, number];

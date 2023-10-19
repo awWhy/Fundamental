@@ -1,7 +1,7 @@
-import { getClass, getId, getQuery } from './Main';
+import { getId, getQuery } from './Main';
 import { cloneArray, global, player, playerStart } from './Player';
 import { resetVacuum } from './Reset';
-import { Alert, Confirm, specialHTML } from './Special';
+import { Alert, Confirm, playEvent, specialHTML } from './Special';
 
 export const prepareVacuum = (state: boolean) => { //Must not use direct player values
     const { buildings } = playerStart;
@@ -54,9 +54,9 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         //researchesExtraInfo[4].maxActive = 3;
         //researchesExtraInfo[5].maxActive = 0;
 
-        global.accretionInfo.rankCost[5] = 2.47e31;
+        global.accretionInfo.rankCost[5] = 2.45576045e31;
         global.ASRInfo.costRange[1] = [4000, 10000, 16000, 24000, 32000];
-        global.ASRInfo.costRange[3][3] = 2.47e31;
+        global.ASRInfo.costRange[3][3] = 2.45576045e31;
 
         const strangeness1Cost = [2, 1, 4, 24, 2, 1, 2, 4, 36];
         const strangeness1Scaling = [2.4, 4, 6, 1, 4, 2.2, 2, 2, 1];
@@ -67,15 +67,15 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangenessInfo[2].startCost.splice(0, strangeness2Cost.length, ...strangeness2Cost);
         strangenessInfo[2].scaling.splice(0, strangeness2Scaling.length, ...strangeness2Scaling);
         const strangeness3Cost = [1, 2, 3, 9, 24, 3, 12, 36];
-        const strangeness3Scaling = [1.8, 2.8, 2, 1, 400, 2.3, 2, 1];
+        const strangeness3Scaling = [1.8, 2.8, 2, 1, 400, 2.22, 2, 1];
         strangenessInfo[3].startCost.splice(0, strangeness3Cost.length, ...strangeness3Cost);
         strangenessInfo[3].scaling.splice(0, strangeness3Scaling.length, ...strangeness3Scaling);
         const strangeness4Cost = [1, 3, 5, 5, 6, 24, 3, 4, 36];
-        const strangeness4Scaling = [1.8, 2.8, 2.4, 4, 16, 250, 2.3, 2, 1];
+        const strangeness4Scaling = [1.8, 2.8, 2.4, 4, 8, 250, 2.22, 2, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
-        const strangeness5Cost = [4, 16, 2400, 8, 10, 64, 2400, 60, 1600, 180];
-        const strangeness5Scaling = [1, 5, 1, 1.8, 1.8, 1, 4, 2, 1, 1];
+        const strangeness5Cost = [4, 16, 2400, 8, 10, 64, 21600, 60, 1600, 180];
+        const strangeness5Scaling = [1, 5, 1, 1.8, 1.8, 1, 3, 2, 1, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
         strangenessInfo[1].maxActive = 12;
@@ -92,23 +92,23 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         global.milestonesInfo[3].name[0] = 'Center of gravity';
         getQuery('#stageHistory > h4').textContent = 'Stage resets:';
 
-        getId('strange10Stage2').style.display = '';
+        getId('strange9Stage2').style.display = '';
         getId('strange9Stage3').style.display = '';
-        getId('strange10Stage3').style.display = '';
-        getId('strange11Stage4').style.display = '';
+        getId('strange10Stage4').style.display = '';
 
-        getId('strangeBoostMain').style.display = '';
+        getId('effectiveDrops').style.display = '';
+        getId('dustCap').style.display = '';
+        getId('mainCap').style.display = '';
         getId('strange9Stage1').style.display = '';
         getId('strange8Stage2').style.display = '';
         getId('strange8Stage3').style.display = '';
         getId('strange9Stage4').style.display = '';
         getId('strange6Stage5').style.display = '';
         for (let s = 2; s <= 5; s++) {
-            getId(`strangenessSection${s}`).style.display = '';
+            getId(`strangeness${global.mobileDevice ? 'Page' : 'Section'}${s}`).style.display = '';
             getId(`milestone1Stage${s}Div`).style.display = '';
             getId(`milestone2Stage${s}Div`).style.display = '';
         }
-        for (const element of getClass('vacuum')) { element.style.display = ''; }
         getId('vacuumBoost').style.display = 'none';
         getId('stageInstant').style.display = 'none';
         getId('unknownStructures').style.display = 'none';
@@ -176,7 +176,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangenessInfo[3].startCost.splice(0, strangeness3Cost.length, ...strangeness3Cost);
         strangenessInfo[3].scaling.splice(0, strangeness3Scaling.length, ...strangeness3Scaling);
         const strangeness4Cost = [1, 1, 3, 2, 4, 6, 3, 3, 12];
-        const strangeness4Scaling = [1, 2, 2.5, 3, 28, 0, 1, 5.5, 0];
+        const strangeness4Scaling = [1, 2, 2.5, 3, 44, 0, 1, 5.5, 0];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
         const strangeness5Cost = [120, 16, 80, 10, 10, 40, 800, 20, 40, 60];
@@ -202,10 +202,11 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('strange10Stage5').style.display = '';
         getId('stageInstant').style.display = '';
         getId('rankStat0').style.display = '';
-        for (const element of getClass('vacuum')) { element.style.display = 'none'; }
-        for (let i = 0; i < global.challengesInfo.name.length; i++) {
-            getId(`challenge${i + 1}`).style.display = 'none';
-        }
+
+        getId('preonCap').style.display = 'none';
+        getId('effectiveDrops').style.display = 'none';
+        getId('dustCap').style.display = 'none';
+        getId('mainCap').style.display = 'none';
         for (let s = 1; s < strangenessInfo.length; s++) {
             for (let i = strangenessInfo[s].maxActive + 1; i <= strangenessInfo[s].startCost.length; i++) {
                 getId(`strange${i}Stage${s}`).style.display = 'none';
@@ -227,9 +228,13 @@ export const switchVacuum = async() => {
     if (count < 5) { return void Alert(`Universe is still stable. Vacuum state is false. ${5 - count} more`); }
 
     if (!await Confirm('This will not be possible to undo. Confirm?')) { return; }
-    await Alert('Universe is too unstable. Vacuum instability is imminent');
+    if (player.stage.true < 6) {
+        await playEvent(7, false);
+
+        player.stage.true = 6;
+        player.event = false;
+    }
     player.inflation.vacuum = true;
-    if (player.stage.true < 6) { player.stage.true = 6; }
     player.stage.current = 1;
     player.stage.active = 1;
     prepareVacuum(true);
@@ -237,13 +242,13 @@ export const switchVacuum = async() => {
 };
 
 export const updateUnknown = () => {
-    const { milestones } = player;
+    const milestones = player.milestones;
 
     let text = '<h4 class="darkvioletText">Unknown Structures:</h4>';
-    if (milestones[1][0] >= 6) { text += '<img src="Used_art/Preon.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[2][1] >= 6) { text += '<img src="Used_art/Ocean.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[3][1] >= 7) { text += '<img src="Used_art/Subsatellite.png" alt="Unknown Structure" loading="lazy">'; }
-    if (milestones[4][1] >= 8) { text += '<img src="Used_art/Quasi%20star.png" alt="Unknown Structure" loading="lazy">'; }
+    if (milestones[1][0] >= 6) { text += '<img src="Used_art/Preon.png" alt="Unknown Structure" loading="lazy" draggable="false">'; }
+    if (milestones[2][1] >= 6) { text += '<img src="Used_art/Ocean.png" alt="Unknown Structure" loading="lazy" draggable="false">'; }
+    if (milestones[3][1] >= 7) { text += '<img src="Used_art/Subsatellite.png" alt="Unknown Structure" loading="lazy" draggable="false">'; }
+    if (milestones[4][1] >= 8) { text += '<img src="Used_art/Quasi%20star.png" alt="Unknown Structure" loading="lazy" draggable="false">'; }
 
     const div = getId('unknownStructures');
     div.style.display = global.strangeInfo.instability > 0 ? '' : 'none';
