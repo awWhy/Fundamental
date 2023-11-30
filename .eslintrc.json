@@ -47,7 +47,19 @@
         "@typescript-eslint/indent": "off", //Buggy
         "@typescript-eslint/semi": ["error", "always"],
         "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/strict-boolean-expressions": ["error",
+            {
+                "allowString": false, //Mostly safe, but I just prefer not to
+                "allowNumber": false,
+                "allowNullableObject": false, //Safe, but I just prefer not to
+                "allowNullableBoolean": true, //Safe as long as used outside of function argument
+                "allowNullableString": false,
+                "allowNullableNumber": false,
+                "allowAny": false
+            }
+        ],
         "@typescript-eslint/space-before-function-paren": ["error", "never"],
+        "@typescript-eslint/lines-between-class-members": "off",
         "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }],
         "@typescript-eslint/no-empty-function": "warn", //When testing add comment inside
         "@typescript-eslint/no-empty-interface": "warn", //When testing add comment inside
@@ -64,6 +76,7 @@
         "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "warn",
         "@typescript-eslint/no-meaningless-void-operator": "warn",
         "@typescript-eslint/no-inferrable-types": "warn",
+        "@typescript-eslint/no-this-alias": "off", //This is very situational rule
         "@typescript-eslint/default-param-last": "error",
         "@typescript-eslint/prefer-namespace-keyword": "warn",
         "@typescript-eslint/prefer-as-const": "error",

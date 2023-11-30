@@ -1,15 +1,15 @@
+import type Overlimit from './Limit';
+
 export interface playerType {
     version: string
     fileName: string
-    separator: string[]
     stage: {
         true: number
         current: number
         active: number
         resets: number
-        export: number
-        best: number
         time: number
+        peak: number
         input: number
     }
     discharge: {
@@ -18,9 +18,9 @@ export interface playerType {
         current: number
     }
     vaporization: {
-        clouds: overlimit
-        cloudsMax: overlimit
-        input: number
+        clouds: Overlimit
+        cloudsMax: Overlimit
+        input: [number, number]
     }
     accretion: {
         rank: number
@@ -30,38 +30,33 @@ export interface playerType {
         massMax: number
         stars: [number, number, number]
         show: number
-        input: number
+        input: [number, boolean]
     }
     inflation: {
         vacuum: boolean
         age: number
     }
-    intervals: {
-        main: number
-        numbers: number
-        visual: number
-        autoSave: number
-    }
     time: {
         updated: number
         started: number
         offline: number
+        export: [number, number, number, number]
         online: number
         stage: number
         universe: number
     }
     buildings: Array<[
         {
-            current: overlimit
-            total: overlimit
-            trueTotal: overlimit
-            highest: overlimit
+            current: Overlimit
+            total: Overlimit
+            trueTotal: Overlimit
+            highest: Overlimit
         }, ...Array<{
             true: number
-            current: overlimit
-            total: overlimit
-            trueTotal: overlimit
-            highest: overlimit
+            current: Overlimit
+            total: Overlimit
+            trueTotal: Overlimit
+            highest: Overlimit
         }>
     ]>
     strange: Array<{
@@ -81,30 +76,30 @@ export interface playerType {
         void: number[]
     }
     toggles: {
-        normal: boolean[]
         confirm: Array<'All' | 'Safe' | 'None'>
         buildings: boolean[][]
         hover: boolean[]
         max: boolean[]
         auto: boolean[]
         shop: {
-            howMany: number
             input: number
             wait: number[]
         }
     }
     history: {
         stage: {
-            best: number[]
-            list: number[][]
+            best: [number, number, number, number]
+            list: Array<[number, number, number, number]>
             input: [number, number]
         }
     }
-    event: boolean
+    events: boolean[]
 }
 
+export type gameTab = 'stage' | 'upgrade' | 'strangeness' | 'settings' | 'Elements';
+
 export interface globalType {
-    tab: string
+    tab: gameTab
     subtab: {
         stageCurrent: string
         settingsCurrent: string
@@ -112,7 +107,7 @@ export interface globalType {
         strangenessCurrent: string
     }
     tabList: {
-        tabs: string[]
+        tabs: gameTab[]
         stageSubtabs: string[]
         settingsSubtabs: string[]
         upgradeSubtabs: string[]
@@ -129,39 +124,36 @@ export interface globalType {
     lastSave: number
     paused: boolean
     footer: boolean
-    mobileDevice: boolean
-    screenReader: boolean
-    supportSettings: boolean[]
+    hotkeys: {
+        shift: boolean
+        ctrl: boolean
+    }
     automatization: {
         autoU: number[][]
         autoR: number[][]
         autoE: number[][]
         elements: number[]
     }
-    theme: number | null
     dischargeInfo: {
-        getEnergy: (index: number, stageIndex: number) => number
         energyType: number[][]
         energyTrue: number
-        tritium: overlimit
+        tritium: Overlimit
         base: number
         total: number
         next: number
     }
     vaporizationInfo: {
-        strength: overlimit
-        dropsEff: overlimit
-        tension: number
-        stress: number
+        strength: Overlimit
         research0: number
         research1: number
-        get: overlimit
+        get: Overlimit
     }
     accretionInfo: {
-        effective: number
+        unlockA: number[]
         rankU: number[]
         rankR: number[]
         rankE: number[]
+        maxRank: number
         rankCost: number[]
         rankColor: string[]
         rankName: string[]
@@ -171,7 +163,6 @@ export interface globalType {
         massEffect: number
         starEffect: [number, number, number]
         unlockB: number[]
-        unlockG: number[]
         unlockU: number[]
         unlockR: number[]
         newMass: number
@@ -180,17 +171,18 @@ export interface globalType {
     }
     inflationInfo: {
         globalSpeed: number
-        preonCap: overlimit
-        dustCap: overlimit
+        preonCap: Overlimit
+        dustCap: Overlimit
         massCap: number
-        preonTrue: overlimit
-        dustTrue: overlimit
+        preonTrue: Overlimit
+        dustTrue: Overlimit
     }
     intervalsId: {
         main: number | undefined
         numbers: number | undefined
         visual: number | undefined
         autoSave: number | undefined
+        mouseRepeat: number | undefined
     }
     stageInfo: {
         word: string[]
@@ -204,15 +196,13 @@ export interface globalType {
         name: string[][]
         hoverText: string[][]
         type: Array<['', ...Array<'producing' | 'improving' | 'delaying'>]>
-        firstCost: number[][]
         startCost: number[][]
         increase: number[][]
-        producing: overlimit[][]
+        producing: Overlimit[][]
     }
     strangeInfo: {
-        gain: (stage: number) => number
         name: string[]
-        stageBoost: Array<number | null>
+        stageBoost: number[]
         instability: number
     }
     upgradesInfo: Array<{
@@ -273,9 +263,8 @@ export interface globalType {
     lastChallenge: [number, number]
     milestonesInfo: Array<{
         name: string[]
-        need: overlimit[]
-        reward: number[]
-        scalingOld: number[][]
+        need: Overlimit[]
+        scaling: number[][]
         needText: Array<() => string>
         rewardText: Array<() => string>
     }>
@@ -288,8 +277,24 @@ export interface globalType {
         color: string[]
     }
     historyStorage: {
-        stage: number[][]
+        stage: Array<[number, number, number, number]>
     }
 }
 
-export type overlimit = [number, number];
+/* Because I am lazy to deal with missing types right now */
+export type nullableBoolean = boolean | undefined | null;
+export interface globalSaveType {
+    intervals: {
+        main: number
+        numbers: number
+        visual: number
+        autoSave: number
+    }
+    toggles: [boolean, boolean, ...nullableBoolean[]]
+    format: [string, string]
+    theme: null | number
+    fontSize: number
+    MDSettings: [boolean, boolean, ...nullableBoolean[]]
+    SRSettings: [boolean, boolean, boolean, ...nullableBoolean[]]
+    developerMode: boolean
+}

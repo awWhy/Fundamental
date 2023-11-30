@@ -9,6 +9,12 @@
     unicode-range: U+0030-0039;
 }
 
+html {
+    /* width: 100vw; */
+    /* height: 100vh; */
+    font-size: 16px;
+}
+
 body *, body {
     font-family: Tight, Inter, serif;
     box-sizing: border-box;
@@ -16,9 +22,7 @@ body *, body {
     padding: 0;
     font-size: inherit;
     font-variant-numeric: tabular-nums;
-
-    /* No text color, because of lags and overall being behind */
-    transition-property: border-color, background-color;
+    transition-property: background-color, background-image, border-color;
     transition-duration: var(--transition-all);
 }
 
@@ -61,12 +65,10 @@ body { /* Default color variables */
     --stage-button-border: darkcyan;
     --stage-image-borderColor: #008b8b;
     --image-border: url("Used_art/Stage1 border.png");
-}
 
-body {
+    /* Other */
     color: var(--main-text);
     background-color: var(--background-color);
-    font-size: 16px;
     overscroll-behavior: none;
     overflow-y: overlay;
     overflow-anchor: none;
@@ -105,6 +107,7 @@ body {
 .stage4borderButton { border-color: #a35700 !important; }
 .stage5borderButton { border-color: #8f004c !important; }
 .stage6borderButton { border-color: #6c1ad1 !important; }
+.stageAllborderButton { border-color: var(--stage-button-border) !important; }
 
 /* These colors are shared with --window-color */
 .stage1windowBackground { background-color: #12121c !important; }
@@ -115,36 +118,37 @@ body {
 .stage6windowBackground { background-color: #01003c !important; }
 
 /* Right now it works only with keyboard tab button */
-body:not(.outlineOnFocus) button:focus-visible,
-body:not(.outlineOnFocus) input:not(input[type = "text"], input[type = "number"]):focus-visible { outline: none; }
+body.noFocusOutline button, body.noFocusOutline .noFocusOutline,
+body.noFocusOutline input:not(input[type = "text"], input[type = "number"]) { outline: none; }
 
 ::-webkit-scrollbar {
-    width: 1.4vh;
-    height: 1.4vh;
-    background-color: var(--input-border);
+    width: 1.2vh;
+    height: 1.2vh;
 }
 
-::-webkit-scrollbar-track {
-    background-color: black;
-    box-shadow: inset 0 0 0.5vh var(--input-border);
-    border: 0.2vh solid var(--input-border);
-    border-radius: 0.6vh;
-}
+body::-webkit-scrollbar-corner,
+body::-webkit-scrollbar:horizontal { background-color: var(--footer-color); }
 
 ::-webkit-scrollbar-thumb {
     background-color: var(--input-border);
     box-shadow: inset 0 0 0.2vh black;
-    border: 0.4vh solid #0000;
-    border-radius: 0.6vh;
+    border: 0.2vh solid #0000;
     background-clip: content-box;
 }
 
-::-webkit-scrollbar-button {
-    height: min(1.4vh, 9%);
-    width: min(1.4vh, 9%);
+::-webkit-scrollbar-thumb:vertical {
+    border-top: none;
+    border-bottom: none;
 }
 
-::-webkit-scrollbar-corner { background-color: var(--input-border); }
+::-webkit-scrollbar-thumb:horizontal {
+    border-left: none;
+    border-right: none;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner { background-color: #0000; }
+::-webkit-scrollbar-button { display: none; }
 ::-webkit-resizer { background-image: url("Used_art/SVG/Resize.svg"); }
 
 input[type = "image"],
@@ -158,10 +162,8 @@ img {
 
     /* For alt text */
     color: white;
-    font-size: 0.66em;
+    font-size: 0.66rem;
 }
-
-ul, ol { padding-left: 1.6em; }
 
 #footerStats img,
 #strangenessResearch .interactiveImage,
@@ -175,7 +177,6 @@ p > img {
     margin: 0.5em 0.5em 0 0.2em;
 }
 
-#pauseGame,
 .interactiveImage { cursor: pointer; }
 
 .stageBorderImage {
@@ -197,6 +198,7 @@ p > img {
 
 a { color: red; }
 .center { text-align: center; }
+.fullWidth { width: 100%; }
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
@@ -225,8 +227,8 @@ h1, h2, h3, h4, h5, h6 {
 #alertMain {
     display: flex;
     flex-direction: column;
-    width: clamp(24vw, 23.8em, 80vw);
-    height: clamp(18vh, 20em, 90vh);
+    width: clamp(24vw, 24rem, 80vw);
+    height: clamp(18vh, 20rem, 90vh);
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
@@ -237,6 +239,7 @@ h1, h2, h3, h4, h5, h6 {
 #alertText {
     white-space: pre-line;
     overflow: clip auto;
+    overflow-wrap: break-word;
 }
 
 #alertMain > div {
@@ -260,7 +263,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #warpMain {
-    width: 39em;
+    width: 39rem;
     max-width: 94vw;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
@@ -290,8 +293,11 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.2em 0.4em;
     text-align: center;
     white-space: pre-line;
-    width: clamp(25vw, 28em, 95vw);
+    width: clamp(25vw, 28rem, 95vw);
+    overflow-wrap: break-word;
     pointer-events: auto;
+    user-select: none;
+    cursor: pointer;
 }
 
 #notifications > p:not(:first-of-type) { margin-top: -1px; }
@@ -307,43 +313,40 @@ button, input { appearance: none; }
     font-size: 0.84em;
 }
 
-.toggleNormal, .toggleConfirm, .toggleBuilding, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
+.toggleConfirm, .toggleBuilding, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
     color: var(--green-text);
     border-color: forestgreen;
     background-color: var(--background-color);
+}
+
+.specialToggle {
+    width: 2.8em;
     height: 1.63em;
 }
 
-.toggleNormal, .specialToggle { width: 2.8em; }
-
-.toggleHover {
-    width: 10.6em;
+.toggleHover, .toggleMax {
+    height: 1.63em;
     font-size: 0.92em;
 }
 
-.toggleMax {
-    width: 8.4em;
-    font-size: 0.92em;
-}
+.toggleHover { width: 10.6em; }
+.toggleMax { width: 8.4em; }
 
 .toggleAuto {
     width: 5.4em;
-    height: 1.75em;
+    height: 1.78em;
 }
 
 .hollowButton { background-color: var(--background-color); }
 
 img, input[type = "image"], button, #load, a {
     user-select: none;
-
-    /* Text color here works fine, but for consistency and less lag not added */
-    transition-property: border-color, background-color, background-image;
     transition-duration: var(--transition-buttons);
 }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
 button:hover, #load:hover { background-color: var(--button-hover); }
-.toggleNormal:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
+.toggleConfirm:hover, .toggleBuilding:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
 .specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
 
 input[type = "number"] { appearance: textfield; }
@@ -370,7 +373,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 .insideTab {
-    margin-top: min(2vh, 1em);
+    margin-top: min(2vh, 1rem);
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
@@ -383,6 +386,7 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-wrap: wrap;
     justify-content: center;
     height: min-content;
+    width: 100%;
     gap: 1.2em;
 }
 
@@ -390,7 +394,7 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 18em;
+    width: 18.8em;
     padding: 0.8em 1.05em 1.05em;
     row-gap: 0.95em;
     background-color: var(--window-color);
@@ -504,13 +508,37 @@ input:-webkit-autofill { /* Chrome related pain */
     column-gap: 0.3em;
 }
 
-#buildingToggles > img { height: 22px; }
+#makeAllStructures {
+    height: 1.8em;
+    padding: 0 0.4em;
+    border-radius: 2px;
+}
 
 #autoWaitInput,
 #buyAnyInput {
     height: 1.88em;
     margin-left: 0.3em;
 }
+
+.labelPopUp { position: relative; }
+
+.labelPopUp > label {
+    display: none;
+    text-align: center;
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 8px;
+    width: max-content;
+    max-width: min(60vw, 26em);
+    padding: 0.3em 0.8em 0.5em;
+    margin-top: 0.38em;
+    /* No idea how to prevent it from going off screen */
+}
+
+.labelPopUp:focus-within > label { display: block; }
 
 #toggleBuilding0 { margin-left: 0.3em; }
 
@@ -524,6 +552,15 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     row-gap: 0.3em;
 }
+
+#starEffects {
+    width: max-content;
+    align-self: center;
+    cursor: help;
+}
+
+#starEffects:hover > p > span:first-of-type { display: none; }
+#starEffects:not(:hover) > p > span:last-of-type { display: none; }
 
 #timeInfo {
     display: flex;
@@ -583,6 +620,7 @@ input:-webkit-autofill { /* Chrome related pain */
     width: max-content;
     padding: 0.6em 0.8em 0.7em;
     margin-top: 0.8em;
+    user-select: none;
 }
 
 #voidRewards:focus-within > #voidRewardsDiv { display: block; }
@@ -657,6 +695,14 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #researches div > div { display: flex; }
 
+#researchBottomDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.6em;
+    width: 100%;
+}
+
 .descriptionText {
     display: flex;
     flex-direction: column;
@@ -672,6 +718,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #researchToggles {
     display: flex;
+    align-items: center;
     column-gap: 0.4em;
 }
 
@@ -685,7 +732,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--window-color);
 }
 
-#elementsGrid[class = "Elements10App"] { grid-template-columns: repeat(8, 1fr); }
+#elementsGrid.tenElements { grid-template-columns: repeat(8, 1fr); }
 
 #elementsGrid > .interactiveImage {
     width: 38px;
@@ -694,8 +741,8 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #element2 { grid-column: 18; }
-.Elements10App #element2 { grid-column: 8; }
-#elementsGrid:not([class = "Elements10App"]) #element5, #element13 { grid-column: 13; }
+#elementsGrid.tenElements #element2 { grid-column: 8; }
+#elementsGrid:not(.tenElements) #element5, #element13 { grid-column: 13; }
 
 #element0 {
     position: absolute;
@@ -715,9 +762,6 @@ input:-webkit-autofill { /* Chrome related pain */
 .elementType1.created, .elementType1.awaiting:hover { background: #780000; }
 .elementType2.created, .elementType2.awaiting:hover { background: #a55900; }
 .elementType3.created, .elementType3.awaiting:hover { background: #0000c1; }
-
-.strangeWelcome { width: 100%; }
-.strangeWelcome > p { margin-top: 0.3em; }
 
 #strangeStructures {
     display: flex;
@@ -740,7 +784,7 @@ input:-webkit-autofill { /* Chrome related pain */
     border-radius: 0;
 }
 
-#strangeStructures > div > div > p {
+#strangeStructures > div > div:first-of-type > p {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -750,6 +794,34 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: black;
     width: 6em;
     height: 32px;
+}
+
+#strangeStructures > div > div:last-of-type {
+    position: absolute;
+    flex-direction: column;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 7px;
+    width: max-content;
+    max-width: 90vw;
+    padding: 0.5em 0.6em 0.6em;
+    margin-top: calc(1.9em + 32px);
+    row-gap: 0.2em;
+    z-index: 3;
+}
+
+#strangeStructures ul {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    row-gap: 0.1em;
+}
+
+#strangeStructures li {
+    list-style: inside "− ";
+    line-height: 1.2em;
 }
 
 #strangenessResearch {
@@ -773,7 +845,7 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.5em;
 }
 
-#strangenessResearch div { display: flex; }
+#strangenessResearch > section > div { display: flex; }
 
 #strangenessResearch p {
     display: flex;
@@ -810,6 +882,31 @@ input:-webkit-autofill { /* Chrome related pain */
     border-radius: 3px;
 }
 
+#milestonesProgressArea {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+    border: 3px solid darkgreen;
+    border-top: none;
+    border-bottom: none;
+    padding: 0.3em 0 0.5em;
+}
+
+#milestonesProgressArea > div {
+    border: 1px solid;
+    border-left: none;
+    border-right: none;
+    padding: 0.1em 0.2em;
+}
+
+#milestonesProgressArea span {
+    display: inline-block;
+    text-align: center;
+}
+
+#milestonesProgressArea span { width: 5em; }
+#milestonesProgressArea span:first-of-type { width: 10.8em; }
+
 #resetToggles > h3 { text-align: center; }
 
 #resetToggles > div {
@@ -836,8 +933,8 @@ input:-webkit-autofill { /* Chrome related pain */
 
 .toggleConfirm {
     width: 3.3em;
-    font-size: 0.82em;
     height: 1.68em;
+    font-size: 0.82em;
 }
 
 #resetToggles .toggleAuto {
@@ -851,8 +948,6 @@ input:-webkit-autofill { /* Chrome related pain */
     height: 1.68em;
     font-size: 0.82em;
 }
-
-#toggleAuto0Main > button { border-color: var(--stage-button-border); }
 
 #logoLinks {
     display: flex;
@@ -871,7 +966,7 @@ input:-webkit-autofill { /* Chrome related pain */
     padding: 0.4em 0.3em 0.2em;
     color: var(--main-text);
     text-decoration: none;
-    height: initial;
+    height: min-content;
     font-size: 1em;
 }
 
@@ -884,7 +979,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #logoLinks > *:hover, #logoLinks > *:hover img { background-color: var(--hollow-hover); }
 
-.saveButtonGroup {
+#saveButtonGroup {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -892,23 +987,24 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.3em;
 }
 
-.saveButtonGroup > div {
+#saveButtonGroup > div {
     display: flex;
     flex-direction: column;
     width: min-content;
     row-gap: 0.2em;
 }
 
-.saveButtonGroup > div > div {
+#saveButtonGroup > div > div {
     display: flex;
     column-gap: 0.2em;
 }
 
-.saveButtonGroup button, #load { font-size: 1em; }
+#exportReward { margin: -0.2em 0 0.1em; }
 
 #save, #load {
     width: 5.65em;
     height: 2em;
+    font-size: 1em;
 }
 
 #load {
@@ -931,29 +1027,29 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     flex-direction: column;
     margin-top: 0.2em;
-    margin-left: -1em;
 }
 
 .options li {
     font-size: 0.92em;
     line-height: 1.63em;
-    list-style-type: ">  ";
+    list-style: inside "> ";
     width: max-content;
 }
 
 li input[type = "number"] { width: 3.15em; }
-
-.options > *:not(#themeArea) .hollowButton {
-    height: 1.77em;
-    padding: 0 0.45em;
-}
+input.miniInput { width: 1.3em; }
 
 li button {
     font-size: 0.92em;
     margin-left: 0.4em;
 }
 
-.windowPopUp { display: inline-block; }
+li .hollowButton {
+    height: 1.72em;
+    padding: 0 0.4em;
+}
+
+.options .windowPopUp { display: inline-block; }
 
 .windowPopUp > div {
     display: none;
@@ -964,26 +1060,29 @@ li button {
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 7px;
-    width: min(23em, 80vw);
+    width: min(24em, 80vw);
     padding: 0.6em 0.7em 0.7em;
     margin-top: 0.38em;
     row-gap: 0.3em;
     line-height: 1.26em;
+    overflow-wrap: break-word;
 }
 
 .windowPopUp > .focusButton:hover ~ div, .windowPopUp > div:hover,
 .windowPopUp:focus-within > div { display: flex; }
-
-input.miniInput {
-    width: 1.3em;
-    height: 1.6em;
-}
 
 #saveFileNameInput {
     width: 17.2em;
     height: 1.82em;
     font-size: 0.88em;
     text-align: left;
+}
+
+.dateGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+    gap: 0.3em;
 }
 
 .hotkeysGrid {
@@ -993,6 +1092,7 @@ input.miniInput {
     gap: 0.3em;
 }
 
+#makeAllHotkey,
 #allStructuresHotkey { grid-column: 1 / 3; }
 
 #autoTogglesUpgrades {
@@ -1011,7 +1111,11 @@ input.miniInput {
 
 #autoTogglesUpgrades label { font-size: 0.92em; }
 #autoTogglesUpgrades button { font-size: 0.8em; }
-#autoTogglesUpgrades .hollowButton { height: 1.82em; }
+
+#autoTogglesUpgrades .hollowButton {
+    height: 1.72em;
+    padding: 0 0.4em;
+}
 
 #themeArea > h3 {
     text-align: center;
@@ -1039,7 +1143,6 @@ input.miniInput {
 
 #themeArea > div:focus-within > div { display: flex; }
 #themeArea > div:focus-within > button { clip-path: circle(0); }
-#switchTheme0 { border-color: var(--stage-button-border); }
 
 #historyMainDiv > section { text-align: center; }
 #historyMainDiv h4 { margin-bottom: 0.24em; }
@@ -1048,7 +1151,7 @@ input.miniInput {
     list-style-type: none;
     overflow-y: overlay;
     margin: 0.5em 0;
-    padding: 0;
+    padding: 0 1em;
     height: 7.5em;
     max-height: 70vh;
     resize: vertical;
@@ -1163,7 +1266,8 @@ input.miniInput {
 #footer > div:first-child {
     display: flex;
     align-items: end;
-    height: 0; /* To click behind it (pointer-events won't work here) */
+    /* justify-content: space-between; */
+    height: 0; /* To click behind it (annoying to make pointer-events work here, but possible) */
 }
 
 #subtabs {
@@ -1207,27 +1311,39 @@ input.miniInput {
     justify-content: center;
     gap: 0.4vw;
     max-width: 40vw;
+    z-index: 1;
 }
 
-#currentSwitch { border-color: var(--stage-button-border); }
 #footer button:hover { background-color: var(--footerButton-hover); }
 #stageSelect.active > #currentSwitch { clip-path: circle(0); }
 #stageSelect.active > div { display: flex; }
 
+#phoneHotkeys {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4vw;
+    margin-right: 2vw;
+    margin-left: auto; /* Can be replaced, if display none changed into visibility hidden for subtabs */
+}
+
+#phoneHotkeys button {
+    width: 100%;
+    background-color: var(--background-color);
+    border-radius: 2px;
+    padding: 0 0.6em;
+}
+
 #hideToggle {
-    margin-left: auto;
-    margin-right: 2.5vw;
     height: min-content;
     width: min-content;
     display: flex;
     align-items: center;
     column-gap: 0.25em;
     background-color: var(--footer-color);
-    border: 0.3em solid var(--footer-color);
-    border-right-width: 0.6em;
-    border-left-width: 0.6em;
-    border-bottom: none;
-    border-radius: 15px 15px 0 0;
+    padding: 0.2em 0.5em 0;
+    border-radius: 10px 10px 0 0;
+    user-select: none;
     cursor: pointer;
 }
 
@@ -1236,6 +1352,7 @@ input.miniInput {
     width: 0.8em;
     height: 0.8em;
     clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
+    pointer-events: none;
 }
 
 @keyframes hideX {
@@ -1268,7 +1385,8 @@ input.miniInput {
     body { scrollbar-color: var(--input-border) black; }
 }
 
-@media screen and (max-width: 55em) {
+/* Everything bellow gets edited in changeFontSize function, because rem units are bugged and there isn't any better alternatives */
+@media screen and (max-width: 925px) {
     #MDMessage1 {
         display: block;
         text-align: center;
@@ -1287,14 +1405,24 @@ input.miniInput {
         margin-top: 1vh;
     }
 
-    #buildings { row-gap: 0.2em; }
+    #buildings {
+        row-gap: 0.2em;
+        width: 100vw;
+        min-width: min-content; /* clamp() breaks with that value */
+        max-width: calc(32px + 32.198em);
+    }
+
     .buyBuilding, #specials > div { column-gap: 0.15em; }
     .buyBuilding > div:first-of-type, #specials p { flex-direction: column; }
-    .buyBuilding > div > p:first-of-type { width: 13.8em; }
-    .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
+    .buyBuilding > div:first-of-type { width: 100%; } /* max-width: 19.2em; */
+    .buyBuilding button:first-of-type,
+    .buyBuilding > div > p:first-of-type { width: unset; }
+    .buyBuilding > div > p:first-of-type > span { white-space: nowrap; }
 
     .buyBuilding > div:last-of-type {
+        flex-shrink: 0;
         row-gap: 0.16em;
+        width: clamp(11.5em, 38vw, 12.5em);
         grid-template-areas: "button button" "buy toggle";
     }
 
@@ -1311,21 +1439,11 @@ input.miniInput {
     .buyBuilding > div > div > div { display: none; }
     .availableBuilding > div > div > p { border-color: var(--building-afford); }
 
-    #specials { max-width: 29em; }
-
     .descriptionText > p { max-width: 90vw; }
 
-    #elementsGrid {
-        gap: 0.15em;
-        padding: 0.25em;
-    }
-
-    #elementsGrid > .interactiveImage {
-        width: 32px;
-        height: 32px;
-        object-fit: scale-down;
-    }
-
+    #elementsGrid { grid-template-columns: repeat(9, 1fr); }
+    #element2 { grid-column: 9; }
+    #elementsGrid:not(.tenElements) #element5, #element13 { grid-column: 4; }
     #element0 { display: none; }
 
     #strangenessResearch {
@@ -1335,7 +1453,7 @@ input.miniInput {
 
     #themeArea > div > div { width: 80vw; }
 
-    #fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 7.7608em + 2.8vw); }
+    #fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); }
     #footerMain > * { column-gap: 0.8em; }
     #stageSelect { margin-bottom: 0.8vw; }
 
@@ -1349,4 +1467,22 @@ input.miniInput {
         margin-bottom: 0.8vw;
         gap: 0.8vw;
     }
+
+    #subtabs button { width: 100%; }
+    #phoneHotkeys { gap: 0.8vw; }
 }
+@media screen and (max-width: 394px) {
+    .buyBuilding { margin-left: calc(-32px - 0.348em); }
+
+    #elementsGrid {
+        gap: 0.15em;
+        padding: 0.25em;
+    }
+
+    #elementsGrid > .interactiveImage {
+        width: 32px;
+        height: 32px;
+        object-fit: scale-down;
+    }
+}
+/* No rules are allowed past this point */

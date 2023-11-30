@@ -1,17 +1,76 @@
-import { getId, getQuery } from './Main';
+import { changeIntervals, getId, getQuery } from './Main';
 import { global, player } from './Player';
-import { calculateMaxLevel } from './Stage';
+import { assignMaxRank } from './Stage';
+import type { globalSaveType } from './Types';
 import { numbersUpdate, visualUpdate } from './Update';
 
-export const specialHTML = { //First values for images from here must be from true vacuum
-    resetHTML: [
-        '',
-        '<span class="bigWord orangeText">Discharge</span>. Reset current Structures and Energy. Will also boost production by <span id="dischargeBase" class="orangeText"></span>, if to reset with enough Energy.',
-        '<span class="bigWord grayText">Vaporization</span>. Structures, Upgrades, will be reset. But in return gain <span class="grayText">Clouds</span>. It takes a lot to form more than one.',
-        '<img src="Used_art/Missing.png" alt="" loading="lazy" draggable="false" id="rankImage">Current <span class="bigWord darkorchidText">Rank</span> is: <span id="rankName"></span>. <span id="rankMessage"></span>',
-        '<span class="bigWord orchidText">Collapse</span> - everything will be lost, but at same time gained. Even remnants have their own unique strength and effects.',
-        ''
-    ],
+export const globalSave: globalSaveType = {
+    intervals: {
+        main: 20,
+        numbers: 80,
+        visual: 1000,
+        autoSave: 20000
+    },
+    toggles: [false, false, false], //Hotkeys type[0]; Elements as tab[1]; Auto Stage switch[2]
+    format: ['.', ''], //Point[0]; Separator[1]
+    theme: null,
+    fontSize: 16,
+    MDSettings: [false, false], //Status[0]; Mouse events[1]
+    SRSettings: [false, false, false], //Status[0]; Tabindex Upgrades[1]; Tabindex primary[2]
+    developerMode: false
+};
+
+export const saveGlobalSettings = () => localStorage.setItem('fundamentalSettings', btoa(JSON.stringify(globalSave)));
+
+export const toggleSpecial = (number: number, type: 'normal' | 'mobile' | 'reader', change = false, reload = false) => {
+    let toggles;
+    if (type === 'mobile') {
+        toggles = globalSave.MDSettings;
+    } else if (type === 'reader') {
+        toggles = globalSave.SRSettings;
+    } else {
+        toggles = globalSave.toggles;
+    }
+
+    if (change) {
+        if (reload) {
+            return void (async() => {
+                if (!await Confirm('Changing this setting will reload game, confirm?\n(Game will not autosave)')) { return; }
+                global.paused = true;
+                changeIntervals();
+                toggles[number] = !toggles[number];
+                saveGlobalSettings();
+                window.location.reload();
+                return void Alert('Awaiting game reload');
+            })();
+        } else {
+            toggles[number] = !toggles[number];
+            saveGlobalSettings();
+        }
+    }
+
+    let toggleHTML;
+    if (type === 'mobile') {
+        toggleHTML = getId(`MDToggle${number}`);
+    } else if (type === 'reader') {
+        toggleHTML = getId(`SRToggle${number}`);
+    } else {
+        toggleHTML = getId(`toggleNormal${number}`);
+    }
+
+    if (!toggles[number]) {
+        toggleHTML.style.color = '';
+        toggleHTML.style.borderColor = '';
+        toggleHTML.textContent = 'OFF';
+    } else {
+        toggleHTML.style.color = 'var(--red-text)';
+        toggleHTML.style.borderColor = 'crimson';
+        toggleHTML.textContent = 'ON';
+    }
+};
+
+export const specialHTML = { //Images here are from true vacuum for easier cache
+    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', ''], //[0] === textContent
     longestBuilding: 7, //+1
     buildingHTML: [ //outerHTML is slow
         [],
@@ -25,95 +84,95 @@ export const specialHTML = { //First values for images from here must be from tr
     upgradeHTML: [
         [],
         [
-            ['UpgradeQ1.png', 'Weak force'], //[1] === alt
-            ['UpgradeQ2.png', 'Strong force'],
-            ['UpgradeQ3.png', 'Electron'],
-            ['UpgradeQ4.png', 'Proton'],
-            ['UpgradeQ5.png', 'Neutron'],
-            ['UpgradeQ6.png', 'Superposition'],
-            ['UpgradeQ7.png', 'Protium'],
-            ['UpgradeQ8.png', 'Deuterium'],
-            ['UpgradeQ9.png', 'Tritium'],
-            ['UpgradeQ10.png', 'Fusion']
+            'UpgradeQ1.png',
+            'UpgradeQ2.png',
+            'UpgradeQ3.png',
+            'UpgradeQ4.png',
+            'UpgradeQ5.png',
+            'UpgradeQ6.png',
+            'UpgradeQ7.png',
+            'UpgradeQ8.png',
+            'UpgradeQ9.png',
+            'UpgradeQ10.png'
         ],
         [
-            ['UpgradeW1.png', 'H2O'],
-            ['UpgradeW2.png', 'Spread'],
-            ['UpgradeW3.png', 'Vaporization'],
-            ['UpgradeW4.png', 'Tension'],
-            ['UpgradeW5.png', 'Stress'],
-            ['UpgradeW6.png', 'Stream'],
-            ['UpgradeW7.png', 'River'],
-            ['UpgradeW8.png', 'Tsunami'],
-            ['UpgradeW9.png', 'Tide']
+            'UpgradeW1.png',
+            'UpgradeW2.png',
+            'UpgradeW3.png',
+            'UpgradeW4.png',
+            'UpgradeW5.png',
+            'UpgradeW6.png',
+            'UpgradeW7.png',
+            'UpgradeW8.png',
+            'UpgradeW9.png'
         ],
         [
-            ['UpgradeA1.png', 'Motion'],
-            ['UpgradeA2.png', 'Gas'],
-            ['UpgradeA3.png', 'Micrometeoroid'],
-            ['UpgradeA4.png', 'Instability'],
-            ['UpgradeA5.png', 'Gravity'],
-            ['UpgradeA6.png', 'Pile'],
-            ['UpgradeA7.png', 'Magma'],
-            ['UpgradeA8.png', 'Equilibrium'],
-            ['UpgradeA9.png', 'Orbit'],
-            ['UpgradeA10.png', 'Atmosphere'],
-            ['UpgradeA11.png', 'Pebble'],
-            ['UpgradeA12.png', 'Tidal force'],
-            ['UpgradeA13.png', 'Ring']
+            'UpgradeA1.png',
+            'UpgradeA2.png',
+            'UpgradeA3.png',
+            'UpgradeA4.png',
+            'UpgradeA5.png',
+            'UpgradeA6.png',
+            'UpgradeA7.png',
+            'UpgradeA8.png',
+            'UpgradeA9.png',
+            'UpgradeA10.png',
+            'UpgradeA11.png',
+            'UpgradeA12.png',
+            'UpgradeA13.png'
         ],
         [
-            ['UpgradeS1.png', 'Collapse'],
-            ['UpgradeS2.png', 'Reaction'],
-            ['UpgradeS3.png', 'CNO'],
-            ['UpgradeS4.png', 'Helium fusion']
+            'UpgradeS1.png',
+            'UpgradeS2.png',
+            'UpgradeS3.png',
+            'UpgradeS4.png'
         ],
         [
-            ['UpgradeG1.png', 'Instability'],
-            ['UpgradeG2.png', 'Super cluster'],
-            ['UpgradeG3.png', 'Quasar']
+            'UpgradeG1.png',
+            'UpgradeG2.png',
+            'UpgradeG3.png'
         ]
     ],
     longestResearch: 9,
     researchHTML: [
         [],
         [
-            ['ResearchQ1.png', 'Protium+', 'stage1borderImage'], //[2] === className
-            ['ResearchQ2.png', 'Deuterium+', 'stage1borderImage'],
-            ['ResearchQ3.png', 'Tritium+', 'stage1borderImage'],
-            ['ResearchQ4.png', 'Discharge-', 'stage4borderImage'],
-            ['ResearchQ5.png', 'Discharge+', 'stage4borderImage'],
-            ['ResearchQ6.png', 'Discharge++', 'stage4borderImage']
+            ['ResearchQ1.png', 'stage1borderImage'], //[1] === className
+            ['ResearchQ2.png', 'stage1borderImage'],
+            ['ResearchQ3.png', 'stage1borderImage'],
+            ['ResearchQ4.png', 'stage4borderImage'],
+            ['ResearchQ5.png', 'stage4borderImage'],
+            ['ResearchQ6.png', 'stage4borderImage']
         ],
         [
-            ['ResearchW1.png', 'H2O+', 'stage2borderImage'],
-            ['ResearchW2.png', 'H2O++', 'stage2borderImage'],
-            ['ResearchW3.png', 'Tension+', 'stage2borderImage'],
-            ['ResearchW4.png', 'Stress+', 'stage2borderImage'],
-            ['ResearchW5.png', 'Streams+', 'stage2borderImage'],
-            ['ResearchW6.png', 'Channel', 'stage2borderImage']
+            ['ResearchW1.png', 'stage2borderImage'],
+            ['ResearchW2.png', 'stage2borderImage'],
+            ['ResearchW3.png', 'stage2borderImage'],
+            ['ResearchW4.png', 'stage2borderImage'],
+            ['ResearchW5.png', 'stage2borderImage'],
+            ['ResearchW6.png', 'stage2borderImage']
         ],
         [
-            ['ResearchA1.png', 'Mass+', 'stage3borderImage'],
-            ['ResearchA2.png', 'Adhesion', 'stage2borderImage'],
-            ['ResearchA3.png', 'Weathering', 'stage3borderImage'],
-            ['ResearchA4.png', 'Shattering', 'stage3borderImage'],
-            ['ResearchA5.png', 'Collision', 'stage3borderImage'],
-            ['ResearchA6.png', 'Binary', 'stage3borderImage'],
-            ['ResearchA7.png', 'Gravity+', 'stage1borderImage'],
-            ['ResearchA8.png', 'Layers', 'stage7borderImage'],
-            ['ResearchA9.png', 'Drag', 'stage1borderImage']
+            ['ResearchA1.png', 'stage3borderImage'],
+            ['ResearchA2.png', 'stage2borderImage'],
+            ['ResearchA3.png', 'stage3borderImage'],
+            ['ResearchA4.png', 'stage3borderImage'],
+            ['ResearchA5.png', 'stage3borderImage'],
+            ['ResearchA6.png', 'stage3borderImage'],
+            ['ResearchA7.png', 'stage1borderImage'],
+            ['ResearchA8.png', 'stage7borderImage'],
+            ['ResearchA9.png', 'stage1borderImage']
         ],
         [
-            ['ResearchS1.png', 'Orbit', 'stage5borderImage'],
-            ['ResearchS2.png', '2 stars', 'stage5borderImage'],
-            ['ResearchS3.png', 'Protodisc', 'stage7borderImage'],
-            ['ResearchS4.png', 'Planetary nebula', 'stage5borderImage'],
-            ['ResearchS5.png', 'Gamma-rays', 'stage6borderImage']
+            ['ResearchS1.png', 'stage5borderImage'],
+            ['ResearchS2.png', 'stage5borderImage'],
+            ['ResearchS3.png', 'stage7borderImage'],
+            ['ResearchS4.png', 'stage5borderImage'],
+            ['ResearchS5.png', 'stage6borderImage']
         ],
         [
-            ['ResearchG1.png', 'Density', 'stage1borderImage'],
-            ['ResearchG2.png', 'Frequency', 'stage6borderImage']
+            ['ResearchG1.png', 'stage1borderImage'],
+            ['ResearchG2.png', 'stage6borderImage']
         ]
     ],
     longestResearchExtra: 5,
@@ -123,36 +182,38 @@ export const specialHTML = { //First values for images from here must be from tr
         ['Cloud%20Researches.png', 'stage2borderImage'],
         ['Rank%20Researches.png', 'stage6borderImage'],
         ['Collapse%20Researches.png', 'stage6borderImage'],
-        []
+        ['Galaxy%20Researches.png', 'stage3borderImage']
     ],
     researchExtraHTML: [
         [],
         [
-            ['ResearchEnergy1.png', 'Strong force+', 'stage1borderImage'],
-            ['ResearchEnergy2.png', 'Radiation+', 'stage5borderImage'],
-            ['ResearchEnergy3.png', 'Accretion', 'stage3borderImage'],
-            ['ResearchEnergy4.png', 'Preon Mass', 'stage1borderImage'],
-            ['ResearchEnergy5.png', 'Impulse', 'stage6borderImage']
+            ['ResearchEnergy1.png', 'stage1borderImage'],
+            ['ResearchEnergy2.png', 'stage5borderImage'],
+            ['ResearchEnergy3.png', 'stage3borderImage'],
+            ['ResearchEnergy4.png', 'stage1borderImage'],
+            ['ResearchEnergy5.png', 'stage6borderImage']
         ],
         [
-            ['ResearchClouds1.png', 'Vaporization+', 'stage3borderImage'],
-            ['ResearchClouds2.png', 'Rain', 'stage2borderImage'],
-            ['ResearchClouds3.png', 'Storm', 'stage4borderImage'],
-            ['ResearchClouds4.png', 'Water Accretion', 'stage2borderImage']
+            ['ResearchClouds1.png', 'stage3borderImage'],
+            ['ResearchClouds2.png', 'stage2borderImage'],
+            ['ResearchClouds3.png', 'stage4borderImage'],
+            ['ResearchClouds4.png', 'stage2borderImage']
         ],
         [
-            ['ResearchRank1.png', 'Ocean', 'stage3borderImage'],
-            ['ResearchRank2.png', 'Rank', 'stage3borderImage'],
-            ['ResearchRank3.png', 'Weight', 'stage3borderImage'],
-            ['ResearchRank4.png', 'Viscosity', 'stage2borderImage'],
-            ['ResearchRank5.png', 'Water Rank', 'stage2borderImage']
+            ['ResearchRank1.png', 'stage3borderImage'],
+            ['ResearchRank2.png', 'stage3borderImage'],
+            ['ResearchRank3.png', 'stage3borderImage'],
+            ['ResearchRank4.png', 'stage2borderImage'],
+            ['ResearchRank5.png', 'stage2borderImage']
         ],
         [
-            ['ResearchCollapse1.png', 'Supernova', 'stage6borderImage'],
-            ['ResearchCollapse2.png', 'Mass transfer', 'stage7borderImage'],
-            ['ResearchCollapse3.png', 'White dwarf', 'stage1borderImage']
+            ['ResearchCollapse1.png', 'stage6borderImage'],
+            ['ResearchCollapse2.png', 'stage7borderImage'],
+            ['ResearchCollapse3.png', 'stage1borderImage']
         ],
-        []
+        [
+            ['ResearchGalaxy1.png', 'stage3borderImage']
+        ]
     ],
     longestFooterStats: 3,
     footerStatsHTML: [
@@ -184,14 +245,16 @@ export const specialHTML = { //First values for images from here must be from tr
         idMap: new Map<string, HTMLElement>(),
         classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
         queryMap: new Map<string, HTMLElement>()
-    }
+    },
+    notifications: [] as Array<[string, () => void]>,
+    styleSheet: document.createElement('style') //Secondary
 };
 
 export const preventImageUnload = () => {
     const { footerStatsHTML: footer, buildingHTML: build, upgradeHTML: upgrade, researchHTML: research, researchExtraHTML: extra, researchExtraDivHTML: extraDiv } = specialHTML;
     //Duplicates are ignored, unless they are from Strangeness, because duplicates from there could become unique in future
 
-    let images = '';
+    let images = '<img src="Used_art/Red%20giant" loading="lazy"><img src="Used_art/White%20dwarf" loading="lazy">';
     for (let s = 1; s <= 5; s++) {
         for (let i = 0; i < footer[s].length; i++) {
             if (s === 2) {
@@ -203,7 +266,7 @@ export const preventImageUnload = () => {
             images += `<img src="Used_art/${build[s][i]}" loading="lazy">`;
         }
         for (let i = 0; i < upgrade[s].length; i++) {
-            images += `<img src="Used_art/${upgrade[s][i][0]}" loading="lazy">`;
+            images += `<img src="Used_art/${upgrade[s][i]}" loading="lazy">`;
         }
         for (let i = 0; i < research[s].length; i++) {
             images += `<img src="Used_art/${research[s][i][0]}" loading="lazy">`;
@@ -211,27 +274,27 @@ export const preventImageUnload = () => {
         for (let i = 0; i < extra[s].length; i++) {
             images += `<img src="Used_art/${extra[s][i][0]}" loading="lazy">`;
         }
-        if (extraDiv[s].length > 0) { images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`; }
+        images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`;
         images += `<img src="Used_art/Stage${s}%20border.png" loading="lazy">`;
     }
     specialHTML.cache.imagesDiv.innerHTML = images; //Saved just in case
 };
 
-export const setTheme = (theme: number | null) => {
+export const setTheme = (theme: number | null, noSwitch = false) => {
     if (theme !== null) {
         if (player.stage.true < theme) { theme = null; }
-        if (theme === 6 && player.stage.true < 7 && player.strangeness[5][0] < 1) { theme = null; }
+        if (theme === 6 && player.stage.true < 7) { theme = null; }
     }
 
-    global.theme = theme;
-    theme === null ? localStorage.removeItem('theme') : localStorage.setItem('theme', `${theme}`);
-    switchTheme();
+    globalSave.theme = theme;
+    saveGlobalSettings();
+    if (!noSwitch) { switchTheme(); }
 };
 
 export const switchTheme = () => {
     const body = document.body.style;
-    const theme = global.theme ?? player.stage.active;
-    getId('currentTheme').textContent = global.theme === null ? 'Default' : global.stageInfo.word[theme];
+    const theme = globalSave.theme ?? player.stage.active;
+    getId('currentTheme').textContent = globalSave.theme === null ? 'Default' : global.stageInfo.word[theme];
 
     let dropStatColor = '';
     let waterStatColor = '';
@@ -435,11 +498,14 @@ export const Alert = async(text: string): Promise<void> => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             resolve();
-            Notify('Another Alert is already active');
+            Notify(`Another Alert is already active${globalSave.developerMode ?
+                `, type: 'Alert'\nText: ${text}` : ''
+            }`);
             return;
         }
 
         getId('alertText').textContent = text;
+        const body = document.body;
         const confirm = getId('alertConfirm');
         blocker.style.display = '';
         confirm.focus();
@@ -452,11 +518,11 @@ export const Alert = async(text: string): Promise<void> => {
         };
         const close = () => {
             blocker.style.display = 'none';
-            document.removeEventListener('keydown', key);
+            body.removeEventListener('keydown', key);
             confirm.removeEventListener('click', close);
             resolve();
         };
-        document.addEventListener('keydown', key);
+        body.addEventListener('keydown', key);
         confirm.addEventListener('click', close);
     });
 };
@@ -466,11 +532,14 @@ export const Confirm = async(text: string): Promise<boolean> => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             resolve(false);
-            Notify('Another Alert is already active');
+            Notify(`Another Alert is already active${globalSave.developerMode ?
+                `, type: 'Confirm'\nText: ${text}` : ''
+            }`);
             return;
         }
 
         getId('alertText').textContent = text;
+        const body = document.body;
         const cancel = getId('alertCancel');
         const confirm = getId('alertConfirm');
         blocker.style.display = '';
@@ -484,53 +553,60 @@ export const Confirm = async(text: string): Promise<boolean> => {
                 button.preventDefault();
                 no();
             } else if (button.key === 'Enter' || button.key === ' ') {
-                if (document.activeElement !== cancel) {
-                    button.preventDefault();
-                    yes();
-                }
+                if (document.activeElement === cancel) { return; }
+                button.preventDefault();
+                yes();
             }
         };
         const close = (result: boolean) => {
             blocker.style.display = 'none';
             cancel.style.display = 'none';
-            document.removeEventListener('keydown', key);
+            body.removeEventListener('keydown', key);
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
             resolve(result);
         };
-        document.addEventListener('keydown', key);
+        body.addEventListener('keydown', key);
         confirm.addEventListener('click', yes);
         cancel.addEventListener('click', no);
     });
 };
 
-export const Prompt = async(text: string, inputValue = ''): Promise<string | null> => {
+export const Prompt = async(text: string, placeholder = ''): Promise<string | null> => {
     return await new Promise((resolve) => {
         const blocker = getId('blocker');
         if (blocker.style.display !== 'none') {
             resolve(null);
-            Notify('Another Alert is already active');
+            Notify(`Another Alert is already active${globalSave.developerMode ?
+                `, type: 'Prompt'\nText: ${text}` : ''
+            }`);
             return;
         }
 
         getId('alertText').textContent = text;
+        const body = document.body;
         const input = getId('alertInput') as HTMLInputElement;
         const cancel = getId('alertCancel');
         const confirm = getId('alertConfirm');
         blocker.style.display = '';
         cancel.style.display = '';
         input.style.display = '';
-        input.value = inputValue;
+        input.placeholder = placeholder;
+        input.value = '';
         input.focus();
 
-        const yes = () => { close(input.value); };
+        const yes = () => { close(input.value === '' ? input.placeholder : input.value); };
         const no = () => { close(null); };
         const key = (button: KeyboardEvent) => {
             if (button.key === 'Escape') {
                 button.preventDefault();
                 no();
-            } else if (button.key === 'Enter' || button.key === ' ') {
-                if (document.activeElement !== cancel) {
+            } else if (document.activeElement !== cancel) {
+                if (button.key === 'Enter') {
+                    button.preventDefault();
+                    yes();
+                } else if (button.key === ' ') {
+                    if (document.activeElement === input) { return; }
                     button.preventDefault();
                     yes();
                 }
@@ -540,112 +616,149 @@ export const Prompt = async(text: string, inputValue = ''): Promise<string | nul
             blocker.style.display = 'none';
             cancel.style.display = 'none';
             input.style.display = 'none';
-            document.removeEventListener('keydown', key);
+            body.removeEventListener('keydown', key);
             confirm.removeEventListener('click', yes);
             cancel.removeEventListener('click', no);
             resolve(result);
         };
-        document.addEventListener('keydown', key);
+        body.addEventListener('keydown', key);
         confirm.addEventListener('click', yes);
         cancel.addEventListener('click', no);
     });
 };
 
 export const Notify = (text: string) => {
-    const div = getId('notifications');
-    const notification = document.createElement('p');
-    notification.textContent = text;
-    notification.style.animation = 'hideX 1s ease-in-out reverse';
-    div.style.pointerEvents = '';
-    if (global.screenReader) { notification.setAttribute('role', 'alert'); } //Firefox only recently added support for .role (in version 119)
+    /* [0] is for identification; [1] is for html manipulation */
+    const { notifications } = specialHTML;
 
-    const mainDiv = getId('notifications');
-    mainDiv.appendChild(notification);
+    let index;
+    for (let i = 0; i < notifications.length; i++) {
+        if (notifications[i][0] === text) {
+            index = i;
+            break;
+        }
+    }
 
-    let timeout: number | undefined;
-    const remove = () => {
-        notification.removeEventListener('click', remove);
-        notification.style.animation = 'hideX 1s ease-in-out forwards';
+    if (index === undefined) {
+        let count = 1;
+        let timeout: number;
+
+        const html = document.createElement('p');
+        html.textContent = text;
+        html.style.animation = 'hideX 800ms ease-in-out reverse';
+        html.style.pointerEvents = 'none';
+        if (globalSave.SRSettings[0]) { html.setAttribute('role', 'alert'); } //Firefox only recently added support for .role (in version 119)
+        getId('notifications').append(html);
+
+        const pointer = notifications[notifications.push([text, () => {
+            html.textContent = `${text} | x${++count}`;
+            clearTimeout(timeout);
+            timeout = setTimeout(remove, 7200);
+        }]) - 1];
+        const remove = () => {
+            notifications.splice(notifications.indexOf(pointer), 1);
+            html.removeEventListener('click', remove);
+            html.style.animation = 'hideX 800ms ease-in-out forwards';
+            html.style.pointerEvents = 'none';
+            setTimeout(() => html.remove(), 800);
+            clearTimeout(timeout);
+        };
         setTimeout(() => {
-            mainDiv.removeChild(notification);
-            div.style.pointerEvents = '';
-        }, 1000);
-        clearTimeout(timeout);
-    };
-
-    setTimeout(() => {
-        notification.style.animation = '';
-        div.style.pointerEvents = 'auto';
-        timeout = setTimeout(remove, 9000);
-        notification.addEventListener('click', remove);
-    }, 1000);
+            html.style.animation = '';
+            html.style.pointerEvents = '';
+            timeout = setTimeout(remove, 7200);
+            html.addEventListener('click', remove);
+        }, 800);
+    } else { notifications[index][1](); }
 };
 
 export const hideFooter = () => {
+    const toggleData = getId('hideToggle').dataset;
+    if (toggleData.disabled === 'true') { return; }
     const footer = getId('footer');
     const footerArea = getId('footerMain');
-    const toggle = getId('hideToggle');
     const arrow = getId('hideArrow');
 
     const animationReset = () => {
         footer.style.animation = '';
         arrow.style.animation = '';
-        toggle.addEventListener('click', hideFooter);
+        toggleData.disabled = '';
     };
 
     global.footer = !global.footer;
-    toggle.removeEventListener('click', hideFooter);
+    toggleData.disabled = 'true';
     if (global.footer) {
         footerArea.style.display = '';
         arrow.style.transform = '';
-        footer.style.animation = 'hideY 1s reverse';
-        arrow.style.animation = 'rotate 1s reverse';
+        footer.style.animation = 'hideY 800ms reverse';
+        arrow.style.animation = 'rotate 800ms reverse';
         getId('hideText').textContent = 'Hide';
         getId('stageSelect').classList.add('active');
-        setTimeout(animationReset, 1000);
+        setTimeout(animationReset, 800);
 
         numbersUpdate();
         visualUpdate();
     } else {
-        footer.style.animation = 'hideY 1s backwards';
-        arrow.style.animation = 'rotate 1s backwards';
+        footer.style.animation = 'hideY 800ms backwards';
+        arrow.style.animation = 'rotate 800ms backwards';
         getId('hideText').textContent = 'Show';
         getId('stageSelect').classList.remove('active');
         setTimeout(() => {
             footerArea.style.display = 'none';
             arrow.style.transform = 'rotate(180deg)';
             animationReset();
-        }, 1000);
+        }, 800);
     }
 };
 
-export const changeFontSize = (change = false) => {
+export const changeFontSize = (initial: boolean) => {
     const input = getId('customFontSize') as HTMLInputElement;
-    let size = Number(change ? input.value : localStorage.getItem('fontSize'));
-    if (size === 0) { size = 16; }
-
-    if (size === 16) {
-        document.body.style.fontSize = '';
-        localStorage.removeItem('fontSize');
-    } else {
-        size = Math.floor(Math.min(Math.max(size, 10), 32) * 100) / 100;
-        document.body.style.fontSize = `${size}px`;
-        localStorage.setItem('fontSize', `${size}`);
+    const size = Math.min(Math.max(initial ? globalSave.fontSize : (input.value === '' ? 16 : Math.floor(Number(input.value) * 100) / 100), 12), 24);
+    if (!initial) {
+        globalSave.fontSize = size;
+        saveGlobalSettings();
     }
+
+    document.documentElement.style.fontSize = size === 16 ? '' : `${size}px`;
     input.value = `${size}`;
+    adjustCSSRules(initial);
+};
+/* Only decent work around media not allowing var() and rem units being bugged */
+const adjustCSSRules = (initial: boolean) => {
+    const styleSheet = (getId('primaryRules') as HTMLStyleElement).sheet;
+    if (styleSheet == null) { //Safari doesn't wait for CSS to load even if script is defered
+        if (initial) {
+            Notify('Failed to adjust CSS, will retry after its loading is finished');
+            getId('primaryRules').addEventListener('load', () => {
+                Notify('Trying to adjust CSS again\n(Ignore it if no more notifications about it afterwards)');
+                adjustCSSRules(false);
+            });
+            return;
+        }
+        return Notify(`Failed to adjust CSS due to style sheet being ${styleSheet}`);
+    }
+    const styleLength = styleSheet.cssRules.length - 1;
+    const fontRatio = globalSave.fontSize / 16;
+    const rule1 = styleSheet.cssRules[styleLength - 1] as CSSMediaRule; //Primary phone size
+    const rule2 = styleSheet.cssRules[styleLength] as CSSMediaRule; //Tiny phone size
+    styleSheet.deleteRule(styleLength);
+    styleSheet.deleteRule(styleLength - 1);
+    styleSheet.insertRule(rule1.cssText.replace(rule1.conditionText, `screen and (max-width: ${893 * fontRatio + 32}px)`), styleLength - 1);
+    styleSheet.insertRule(rule2.cssText.replace(rule2.conditionText, `screen and (max-width: ${362 * fontRatio + 32}px)`), styleLength);
 };
 
 export const changeFormat = (point: boolean) => {
     const htmlInput = (point ? getId('decimalPoint') : getId('thousandSeparator')) as HTMLInputElement;
-    const allowed = ['.', ',', ' ', '_', '^', '"', "'", '`', '|'].includes(htmlInput.value);
-    if (!allowed || (point ? player.separator[0] : player.separator[1]) === htmlInput.value) {
-        if (point && player.separator[0] === '.') {
+    const allowed = ['.', '·', ',', ' ', '_', "'", '"', '`', '|'].includes(htmlInput.value);
+    if (!allowed || globalSave.format[point ? 1 : 0] === htmlInput.value) {
+        if (point && globalSave.format[1] === '.') {
             (getId('thousandSeparator') as HTMLInputElement).value = '';
-            player.separator[0] = '';
+            globalSave.format[1] = '';
         }
         htmlInput.value = point ? '.' : '';
     }
-    point ? player.separator[1] = htmlInput.value : player.separator[0] = htmlInput.value;
+    globalSave.format[point ? 0 : 1] = htmlInput.value;
+    saveGlobalSettings();
 };
 
 export const MDStrangenessPage = (stageIndex: number) => {
@@ -658,52 +771,46 @@ export const replayEvent = async() => {
 
     let last;
     if (player.stage.true >= 6) {
-        last = 7;
-    } else if (player.strange[0].total > 0) {
-        last = player.event ? 6 : 5;
+        last = 6;
     } else {
-        last = player.stage.true - (player.event ? 0 : 1);
+        last = player.stage.true - (player.events[0] ? 0 : 1);
         if (last < 1) { return void Alert('There are no unlocked events'); }
     }
 
-    let text = 'Which event do you want to see again?\nEvent 1: To Discharge;';
-    if (last >= 2) { text += '\nEvent 2: Clouds softcap;'; }
-    if (last >= 3) { text += '\nEvent 3: New Rank;'; }
-    if (last >= 4) { text += '\nEvent 4: Element activation;'; }
-    if (last >= 5) { text += '\nEvent 5: Intergalactic space;'; }
-    if (last >= 6) { text += '\nEvent 6: First Galaxy;'; }
-    if (last >= 7) { text += '\nEvent 7: True Vacuum;'; }
+    let text = 'Which event do you want to see again?\nEvent 1: Discharge requirement';
+    if (last >= 2) { text += '\nEvent 2: Clouds softcap'; }
+    if (last >= 3) { text += '\nEvent 3: New Rank'; }
+    if (last >= 4) { text += '\nEvent 4: Element activation'; }
+    if (last >= 5) { text += '\nEvent 5: Intergalactic space'; }
+    if (last >= 6) { text += '\nEvent 6: True Vacuum'; }
 
     const event = Number(await Prompt(text, `${last}`));
     if (event > last) { return; }
 
-    void playEvent(event, false);
+    void playEvent(event, -1);
 };
 
-export const playEvent = async(event: number, award = true) => {
+export const playEvent = async(event: number, index: number) => {
     if (getId('blocker').style.display !== 'none') { return; }
-    if (award) { player.event = true; }
+    if (index >= 0) { player.events[index] = true; }
 
     switch (event) {
         case 1:
-            return void Alert("Spent Energy can be regained only with Discharge, reaching new Goal isn't required for it");
+            return void Alert("Spent Energy can be regained only with Discharge, reaching new goal isn't required");
         case 2:
             return void Alert('Cloud density is too high... Strength of new Clouds will be weaker');
         case 3:
-            if (award) {
-                global.accretionInfo.rankCost[4] = 5e29;
+            if (index >= 0) {
                 global.debug.rankUpdated = -1;
+                assignMaxRank();
             }
             return void Alert("Accretion can't continue without a new Rank. Next Rank is going to be softcapped");
         case 4:
             return void Alert("Elements require Collapse to be activated. Solar mass won't decrease from Collapse");
         case 5:
-            return void Alert('Intergalactic space is currently empty, but after returning back to Microworld and completing different Milestones, new end will arrive');
+            return void Alert('Intergalactic space is currently empty, but completing different Milestones from previous Stages will allow creation of new Structures');
         case 6:
-            if (award) { calculateMaxLevel(4, 4, 'strangeness', true); }
-            return void Alert('Galaxy will boost Nebulas and Star clusters, but for the price of everything else');
-        case 7:
             await Alert('Vacuum is too unstable. Vacuum instability is imminent');
-            return void Alert('False Vacuum decayed, new Forces and Structures are expected\n(Game will be much slower now)');
+            return void Alert('False Vacuum decayed, new Forces and Structures are expected');
     }
 };
