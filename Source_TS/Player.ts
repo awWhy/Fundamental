@@ -7,7 +7,7 @@ import { format, visualUpdateResearches } from './Update';
 import { prepareVacuum } from './Vacuum';
 
 export const player: playerType = { //Only for information that need to be saved (cannot be calculated)
-    version: 'v0.1.8',
+    version: 'v0.1.9',
     fileName: 'Fundamental, [date] [time], [stage]',
     separator: ['', '.'], //[0] separator, [1] point
     stage: {
@@ -253,6 +253,7 @@ export const player: playerType = { //Only for information that need to be saved
     upgrades: [],
     researches: [],
     researchesExtra: [],
+    researchesAuto: [],
     ASR: [], //Auto Structures Research
     elements: [],
     strangeness: [],
@@ -262,11 +263,15 @@ export const player: playerType = { //Only for information that need to be saved
         void: [0, 0, 0, 0, 0, 0]
     },
     toggles: {
-        normal: [], //Auto added for every element with a class 'toggle'
-        /* Offline auto use[0]; Hotkeys type[1]; Elements as tab[2] */
+        normal: [], //Auto added for every element with a class 'toggleNormal'
+        /* Hotkeys type[0]; Elements as tab[1] */
         confirm: [], //Class 'toggleConfirm'
         /* Stage[0]; Discharge[1]; Vaporization[2]; Rank[3]; Collapse[4] */
         buildings: [], //Class 'toggleBuilding' ([0] everywhere, is toggle all)
+        hover: [], //Class 'toggleHover'
+        /* Upgrades/Researches/Elements[0] */
+        max: [], //Class 'toggleMax'
+        /* Researches[0] */
         auto: [], //Class 'toggleAuto'
         /* Stage[0], Discharge[1], Vaporization[2], Rank[3], Collapse[4],
            Upgrades[5], Researches[6], ResearchesExtra[7], Elements[8] */
@@ -306,10 +311,11 @@ export const global: globalType = { //For information that doesn't need to be sa
         errorQuery: true, //About incorect Query
         errorGain: true, //About NaN or Infinity
         rankUpdated: -1, //Rank number
-        historyUpdatedS: false //History
+        historyStage: -1 //Stage resets
     },
     trueActive: 1,
     lastSave: 0,
+    paused: true,
     footer: true,
     mobileDevice: false,
     screenReader: false,
@@ -415,7 +421,6 @@ export const global: globalType = { //For information that doesn't need to be sa
         textColor: ['', 'cyan', 'blue', 'gray', 'orange', 'darkorchid', 'darkviolet'],
         buttonBorder: ['', 'darkcyan', '#386cc7', '#424242', '#a35700', '#8f004c', '#6c1ad1'],
         imageBorderColor: ['', '#008b8b', '#1460a8', '#5b5b75', '#e87400', '#b324e2', '#5300c1'],
-        priceName: 'Energy',
         activeAll: [1]
     },
     buildingsInfo: {
@@ -497,8 +502,8 @@ export const global: globalType = { //For information that doesn't need to be sa
             effectText: [
                 () => 'Particles produce 5 times more Quarks.',
                 () => 'Gluons now bind Quarks into Particles, which makes Particles 10 times cheaper.',
-                () => `${player.inflation.vacuum ? 'Atoms' : 'Particle'} cost is 10 times cheaper.`,
-                () => `${player.inflation.vacuum ? 'Atoms' : 'Particle'} produce 5 times more ${player.inflation.vacuum ? 'Particles' : 'Quarks'}.`,
+                () => `${player.inflation.vacuum ? 'Atoms' : 'Particles'} are 10 times cheaper.`,
+                () => `${player.inflation.vacuum ? 'Atoms' : 'Particles'} produce 5 times more ${player.inflation.vacuum ? 'Particles' : 'Quarks'}.`,
                 () => `${player.inflation.vacuum ? 'Molecules' : 'Atoms'} produce 5 times more ${player.inflation.vacuum ? 'Atoms' : 'Particles'}.`,
                 () => `Ability to regain spent Energy and if had enough Energy will also boost production for all Structures by ${format(global.dischargeInfo.base)}.`,
                 () => `Cost scaling is decreased by ${format(calculateEffects.S1Upgrade6() / 100)}.`,
@@ -509,7 +514,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                     return `Unspent Energy boost Molecules production of themselves ${player.discharge.energy !== effect ? `${format(player.discharge.energy / effect, { padding: true })} to 1. (Softcapped)\n(Actual boost is ${format(effect, { padding: true })})` : '1 to 1.'}`;
                 }
             ],
-            startCost: [36, 48, 60, 90, 150, 400, 2000, 4000, 20000, 70000],
+            startCost: [36, 72, 120, 160, 200, 400, 2000, 4000, 20000, 70000],
             maxActive: 10
         }, { //Stage 2
             name: [
@@ -778,14 +783,14 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `Cosmic dust ${player.inflation.vacuum ? 'will delay Preons hardcap' : 'production is increased'} by another ${format(1.1)}x per level.\n(Total increase: ${format(1.1 ** player.researchesExtra[3][0], { padding: true })})`,
-                () => `${player.inflation.vacuum ? 'Preons hardcap delay from Cosmic dust is even bigger' : 'Accretion speed is even quicker'}. Improved by effective Rank. (Total boost: ${format(calculateEffects.S3Extra1() ** global.accretionInfo.effective)})`,
+                () => `${player.inflation.vacuum ? 'Preons hardcap delay from Cosmic dust is even bigger' : 'Accretion speed is even quicker'}. Improved by effective Rank.\n(Total boost: ${format(calculateEffects.S3Extra1() ** global.accretionInfo.effective)})`,
                 () => "'Gravitational field' Upgrade will now boost Protoplanets at reduced strength. (2x boost)",
                 () => "'Gas' Upgrade is now a little stronger.",
-                () => `'Efficient growth' will now boost Puddles at reduced rate and without bonus Ranks. (Current boost: ${format(calculateEffects.S3Extra4(calculateEffects.S3Extra1() ** player.accretion.rank))})`
+                () => `'Efficient growth' will now boost Puddles at reduced rate and without bonus Ranks.\n(Current boost: ${format(calculateEffects.S3Extra4(calculateEffects.S3Extra1() ** player.accretion.rank))})`
             ],
             cost: [],
-            startCost: [1e-18, 1e-16, 1e26, 1e-6, 1e23],
-            scaling: [10, 100, 1, 1e5, 1e3],
+            startCost: [1e-18, 1e-16, 1e26, 1e-6, 1e-10],
+            scaling: [10, 100, 1, 1e5, 1e12],
             max: [12, 5, 1, 8, 1],
             maxActive: 4
         }, { //Stage 4
@@ -814,13 +819,37 @@ export const global: globalType = { //For information that doesn't need to be sa
             maxActive: 0
         }
     ],
+    researchesAutoInfo: { //Auto Researches Research
+        name: [
+            'Upgrade automatization',
+            'More toggles'
+        ],
+        effectText: [
+            () => `Automatically create all ${['Upgrades', 'Stage Researches', 'Special Researches'][Math.min(player.researchesAuto[0], 2)]} from any Stage. (Need to be enabled in Settings)`,
+            () => 'Unlock a new toggle that will switch all auto Structure toggles at once.'
+        ],
+        costRange: [ //Random scaling
+            [1e14, 2e36, 1e52],
+            [96000]
+        ],
+        autoStage: [ //Stage to buy from (1 per level)
+            [2, 3, 4],
+            [1]
+        ],
+        max: [3, 1]
+    },
     ASRInfo: { //Auto Structures Research
-        cost: [0, 4000, 1e10, 1e-7, 1e6, 1],
+        name: 'Auto Structures',
+        effectText: () => {
+            const stageIndex = player.stage.active;
+            const autoIndex = Math.min(player.ASR[stageIndex] + 1, global.ASRInfo.max[stageIndex]);
+            return `Automatically make ${player.buildings[stageIndex][autoIndex].highest[0] > 0 ? global.buildingsInfo.name[stageIndex][autoIndex] : '(unknown)'} (counts as self-made).\n(Auto will wait until ${format(player.strangeness[1][7] < 1 ? 2 : player.toggles.shop.wait[stageIndex])} times of the Structure cost)`;
+        },
         costRange: [ //Random scaling
             [],
             [4000, 10000, 16000, 24000, 32000],
             [1e10, 1e14, 1e18, 1e23, 1e28, 1e34],
-            [1e-7, 1e10, 5e29, 2e30, 1e36],
+            [1e-7, 1e10, 5e29, 2e30, 2e36],
             [1e6, 1e17, 1e28, 1e39, 1e61],
             [1, 1, 1, 1]
         ],
@@ -907,7 +936,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Automatic Discharge',
                 'Increased Energy',
                 'Better improvement',
-                'Keep auto Structures',
+                'Auto Structures',
                 'More toggles',
                 'Strange boost',
                 'Fundamental boost',
@@ -922,10 +951,10 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Gain more Energy from creating ${player.inflation.vacuum ? 'Preons, +2' : 'Particles, +1'}.`,
                 () => "Research 'Improved Tritium' is now better. (+1)",
                 () => `Always have auto for ${global.buildingsInfo.name[1][Math.min(player.strangeness[1][6] + 1, global.ASRInfo.max[1])]}.`,
-                () => 'First level - improve control over auto Structures toggles.\nSecond level - improve control over consumption of Offline storage.',
+                () => `First level - ${player.strangeness[1][7] >= 1 ? 'Auto await value input and toggle to switch all auto Structures toggles at once' : 'improve control over auto Structures toggles'}.\nSecond level - ${player.strangeness[1][7] >= 2 ? 'Hover to create and max create Researches toggles' : 'unlock new toggles for all Upgrade types'}.`,
                 () => `Unspent Strange quarks will boost Microworld with bonus Discharge goals.\n(Current effect: ${global.strangeInfo.stageBoost[1] !== null ? `+${format(global.strangeInfo.stageBoost[1], { padding: true })}` : 'none'})`,
                 () => `Minor boost of ${format(1.3)}x per level to all Microworld Structures.`,
-                () => 'No Mass will be lost when Creating Preons.',
+                () => 'No Mass will be lost when creating Preons.',
                 () => 'Energy is now directly based on current self-made amount of Structures.\nThis will also increase max levels for Reset automatization.'
             ],
             cost: [],
@@ -940,8 +969,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'More spread',
                 'Cloud density',
                 'Automatic Vaporization',
-                'Keep auto Structures',
-                'Longer Offline',
+                'Auto Structures',
+                'Improved Offline',
                 'Strange boost',
                 'New Structure',
                 'Ocean world',
@@ -954,7 +983,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Decrease requirement per Cloud.',
                 () => `Automatically Vaporize when reached enough boost from new Clouds. (Need to be enabled in Settings)${player.strangeness[1][11] >= 1 ? '\nSecond level - Automatically gain 20% of Clouds per second.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[2][Math.min(player.strangeness[2][5] + 1, global.ASRInfo.max[2])]}.`,
-                () => 'Decrease Offline time waste by -1 second per level.\n(Effect is weaker for Warps)',
+                () => 'Remove tick limit for time warps, also reduce minimum tick to 1 second.',
                 () => `Unspent Strange quarks will boost Submerged by improving Puddles.\n(Current effect: ${global.strangeInfo.stageBoost[2] !== null ? format(global.strangeInfo.stageBoost[2], { padding: true }) : 'none'})`,
                 () => 'Current Vacuum state allows for another Submerged Structure.',
                 () => `Increase ${global.strangeInfo.name[player.strangeness[5][10]]} gained from this Stage reset based on current Cloud amount.\n(Current effect: ${format(calculateEffects.S2Strange9(), { padding: true })})`,
@@ -972,8 +1001,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'More levels',
                 'Improved Satellites',
                 'Automatic Rank',
-                'Keep auto Structures',
-                'Automatization for Upgrades',
+                'Auto Structures',
+                'Upgrade automatization',
                 'Strange boost',
                 'New Structure',
                 'Mass shift',
@@ -986,7 +1015,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Satellites now improve all Accretion Structures with reduced strength (^${format(player.inflation.vacuum ? 0.2 : 0.4)}).`,
                 () => `Automatically increase Rank when available. (Need to be enabled in Settings)${player.strangeness[1][11] >= 1 ? '\nSecond level - auto creation of Accretion Structures after reaching cosmic dust hardcap will always keep enough for highest Solar mass conversion.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[3][Math.min(player.strangeness[3][5] + 1, global.ASRInfo.max[3])]}.`,
-                () => 'Will automatically create all Upgrades and Researches from any Stage.\n(Need to be enabled in Settings, order of automatization is Upgrades > Stage Researches > Special Researches)',
+                () => `Always automatically create all ${['Upgrades', 'Stage Researches', 'Special Researches'][Math.min(player.strangeness[3][6], 2)]} from any Stage. (Need to be enabled in Settings)`,
                 () => `Unspent Strange quarks will boost Accretion by making its Structures cheaper.\n(Current effect: ${global.strangeInfo.stageBoost[3] !== null ? format(global.strangeInfo.stageBoost[3], { padding: true }) : 'none'})`,
                 () => 'Current Vacuum state allows for another Accretion Structure.\n(Not recommended until cheap)',
                 () => `Reduce amount of time required to reach Solar mass hardcap by shifting Cosmic dust and Solar mass hardcaps.\nEach level allows for ${format(1.4)} times bigger shift. (Automatic)`,
@@ -1005,7 +1034,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Main giants',
                 'Remnants of past',
                 'Automatic Collapse',
-                'Keep auto Structures',
+                'Auto Structures',
                 'Daily gain',
                 'Strange boost',
                 'New Structure',
@@ -1019,7 +1048,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Elements will not require Collapse for activation.\n${player.stage.true >= 6 || (player.strange[0].total > 0 && player.event) ? 'Second level will unlock auto creation of Elements. (Need to be enabled in settings)' : '(Auto creation of Elements is not yet possible in Interstellar space)'}`,
                 () => `Automatically Collapse once reached enough boost. (Need to be enabled in Settings)${player.strangeness[1][11] >= 1 ? '\nSecond level - Star remnants will now be gained automatically.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[4][Math.min(player.strangeness[4][6] + 1, global.ASRInfo.max[4])]}.`,
-                () => `Increase multiplier of ${global.strangeInfo.name[player.strangeness[5][10]]} gained from export per day by +1.${player.strangeness[5][10] >= 1 ? '' : ' (Can claim only full ones)'}\n(Export base is increased by +10% of highest Stage reset reward even without this Strangeness)`,
+                () => `Increase multiplier of ${global.strangeInfo.name[player.strangeness[5][10]]} gained from export per day by +1 (which is equal to ${format((2 + player.strangeness[4][7]) / (1 + player.strangeness[4][7]) * 100 - 100)}% increase).\n(${player.strangeness[5][10] >= 1 ? '' : 'Can claim only full ones. '}Export base is increased by +${format(6.25)}% of highest Stage reset reward even without this Strangeness)`,
                 () => `Unspent Strange quarks will boost Interstellar by improving all Stars.\n(Current effect: ${global.strangeInfo.stageBoost[4] !== null ? format(global.strangeInfo.stageBoost[4], { padding: true }) : 'none'})`,
                 () => 'Current Vacuum state allows for another Interstellar Structure.',
                 () => "Improve Neutron Stars strength and improve scaling of '[12] Magnesium' effect."
@@ -1060,7 +1089,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Unlock a new Strange Structure that will replace current Stage reset reward, also convert all ${global.strangeInfo.name[Math.min(player.strangeness[5][10], global.strangenessInfo[5].max[10] - 1)]} and then produce them, but hardcaps quickly.\n(Hardcap delayed by quantity of a higher tier Structure, can be seen in Stats)`
             ],
             cost: [],
-            startCost: [4, 16, 2400, 8, 10, 64, 21600, 60, 1600, 180, 800],
+            startCost: [4, 16, 2400, 8, 10, 64, 21600, 40, 1600, 180, 800],
             scaling: [1, 5, 1, 1.8, 1.8, 1, 3, 2, 1, 1, 1],
             max: [3, 1, 1, 9, 9, 1, 2, 2, 1, 1, 1],
             maxActive: 10
@@ -1069,6 +1098,8 @@ export const global: globalType = { //For information that doesn't need to be sa
     lastUpgrade: [[-1, 'upgrades'], [-1, 'upgrades'], [-1, 'upgrades'], [-1, 'upgrades'], [-1, 'upgrades'], [-1, 'researches']],
     lastElement: -1,
     lastStrangeness: [-1, -1],
+    lastMilestone: [-1, -1],
+    lastChallenge: [-1, -1],
     milestonesInfo: [
         {} as globalType['milestonesInfo'][0], { //Stage 1
             name: [
@@ -1235,18 +1266,10 @@ export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
     return value;
 };
 
-const createArray = (amount: number, type: 'toggle' | 'toggleAuto' | 'toggleConfirm' | 'upgrade') => {
+const createArray = <startValue>(amount: number, value: startValue) => {
     const array = [];
     for (let i = 0; i < amount; i++) {
-        if (type === 'toggle') {
-            array.push(true);
-        } else if (type === 'toggleAuto') {
-            array.push(false);
-        } else if (type === 'toggleConfirm') {
-            array.push('All');
-        } else if (type === 'upgrade') {
-            array.push(0);
-        }
+        array.push(value);
     }
     return array;
 };
@@ -1268,106 +1291,109 @@ for (const upgradeType of ['researches', 'researchesExtra', 'strangeness'] as co
 Object.assign(player, {
     upgrades: [
         [],
-        createArray(global.upgradesInfo[1].startCost.length, 'upgrade'),
-        createArray(global.upgradesInfo[2].startCost.length, 'upgrade'),
-        createArray(global.upgradesInfo[3].startCost.length, 'upgrade'),
-        createArray(global.upgradesInfo[4].startCost.length, 'upgrade'),
-        createArray(global.upgradesInfo[5].startCost.length, 'upgrade')
+        createArray(global.upgradesInfo[1].startCost.length, 0),
+        createArray(global.upgradesInfo[2].startCost.length, 0),
+        createArray(global.upgradesInfo[3].startCost.length, 0),
+        createArray(global.upgradesInfo[4].startCost.length, 0),
+        createArray(global.upgradesInfo[5].startCost.length, 0)
     ],
     researches: [
         [],
-        createArray(global.researchesInfo[1].startCost.length, 'upgrade'),
-        createArray(global.researchesInfo[2].startCost.length, 'upgrade'),
-        createArray(global.researchesInfo[3].startCost.length, 'upgrade'),
-        createArray(global.researchesInfo[4].startCost.length, 'upgrade'),
-        createArray(global.researchesInfo[5].startCost.length, 'upgrade')
+        createArray(global.researchesInfo[1].startCost.length, 0),
+        createArray(global.researchesInfo[2].startCost.length, 0),
+        createArray(global.researchesInfo[3].startCost.length, 0),
+        createArray(global.researchesInfo[4].startCost.length, 0),
+        createArray(global.researchesInfo[5].startCost.length, 0)
     ],
     researchesExtra: [
         [],
-        createArray(global.researchesExtraInfo[1].startCost.length, 'upgrade'),
-        createArray(global.researchesExtraInfo[2].startCost.length, 'upgrade'),
-        createArray(global.researchesExtraInfo[3].startCost.length, 'upgrade'),
-        createArray(global.researchesExtraInfo[4].startCost.length, 'upgrade'),
-        createArray(global.researchesExtraInfo[5].startCost.length, 'upgrade')
+        createArray(global.researchesExtraInfo[1].startCost.length, 0),
+        createArray(global.researchesExtraInfo[2].startCost.length, 0),
+        createArray(global.researchesExtraInfo[3].startCost.length, 0),
+        createArray(global.researchesExtraInfo[4].startCost.length, 0),
+        createArray(global.researchesExtraInfo[5].startCost.length, 0)
     ],
-    ASR: createArray(global.ASRInfo.costRange.length, 'upgrade'),
-    elements: createArray(global.elementsInfo.startCost.length, 'upgrade'),
+    researchesAuto: createArray(global.researchesAutoInfo.costRange.length, 0),
+    ASR: createArray(global.ASRInfo.costRange.length, 0),
+    elements: createArray(global.elementsInfo.startCost.length, 0),
     strangeness: [
         [],
-        createArray(global.strangenessInfo[1].startCost.length, 'upgrade'),
-        createArray(global.strangenessInfo[2].startCost.length, 'upgrade'),
-        createArray(global.strangenessInfo[3].startCost.length, 'upgrade'),
-        createArray(global.strangenessInfo[4].startCost.length, 'upgrade'),
-        createArray(global.strangenessInfo[5].startCost.length, 'upgrade')
+        createArray(global.strangenessInfo[1].startCost.length, 0),
+        createArray(global.strangenessInfo[2].startCost.length, 0),
+        createArray(global.strangenessInfo[3].startCost.length, 0),
+        createArray(global.strangenessInfo[4].startCost.length, 0),
+        createArray(global.strangenessInfo[5].startCost.length, 0)
     ],
     milestones: [
         [],
-        createArray(global.milestonesInfo[1].need.length, 'upgrade'),
-        createArray(global.milestonesInfo[2].need.length, 'upgrade'),
-        createArray(global.milestonesInfo[3].need.length, 'upgrade'),
-        createArray(global.milestonesInfo[4].need.length, 'upgrade'),
-        createArray(global.milestonesInfo[5].need.length, 'upgrade')
+        createArray(global.milestonesInfo[1].need.length, 0),
+        createArray(global.milestonesInfo[2].need.length, 0),
+        createArray(global.milestonesInfo[3].need.length, 0),
+        createArray(global.milestonesInfo[4].need.length, 0),
+        createArray(global.milestonesInfo[5].need.length, 0)
     ]
 });
 Object.assign(player.toggles, {
-    normal: createArray(document.getElementsByClassName('toggleNormal').length, 'toggle'),
-    confirm: createArray(document.getElementsByClassName('toggleConfirm').length, 'toggleConfirm'),
+    normal: createArray(document.getElementsByClassName('toggleNormal').length, false),
+    confirm: createArray(document.getElementsByClassName('toggleConfirm').length, 'All'),
     buildings: [
         [],
-        createArray(player.buildings[1].length, 'toggleAuto'),
-        createArray(player.buildings[2].length, 'toggleAuto'),
-        createArray(player.buildings[3].length, 'toggleAuto'),
-        createArray(player.buildings[4].length, 'toggleAuto'),
-        createArray(player.buildings[5].length, 'toggleAuto')
+        createArray(player.buildings[1].length, false),
+        createArray(player.buildings[2].length, false),
+        createArray(player.buildings[3].length, false),
+        createArray(player.buildings[4].length, false),
+        createArray(player.buildings[5].length, false)
     ],
-    auto: createArray(document.getElementsByClassName('toggleAuto').length, 'toggleAuto')
+    hover: createArray(document.getElementsByClassName('toggleHover').length, false),
+    max: createArray(document.getElementsByClassName('toggleMax').length, false),
+    auto: createArray(document.getElementsByClassName('toggleAuto').length, false)
 });
-player.toggles.normal[0] = false;
 
 //player.example = playerStart.example; Is not allowed (if example is an array or object), instead iterate or create clone
 export const playerStart = deepClone(player);
 
 export const updatePlayer = (load: playerType): string => {
-    if (Object.hasOwn(load, 'player')) { load = load['player' as keyof unknown]; } //Old save had it
-
+    if (load['player' as keyof unknown] !== undefined) { load = load['player' as keyof unknown]; }
+    if (load.vaporization === undefined) { throw new ReferenceError('This save file is not from this game or too old'); }
+    if (load.version === undefined) { load.version = '0.0.0'; }
     prepareVacuum(Boolean(load.inflation?.vacuum)); //Only to set starting buildings values
-    for (const key in playerStart) {
-        if (!Object.hasOwn(load, key)) {
-            if (key === 'discharge') {
-                throw new ReferenceError('This save file is missing important information and is most likely not from this game');
-            } else if (key !== 'version') {
-                load[key as 'ASR'] = deepClone(playerStart[key as 'ASR']);
-            } else { load.version = '0.0.0'; }
-        }
-    }
 
     const oldVersion = load.version;
     if (oldVersion !== playerStart.version) {
         if (load.version === '0.0.0') {
             load.version = 'v0.0.1';
-            if (Object.hasOwn(load, 'energy')) { load.discharge.energy = load['energy' as 'discharge']['current' as 'energy']; }
             load.researchesExtra = []; //Required for v0.0.9
         }
         if (load.version === 'v0.0.1') {
             load.version = 'v0.0.2';
             load.stage.resets = load.stage.current - 1;
         }
-        if (load.version === 'v0.0.2' || load.version === 'v0.0.3') {
+        if (load.version === 'v0.0.2') {
+            load.version = 'v0.0.3';
+            load.accretion = deepClone(playerStart.accretion);
+        }
+        if (load.version === 'v0.0.3') {
             load.version = 'v0.0.4';
             delete load['energy' as keyof unknown];
             delete load['buyToggle' as keyof unknown];
         }
-        if (load.version === 'v0.0.4' || load.version === 'v0.0.5' || load.version === 'v0.0.6') {
+        if (load.version === 'v0.0.4') {
+            load.version = 'v0.0.5';
+            load.elements = cloneArray(playerStart.elements);
+            load.collapse = deepClone(playerStart.collapse);
+        }
+        if (load.version === 'v0.0.5' || load.version === 'v0.0.6') {
             load.version = 'v0.0.7';
+            load.fileName = playerStart.fileName;
+            load.separator = cloneArray(playerStart.separator);
+            load.strange = deepClone(playerStart.strange);
+            load.strangeness = deepClone(playerStart.strangeness);
             load.vaporization.input = 3;
             load.stage.input = 20;
         }
-        if (load.version === 'v0.0.7') {
-            load.version = 'v0.0.8';
-            load.stage.export = 86400;
-        }
-        if (load.version === 'v0.0.8') {
+        if (load.version === 'v0.0.7' || load.version === 'v0.0.8') {
             load.version = 'v0.0.9';
+            load.stage.export = 86400;
             load.stage.active = Math.min(load.stage.current, 4);
             const a = load.stage.active;
             const oldB = load.buildings as unknown as playerType['buildings'][0];
@@ -1383,12 +1409,14 @@ export const updatePlayer = (load: playerType): string => {
             load.researchesExtra = deepClone(playerStart.researchesExtra);
             load.researchesExtra[a] = oldE;
             if (load.strangeness.length < 5) { load.strangeness.unshift([]); }
+            load.ASR = cloneArray(playerStart.ASR);
+            load.milestones = deepClone(playerStart.milestones);
         }
         if (load.version === 'v0.0.9' || load.version === 'v0.1.0') {
             load.version = 'v0.1.1';
-            if (Object.hasOwn(load.discharge, 'energyCur')) { load.discharge.energy = load.discharge['energyCur' as 'energy']; }
-            delete load.discharge['energyCur' as keyof unknown];
+            load.discharge.energy = 0;
             load.collapse.massMax = load.collapse.mass;
+            delete load.discharge['energyCur' as keyof unknown];
         }
         if (load.version === 'v0.1.1') {
             load.version = 'v0.1.2';
@@ -1402,7 +1430,9 @@ export const updatePlayer = (load: playerType): string => {
                 }
             }
             load.vaporization.clouds = Limit(load.vaporization.clouds).toArray();
-            if (Object.hasOwn(load.strange[0], 'true')) { load.strange[0].current = load.strange[0]['true' as 'current']; }
+            if (load.strange[0]['true' as keyof unknown] !== undefined) { load.strange[0].current = load.strange[0]['true' as 'current']; }
+            load.strange[0].total = load.strange[0].current;
+            load.inflation = deepClone(playerStart.inflation);
             delete load.vaporization['current' as keyof unknown];
             delete load.strange[0]['true' as keyof unknown];
             load.time.offline = 0;
@@ -1425,16 +1455,13 @@ export const updatePlayer = (load: playerType): string => {
             load.version = 'v0.1.6';
             load.collapse.show = 0;
             load.collapse.input = 2;
-            load.toggles = deepClone(playerStart.toggles);
-            load.history.stage.best[2] = 0;
-            for (let i = 0; i < load.history.stage.list.length; i++) {
-                load.history.stage.list[i][2] = 0;
-            }
+            load.history = deepClone(playerStart.history);
+            load.challenges = deepClone(playerStart.challenges);
             delete load.time['disabled' as keyof unknown];
-            delete load['researchesAuto' as keyof unknown];
             delete load.discharge['unlock' as keyof unknown];
 
             /* Can be removed eventually */
+            load.toggles = deepClone(playerStart.toggles);
             if (load.inflation.vacuum) {
                 if (load.strangeness[3][9] > 0) {
                     load.strange[0].current += (4 ** load.strangeness[3][9] - 1) * 8;
@@ -1448,11 +1475,11 @@ export const updatePlayer = (load: playerType): string => {
         }
         if (load.version === 'v0.1.6') {
             load.version = 'v0.1.7';
+            load.intervals = deepClone(playerStart.intervals);
             if (load.buildings[5].length > 4) { load.buildings[5].length = 4; }
-            if (!Object.hasOwn(load, 'saveUpdate016')) {
+            if (load['saveUpdate016' as keyof unknown] !== undefined) {
                 load.strangeness[2].splice(6, 1);
                 load.strangeness[4].splice(8, 1);
-                load.intervals = deepClone(playerStart.intervals);
             }
             delete load['saveUpdate016' as keyof unknown];
             delete load.accretion['input' as keyof unknown];
@@ -1460,6 +1487,7 @@ export const updatePlayer = (load: playerType): string => {
         }
         if (load.version === 'v0.1.7') {
             load.version = 'v0.1.8';
+            load.event = false;
             load.time.online = load.inflation.age;
             load.time.universe = load.inflation.age;
             load.time.stage = load.stage.time;
@@ -1471,6 +1499,15 @@ export const updatePlayer = (load: playerType): string => {
                 load.milestones[4][1] = 0;
             }
         }
+        if (load.version === 'v0.1.8') {
+            load.version = 'v0.1.9';
+            //load.toggles = deepClone(playerStart.toggles);
+            load.toggles.normal = cloneArray(playerStart.toggles.normal);
+            load.toggles.hover = cloneArray(playerStart.toggles.hover);
+            load.toggles.max = cloneArray(playerStart.toggles.max);
+            load.researchesAuto = cloneArray(playerStart.researchesAuto);
+            delete load.discharge['bonus' as keyof unknown];
+        }
 
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');
@@ -1479,12 +1516,8 @@ export const updatePlayer = (load: playerType): string => {
 
     for (let s = 1; s < playerStart.buildings.length; s++) {
         if (isNaN(load.toggles.shop.wait[s])) { load.toggles.shop.wait[s] = 2; }
-        if (!Array.isArray(load.buildings[s])) {
-            load.buildings[s] = deepClone(playerStart.buildings[s]);
-        } else {
-            for (let i = load.buildings[s].length; i < playerStart.buildings[s].length; i++) {
-                load.buildings[s][i] = deepClone(playerStart.buildings[s][i]);
-            }
+        for (let i = load.buildings[s].length; i < playerStart.buildings[s].length; i++) {
+            load.buildings[s][i] = deepClone(playerStart.buildings[s][i]);
         }
     }
     for (let i = load.strange.length; i < playerStart.strange.length; i++) {
@@ -1492,31 +1525,22 @@ export const updatePlayer = (load: playerType): string => {
     }
 
     for (let s = 1; s < playerStart.upgrades.length; s++) {
-        if (!Array.isArray(load.upgrades[s])) {
-            load.upgrades[s] = cloneArray(playerStart.upgrades[s]);
-        } else {
-            for (let i = load.upgrades[s].length; i < playerStart.upgrades[s].length; i++) {
-                load.upgrades[s][i] = 0;
-            }
+        for (let i = load.upgrades[s].length; i < playerStart.upgrades[s].length; i++) {
+            load.upgrades[s][i] = 0;
         }
     }
     for (let s = 1; s < playerStart.researches.length; s++) {
-        if (!Array.isArray(load.researches[s])) {
-            load.researches[s] = cloneArray(playerStart.researches[s]);
-        } else {
-            for (let i = load.researches[s].length; i < playerStart.researches[s].length; i++) {
-                load.researches[s][i] = 0;
-            }
+        for (let i = load.researches[s].length; i < playerStart.researches[s].length; i++) {
+            load.researches[s][i] = 0;
         }
     }
     for (let s = 1; s < playerStart.researchesExtra.length; s++) {
-        if (!Array.isArray(load.researchesExtra[s])) {
-            load.researchesExtra[s] = cloneArray(playerStart.researchesExtra[s]);
-        } else {
-            for (let i = load.researchesExtra[s].length; i < playerStart.researchesExtra[s].length; i++) {
-                load.researchesExtra[s][i] = 0;
-            }
+        for (let i = load.researchesExtra[s].length; i < playerStart.researchesExtra[s].length; i++) {
+            load.researchesExtra[s][i] = 0;
         }
+    }
+    for (let i = load.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {
+        load.researchesAuto[i] = 0;
     }
     for (let i = load.ASR.length; i < playerStart.ASR.length; i++) {
         load.ASR[i] = 0;
@@ -1525,38 +1549,32 @@ export const updatePlayer = (load: playerType): string => {
         load.elements[i] = 0;
     }
     for (let s = 0; s < playerStart.strangeness.length; s++) {
-        if (!Array.isArray(load.strangeness[s])) {
-            load.strangeness[s] = cloneArray(playerStart.strangeness[s]);
-        } else {
-            for (let i = load.strangeness[s].length; i < playerStart.strangeness[s].length; i++) {
-                load.strangeness[s][i] = 0;
-            }
+        for (let i = load.strangeness[s].length; i < playerStart.strangeness[s].length; i++) {
+            load.strangeness[s][i] = 0;
         }
     }
     for (let s = 0; s < playerStart.milestones.length; s++) {
-        if (!Array.isArray(load.milestones[s])) {
-            load.milestones[s] = cloneArray(playerStart.milestones[s]);
-        } else {
-            for (let i = load.milestones[s].length; i < playerStart.milestones[s].length; i++) {
-                load.milestones[s][i] = 0;
-            }
+        for (let i = load.milestones[s].length; i < playerStart.milestones[s].length; i++) {
+            load.milestones[s][i] = 0;
         }
     }
 
     for (let s = 1; s < playerStart.toggles.buildings.length; s++) {
-        if (!Array.isArray(load.toggles.buildings[s])) {
-            load.toggles.buildings[s] = cloneArray(playerStart.toggles.buildings[s]);
-        } else {
-            for (let i = load.toggles.buildings[s].length; i < playerStart.toggles.buildings[s].length; i++) {
-                load.toggles.buildings[s][i] = false;
-            }
+        for (let i = load.toggles.buildings[s].length; i < playerStart.toggles.buildings[s].length; i++) {
+            load.toggles.buildings[s][i] = false;
         }
     }
     for (let i = load.toggles.confirm.length; i < playerStart.toggles.confirm.length; i++) {
-        load.toggles.confirm[i] = playerStart.toggles.confirm[i];
+        load.toggles.confirm[i] = 'All';
     }
     for (let i = load.toggles.normal.length; i < playerStart.toggles.normal.length; i++) {
         load.toggles.normal[i] = playerStart.toggles.normal[i];
+    }
+    for (let i = load.toggles.hover.length; i < playerStart.toggles.hover.length; i++) {
+        load.toggles.hover[i] = false;
+    }
+    for (let i = load.toggles.max.length; i < playerStart.toggles.max.length; i++) {
+        load.toggles.max[i] = false;
     }
     for (let i = load.toggles.auto.length; i < playerStart.toggles.auto.length; i++) {
         load.toggles.auto[i] = false;
@@ -1571,7 +1589,6 @@ export const updatePlayer = (load: playerType): string => {
     global.debug.errorID = true;
     global.debug.errorQuery = true;
     global.debug.errorGain = true;
-    global.debug.historyUpdatedS = false;
 
     global.vaporizationInfo.research0 = 0;
     global.vaporizationInfo.research1 = 0;
@@ -1600,6 +1617,16 @@ export const updatePlayer = (load: playerType): string => {
             }
         }
     }
+    if (player.researchesAuto[0] < player.strangeness[3][6]) { player.researchesAuto[0] = player.strangeness[3][6]; }
+    if (player.researchesAuto[1] < 1 && player.strangeness[1][7] >= 1) { player.researchesAuto[1] = 1; }
+    if (player.inflation.vacuum) {
+        for (let i = 0; i < playerStart.researchesAuto.length; i++) {
+            calculateMaxLevel(i, 0, 'researchesAuto');
+        }
+    } /*else {
+        player.researchesAuto[0] = player.strangeness[3][6];
+        player.researchesAuto[1] = player.strangeness[1][7] >= 1 ? 1 : 0;
+    }*/
     for (let s = 1; s <= 5; s++) {
         calculateMaxLevel(0, s, 'ASR');
         const extra = player.researchesExtra[s];
@@ -1643,6 +1670,8 @@ export const updatePlayer = (load: playerType): string => {
     (getId('stageResetsKeep') as HTMLInputElement).value = `${player.history.stage.input[1]}`;
     for (let i = 0; i < playerStart.toggles.normal.length; i++) { toggleSwap(i, 'normal'); }
     for (let i = 0; i < playerStart.toggles.confirm.length; i++) { toggleConfirm(i); }
+    for (let i = 0; i < playerStart.toggles.hover.length; i++) { toggleSwap(i, 'hover'); }
+    for (let i = 0; i < playerStart.toggles.max.length; i++) { toggleSwap(i, 'max'); }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) { toggleSwap(i, 'auto'); }
     toggleBuy();
 
@@ -1654,6 +1683,7 @@ export const buildVersionInfo = () => {
 
     getId('versionInfo').innerHTML = `<div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: clamp(42vw, 36em, 80vw); height: clamp(26vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em;">
         <div id="versionText" style="width: 100%; overflow-y: auto;">
+            <label>v0.1.9</label><p>- More Stage 6 balance\n- New stats for Stage 6\n- Added automatization Researches\n- Export reward is now weaker\n- Updated time format and added new one\n- Warp, Offline and related Strangeness reworked\n- Max export and Offline time is smaller</p>
             <label>v0.1.8</label><p>- Stage 5 and 6 small balance changes\n- Solar mass requirement is removed if own a Galaxy\n- Upgrades and Researches merged (tab renamed)\n- Strangeness auto update description\n- Effects for all Upgrade types are expanded\n- Some stats moved into Stage tab\n- New stats for Stages 1, 3, 6\n- Added new save options (copy to clipboard, load from string)\n- Small visual changes\n- Added option to keep mouse events for Mobile device support\n- Support settings are now saved on page reload</p>
             <label>v0.1.7</label><p>- New content (Void)\n- Further balance and quality of life changes\n- Removed some Strangeness\n- Max Offline is now based on Stage resets\n- Offline storage no longer decreases\n- Export base is now improved by best Stage reset\n- Updated logic for entering and leaving Elements subtab\n- Warp minimum value is smaller and calculated better\n- Discharge now needs an actual reason\n- Fixed import not working on some Mobile devices\n- Art, themes and overall small visual updates\n- Updated numbers to move less, also to use new format</p>
             <label>v0.1.6</label><p>- Massive rebalance and reworks for all Stages\n- Auto Collapse reworked\n- Small changes to auto Vaporization\n- New stats for Stages 1, 2 and 3\n- New notifications\n- Removed almost all Automatization Researches\n- Export reward now unlocked for free\n- Elements will show effects after Stage reset\n- Descriptions no longer reset when changing active Stage\n- More quality of life improvements\n- More work on Mobile device and Screen reader supports</p>

@@ -16,14 +16,17 @@
         </aside>
         <aside id="versionInfo" style="display: none;"></aside>
         <div id="blocker" style="display: none;">
-            <div id="alertPopUp" role="alertdialog">
-                <h3 id="alertText" aria-live="assertive">Welcome back</h3>
+            <div id="alertMain" role="alertdialog">
+                <p id="alertText" aria-live="assertive">Welcome back</p>
                 <div>
-                    <input type="text" id="inputArea" tabindex="1" autocomplete="off" style="display: none;">
-                    <button type="button" id="confirmBtn" tabindex="1">Confirm</button>
-                    <button type="button" id="cancelBtn" tabindex="1" style="display: none;">Cancel</button>
+                    <input type="text" id="alertInput" tabindex="1" autocomplete="off" style="display: none;">
+                    <button type="button" id="alertConfirm" tabindex="1">Confirm</button>
+                    <button type="button" id="alertCancel" tabindex="1" style="display: none;">Cancel</button>
                 </div>
             </div>
+            <aside id="warpMain" style="display: none;" aria-label="Warp progress" role="progressbar">
+                <p>Calculating warp, remains <span id="warpRemains">0 seconds</span> to calculate (<span id="warpPercentage">100</span>% done)<br aria-hidden="true">(Game is paused)</p>
+            </aside>
         </div>
         <div id="notifications" aria-live="polite"></div>
         <main id="body" style="display: none;">
@@ -31,7 +34,7 @@
                 <section id="stageSubtabStructures" class="insideTab" aria-label="Structures">
                     <article id="resets" aria-label="Resets">
                         <section id="resetStage" class="stage2Unlock" aria-label="Stage reset (hotkey S)">
-                            <p class="whiteText">Lose all progress, but move to the next Stage. Each Stage has its own unique theme.<br><span id="stageStatus">Current Stage:</span> <span id="stageWord" class="bigWord stageText">Microworld</span>.</p>
+                            <p class="whiteText">Lose all progress, but move to the next Stage. Each Stage has its own unique theme.<br aria-hidden="true"><span id="stageStatus">Current Stage:</span> <span id="stageWord" class="bigWord stageText">Microworld</span>.</p>
                             <button type="button" id="stageReset" tabindex="-1">Not ready for more</button>
                         </section>
                         <section id="reset1Main" aria-label="Placeholder reset (hotkey ?)">
@@ -144,30 +147,32 @@
                                 <button type="button" id="toggleBuilding6" class="toggleBuilding" tabindex="-1">Auto ON</button>
                             </div>
                         </section>
-                        <div id="toggleBuy">
+                        <div id="buildingToggles">
                             <img src="Used_art/Buy%201x.png" alt="1x" loading="lazy" draggable="false" id="buy1x" class="interactiveImage" aria-hidden="true">
                             <img src="Used_art/Buy%20any.png" alt="Any" loading="lazy" draggable="false" id="buyAny" class="interactiveImage" aria-hidden="true">
                             <img src="Used_art/Buy%20max.png" alt="Max" loading="lazy" draggable="false" id="buyMax" class="interactiveImage" aria-hidden="true">
-                            <input type="number" id="buyAnyInput" value="1" step="1" autocomplete="off" title="Make any input" aria-label="How many Structures to make at same time (type -1 for max)">
-                            <input type="number" id="autoWaitInput" value="2" step="any" autocomplete="off" title="Auto wait value" aria-label="How many times of price to wait before auto will make Structures">
+                            <input type="number" id="buyAnyInput" value="1" step="1" title="Make any input" aria-label="How many Structures to make at same time (type -1 for max)">
+                            <input type="number" id="autoWaitInput" value="2" step="any" title="Auto wait value" aria-label="How many times of price to wait before auto will make Structures">
                             <button type="button" id="toggleBuilding0" class="toggleBuilding" tabindex="-1">All ON</button>
                         </div>
                     </article>
                     <div id="stageInfo">
                         <div class="stage1Only">
                             <p id="tritium" class="cyanText">Tritium production of Molecules: <span id="tritiumEffect" class="blueText">0</span></p>
-                            <p id="preonCap" class="cyanText">Preons hardcap starts at <span id="preonCapStat" class="grayText">1e14</span><br>(Production to hardcap ratio: <span id="preonCapRatio" class="grayText">0</span>)</p>
+                            <p id="preonCap" class="cyanText">Preons hardcap starts at <span id="preonCapStat" class="grayText">1e14</span><br aria-hidden="true">(Production to hardcap ratio: <span id="preonCapRatio" class="grayText">0</span>)</p>
                             <p class="orangeText">Boost from Discharge goals: <span id="dischargeEffectStat" class="darkorchidText">1</span></p>
                         </div>
                         <div class="stage2Only">
+                            <p id="molesProduction" class="blueText">Tritium production of Moles: <span id="molesProductionStat" class="cyanText">0</span></p>
                             <p id="effectiveDrops" class="blueText">Effective Drops count: <span id="effectiveDropsStat" class="cyanText">0</span></p>
                             <p id="cloudEffect" class="grayText">Clouds strength: <span id="cloudEffectStat" class="blueText">1</span></p>
                         </div>
                         <div class="stage3Only">
-                            <p id="dustCap" class="grayText">Cosmic dust hardcap starts at <span id="dustCapStat" class="darkorchidText">8e46</span><br>(Production to hardcap ratio: <span id="dustCapRatio" class="darkorchidText">0</span>)</p>
+                            <p id="massProduction" class="grayText">Preons production of Mass: <span id="massProductionStat" class="cyanText">0</span></p>
+                            <p id="dustCap" class="grayText">Cosmic dust hardcap starts at <span id="dustCapStat" class="darkorchidText">8e46</span><br aria-hidden="true">(Production to hardcap ratio: <span id="dustCapRatio" class="darkorchidText">0</span>)</p>
                         </div>
                         <div class="stage4Only">
-                            <p id="mainCap" class="cyanText">Solar mass from Collapse is limited to <span id="mainCapStat" class="orchidText">1</span><br>(Hardcap will be reached in <span id="mainCapTill" class="orchidText">60 seconds</span>)</p>
+                            <p id="mainCap" class="cyanText">Solar mass from Collapse is limited to <span id="mainCapStat" class="orchidText">1</span><br aria-hidden="true">(Hardcap will be reached in <span id="mainCapTill" class="orchidText">60 seconds</span>)</p>
                             <div>
                                 <p class="orangeText bigWord">Current effects</p>
                                 <p class="cyanText">Solar mass: <span id="solarMassCurrent" class="greenText">0</span></p>
@@ -179,7 +184,6 @@
                     </div>
                     <div id="timeInfo">
                         <p class="blueText">Stage time: <span id="stageTime" class="cyanText">1 seconds</span><span id="stageTimeReal"> (Real: <span id="stageTimeRealStat" class="cyanText">0 seconds</span>)</span></p>
-                        <p id="offlineBoost" class="blueText">Consuming <span id="offlineBoostWaste" class="cyanText">9.00</span> from Offline storage to add <span id="offlineBoostEffect" class="cyanText">+1.00</span> to passed time</p>
                         <p id="offlineWarning" class="orangeText">Offline storage is full</p>
                     </div>
                     <p id="SRMessage1" class="reader">If you are using Screen reader, then enabling support in Settings will add extra information and other helpfull stuff</p>
@@ -310,6 +314,14 @@
                                     <input type="image" src="Used_art/Auto.png" alt="Gears" draggable="false" id="ASRImage" class="stageBorderImage interactiveImage" aria-labelledby="upgradeText upgradeCost upgradeEffect">
                                     <p class="whiteText stageAllborderImage"><span id="ASRLevel" class="redText">0</span>/<span id="ASRMax" class="greenText">3</span></p>
                                 </div>
+                                <div id="researchAuto1">
+                                    <input type="image" src="Used_art/ResearchAuto1.png" alt="Upgrades" draggable="false" id="researchAuto1Image" class="interactiveImage" aria-labelledby="upgradeText upgradeCost upgradeEffect">
+                                    <p class="whiteText stage3borderImage"><span id="researchAuto1Level" class="redText">0</span>/<span id="researchAuto1Max" class="greenText">3</span></p>
+                                </div>
+                                <div id="researchAuto2">
+                                    <input type="image" src="Used_art/ResearchAuto2.png" alt="Toggles" draggable="false" id="researchAuto2Image" class="interactiveImage" aria-labelledby="upgradeText upgradeCost upgradeEffect">
+                                    <p class="whiteText stage5borderImage"><span id="researchAuto2Level" class="redText">0</span>/<span id="researchAuto2Max" class="greenText">1</span></p>
+                                </div>
                             </div>
                         </section>
                     </div>
@@ -317,6 +329,10 @@
                         <h3>Type: <span id="upgradeText" class="darkorchidText">Hover to see.</span></h3>
                         <p>Effect: <span id="upgradeEffect" class="blueText">Hover to see.</span></p>
                         <p>Next: <span id="upgradeCost" class="orangeText">Resource.</span></p>
+                    </div>
+                    <div id="researchToggles">
+                        <button type="button" id="toggleHover0" class="toggleHover">Hover to create ON</button>
+                        <button type="button" id="toggleMax0" class="toggleMax" title="Doesn't work for automatization Researches">Max create ON</button>
                     </div>
                 </section>
                 <section id="upgradeSubtabElements" class="insideTab" style="display: none;" aria-label="Elements">
@@ -661,7 +677,7 @@
                                  --><div id="toggleAuto0Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton" aria-haspopup="menu" aria-label="Settings">!</button>
                                         <div role="menu" aria-label="Settings menu">
-                                            <label>Perform Interstellar Stage reset when can get at least <input type="number" id="stageInput" value="1" step="any" autocomplete="off"> <span id="stageReward">Strange quarks</span></label>
+                                            <label>Perform Interstellar Stage reset when can get at least <input type="number" id="stageInput" value="1" step="any"> <span id="stageReward">Strange quarks</span></label>
                                             <p id="stageInstant">(Other Stages will reset instanly)</p>
                                         </div>
                                     </div>
@@ -682,7 +698,7 @@
                                  --><div id="toggleAuto2Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton stage2borderButton" aria-haspopup="menu" aria-label="Settings">!</button>
                                         <div role="menu" aria-label="Settings menu">
-                                            <label>Vaporize when boost from new Clouds reached at least <input type="number" id="vaporizationInput" value="3" step="any" autocomplete="off"></label>
+                                            <label>Vaporize when boost from new Clouds reached at least <input type="number" id="vaporizationInput" value="3" step="any"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -702,7 +718,7 @@
                                  --><div id="toggleAuto4Main" class="windowPopUp">
                                         <button type="button" class="focusButton hollowButton stage4borderButton" aria-haspopup="menu" aria-label="Settings">!</button>
                                         <div role="menu" aria-label="Settings menu">
-                                            <p><label>Collapse when boost from it reached at least <input type="number" id="collapseStarsInput" value="2" step="any" autocomplete="off"></label></p>
+                                            <p><label>Collapse when boost from it reached at least <input type="number" id="collapseStarsInput" value="2" step="any"></label></p>
                                         </div>
                                     </div>
                                 </div>
@@ -722,7 +738,7 @@
                     </aside>
                     <article class="saveButtonGroup" aria-label="Save file buttons">
                         <h3 class="bigWord">Please export save file regularly</h3>
-                        <p id="exportSpecial" class="whiteText center">Gain <span id="exportGain" class="greenText">0</span> <span id="exportType">Strange quarks</span> by exporting</br>(<span id="exportSecond" class="greenText">0</span> per second)</p>
+                        <p id="exportSpecial" class="whiteText center">Gain <span id="exportGain" class="greenText">0</span> <span id="exportType">Strange quarks</span> by exporting<br aria-hidden="true">(<span id="exportSecond" class="greenText">0 per second</span>)</p>
                         <div>
                             <div>
                                 <button type="button" id="save">Save</button>
@@ -753,7 +769,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li><label title="Turn OFF, if using non QWERTY layout keyboard">Any language hotkeys<button type="button" id="toggleNormal1" class="toggleNormal">ON</button></label><!--
+                            <li><label title="Turn ON, if using non QWERTY layout keyboard">Language dependant hotkeys<button type="button" id="toggleNormal0" class="toggleNormal">ON</button></label><!--
                                 --><div class="windowPopUp">
                                     <button type="button" class="focusButton hollowButton" aria-label="Check hotkey list" aria-haspopup="menu">Hotkeys</button>
                                     <div role="menu" aria-label="Hotkeys list">
@@ -764,7 +780,6 @@
                                         <p class="mainText">Escape - <span class="whiteText">cancel close Alert</span></p>
                                         <div class="hotkeysGrid">
                                             <p class="darkvioletText">W - <span class="whiteText">Warp</span></p>
-                                            <p id="offlineHotkey" class="blueText">O - <span class="whiteText">Toggle Offline</span></p>
                                             <p id="stageHotkey" class="stageText stage2Unlock">S - <span class="whiteText">Stage reset</span></p>
                                             <p id="dischargeHotkey" class="orangeText stage1Include">D - <span class="whiteText">Discharge</span></p>
                                             <p id="vaporizationHotkey" class="grayText stage2Include">V - <span class="whiteText">Vaporization</span></p>
@@ -781,16 +796,16 @@
                                     </div>
                                 </div>
                             </li>
-                            <li title="Set as low as device can handle"><label>Automatization speed interval <input type="number" id="mainInterval" min="20" max="100" value="20" step="1" autocomplete="off"> ms</label></li>
-                            <li title="Visual effect only"><label>Numbers update interval <input type="number" id="numbersInterval" min="40" max="200" value="80" step="1" autocomplete="off"> ms</label></li>
-                            <li title="Most of times unlocking new content will already force visual update"><label>Visual update interval <input type="number" id="visualInterval" min="0.2" max="4" value="1" step="any" autocomplete="off"> s</label></li>
-                            <li><label>Game autosave interval <input type="number" id="autoSaveInterval" min="4" max="1800" value="20" step="any" autocomplete="off"> s</label></li>
-                            <li>Format type: <label>separator <input type="text" id="thousandSeparator" class="miniInput" value="" maxlength="1" autocomplete="off"></label>, <label>point <input type="text" id="decimalPoint" class="miniInput" value="." maxlength="1" autocomplete="off"></label></li>
+                            <li title="Set as low as device can handle"><label>Automatization speed interval <input type="number" id="mainInterval" min="20" max="100" value="20" step="1"> ms</label></li>
+                            <li title="Visual effect only"><label>Numbers update interval <input type="number" id="numbersInterval" min="40" max="200" value="80" step="1"> ms</label></li>
+                            <li title="Most of times unlocking new content will already force visual update"><label>Visual update interval <input type="number" id="visualInterval" min="0.2" max="4" value="1" step="any"> s</label></li>
+                            <li><label>Game autosave interval <input type="number" id="autoSaveInterval" min="4" max="1800" value="20" step="any"> s</label></li>
+                            <li>Format type: <label>separator <input type="text" id="thousandSeparator" class="miniInput" value="" maxlength="1"></label>, <label>point <input type="text" id="decimalPoint" class="miniInput" value="." maxlength="1"></label></li>
                             <li id="MDLi" aria-hidden="true"><label>Mobile device support<button type="button" id="MDMainToggle" class="specialToggle" tabindex="-1">OFF</button></label></li>
                             <li id="SRLi"><label>Screen reader support<button type="button" id="SRMainToggle" class="specialToggle">OFF</button></label></li>
-                            <li id="elementsAsSubtab" class="stage4Unlock"><label>Elements as subtab<button type="button" id="toggleNormal2" class="toggleNormal">ON</button></label></li>
+                            <li id="elementsAsTab" class="stage4Unlock"><label>Elements as Tab<button type="button" id="toggleNormal1" class="toggleNormal">ON</button></label></li>
                             <li><span id="pauseGame" aria-hidden="true">Pause game</span><button type="button" id="reviewEvents" class="hollowButton" aria-label="Replay event">Events</button></li>
-                            <li aria-hidden="true" title="Default is 16px. Art wont scale"><label>Font size: <input type="number" id="customFontSize" step="any" value="16" tabindex="-1" autocomplete="off"> px</label></li>
+                            <li aria-hidden="true" title="Default is 16px. Art wont scale"><label>Font size: <input type="number" id="customFontSize" step="any" value="16" tabindex="-1"> px</label></li>
                         </ul>
                     </section>
                     <div class="options">
@@ -813,13 +828,12 @@
                                 <button type="button" id="toggleAuto7" class="toggleAuto">Auto OFF</button>
                             </div>
                             <div>
-                                <label for="toggleNormal0" class="whiteText">Consume Offline storage</label>
-                                <button type="button" id="toggleNormal0" class="toggleNormal">ON</button>
+                                <label for="offlineWarp" class="whiteText">Consume Offline storage</label>
                                 <button type="button" id="offlineWarp" class="hollowButton">Warp</button>
                             </div>
                         </section>
                         <div id="themeArea" class="stage2Unlock" aria-hidden="true">
-                            <h3>Theme</h3>
+                            <h3>Current theme</h3>
                             <div>
                                 <button type="button" id="currentTheme" class="mainText hollowButton" tabindex="-1">Default</button>
                                 <div>

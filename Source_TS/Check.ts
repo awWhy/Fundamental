@@ -55,7 +55,7 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
     return false;
 };
 
-export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'ASR' | 'elements' | 'strangeness'): boolean => {
+export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness'): boolean => {
     if (upgrade < 0) { return false; }
     switch (type) { //Some cases are handled by max level being 0
         case 'upgrades':
@@ -133,6 +133,13 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 return true;
             }
             break;
+        case 'researchesAuto': {
+            if (!player.inflation.vacuum) { return false; }
+            //if (upgrade === 0) { return player.researchesExtra[1][2] >= 2; }
+            //if (upgrade === 1) { return player.researchesExtra[1][2] >= 1; }
+            const autoStage = global.researchesAutoInfo.autoStage[upgrade][player.researchesAuto[upgrade]];
+            return autoStage === stageIndex || (stageIndex === 5 && autoStage === 4);
+        }
         case 'ASR':
             if (stageIndex === 1) { return player.upgrades[1][5] >= 1; }
             if (stageIndex === 3) { return player.accretion.rank !== 0; }
@@ -185,9 +192,9 @@ export const allowedToBeReset = (check: number, stageIndex: number, type: 'struc
             break;
         case 'upgrades':
             if (stageIndex === 1) {
-                if (check === 5) { return false; }
+                return check !== 5;
             } else if (stageIndex === 2) {
-                if (check === 2) { return false; }
+                return check !== 2;
             } else if (stageIndex === 4) {
                 return false;
             } else if (stageIndex === 5) {
@@ -196,22 +203,22 @@ export const allowedToBeReset = (check: number, stageIndex: number, type: 'struc
             break;
         case 'researches':
             if (stageIndex === 1) {
-                if (check === 3) { return false; }
+                return check !== 3;
             } else if (stageIndex === 2) {
                 return check > 1;
             }
             break;
         case 'researchesExtra':
             if (stageIndex === 1) {
-                if (check === 2) { return false; }
+                return check !== 2;
             } else if (stageIndex === 2) {
-                if (check <= 2) { return false; }
+                return check > 2;
             } else if (stageIndex === 4) {
-                if (check === 0) { return false; }
+                return check !== 0;
             }
             break;
         case 'elements':
-            if (check === 26 || check === 27) { return false; }
+            return check !== 26 && check !== 27;
     }
 
     return true;

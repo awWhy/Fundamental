@@ -13,7 +13,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
         if (activeType === 'text' || activeType === 'number') { return; }
         document.body.classList.remove('outlineOnFocus');
     }
-    if (check.ctrlKey || check.altKey) { return; }
+    if (global.paused || check.ctrlKey || check.altKey) { return; }
     const { key, code } = check;
 
     const numberKey = Number(code.slice(-1));
@@ -32,15 +32,13 @@ export const detectHotkey = (check: KeyboardEvent) => {
             toggleSwap(numberKey, 'buildings', true);
         } else { buyBuilding(numberKey); }
     } else if (key.length === 1) {
-        const stringKey = (player.toggles.normal[1] ? code.replace('Key', '') : key).toLowerCase();
+        const stringKey = (player.toggles.normal[0] ? key : code.replace('Key', '')).toLowerCase();
         if (check.shiftKey) {
             if (stringKey === 'a') {
                 toggleSwap(0, 'buildings', true);
             }
         } else {
-            if (stringKey === 'o') {
-                toggleSwap(0, 'normal', true);
-            } else if (stringKey === 'w') {
+            if (stringKey === 'w') {
                 check.preventDefault();
                 void timeWarp();
             } else if (stringKey === 's') {
@@ -94,9 +92,10 @@ export const detectHotkey = (check: KeyboardEvent) => {
             }
         }
     } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-        if (check.shiftKey || check.repeat || !Object.hasOwn(global.subtab, `${global.tab}Current`)) { return; }
+        const subtab = global.subtab[`${global.tab}Current` as keyof unknown] as string | undefined;
+        if (check.shiftKey || check.repeat || subtab === undefined) { return; }
         const subtabs = global.tabList[`${global.tab as 'stage'}Subtabs`];
-        let index = subtabs.indexOf(global.subtab[`${global.tab as 'stage'}Current`]);
+        let index = subtabs.indexOf(subtab);
 
         if (key === 'ArrowDown') {
             do {

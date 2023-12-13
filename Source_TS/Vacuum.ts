@@ -29,7 +29,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         buildingsInfo.increase[5][1] = 4;
         buildingsInfo.increase[5][2] = 4;
 
-        const upgrades1Cost = [36, 48, 60, 90, 150, 400, 2000, 4000, 20000, 70000];
+        const upgrades1Cost = [36, 72, 120, 160, 200, 400, 2000, 4000, 20000, 70000];
         upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
         upgradesInfo[5].startCost[2] = 1e120;
         //upgradesInfo[1].maxActive = 10;
@@ -74,7 +74,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         const strangeness4Scaling = [1.8, 2.8, 2.4, 4, 8, 250, 2.22, 2, 1];
         strangenessInfo[4].startCost.splice(0, strangeness4Cost.length, ...strangeness4Cost);
         strangenessInfo[4].scaling.splice(0, strangeness4Scaling.length, ...strangeness4Scaling);
-        const strangeness5Cost = [4, 16, 2400, 8, 10, 64, 21600, 60, 1600, 180];
+        const strangeness5Cost = [4, 16, 2400, 8, 10, 64, 21600, 40, 1600, 180];
         const strangeness5Scaling = [1, 5, 1, 1.8, 1.8, 1, 3, 2, 1, 1];
         strangenessInfo[5].startCost.splice(0, strangeness5Cost.length, ...strangeness5Cost);
         strangenessInfo[5].scaling.splice(0, strangeness5Scaling.length, ...strangeness5Scaling);
@@ -96,8 +96,11 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('strange9Stage3').style.display = '';
         getId('strange10Stage4').style.display = '';
 
+        getId('preonCap').style.display = '';
+        getId('molesProduction').style.display = '';
         getId('effectiveDrops').style.display = '';
-        getId('dustCap').style.display = '';
+        //getId('massProduction').style.display = '';
+        //getId('dustCap').style.display = '';
         getId('mainCap').style.display = '';
         getId('strange9Stage1').style.display = '';
         getId('strange8Stage2').style.display = '';
@@ -204,9 +207,13 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('rankStat0').style.display = '';
 
         getId('preonCap').style.display = 'none';
+        getId('molesProduction').style.display = 'none';
         getId('effectiveDrops').style.display = 'none';
-        getId('dustCap').style.display = 'none';
+        //getId('massProduction').style.display = 'none';
+        //getId('dustCap').style.display = 'none';
         getId('mainCap').style.display = 'none';
+        getId('researchAuto1').style.display = 'none';
+        getId('researchAuto2').style.display = 'none';
         for (let s = 1; s < strangenessInfo.length; s++) {
             for (let i = strangenessInfo[s].maxActive + 1; i <= strangenessInfo[s].startCost.length; i++) {
                 getId(`strange${i}Stage${s}`).style.display = 'none';

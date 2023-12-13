@@ -71,6 +71,7 @@ export interface playerType {
     upgrades: number[][]
     researches: number[][]
     researchesExtra: number[][]
+    researchesAuto: number[]
     ASR: number[]
     elements: number[]
     strangeness: number[][]
@@ -83,6 +84,8 @@ export interface playerType {
         normal: boolean[]
         confirm: Array<'All' | 'Safe' | 'None'>
         buildings: boolean[][]
+        hover: boolean[]
+        max: boolean[]
         auto: boolean[]
         shop: {
             howMany: number
@@ -120,10 +123,11 @@ export interface globalType {
         errorQuery: boolean
         errorGain: boolean
         rankUpdated: number
-        historyUpdatedS: boolean
+        historyStage: number
     }
     trueActive: number
     lastSave: number
+    paused: boolean
     footer: boolean
     mobileDevice: boolean
     screenReader: boolean
@@ -193,7 +197,6 @@ export interface globalType {
         textColor: string[]
         buttonBorder: string[]
         imageBorderColor: string[]
-        priceName: string
         activeAll: number[]
     }
     buildingsInfo: {
@@ -236,8 +239,16 @@ export interface globalType {
         max: number[]
         maxActive: number
     }>
+    researchesAutoInfo: {
+        name: string[]
+        effectText: Array<() => string>
+        costRange: number[][]
+        max: number[]
+        autoStage: number[][]
+    }
     ASRInfo: {
-        cost: number[]
+        name: string
+        effectText: () => string
         costRange: number[][]
         max: number[]
     }
@@ -255,9 +266,11 @@ export interface globalType {
         max: number[]
         maxActive: number
     }>
-    lastUpgrade: Array<[number, 'upgrades' | 'researches' | 'researchesExtra' | 'ASR']>
+    lastUpgrade: Array<[number, 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR']>
     lastElement: number
     lastStrangeness: [number, number]
+    lastMilestone: [number, number]
+    lastChallenge: [number, number]
     milestonesInfo: Array<{
         name: string[]
         need: overlimit[]

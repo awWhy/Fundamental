@@ -467,33 +467,28 @@ export const overlimit = {
                     exponent++;
                 }
                 if (base < 0) { result *= -1; }
-
-                const formated = settings.padding === true ? result.toFixed(digits).replace('.', player.separator[1]) : `${result}`.replace('.', player.separator[1]);
-                return `${formated}e${power < 0 ? '-' : ''}e${exponent}`;
+                return `${(settings.padding === true ? result.toFixed(digits) : `${result}`).replace('.', player.separator[1])}e${power < 0 ? '-' : ''}e${exponent}`;
             }
 
             //1.23e123
             if (power >= 6 || power < -3) {
                 const digits = settings.digits !== undefined ? settings.digits : 2;
                 let exponent = power;
-                let result: number | string = Math.round(base * 10 ** digits) / 10 ** digits;
+                let result = Math.round(base * 10 ** digits) / 10 ** digits;
                 if (Math.abs(result) === 10) {
                     result = 1;
                     exponent++;
                 }
-
-                result = settings.padding === true ? result.toFixed(digits) : `${result}`;
-                return settings.type !== 'input' ? `${result.replace('.', player.separator[1])}e${exponent}` : `${result}e${exponent}`;
+                const formated = settings.padding === true ? result.toFixed(digits) : `${result}`;
+                return settings.type === 'input' ? `${formated}e${exponent}` : `${formated.replace('.', player.separator[1])}e${exponent}`;
             }
 
             //12345
+            //There is 1 known bug: number like 999999.9 will be converted into 1000000, which is above of maximum allowed
             const digits = settings.digits !== undefined ? settings.digits : Math.max(4 - Math.max(power, 0), 0);
             const result = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
-            let formated = digits > 0 && settings.padding === true ? result.toFixed(digits) : `${result}`;
-
-            if (settings.type === 'input') { return formated; }
-            formated = formated.replace('.', player.separator[1]);
-            return result >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) : formated;
+            const formated = settings.padding === true ? result.toFixed(digits) : `${result}`;
+            return settings.type === 'input' ? formated : result >= 1e3 ? formated.replace('.', player.separator[1]).replace(/\B(?=(\d{3})+(?!\d))/, player.separator[0]) : formated.replace('.', player.separator[1]);
         },
         convert: (number: string | number | [number, number]): [number, number] => {
             let result: [number, number];
