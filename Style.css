@@ -27,49 +27,44 @@ body { /* Default color variables */
     --window-color: #12121c;
     --window-border: cornflowerblue;
     --footer-color: darkblue;
-    --button-main-color: mediumblue;
-    --button-main-border: darkcyan;
-    --button-main-hover: #2626ff;
-    --building-can-buy: #a90000;
-    --button-tab-border: darkcyan;
-    --button-tab-active: #8b00c5;
-    --button-tab-elements: #9f6700;
-    --button-tab-strangeness: #00b100;
-    --button-image-hover: #170089;
-    --button-footer-hover: #181818;
-    --button-delete-color: firebrick;
-    --button-delete-hover: #db0000;
-    --input-border-color: #831aa5;
-    --input-text-color: #cf71ff;
-    --button-text-color: #e3e3e3;
-    --main-text-color: var(--cyan-text-color);
-    --white-text-color: white;
-    --cyan-text-color: #03d3d3;
-    --blue-text-color: dodgerblue;
-    --orange-text-color: darkorange;
-    --gray-text-color: #8f8f8f;
-    --orchid-text-color: #e14bdb;
-    --darkorchid-text-color: #bd24ef;
-    --darkviolet-text-color: #8635eb;
-    --red-text-color: #eb0000;
-    --green-text-color: #00e900;
-    --yellow-text-color: #fafa00;
+    --button-color: mediumblue;
+    --button-border: darkcyan;
+    --button-hover: #2626ff;
+    --building-afford: #a90000;
+    --tab-active: #8b00c5;
+    --tab-elements: #9f6700;
+    --tab-strangeness: #00b100;
+    --hollow-hover: #170089;
+    --footerButton-hover: #181818;
+    --input-border: #831aa5;
+    --input-text: #cf71ff;
+    --button-text: #e3e3e3;
+    --main-text: var(--cyan-text);
+    --white-text: white;
+    --cyan-text: #03d3d3;
+    --blue-text: dodgerblue;
+    --orange-text: darkorange;
+    --gray-text: #8f8f8f;
+    --orchid-text: #e14bdb;
+    --darkorchid-text: #bd24ef;
+    --darkviolet-text: #8635eb;
+    --red-text: #eb0000;
+    --green-text: #00e900;
+    --yellow-text: #fafa00; /* Rename into select-text, if consistent yellow text will be added */
 
     /* These colors need to be changed in multiple places:
         --window-color > ".stage1windowBackground";
-        --button-main-color > ".stage1backgroundButton" and "--stage-button-color", and "global.stageInfo.buttonBackgroundColor[1]";
-        --button-main-border > ".stage1borderButton" and "--stage-button-border", and "global.stageInfo.buttonBackgroundColor[1]"; */
+        --button-border > ".stage1borderButton" and "--stage-button-border", and "global.stageInfo.buttonBorder[1]"; */
     --transition-all: 0s;
     --transition-buttons: 100ms;
-    --stage-text-color: var(--cyan-text-color);
-    --stage-button-color: mediumblue;
+    --stage-text: var(--cyan-text);
     --stage-button-border: darkcyan;
-    --image-border-main: url("Used_art/Stage1 border.png");
-    --image-stage-outer: #008b8b;
+    --stage-image-borderColor: #008b8b;
+    --image-border: url("Used_art/Stage1 border.png");
 }
 
 body {
-    color: var(--main-text-color);
+    color: var(--main-text);
     background-color: var(--background-color);
     font-size: 16px;
     overscroll-behavior: none;
@@ -78,19 +73,19 @@ body {
     touch-action: manipulation;
 }
 
-.stageText { color: var(--stage-text-color); }
-.mainText { color: var(--main-text-color); }
-.whiteText { color: var(--white-text-color); }
-.cyanText { color: var(--cyan-text-color); }
-.blueText { color: var(--blue-text-color); }
-.orangeText { color: var(--orange-text-color); }
-.grayText { color: var(--gray-text-color); }
-.orchidText { color: var(--orchid-text-color); }
-.darkorchidText { color: var(--darkorchid-text-color); }
-.darkvioletText { color: var(--darkviolet-text-color); }
-.redText { color: var(--red-text-color); }
-.greenText { color: var(--green-text-color); }
-.yellowText { color: var(--yellow-text-color); }
+.stageText { color: var(--stage-text); }
+.mainText { color: var(--main-text); }
+.whiteText { color: var(--white-text); }
+.cyanText { color: var(--cyan-text); }
+.blueText { color: var(--blue-text); }
+.orangeText { color: var(--orange-text); }
+.grayText { color: var(--gray-text); }
+.orchidText { color: var(--orchid-text); }
+.darkorchidText { color: var(--darkorchid-text); }
+.darkvioletText { color: var(--darkviolet-text); }
+.redText { color: var(--red-text); }
+.greenText { color: var(--green-text); }
+.yellowText { color: var(--yellow-text); }
 
 /* These colors are same as Image border outer layer */
 .stage0borderImage { border-color: #006400 !important; }
@@ -101,23 +96,15 @@ body {
 .stage5borderImage { border-color: #b324e2 !important; }
 .stage6borderImage { border-color: #5300c1 !important; }
 .stage7borderImage { border-color: #b21111 !important; }
-.stageAllborderImage { border-color: var(--image-stage-outer) !important; }
+.stageAllborderImage { border-color: var(--stage-image-borderColor) !important; }
 
-/* These colors are shared with --button-main-border */
+/* These colors are shared with --button-border */
 .stage1borderButton { border-color: darkcyan !important; }
-.stage2borderButton { border-color: #427be1 !important; }
-.stage3borderButton { border-color: #404040 !important; }
-.stage4borderButton { border-color: #9f6700 !important; }
-.stage5borderButton { border-color: #8a0049 !important; }
-.stage6borderButton { border-color: #711bda !important; }
-
-/* These colors are shared with --button-main-color */
-.stage1backgroundButton { background-color: mediumblue !important; }
-.stage2backgroundButton { background-color: blue !important; }
-.stage3backgroundButton { background-color: #291344 !important; }
-.stage4backgroundButton { background-color: #6a3700 !important; }
-.stage5backgroundButton { background-color: #4a008f !important; }
-.stage6backgroundButton { background-color: #2b0095 !important; }
+.stage2borderButton { border-color: #386cc7 !important; }
+.stage3borderButton { border-color: #424242 !important; }
+.stage4borderButton { border-color: #a35700 !important; }
+.stage5borderButton { border-color: #8f004c !important; }
+.stage6borderButton { border-color: #6c1ad1 !important; }
 
 /* These colors are shared with --window-color */
 .stage1windowBackground { background-color: #12121c !important; }
@@ -134,18 +121,18 @@ body:not(.outlineOnFocus) input:not(input[type = "text"], input[type = "number"]
 ::-webkit-scrollbar {
     width: 1.4vh;
     height: 1.4vh;
-    background-color: var(--input-border-color);
+    background-color: var(--input-border);
 }
 
 ::-webkit-scrollbar-track {
     background-color: black;
-    box-shadow: inset 0 0 0.5vh var(--input-border-color);
-    border: 0.2vh solid var(--input-border-color);
+    box-shadow: inset 0 0 0.5vh var(--input-border);
+    border: 0.2vh solid var(--input-border);
     border-radius: 0.6vh;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--input-border-color);
+    background-color: var(--input-border);
     box-shadow: inset 0 0 0.2vh black;
     border: 0.4vh solid #0000;
     border-radius: 0.6vh;
@@ -157,7 +144,7 @@ body:not(.outlineOnFocus) input:not(input[type = "text"], input[type = "number"]
     width: min(1.4vh, 9%);
 }
 
-::-webkit-scrollbar-corner { background-color: var(--input-border-color); }
+::-webkit-scrollbar-corner { background-color: var(--input-border); }
 ::-webkit-resizer { background-image: url("Used_art/SVG/Resize.svg"); }
 
 input[type = "image"],
@@ -178,7 +165,7 @@ ul, ol { padding-left: 1.6em; }
 
 #footerStats img,
 #strangenessResearch .interactiveImage,
-.researchSection .interactiveImage {
+#researches .interactiveImage {
     border-radius: 3px;
     z-index: 2;
 }
@@ -192,10 +179,12 @@ p > img {
 .interactiveImage { cursor: pointer; }
 
 .stageBorderImage {
-    background-image: var(--image-border-main);
+    background-image: var(--image-border);
     background-repeat: no-repeat;
     background-position: center;
 }
+
+#MDMessage1 { display: none; }
 
 .reader { /* For screen readers */
     position: absolute;
@@ -233,7 +222,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #00000050;
 }
 
-#alertPopUp {
+#alertMain {
     display: flex;
     flex-direction: column;
     width: clamp(24vw, 23.8em, 80vw);
@@ -241,14 +230,16 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
-    white-space: pre-line;
     padding: 0.7em 0.8em 0.9em;
     row-gap: 0.7em;
 }
 
-#alertText { overflow: clip auto; }
+#alertText {
+    white-space: pre-line;
+    overflow: clip auto;
+}
 
-#alertPopUp > div {
+#alertMain > div {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -256,16 +247,25 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0.8em 10%;
 }
 
-#alertPopUp button {
+#alertMain button {
     width: 7em;
     border-radius: 7px;
 }
 
-#inputArea {
+#alertInput {
     width: 100%;
     height: 2em;
     margin: 0 1em;
     background-color: black;
+}
+
+#warpMain {
+    width: 39em;
+    max-width: 94vw;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 10px;
+    padding: 0.6em 0.6em 0.7em;
 }
 
 #notifications {
@@ -281,7 +281,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #notifications > p {
-    color: var(--white-text-color);
+    color: var(--white-text);
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-left-width: 1px;
@@ -301,18 +301,29 @@ button, input { appearance: none; }
 #load, button {
     height: 2.08em;
     cursor: pointer;
-    background-color: var(--button-main-color);
-    border: 2px solid var(--button-main-border);
-    color: var(--button-text-color);
+    background-color: var(--button-color);
+    border: 2px solid var(--button-border);
+    color: var(--button-text);
     font-size: 0.84em;
 }
 
-.toggle, .toggleConfirm, .toggleBuilding, .toggleAuto, .specialToggle {
-    color: var(--green-text-color);
+.toggleNormal, .toggleConfirm, .toggleBuilding, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
+    color: var(--green-text);
     border-color: forestgreen;
     background-color: var(--background-color);
-    width: 2.8em;
     height: 1.63em;
+}
+
+.toggleNormal, .specialToggle { width: 2.8em; }
+
+.toggleHover {
+    width: 10.6em;
+    font-size: 0.92em;
+}
+
+.toggleMax {
+    width: 8.4em;
+    font-size: 0.92em;
 }
 
 .toggleAuto {
@@ -331,10 +342,9 @@ img, input[type = "image"], button, #load, a {
 }
 
 /* I could add :hover:not(:active), to make it visible that you are clicking, but that or other 10+ animations looked really awkward... */
-button:hover, #load:hover { background-color: var(--button-main-hover); }
-#delete:hover { background-color: var(--button-delete-hover); }
-.toggle:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleAuto:hover,
-.specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--button-image-hover); }
+button:hover, #load:hover { background-color: var(--button-hover); }
+.toggleNormal:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
+.specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
 
 input[type = "number"] { appearance: textfield; }
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
@@ -342,9 +352,9 @@ input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webk
 input[type = "number"],
 input[type = "text"] {
     text-align: center;
-    border: 2px solid var(--input-border-color);
+    border: 2px solid var(--input-border);
     border-radius: 2px;
-    color: var(--input-text-color);
+    color: var(--input-text);
     background-color: var(--background-color);
     width: 5.4em;
     height: 1.7em;
@@ -356,7 +366,7 @@ input[type = "text"] {
 
 input:-webkit-autofill { /* Chrome related pain */
     -webkit-box-shadow: inset 0 0 0 20px var(--background-color);
-    -webkit-text-fill-color: var(--input-text-color);
+    -webkit-text-fill-color: var(--input-text);
 }
 
 .insideTab {
@@ -364,6 +374,7 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
+    align-items: start;
     gap: 1.6em;
 }
 
@@ -405,19 +416,19 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.44em;
 }
 
-#starsSpecial {
+#specials {
     display: flex;
     flex-wrap: wrap-reverse;
     justify-content: space-around;
 }
 
-.specialStar {
+#specials > div {
     display: flex;
     align-items: center;
     column-gap: 0.3em;
 }
 
-.specialStar p {
+#specials p {
     display: flex;
     flex-direction: row;
     column-gap: 0.3em;
@@ -430,7 +441,7 @@ input:-webkit-autofill { /* Chrome related pain */
     column-gap: 0.3em;
 }
 
-.buyBuilding > img, .specialStar > img { margin-right: 0.3em; }
+.buyBuilding > img, #specials img { margin-right: 0.3em; }
 
 .buyBuilding > div:first-of-type {
     display: flex;
@@ -444,7 +455,6 @@ input:-webkit-autofill { /* Chrome related pain */
     align-items: center;
 }
 
-.buyBuilding p { color: inherit; }
 .buyBuilding > div > p:first-of-type { width: 19.4em; }
 .buyBuilding > div > p:first-of-type > span.whiteText { padding-right: 0.06em; }
 .buyBuilding > div > p:last-of-type { width: 10.6em; }
@@ -465,7 +475,7 @@ input:-webkit-autofill { /* Chrome related pain */
     width: 1em;
     height: 1.4em;
     clip-path: polygon(100% 100%, 90% 100%, 90% 75%, 0% 50%, 90% 25%, 60% 50%, 90% 75%, 90% 0%, 100% 0%);
-    background-color: var(--button-main-border);
+    background-color: var(--button-border);
     margin: 0 0.3em;
 }
 
@@ -484,17 +494,17 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-left: 0.4em;
 }
 
-.availableBuilding button:first-of-type { border-color: var(--building-can-buy); }
-.availableBuilding > div > div > div { background-color: var(--building-can-buy); }
+.availableBuilding button:first-of-type { border-color: var(--building-afford); }
+.availableBuilding > div > div > div { background-color: var(--building-afford); }
 
-#toggleBuy {
+#buildingToggles {
     display: flex;
     align-items: center;
     justify-content: end;
     column-gap: 0.3em;
 }
 
-#toggleBuy > img { height: 22px; }
+#buildingToggles > img { height: 22px; }
 
 #autoWaitInput,
 #buyAnyInput {
@@ -504,28 +514,24 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #toggleBuilding0 { margin-left: 0.3em; }
 
-#upgrades {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    row-gap: 0.5em;
-}
-
-#upgrades > div:first-of-type {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.3em;
-}
-
-#upgrades > h3 { margin-bottom: 0.05em; }
-
 #stageInfo {
     text-align: center;
     width: 100%;
 }
 
-#stageInfo > p:not(:first-of-type) { margin-top: 0.05em; }
+#stageInfo > div {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.3em;
+}
+
+#timeInfo {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    row-gap: 0.1em;
+    width: 100%;
+}
 
 #challengesMain {
     display: flex;
@@ -566,7 +572,7 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.3em;
 }
 
-#voidRewards > div:last-of-type {
+#voidRewardsDiv {
     display: none;
     position: absolute;
     transform: translateX(50%);
@@ -579,7 +585,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-top: 0.8em;
 }
 
-#voidRewards:focus-within > div:last-of-type { display: block; }
+#voidRewards:focus-within > #voidRewardsDiv { display: block; }
 
 #voidRewardsDivText {
     display: flex;
@@ -596,16 +602,38 @@ input:-webkit-autofill { /* Chrome related pain */
     width: 100%;
 }
 
-.researchSection {
+#upgrades, #researches {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    width: 100%;
+    row-gap: 0.5em;
+    margin-bottom: -0.4em;
 }
 
-.researchSection > div {
+#upgrades > section {
     display: flex;
     flex-wrap: wrap;
-    border: 2px solid var(--image-stage-outer);
+    justify-content: center;
+    background-color: var(--window-color);
+    border: 2px solid var(--stage-image-borderColor);
+    border-radius: 4px;
+    padding: 0.4em;
+    gap: 0.4em;
+}
+
+#researches > section {
+    display: flex;
+    align-items: center;
+    margin-left: -32px;
+}
+
+#researches > section:not(:last-of-type) { margin-bottom: 0.4em; }
+
+#researches > section > div {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px solid var(--stage-image-borderColor);
     border-left-width: 1px;
     border-radius: 4px;
     padding: 0.25em;
@@ -614,19 +642,20 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--window-color);
 }
 
-.researchSection p {
+#researches p {
+    display: flex;
+    align-items: center;
     border: 2px solid;
     border-color: inherit;
     border-left: none;
-    line-height: 28px;
-    text-align: center;
-    padding: 0 0.25em 0 calc(0.25em + 2px);
+    padding-left: calc(3px + 0.25em);
+    padding-right: 0.25em;
     background-color: var(--background-color);
-    margin-left: -2px;
+    margin-left: -3px;
+    height: 32px;
 }
 
-.researchSection > div > div { display: flex; }
-#researchTab .descriptionText { margin-top: -0.5em; }
+#researches div > div { display: flex; }
 
 .descriptionText {
     display: flex;
@@ -640,6 +669,11 @@ input:-webkit-autofill { /* Chrome related pain */
 
 .descriptionText > h3,
 .descriptionText > p { max-width: 80%; }
+
+#researchToggles {
+    display: flex;
+    column-gap: 0.4em;
+}
 
 #elementsGrid {
     position: relative;
@@ -707,12 +741,15 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #strangeStructures > div > div > p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 2px solid #006400;
     border-left: none;
-    line-height: 28px;
     padding: 0 0.25em;
     background-color: black;
     width: 6em;
+    height: 32px;
 }
 
 #strangenessResearch {
@@ -736,19 +773,18 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.5em;
 }
 
-#strangenessResearch div {
-    display: flex;
-    align-items: center;
-}
+#strangenessResearch div { display: flex; }
 
 #strangenessResearch p {
+    display: flex;
+    align-items: center;
     border: 2px solid;
     border-left: none;
-    line-height: 28px;
-    text-align: center;
-    padding: 0 0.25em 0 calc(2px + 0.25em);
+    padding-left: calc(3px + 0.25em);
+    padding-right: 0.25em;
     background-color: var(--background-color);
-    margin-left: -2px;
+    margin-left: -3px;
+    height: 32px;
 }
 
 #milestones {
@@ -829,22 +865,24 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     align-items: center;
     row-gap: 0.18em;
-    border: 2px solid var(--button-main-border);
+    border: 2px solid var(--button-border);
     border-radius: 10px;
     background-color: var(--window-color);
     padding: 0.4em 0.3em 0.2em;
-    color: var(--main-text-color);
+    color: var(--main-text);
     text-decoration: none;
     height: initial;
     font-size: 1em;
 }
 
 #logoLinks img {
-    background-color: inherit;
+    background-color: var(--window-color);
     object-fit: scale-down;
     height: 25px;
     width: initial;
 }
+
+#logoLinks > *:hover, #logoLinks > *:hover img { background-color: var(--hollow-hover); }
 
 .saveButtonGroup {
     display: flex;
@@ -884,9 +922,8 @@ input:-webkit-autofill { /* Chrome related pain */
     font-size: 1.2em;
 }
 
-#delete {
-    background-color: var(--button-delete-color);
-    height: 1.74em;
+#saveConsole {
+    height: 1.82em;
     font-size: 0.9em;
 }
 
@@ -906,8 +943,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 li input[type = "number"] { width: 3.15em; }
 
-.options .hollowButton,
-.options .windowPopUp > button {
+.options > *:not(#themeArea) .hollowButton {
     height: 1.77em;
     padding: 0 0.45em;
 }
@@ -975,12 +1011,6 @@ input.miniInput {
 
 #autoTogglesUpgrades label { font-size: 0.92em; }
 #autoTogglesUpgrades button { font-size: 0.8em; }
-
-#autoTogglesUpgrades button.toggle {
-    width: 2.9em;
-    height: 1.68em;
-}
-
 #autoTogglesUpgrades .hollowButton { height: 1.82em; }
 
 #themeArea > h3 {
@@ -990,8 +1020,7 @@ input.miniInput {
 
 #themeArea > div {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
 }
 
 #themeArea > div > div {
@@ -1003,14 +1032,14 @@ input.miniInput {
     gap: 0.25em;
 }
 
-#themeArea button { width: 7em; }
+#themeArea button {
+    width: 7em;
+    border-radius: 10px;
+}
+
 #themeArea > div:focus-within > div { display: flex; }
 #themeArea > div:focus-within > button { clip-path: circle(0); }
-
-#switchTheme0 {
-    background-color: var(--stage-button-color);
-    border-color: var(--stage-button-border);
-}
+#switchTheme0 { border-color: var(--stage-button-border); }
 
 #historyMainDiv > section { text-align: center; }
 #historyMainDiv h4 { margin-bottom: 0.24em; }
@@ -1096,7 +1125,6 @@ input.miniInput {
 
 #footerMain button {
     border-radius: 10px;
-    border-color: var(--button-tab-border);
     padding: 0 0.7em;
     min-width: 5em;
     height: 2em;
@@ -1104,24 +1132,26 @@ input.miniInput {
     background-color: black;
 }
 
-.tabActive { border-color: var(--button-tab-active) !important; }
-#ElementsTabBtn.tabActive { border-color: var(--button-tab-elements) !important; }
-#strangenessTabBtn.tabActive { border-color: var(--button-tab-strangeness) !important; }
+.tabActive { border-color: var(--tab-active) !important; }
+#ElementsTabBtn.tabActive, #upgradeSubtabBtnElements.tabActive { border-color: var(--tab-elements) !important; }
+#strangenessTabBtn.tabActive, #strangenessSubtabBtnMatter.tabActive { border-color: var(--tab-strangeness) !important; }
 
 #footer img { background-color: black; }
 #footerStats > div { display: flex; }
 
 #footerStats p {
-    line-height: 28px;
+    display: flex;
+    align-items: center;
     text-align: center;
     border: 2px solid;
     border-left: none;
     border-radius: 0 6px 6px 0;
     background-color: black;
-    margin-left: -2px;
-    padding-left: calc(2px + 0.5em);
+    margin-left: -3px;
+    padding-left: calc(3px + 0.5em);
     padding-right: 0.25em;
-    white-space: nowrap;
+    white-space: pre;
+    height: 32px;
     z-index: 1; /* Text color issue */
 }
 
@@ -1180,7 +1210,7 @@ input.miniInput {
 }
 
 #currentSwitch { border-color: var(--stage-button-border); }
-#footer button:hover { background-color: var(--button-footer-hover); }
+#footer button:hover { background-color: var(--footerButton-hover); }
 #stageSelect.active > #currentSwitch { clip-path: circle(0); }
 #stageSelect.active > div { display: flex; }
 
@@ -1202,7 +1232,7 @@ input.miniInput {
 }
 
 #hideArrow {
-    background-color: var(--main-text-color);
+    background-color: var(--main-text);
     width: 0.8em;
     height: 0.8em;
     clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
@@ -1235,23 +1265,31 @@ input.miniInput {
 @supports not selector(::-webkit-scrollbar) {
     /* There is no way to make themed color with main (html) scrollbar, custom variables are ignored */
     html { scrollbar-color: gray black; }
-    body { scrollbar-color: var(--input-border-color) black; }
+    body { scrollbar-color: var(--input-border) black; }
 }
 
 @media screen and (max-width: 55em) {
+    #MDMessage1 {
+        display: block;
+        text-align: center;
+        color: var(--green-text);
+        max-width: 90vw;
+    }
+
     #notifications { max-height: 33vh; }
     #notifications > p { width: 95vw; }
 
     .insideTab {
         flex-direction: column;
+        justify-content: start;
         align-items: center;
         gap: 1.2em;
         margin-top: 1vh;
     }
 
     #buildings { row-gap: 0.2em; }
-    .buyBuilding, .specialStar { column-gap: 0.15em; }
-    .buyBuilding > div:first-of-type, .specialStar p { flex-direction: column; }
+    .buyBuilding, #specials > div { column-gap: 0.15em; }
+    .buyBuilding > div:first-of-type, #specials p { flex-direction: column; }
     .buyBuilding > div > p:first-of-type { width: 13.8em; }
     .buyBuilding > div > p:first-of-type > span:last-of-type { display: block; }
 
@@ -1261,20 +1299,21 @@ input.miniInput {
     }
 
     .buyBuilding > div > div > p {
-        line-height: calc(1.78em - 4px);
-        text-align: center;
-        border: 2px solid var(--button-main-border);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid var(--button-border);
         border-radius: 3px;
-        margin-right: 0;
+        height: 1.78em;
     }
 
     .buyBuilding .toggleBuilding { margin-left: auto; }
     .buyBuilding > div > div > div { display: none; }
-    .availableBuilding > div > div > p { border-color: var(--building-can-buy); }
+    .availableBuilding > div > div > p { border-color: var(--building-afford); }
 
-    #starsSpecial { max-width: 29em; }
+    #specials { max-width: 29em; }
 
-    #researchTab .descriptionText { margin-top: -0.25em; }
+    .descriptionText > p { max-width: 90vw; }
 
     #elementsGrid {
         gap: 0.15em;
