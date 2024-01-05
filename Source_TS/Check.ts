@@ -8,7 +8,7 @@ export const checkTab = (tab: string, subtab = null as null | string): boolean =
             return subtab === 'Structures' || subtab === null;
         case 'Elements':
         case 'upgrade':
-            if (player.stage.resets < 1 && player.discharge.energyMax < (player.inflation.vacuum ? 36 : 9)) { return false; }
+            if (player.stage.resets < 1 && player.discharge.energyMax < (player.inflation.vacuum ? 40 : 9)) { return false; }
             if (subtab === 'Elements' || tab === 'Elements') { return global.stageInfo.activeAll.includes(4) && player.upgrades[4][1] === 1; }
             return subtab === 'Upgrades' || subtab === null;
         case 'strangeness':

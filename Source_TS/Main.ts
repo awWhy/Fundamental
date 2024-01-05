@@ -243,21 +243,29 @@ const hoverChallenge = (index: number, type: 'challenge' | 'reward') => {
 
 export const timeWarp = async() => {
     if (global.paused) { return Notify('No warping while game is paused'); }
+    const offline = player.time.offline;
+    if (offline < 60) { return void Alert('Need at least 1 minute in Offline storage to Warp'); }
     const improved = player.strangeness[2][6] >= 1;
-    if (!await Confirm(`Do you wish to Warp ${format(player.time.offline, { type: 'time', padding: false })} forward? ${improved ? 'There is no maximum tick amount, 1 tick is 1 second' : `Maximum tick amount is ${format(1000)}, 1 tick is at least 10 seconds`}`)) { return; }
-    if (player.time.offline < 60) { return void Alert('Need at least 1 minute in Offline storage'); }
+    const value = await Prompt(`How many seconds to Warp? (Offline storage is ${format(offline, { type: 'time', padding: false })} and 1 tick is ${improved ? '1 second' : '10 seconds'})\nNot using entire Offline storage will remove 1 hour up to same amount as Warp time from storage without using`, `${Math.floor(offline)}`);
+    let warpTime = Math.min(Number(value), offline);
+    if (value === null || !isFinite(warpTime)) { return; }
+    if (warpTime < 60) { return void Alert('Warp has to be at least 1 minute'); }
+    if (warpTime < offline) {
+        const remove = Math.max(warpTime, 3600);
+        if (warpTime + remove >= offline) {
+            warpTime = offline;
+        } else { player.time.offline -= remove; }
+    }
 
     global.paused = true;
     changeIntervals();
     getId('alertMain').style.display = 'none';
     getId('warpMain').style.display = '';
     getId('blocker').style.display = '';
-    warp(player.time.offline, improved ? 1 : Math.max(10, player.time.offline / 1000));
+    warpMain(warpTime, improved ? 1 : 10);
+    player.time.offline -= warpTime;
 };
-const warp = (warpTime: number, tick: number) => {
-    if (global.screenReader) { getId('warpMain').setAttribute('aria-valuetext', `${format(100 - warpTime / player.time.offline * 100)}% done`); }
-    getId('warpRemains').textContent = format(warpTime, { type: 'time' });
-    getId('warpPercentage').textContent = format(100 - warpTime / player.time.offline * 100, { padding: true });
+const warpMain = (warpTime: number, tick: number, start = warpTime) => {
     const time = Math.min(tick * 600, warpTime);
     warpTime -= time;
     try {
@@ -267,11 +275,15 @@ const warp = (warpTime: number, tick: number) => {
         return void Alert(`Warp failed due to Error:\n${error}`);
     }
     if (warpTime > 0) {
-        setTimeout(warp, 0, warpTime, tick);
+        setTimeout(warpMain, 0, warpTime, tick, start);
+        getId('warpRemains').textContent = format(warpTime, { type: 'time' });
+        getId('warpPercentage').textContent = format(100 - warpTime / start * 100, { padding: true });
+        if (global.screenReader) { getId('warpMain').setAttribute('aria-valuetext', `${format(100 - warpTime / start * 100)}% done`); }
     } else { warpEnd(); }
+    numbersUpdate();
+    visualUpdate();
 };
 const warpEnd = () => {
-    player.time.offline = 0;
     Notify(`Warp ended after ${format(handleOfflineTime(), { type: 'time', padding: false })}`);
     global.paused = false;
     changeIntervals();
@@ -441,7 +453,7 @@ try { //Start everything
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
         getId(`toggleNormal${i}`).addEventListener('click', () => {
             toggleSwap(i, 'normal', true);
-            if (i === 1) { void Alert('Changes will come into effect after page reload'); }
+            if (i === 1) { void Alert('Changes will come into effect after page reload\n(Game will need to be saved first)'); }
         });
     }
     for (let i = 0; i < playerStart.toggles.confirm.length; i++) {

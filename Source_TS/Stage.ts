@@ -1108,28 +1108,28 @@ export const calculateMaxLevel = (research: number, stageIndex: number, type: 'r
 export const autoUpgradesSet = (which: 'all' | number) => {
     if (!player.toggles.auto[5]) { return; }
     const auto = global.automatization.autoU;
+    const level = player.upgrades;
+    const pointer = global.upgradesInfo;
 
     if (which === 'all') {
         for (let s = 1; s <= 5; s++) {
             auto[s] = [];
-            for (let i = (s === 1 && !player.inflation.vacuum ? 2 : 0); i < global.upgradesInfo[s].maxActive; i++) {
-                if (player.upgrades[s][i] < 1) {
+            for (let i = 0; i < pointer[s].maxActive; i++) {
+                if (level[s][i] < 1) {
                     auto[s].push(i);
                 }
             }
-
-            const startCost = global.upgradesInfo[s].startCost;
+            const startCost = pointer[s].startCost;
             auto[s].sort((a, b) => startCost[a] - startCost[b]);
         }
     } else if (typeof which === 'number') {
         auto[which] = [];
-        for (let i = (which === 1 && !player.inflation.vacuum ? 2 : 0); i < global.upgradesInfo[which].maxActive; i++) {
-            if (player.upgrades[which][i] < 1) {
+        for (let i = 0; i < pointer[which].maxActive; i++) {
+            if (level[which][i] < 1) {
                 auto[which].push(i);
             }
         }
-
-        const startCost = global.upgradesInfo[which].startCost;
+        const startCost = pointer[which].startCost;
         auto[which].sort((a, b) => startCost[a] - startCost[b]);
     }
 };
@@ -1155,31 +1155,32 @@ export const autoUpgradesBuy = (stageIndex: number) => {
 export const autoResearchesSet = (type: 'researches' | 'researchesExtra', which: 'all' | number | number[]) => {
     if (!player.toggles.auto[type === 'researches' ? 6 : 7]) { return; }
     const auto = global.automatization[type === 'researches' ? 'autoR' : 'autoE'];
+    const level = player[type];
+    const pointer = global[`${type}Info`];
 
     if (which === 'all') {
         for (let s = 1; s <= 5; s++) {
-            const pointer = global[`${type}Info`][s];
-
             auto[s] = [];
-            for (let i = 0; i < pointer.maxActive; i++) {
-                if (player[type][s][i] < pointer.max[i]) {
+            const { max, cost } = pointer[s];
+            for (let i = 0; i < pointer[s].maxActive; i++) {
+                if (level[s][i] < max[i]) {
                     auto[s].push(i);
                 }
             }
-            auto[s].sort((a, b) => pointer.cost[a] - pointer.cost[b]);
+            auto[s].sort((a, b) => cost[a] - cost[b]);
         }
     } else if (typeof which === 'number') {
-        const pointer = global[`${type}Info`][which];
-
         auto[which] = [];
-        for (let i = 0; i < pointer.maxActive; i++) {
-            if (player[type][which][i] < pointer.max[i]) {
+        const { max, cost } = pointer[which];
+        for (let i = 0; i < pointer[which].maxActive; i++) {
+            if (level[which][i] < max[i]) {
                 auto[which].push(i);
             }
         }
-        auto[which].sort((a, b) => pointer.cost[a] - pointer.cost[b]);
+        auto[which].sort((a, b) => cost[a] - cost[b]);
     } else { //Will get sorted automatically
-        if (!auto[which[0]].some((a) => a === which[1])) { auto[which[0]].unshift(which[1]); }
+        const [s, i] = which;
+        if (!auto[s].some((a) => a === i)) { auto[s].unshift(i); }
     }
 };
 
@@ -1628,7 +1629,7 @@ const rankReset = () => {
     }
     awardVoidReward(3);
     reset('rank', player.inflation.vacuum ? [1, 2, 3, 4, 5] : [3]);
-    calculateMaxLevel(0, 3, 'researchesExtra', true);
+    if (player.accretion.rank === 3) { calculateMaxLevel(0, 3, 'researchesExtra', true); }
     calculateMaxLevel(4, 3, 'researchesExtra', true);
 };
 

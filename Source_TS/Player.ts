@@ -514,7 +514,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                     return `Unspent Energy boost Molecules production of themselves ${player.discharge.energy !== effect ? `${format(player.discharge.energy / effect, { padding: true })} to 1. (Softcapped)\n(Actual boost is ${format(effect, { padding: true })})` : '1 to 1.'}`;
                 }
             ],
-            startCost: [36, 72, 120, 160, 200, 400, 2000, 4000, 20000, 70000],
+            startCost: [40, 80, 100, 140, 200, 400, 2000, 4000, 20000, 70000],
             maxActive: 10
         }, { //Stage 2
             name: [
@@ -983,7 +983,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => 'Decrease requirement per Cloud.',
                 () => `Automatically Vaporize when reached enough boost from new Clouds. (Need to be enabled in Settings)${player.strangeness[1][11] >= 1 ? '\nSecond level - Automatically gain 20% of Clouds per second.' : ''}`,
                 () => `Always have auto for ${global.buildingsInfo.name[2][Math.min(player.strangeness[2][5] + 1, global.ASRInfo.max[2])]}.`,
-                () => 'Remove tick limit for time warps, also reduce minimum tick to 1 second.',
+                () => 'Improve warp by making a single tick to be 1 instead 10 seconds.',
                 () => `Unspent Strange quarks will boost Submerged by improving Puddles.\n(Current effect: ${global.strangeInfo.stageBoost[2] !== null ? format(global.strangeInfo.stageBoost[2], { padding: true }) : 'none'})`,
                 () => 'Current Vacuum state allows for another Submerged Structure.',
                 () => `Increase ${global.strangeInfo.name[player.strangeness[5][10]]} gained from this Stage reset based on current Cloud amount.\n(Current effect: ${format(calculateEffects.S2Strange9(), { padding: true })})`,

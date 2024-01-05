@@ -63,7 +63,7 @@ export const switchTab = (tab: string, subtab = null as null | string) => {
     }
 };
 
-export const maxOfflineTime = (): number => player.stage.true >= 6 ? 28800 : Math.min(3600 * player.stage.true + Math.max((player.stage.resets - 4) * 1800, 0), 28800);
+export const maxOfflineTime = (): number => player.stage.true >= 6 ? 43200 : Math.min(3600 * player.stage.true + Math.max((player.stage.resets - 4) * 1800, 0), 43200);
 export const exportMultiplier = (): number => (1 + player.stage.best / 16) * (player.strangeness[4][7] + 1);
 
 export const timeUpdate = (timeWarp = 0, tick = 1) => { //Time based information
@@ -424,8 +424,8 @@ export const visualUpdate = () => {
         if (elementsTab !== null) { elementsTab.style.display = player.upgrades[4][1] === 1 ? '' : 'none'; }
         if (active === 1) {
             if (player.stage.resets < 1) {
-                getId('footerStat2').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
-                getId('upgradeTabBtn').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
+                getId('footerStat2').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 40 : 9) ? '' : 'none';
+                getId('upgradeTabBtn').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 40 : 9) ? '' : 'none';
             }
         } else if (active === 2) {
             getId('footerStat1').style.display = player.upgrades[2][2] === 1 ? '' : 'none';
@@ -725,8 +725,8 @@ export const visualUpdate = () => {
 
             if (!player.inflation.vacuum) { updateUnknown(); }
             if (active === 1) {
-                getId('energyTrue').style.display = strangeness[1][11] < 1 && player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
-                getId('energyStats').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 36 : 9) ? '' : 'none';
+                getId('energyTrue').style.display = strangeness[1][11] < 1 && player.discharge.energyMax >= (player.inflation.vacuum ? 40 : 9) ? '' : 'none';
+                getId('energyStats').style.display = player.discharge.energyMax >= (player.inflation.vacuum ? 40 : 9) ? '' : 'none';
                 getId('dischargeStats').style.display = global.dischargeInfo.total > 0 ? '' : 'none';
                 getId('dischargeStatTrue').style.display = player.discharge.current !== global.dischargeInfo.total ? '' : 'none';
             } else if (active === 2) {

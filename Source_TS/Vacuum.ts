@@ -29,7 +29,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         buildingsInfo.increase[5][1] = 4;
         buildingsInfo.increase[5][2] = 4;
 
-        const upgrades1Cost = [36, 72, 120, 160, 200, 400, 2000, 4000, 20000, 70000];
+        const upgrades1Cost = [40, 80, 100, 140, 200, 400, 2000, 4000, 20000, 70000];
         upgradesInfo[1].startCost.splice(0, upgrades1Cost.length, ...upgrades1Cost);
         upgradesInfo[5].startCost[2] = 1e120;
         //upgradesInfo[1].maxActive = 10;
