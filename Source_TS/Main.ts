@@ -456,6 +456,7 @@ try { //Start everything
             if (i === 1) { void Alert('Changes will come into effect after page reload\n(Game will need to be saved first)'); }
         });
     }
+    if (MD) { document.addEventListener('contextmenu', (event) => event.preventDefault()); }
     for (let i = 0; i < playerStart.toggles.confirm.length; i++) {
         getId(`toggleConfirm${i}`).addEventListener('click', () => toggleConfirm(i, true));
     }
@@ -557,7 +558,12 @@ try { //Start everything
         image.addEventListener('click', () => buyUpgrades(player.stage.active, player.stage.active, 'ASR'));
     }
 
-    if (PC) { getId('element0').addEventListener('dblclick', () => getUpgradeDescription(0, 'elements')); }
+    if (PC) {
+        getId('element0').addEventListener('dblclick', () => {
+            global.lastElement = 0;
+            getUpgradeDescription(0, 'elements');
+        });
+    }
     for (let i = 1; i < global.elementsInfo.startCost.length; i++) {
         const image = getId(`element${i}`);
         if (PC) { image.addEventListener('mouseover', () => hoverUpgrades(i, 'elements')); }

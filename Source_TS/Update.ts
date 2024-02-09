@@ -759,7 +759,7 @@ export const getUpgradeDescription = (index: number, type: 'upgrades' | 'researc
         getId('elementEffect').textContent = player.elements[index] >= 1 || (player.collapse.show >= index && index !== 0) ? pointer.effectText[index]() : 'Effect is not yet known.';
         getId('elementCost').textContent = player.elements[index] >= 1 ? 'Obtained.' :
             player.elements[index] > 0 ? 'Awaiting Collapse.' :
-            `${format(pointer.startCost[index])} Elements.`;
+            index === 0 ? 'Unknown.' : `${format(pointer.startCost[index])} Elements.`;
         return;
     }
 

@@ -9,7 +9,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
         document.body.classList.add('outlineOnFocus');
         return;
     } else {
-        const activeType = (document.activeElement as HTMLInputElement).type;
+        const activeType = (document.activeElement as HTMLInputElement)?.type;
         if (activeType === 'text' || activeType === 'number') { return; }
         document.body.classList.remove('outlineOnFocus');
     }

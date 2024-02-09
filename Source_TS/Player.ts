@@ -1600,6 +1600,7 @@ export const updatePlayer = (load: playerType): string => {
         player.buildings[2][0].current = Limit(player.buildings[1][5].current).divide('6.02214076e23').toArray();
         player.buildings[3][0].current = Limit(player.buildings[1][0].current).multiply('1.78266192e-33').toArray();
     } else if (player.accretion.rank === 0) { player.buildings[3][0].current = [5.9722, 27]; }
+    if (player.elements[26] === 1 && player.stage.current < 5) { player.elements[26] = 0; }
 
     for (let s = 1; s < playerStart.milestones.length; s++) {
         for (let i = 0; i < playerStart.milestones[s].length; i++) {
