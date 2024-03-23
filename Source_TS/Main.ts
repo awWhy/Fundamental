@@ -719,7 +719,8 @@ try { //Start everything
     document.title = `Fundamental ${playerStart.version}`;
     void Alert(alertText + `\n(Game loaded after ${format((Date.now() - playerStart.time.started) / 1000, { type: 'time', padding: false })})`);
 } catch (error) {
-    void Alert(`Game failed to load\nFull error: '${error}'`);
+    const errorData = (error as { name: string, stack: string });
+    void Alert(`Game failed to load\nFull error:${typeof errorData.stack === 'string' ? `\n${errorData.stack.replaceAll(`at ${window.location.origin}/`, '')}` : ` '${error}'`}`);
     const buttonDiv = document.createElement('div');
     buttonDiv.innerHTML = '<button type="button" id="exportError" style="width: 7em;">Export save</button><button type="button" id="deleteError" style="width: 7em;">Delete save</button>';
     buttonDiv.style.cssText = 'display: flex; column-gap: 0.6em; margin-top: 0.4em;';
