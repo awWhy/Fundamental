@@ -274,5 +274,5 @@ ${c!==t.version?`Game have been updated from ${c} to ${t.version}`:`Current vers
 (Game loaded after ${f((Date.now()-v.time.started)/1e3,{type:"time",padding:!1})})`)}catch(e){R(`Game failed to load
 Full error: '${e}'
 (${e.stack})`);let s=document.createElement("div");s.innerHTML='<button type="button" id="exportError" style="width: 7em;">Export save</button><button type="button" id="deleteError" style="width: 7em;">Delete save</button>',s.style.cssText="display: flex; column-gap: 0.6em; margin-top: 0.4em;",r("loading").append(s);let n=!1;r("exportError").addEventListener("click",()=>{n=!0;let o=localStorage.getItem("save");if(o===null)return void R("No save file detected");let u=document.createElement("a");u.href=`data:text/plain,${o}`,u.download="Fundamental post error export",u.click()}),r("deleteError").addEventListener("click",async()=>{!n&&!await O(`Recommended to export save file first
-Press 'Confirm' to confirm and delete your save file`)||(localStorage.removeItem("save"),window.location.reload(),R("Awaiting page refresh"))})}})();
+Press 'Confirm' to confirm and delete your save file`)||(localStorage.removeItem("save"),window.location.reload(),R("Awaiting page refresh"))})}try{console.log(window.location,window.location.origin)}catch(e){}})();
 //# sourceMappingURL=Code.js.map
