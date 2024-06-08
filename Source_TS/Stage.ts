@@ -713,7 +713,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         if (currency.lessThan(cost)) { return false; }
 
         let newLevels = 1;
-        if ((auto || (player.toggles.max[0] && player.stage.true >= 2)) && pointer.max[upgrade] > 1) {
+        if ((auto || (player.toggles.max[0] && player.stage.true >= 4)) && pointer.max[upgrade] > 1) {
             const scaling = pointer.scaling[upgrade]; //Must be >1 (>0 for Stage 1)
             if (stageIndex === 1) {
                 if (free) {
@@ -1438,7 +1438,7 @@ export const setActiveStage = (stage: number, active = stage) => {
 };
 
 export const getDischargeScale = (): number => (20 - (4 * player.researches[1][3]) - player.strangeness[1][2]) / 2;
-export const assignDischargeCost = () => {
+const assignDischargeCost = () => {
     global.dischargeInfo.next = Math.round(getDischargeScale() ** player.discharge.current);
 };
 export const assignEnergyArray = () => {
@@ -1487,7 +1487,7 @@ export const calculateTrueEnergy = () => {
 
 export const dischargeResetCheck = (auto = false, goals = false): boolean => {
     if (player.upgrades[1][5] < 1) { return false; }
-    assignDischargeCost();
+    assignDischargeCost(); //Also does number update and more, since called with every tick
     const info = global.dischargeInfo;
     const energy = player.discharge.energy;
 
@@ -1527,7 +1527,7 @@ const dischargeReset = (noReset = false) => {
     if (!noReset) { reset('discharge', player.inflation.vacuum ? [1, 2, 3, 4, 5] : [1]); }
 };
 
-export const assignNewClouds = () => {
+const assignNewClouds = () => {
     const get = new Overlimit(player.buildings[2][1][player.researchesExtra[2][0] >= 1 ? 'total' : 'current']).divide(calculateEffects.S2Upgrade2());
 
     if (get.moreOrEqual('1')) {
@@ -1537,9 +1537,10 @@ export const assignNewClouds = () => {
 };
 
 export const vaporizationResetCheck = (auto = false, clouds = null as number | null): boolean => {
-    assignNewClouds();
+    if (player.upgrades[2][2] < 1) { return false; }
+    assignNewClouds(); //Also does number update and more, since called with every tick
     const info = global.vaporizationInfo;
-    if (player.upgrades[2][2] < 1 || info.get.lessOrEqual('0')) { return false; }
+    if (info.get.lessOrEqual('0')) { return false; }
 
     if (clouds !== null) {
         if (player.strangeness[2][4] >= 2) {
@@ -1649,7 +1650,7 @@ const calculateMassGain = (): number => {
     if (elements[5] >= 1) { massGain += 0.0002 * player.buildings[4][1].true; }
     massGain *= elements[15] >= 1 ? global.collapseInfo.trueStars : player.buildings[4][1].true;
     if (player.inflation.vacuum) {
-        massGain = (massGain * (player.challenges.active === 0 ? 60 : 96)) + 1;
+        massGain = (massGain * (player.challenges.active === 0 ? 48 : 96)) + 1;
     } else {
         if (elements[10] >= 1) { massGain *= 2; }
         if (player.researchesExtra[4][1] >= 1) { massGain *= calculateEffects.S4Extra1(); }
@@ -1663,7 +1664,7 @@ export const assignNewMass = () => {
     global.collapseInfo.newMass = !player.inflation.vacuum ? calculateMassGain() :
         Math.min(new Overlimit(player.buildings[1][0].current).multiply('8.96499278339628e-67').toNumber(), global.inflationInfo.massCap); //1.78266192e-33 / 1.98847e33
 };
-export const assignNewRemnants = () => {
+const assignNewRemnants = () => {
     const building = player.buildings[4];
     const starCheck = global.collapseInfo.starCheck;
     const stars = player.collapse.stars;
@@ -1674,17 +1675,17 @@ export const assignNewRemnants = () => {
 
 export const collapseResetCheck = (auto = false, remnants = false): boolean => {
     if (player.upgrades[4][0] < 1) { return false; }
-    assignNewRemnants();
+    assignNewRemnants(); //Also does number update and more, since called with every tick
     const info = global.collapseInfo;
 
     if (remnants) {
         if (player.strangeness[4][4] >= 2 && (info.starCheck[0] > 0 || info.starCheck[1] > 0 || info.starCheck[2] > 0)) {
             collapseReset(true);
             if (!auto) { return true; }
-            assignNewRemnants();
+            assignNewRemnants(); //Only used to set values to 0
         } else if (!auto) { return false; }
     }
-    assignNewMass();
+    assignNewMass(); //If moved up, then also can be removed from number update
 
     if (auto) {
         if (player.strangeness[4][4] < 1 || (player.inflation.vacuum && player.collapse.input[1] && new Overlimit(player.buildings[1][0].current).multiply('8.96499278339628e-67').toNumber() < global.inflationInfo.massCap && player.collapse.mass < info.newMass)) { return false; }

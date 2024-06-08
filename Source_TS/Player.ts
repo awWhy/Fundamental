@@ -1185,7 +1185,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 let text = `<span class="orangeText">- Discharge base is divided by 2${progress[1] >= 2 ? '\n- Energy gain from creating non Microworld Structures is decreased by 50%' : ''}</span>`;
                 if (progress[1] >= 3) { text += `\n\n<span class="blueText">- Effective Drops amount is capped at 1\n- Puddles are ${format(2000)} times weaker\n- Clouds gain is decreased by ^${format(0.8)}</span>`; }
                 if (progress[1] >= 2) { text += `\n\n<span class="grayText">- Cosmic dust is softcapped (^${format(0.9)})${progress[3] >= 4 ? `\n- Softcap is stronger after reaching 'Jovian planet' Rank (^${format(0.8)})` : ''}</span>`; }
-                if (progress[3] >= 5) { text += `\n\n<span class="orchidText">- Solar mass effect is ${format(2e4)} times weaker\n- Effective Solar mass amount above 1 is ^${format(0.4)}\n- Solar mass gain from Stars is decreased by ${format(1.6)}</span>`; }
+                if (progress[3] >= 5) { text += `\n\n<span class="orchidText">- Solar mass effect is ${format(2e4)} times weaker\n- Effective Solar mass amount above 1 is ^${format(0.4)}\n- Solar mass gain from Stars is decreased by 2</span>`; }
                 if (progress[5] >= 1) { text += '\n\n<span class="cyanText">- First 2 Intergalactic Upgrades are weaker</span>'; }
                 const left = progress[1] < 2 ? 'orange' : progress[3] < 5 ? 'gray' : progress[5] < 1 ? 'orchid' : null;
                 if (left !== null) { text += `\n<span class="${left}Text">More will be shown after getting further into Void</span>`; }
@@ -1587,10 +1587,10 @@ export const updatePlayer = (load: playerType): string => {
         player.buildings[3][0].current.setValue(player.buildings[1][0].current).multiply('1.78266192e-33');
         player.events[0] = true;
     } else {
-        player.researchesAuto[0] = player.strangeness[3][6];
         if (player.accretion.rank === 0) { player.buildings[3][0].current.setValue('5.9722e27'); }
         calculateInstability();
     }
+    player.researchesAuto[0] = Math.max(player.strangeness[3][6], player.researchesAuto[0]);
     if (player.stage.current < 5 && player.elements[26] >= 1) { player.elements[26] = 0; }
 
     for (let s = 1; s <= 5; s++) {
@@ -1624,6 +1624,11 @@ export const updatePlayer = (load: playerType): string => {
             }
         }
         calculateMaxLevel(0, s, 'ASR');
+        if (s !== 5) {
+            if (player.strangeness[s][5] >= 1) { player.ASR[s] = global.ASRInfo.max[s]; }
+        } else {
+            if (player.strangeness[5][6] >= 1) { player.ASR[5] = Math.max(2, player.ASR[5]); }
+        }
     }
     for (let i = 0; i < playerStart.researchesAuto.length; i++) {
         visualUpdateResearches(i, 0, 'researchesAuto');

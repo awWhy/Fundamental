@@ -3,7 +3,7 @@ import Overlimit from './Limit';
 import { getClass, getId, getQuery } from './Main';
 import { global, player } from './Player';
 import { MDStrangenessPage, globalSave, playEvent, specialHTML, switchTheme } from './Special';
-import { autoElementsBuy, autoElementsSet, autoResearchesBuy, autoResearchesSet, autoUpgradesBuy, autoUpgradesSet, buyBuilding, calculateBuildingsCost, gainBuildings, assignBuildingInformation, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleSwap, vaporizationResetCheck, assignDischargeCost, assignNewClouds, assignNewMass, assignNewRemnants, gainStrange, switchStage, setActiveStage, calculateEffects } from './Stage';
+import { autoElementsBuy, autoElementsSet, autoResearchesBuy, autoResearchesSet, autoUpgradesBuy, autoUpgradesSet, buyBuilding, calculateBuildingsCost, gainBuildings, assignBuildingInformation, collapseResetCheck, dischargeResetCheck, rankResetCheck, stageResetCheck, toggleSwap, vaporizationResetCheck, assignNewMass, gainStrange, switchStage, setActiveStage, calculateEffects } from './Stage';
 import type { gameTab } from './Types';
 import { updateUnknown } from './Vacuum';
 
@@ -245,7 +245,6 @@ export const numbersUpdate = () => {
                 getId(`building${i}BuyX`).textContent = format(buy);
             }
             if (active === 1) {
-                assignDischargeCost();
                 getId('dischargeBase').textContent = format(global.dischargeInfo.base);
                 getId('reset1Button').textContent = `Next goal is ${format(global.dischargeInfo.next)} Energy`;
                 getId('tritiumEffect').textContent = format(global.dischargeInfo.tritium, { padding: true });
@@ -256,7 +255,6 @@ export const numbersUpdate = () => {
                     getId('preonCapRatio').textContent = format(new Overlimit(global.inflationInfo.preonTrue).divide(global.inflationInfo.preonCap), { padding: true });
                 }
             } else if (active === 2) {
-                assignNewClouds();
                 getId('reset1Button').textContent = global.vaporizationInfo.get.moreThan('0') ? `Reset for ${format(global.vaporizationInfo.get, { padding: true })} Clouds` : `Waiting for ${format(calculateEffects.S2Upgrade2(), { padding: true })} Drops`;
                 getId('cloudEffectStat').textContent = format(global.vaporizationInfo.strength, { padding: true });
                 if (player.inflation.vacuum) {
@@ -273,7 +271,6 @@ export const numbersUpdate = () => {
                 const { collapse } = player;
                 const { collapseInfo } = global;
                 assignNewMass();
-                assignNewRemnants();
 
                 getId('reset1Button').textContent = `Collapse to ${format(collapseInfo.newMass, { padding: true })} Mass`;
                 getId('solarMassCurrent').textContent = format(collapseInfo.massEffect, { padding: true });
@@ -379,8 +376,6 @@ export const numbersUpdate = () => {
                 getId('dischargeStat').textContent = format(global.dischargeInfo.total);
                 getId('dischargeStatTrue').textContent = ` [${player.discharge.current}]`;
             } else if (active === 2) {
-                assignNewClouds();
-
                 const clouds = new Overlimit(calculateEffects.clouds(true)).divide(global.vaporizationInfo.strength).toNumber();
                 getId('cloudEffectAfter').textContent = `x${format(clouds, { padding: true })}`;
                 const before = calculateEffects.S2Extra1_2();
@@ -414,7 +409,6 @@ export const numbersUpdate = () => {
                 if (active === 4) {
                     const auto2 = player.strangeness[4][4] >= 2;
                     assignNewMass();
-                    assignNewRemnants();
 
                     const mass = calculateEffects.mass(true) / collapseInfo.massEffect;
                     getId('massEffectAfter').textContent = `x${format(mass, { padding: true })}`;
@@ -464,7 +458,6 @@ export const visualUpdate = () => {
         } else if (highest === 3) {
             if (player.buildings[3][0].current.moreOrEqual('5e29')) { void playEvent(3, 0); }
         } else if (highest === 2) {
-            assignNewClouds();
             if (new Overlimit(global.vaporizationInfo.get).plus(player.vaporization.clouds).moreThan('1e4')) { void playEvent(2, 0); }
         } else if (highest === 1) {
             if (player.upgrades[1][5] === 1) { void playEvent(1, 0); }
@@ -560,7 +553,10 @@ export const visualUpdate = () => {
                 getId('star1Effect').style.display = buildings[2].trueTotal.moreThan('0') ? '' : 'none';
                 getId('star2Effect').style.display = buildings[3].trueTotal.moreThan('0') ? '' : 'none';
                 getId('star3Effect').style.display = buildings[4].trueTotal.moreThan('0') ? '' : 'none';
-                if (vacuum) { getId('building5').style.display = player.elements[26] >= 1 ? '' : 'none'; }
+                if (vacuum) {
+                    getId('building5').style.display = player.elements[26] >= 1 ? '' : 'none';
+                    getId('mainCap').style.display = player.upgrades[4][0] === 1 ? '' : 'none';
+                }
             } else if (active === 5) {
                 if (!vacuum) {
                     getId('buildings').style.display = player.milestones[2][0] >= 7 || player.milestones[3][0] >= 7 ? '' : 'none';
@@ -834,7 +830,7 @@ export const getUpgradeDescription = (index: number, type: 'upgrades' | 'researc
         } else {
             let newLevels = 1;
             let cost = pointer.cost[index];
-            if (player.toggles.max[0] && player.stage.true >= 2 && pointer.max[index] > 1) {
+            if (player.toggles.max[0] && player.stage.true >= 4 && pointer.max[index] > 1) {
                 const scaling = pointer.scaling[index];
                 if (stageIndex === 1) {
                     if (player.accretion.rank >= 6 && player.strangeness[1][9] >= 1) {

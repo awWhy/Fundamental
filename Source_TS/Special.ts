@@ -284,6 +284,7 @@ export const setTheme = (theme: number | null, noSwitch = false) => {
     if (theme !== null) {
         if (player.stage.true < theme) { theme = null; }
         if (theme === 6 && player.stage.true < 7) { theme = null; }
+        if (noSwitch && theme !== null) { return; }
     }
 
     globalSave.theme = theme;

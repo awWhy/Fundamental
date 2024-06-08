@@ -80,7 +80,6 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('molesProduction').style.display = '';
         getId('massProduction').style.display = '';
         getId('dustCap').style.display = '';
-        getId('mainCap').style.display = '';
         getId('strange7Stage1').style.display = '';
         getId('strange7Stage2').style.display = '';
         getId('strange8Stage3').style.display = '';

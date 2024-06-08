@@ -268,7 +268,7 @@ const cancelRepeat = () => {
 };
 
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
-    if (player.toggles.hover[0] && player.stage.true >= 4) { buyUpgrades(index, player.stage.active, type); }
+    if (player.toggles.hover[0] && player.stage.true >= 2) { buyUpgrades(index, player.stage.active, type); }
     if (type === 'elements') {
         global.lastElement = index;
     } else { global.lastUpgrade[player.stage.active] = [index, type]; }
@@ -301,8 +301,7 @@ export const timeWarp = async() => {
     if (global.paused) { return Notify('No warping while game is paused'); }
     const offline = player.time.offline;
     if (offline < 60) { return void Alert('Need at least 1 minute in Offline storage to Warp'); }
-    let warpTime: number = player.stage.true < 5 ? (await Confirm(`Ready to use Offline?\n(Offline storage is ${format(offline, { type: 'time', padding: false })})`) ? offline : 0) :
-        Math.min(Number(await Prompt(`How many seconds to Warp?\n(Offline storage is ${format(offline, { digits: 0 })} seconds)\nNot using entire Offline storage will remove additional time from storage without using it (from half an hour up to same amount as Warp time)`, '1800')), offline);
+    let warpTime: number = Math.min(Number(await Prompt(`How many seconds to Warp?\n(Offline storage is ${format(offline, { digits: 0 })} seconds)\nNot using entire Offline storage will remove additional time from storage without using it (from half an hour up to same amount as Warp time)`, '1800')), offline);
     if (warpTime < 60 || !isFinite(warpTime)) { return warpTime > 0 ? void Alert('Warp has to be at least 1 minute') : undefined; }
     if (warpTime < offline) {
         const remove = Math.max(warpTime, 1800);
@@ -414,7 +413,8 @@ try { //Start everything
             getId('phoneHotkeys').prepend(reset1Button, resetCollapse, stageButton);
             resetCollapse.addEventListener('click', collapseAsyncReset);
 
-            getId('toggleMax0').classList.add('stage2Unlock');
+            const hoverButton = getId('toggleHover0');
+            hoverButton.classList.add('stage2Unlock');
             getId('researchToggles').classList.remove('stage2Unlock');
             const createUpgButton = document.createElement('button');
             createUpgButton.classList.add('hollowButton');
@@ -422,7 +422,7 @@ try { //Start everything
             createUpgButton.id = 'upgradeCreate';
             createUpgButton.type = 'button';
             specialHTML.styleSheet.textContent += '#upgradeCreate { height: 1.76em; padding: 0 0.44em; border-radius: 2px; font-size: 0.92em; }';
-            getId('toggleHover0').after(createUpgButton);
+            hoverButton.after(createUpgButton);
 
             const pages = document.createElement('div');
             pages.id = 'strangenessPages';
@@ -501,6 +501,22 @@ try { //Start everything
             getId('offlineWarp').after(pauseButton);
             pauseButton.addEventListener('click', pauseGame);
         }
+        if (globalSave.toggles[1]) {
+            const elementsArea = getId('upgradeSubtabElements');
+            elementsArea.id = 'ElementsTab';
+            getId('upgradeTab').after(elementsArea);
+            removeId('upgradeSubtabElements');
+
+            const elementsButton = getId('upgradeSubtabBtnElements');
+            elementsButton.id = 'ElementsTabBtn';
+            elementsButton.classList.add('stage4Include');
+            getId('upgradeTabBtn').after(elementsButton);
+            removeId('upgradeSubtabBtnElements');
+
+            const tabList = global.tabList;
+            tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
+            tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
+        }
     }
 
     let alertText;
@@ -513,23 +529,6 @@ try { //Start everything
         prepareVacuum(false); //Set buildings values
         updatePlayer(deepClone(playerStart));
         alertText = `Welcome to 'Fundamental' ${player.version}, a test-project created by awWhy\n(This idle game is not meant to be fast)`;
-    }
-
-    if (globalSave.toggles[1]) {
-        const elementsArea = getId('upgradeSubtabElements');
-        elementsArea.id = 'ElementsTab';
-        getId('upgradeTab').after(elementsArea);
-        removeId('upgradeSubtabElements');
-
-        const elementsButton = getId('upgradeSubtabBtnElements');
-        elementsButton.id = 'ElementsTabBtn';
-        elementsButton.classList.add('stage4Include');
-        getId('upgradeTabBtn').after(elementsButton);
-        removeId('upgradeSubtabBtnElements');
-
-        const tabList = global.tabList;
-        tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
-        tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
     }
 
     /* Global */
@@ -563,7 +562,6 @@ try { //Start everything
     for (let i = 0; i < globalSaveStart.toggles.length; i++) {
         getId(`toggleNormal${i}`).addEventListener('click', () => toggleSpecial(i, 'normal', true, i === 1));
     }
-    if (MD) { document.addEventListener('contextmenu', (event) => event.preventDefault()); }
     for (let i = 0; i < playerStart.toggles.confirm.length; i++) {
         getId(`toggleConfirm${i}`).addEventListener('click', () => toggleConfirm(i, true));
     }
