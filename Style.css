@@ -691,6 +691,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--background-color);
     margin-left: -3px;
     height: 32px;
+    user-select: none;
 }
 
 #researches div > div { display: flex; }
@@ -857,6 +858,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--background-color);
     margin-left: -3px;
     height: 32px;
+    user-select: none;
 }
 
 #milestones {
