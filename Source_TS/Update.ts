@@ -358,7 +358,7 @@ export const numbersUpdate = () => {
                 getQuery('#dustSoftcap > span').textContent = format(global.accretionInfo.dustSoft);
                 if (player.accretion.rank < global.accretionInfo.maxRank && player.strangeness[3][4] >= 2) {
                     if (vacuum) { buildings[0].total.setValue(player.buildings[1][0].total).multiply('1.78266192e-33'); }
-                    getId('reset1Button').textContent = `Next Rank is ${format(Math.max(global.accretionInfo.rankCost[player.accretion.rank] - buildings[0].total.toNumber(), 0), { padding: true })} Mass`;
+                    getId('reset1Button').textContent = `Next Rank after ${format(Math.max(global.accretionInfo.rankCost[player.accretion.rank] - buildings[0].total.toNumber(), 0), { padding: true })} Mass`;
                 }
                 if (vacuum) {
                     getQuery('#massProduction > span').textContent = format(new Overlimit(buildingsInfo.producing[1][1]).multiply('1.78266192e-33'), { padding: true });

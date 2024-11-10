@@ -1220,7 +1220,7 @@ try { //Start everything
     stageUpdate('reload');
     if (save !== null) {
         global.lastSave = handleOfflineTime();
-        Notify(`Welcome back, you were away for ${format(global.lastSave, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame have been updated from ${oldVersion} to ${player.version}` : ''}${globalSave.developerMode ?
+        Notify(`Welcome back, you were away for ${format(global.lastSave, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${globalSave.developerMode ?
             `\nGame loaded after ${format((Date.now() - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
         `);
         void simulateOffline(global.lastSave);
