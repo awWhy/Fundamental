@@ -319,6 +319,7 @@ h1, h2, h3, h4, h5, h6 {
 #notifications > p:not(:first-of-type) { margin-top: -1px; }
 
 label { cursor: pointer; }
+label:has(input[type = "number"], input[type = "text"]) { cursor: text; }
 button, input { appearance: none; }
 
 #load, button {
