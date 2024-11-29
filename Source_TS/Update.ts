@@ -1548,7 +1548,12 @@ export const stageUpdate = (extra = 'normal' as 'normal' | 'soft' | 'reload', of
         if (current >= 5) { activeAll.push(5); } //player.elements[26] >= 1
     }
     if (highest >= 7 || player.events[1]) { activeAll.push(6); }
-    if (offline && global.paused) { return void (global.debug.offlineUpdate = extra); }
+    if (offline && global.paused) {
+        const offlineExtra = global.debug.offlineUpdate;
+        if (offlineExtra === false || offlineExtra === 'soft' ||
+            (offlineExtra === 'normal' && extra === 'reload')) { global.debug.offlineUpdate = extra; }
+        return;
+    }
 
     for (let s = 1; s <= 6; s++) {
         for (const element of getClass(`stage${s}Only`)) { element.style.display = active === s ? '' : 'none'; }

@@ -428,7 +428,7 @@ export const updateCollapsePointsText = () => {
     let pointsText = '';
     const points = player.collapse.points;
     for (let i = 0; i < points.length; i++) {
-        pointsText += `${i > 0 ? ', ' : ''}${format(points[i])}`;
+        pointsText += `${i > 0 ? ', ' : ''}${format(points[i], { type: 'input' })}`;
     }
     getId('collapsePoints').textContent = pointsText !== '' ? `${pointsText} or ` : '';
 };
@@ -575,7 +575,10 @@ try { //Start everything
             for (let i = 0; i < globalSaveStart.MDSettings.length; i++) { toggleSpecial(i, 'mobile'); }
         }
         if (globalSave.SRSettings[0]) {
-            (document.getElementById('SRMessage1') as HTMLElement).remove();
+            const message = getId('SRMessage1');
+            message.textContent = 'Screen reader support is enabled, disable it if its not required';
+            message.className = 'greenText';
+            message.ariaHidden = 'true';
             for (let i = 0; i <= 3; i++) {
                 const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span:last-of-type`);
                 effectID.textContent = ` (${effectID.textContent})`;
@@ -1099,8 +1102,9 @@ try { //Start everything
     getId('save').addEventListener('click', () => { saveGame(); });
     getId('file').addEventListener('change', async() => {
         const id = getId('file') as HTMLInputElement;
-        loadGame(await (id.files as FileList)[0].text());
-        id.value = '';
+        try {
+            loadGame(await (id.files as FileList)[0].text());
+        } finally { id.value = ''; }
     });
     getId('export').addEventListener('click', exportFileGame);
     getId('saveConsole').addEventListener('click', saveConsole);
@@ -1132,7 +1136,7 @@ try { //Start everything
     }
     getId('mainInterval').addEventListener('change', () => {
         const mainInput = getId('mainInterval') as HTMLInputElement;
-        globalSave.intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 100);
+        globalSave.intervals.main = Math.min(Math.max(Math.trunc(Number(mainInput.value)), 20), 200);
         mainInput.value = `${globalSave.intervals.main}`;
         saveGlobalSettings();
         changeIntervals();
@@ -1146,7 +1150,7 @@ try { //Start everything
     });
     getId('visualInterval').addEventListener('change', () => {
         const visualInput = getId('visualInterval') as HTMLInputElement;
-        globalSave.intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 100), 20), 400) * 10;
+        globalSave.intervals.visual = Math.min(Math.max(Math.trunc(Number(visualInput.value) * 100), 20), 200) * 10;
         visualInput.value = `${globalSave.intervals.visual / 1000}`;
         saveGlobalSettings();
         changeIntervals();

@@ -449,7 +449,7 @@
                             <div id="strangeletsEffectsMain" class="popUpMenu mainText" style="display: none;" role="dialog">
                                 <h4 class="bigWord">Current effects:</h4>
                                 <ul class="whiteText">
-                                    <li>Producing <span id="strangeletsEffect1Stat0">0</span>% of the current Strange quarks per second<br aria-hidden="true">(<span id="strangeletsEffect1Allowed">Which is equal to <span id="strangeletsEffect1Stat1">0 per eon</span></span><span id="strangeletsEffect1Disabled">For Interstellar Stage only</span><span id="strangeletsGlobalSpeedInfo">, not affected by global speed</span>)</li>
+                                    <li>Producing <span id="strangeletsEffect1Stat0">0</span>% of current Strange quarks rate<br aria-hidden="true">(<span id="strangeletsEffect1Allowed">Which is equal to <span id="strangeletsEffect1Stat1">0 per eon</span></span><span id="strangeletsEffect1Disabled">For Interstellar Stage only</span><span id="strangeletsGlobalSpeedInfo">, not affected by global speed</span>)</li>
                                     <li>Increasing Stage reset reward by <span id="strangeletsEffect2Stat">1</span></li>
                                 </ul>
                             </div>
@@ -804,7 +804,7 @@
                                  --><div id="toggleAuto4Main" class="settingsMenu">
                                         <button type="button" class="hollowButton stage4borderButton" aria-haspopup="menu" aria-label="Settings">!</button>
                                         <div class="popUpMenu" role="menu" aria-label="Settings menu">
-                                            <p><label>Collapse when boost from doing it has reached at least <input type="number" id="collapseInput" value="2" step="any" inputmode="text"></label><label> or if Solar mass will be more or equal to <span id="collapsePoints"></span><input type="number" id="collapseAddNewPoint" step="any" inputmode="text"></label><br>(Maxium value is 40, writing number with a minus will remove it and 0 will remove all)</p>
+                                            <p><label>Collapse when boost from doing it has reached at least <input type="number" id="collapseInput" value="2" step="any" inputmode="text"></label><label> or if Solar mass will increase to at least <span id="collapsePoints"></span><input type="number" id="collapseAddNewPoint" step="any" inputmode="text"></label><br>(Maximum value is 40, writing number with a minus will remove it and 0 will remove all)</p>
                                             <label id="collapseCapped">Prevent auto Collapse if Solar mass can be hardcapped within <input type="number" id="collapseInputWait" value="1e6" step="any" inputmode="text"> seconds and not yet hardcapped</label>
                                         </div>
                                     </div>
@@ -812,7 +812,7 @@
                                 <button type="button" id="toggleAuto4" class="toggleAuto" title="Auto Collapse">Auto OFF</button>
                             </section>
                             <section id="mergeToggleReset" aria-label="Merge">
-                                <img src="Used_art/Merge%20toggle.png" alt="Merge" loading="lazy" draggable="false" title="Collapse" aria-hidden="true">
+                                <img src="Used_art/Merge%20toggle.png" alt="Merge" loading="lazy" draggable="false" title="Merge" aria-hidden="true">
                                 <div>
                                     <button type="button" id="toggleConfirm5" class="toggleConfirm" title="Merge Confirmation">All</button>
                                 </div>

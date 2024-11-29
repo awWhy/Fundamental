@@ -104,7 +104,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
 };
 
 export const specialHTML = { //Images here are from true vacuum for easier cache
-    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge'], //[0] === textContent
+    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', ''], //[0] === textContent
     longestBuilding: 7, //+1
     buildingHTML: [ //outerHTML is slow
         [],
@@ -722,8 +722,12 @@ export const Notify = (text: string) => {
         getId('notifications').append(html);
 
         const pointer = notifications[notifications.push([text, (instantClose = false) => {
-            if (instantClose) { return html.style.animation !== '' ? undefined : remove(); }
+            if (instantClose) {
+                if (html.style.animation === '') { remove(); }
+                return;
+            }
             html.textContent = `${text} | x${++count}`;
+            if (timeout === undefined) { return; } //Required to make it work properly if call happened too early
             clearTimeout(timeout);
             timeout = setTimeout(remove, 7200);
         }]) - 1];
@@ -838,7 +842,8 @@ export const changeFormat = (point: boolean) => {
 export const SRHotkeysInfo = (short = false) => {
     const index = globalSave.toggles[0] ? 0 : 1;
     const resetName = specialHTML.resetHTML[player.stage.active];
-    const list = [globalSave.hotkeys[resetName.toLowerCase() as hotkeysList][index]];
+    const resetHotkey = globalSave.hotkeys[resetName.toLowerCase() as hotkeysList];
+    const list = [resetHotkey !== undefined ? resetHotkey[index] : ''];
     if (!short) {
         list.push(
             globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index],
@@ -934,7 +939,7 @@ export const showHints = async() => {
     let hintText = `Hint about '${hint}' doesn't exist`;
     const lower = hint.replaceAll(' ', '').toLowerCase();
     if (lower === 'mobiledevice') {
-        hintText = 'Example of changes that this support does:\n- Replaces mouse events with touch events\n- Adds abbility to change tab/subtab by swiping\n- Makes creation of Upgrades require usage of new special button, but some will require holding down instead\n- Adds buttons accross all tabs to be used as hotkeys\n- Disables unwanted browser behaviours and can fix bugs related to poor browser support';
+        hintText = 'Example of changes that this support does:\n- Replaces mouse events with touch events\n- Adds abbility to change tab/subtab by swiping\n- Makes creation of Upgrades require usage of new special button, but some will require holding down instead\n- Adds buttons accross all tabs to be used as hotkeys\n- Disables unwanted browser behaviours and can fix bugs related to poor browser support (will need to disable forced zoom in browser settings if footer moves on its own)';
     } else if (lower === 'screenreader') {
         hintText = 'Example of changes that this support does:\n- Adds events based on focus changing\n- Adds more information for Aria, like more text based on performed actions';
     } if (lower === 'safereset') {

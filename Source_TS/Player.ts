@@ -1049,8 +1049,8 @@ export const global: globalType = { //For information that doesn't need to be sa
                 'Ocean world'
             ],
             effectText: [
-                () => `Moles will ${player.inflation.vacuum ? 'improve' : 'produce'} 2 times more.`,
-                () => `Puddles will produce ${format(player.inflation.vacuum ? 1.8 : 1.6)} times more.`,
+                () => `Drops will ${player.inflation.vacuum ? 'improve Tritium' : 'produce'} 2 times more${player.inflation.vacuum ? '' : ' Moles'}.`,
+                () => `Puddles will produce ${format(player.inflation.vacuum ? 1.8 : 1.6)} times more Drops.`,
                 () => { //[2]
                     let extraText = 'none';
                     if (player.strangeness[2][2] >= 1) { extraText = "max level increased for 'More streams' (+1)"; }
@@ -1062,7 +1062,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                 () => `Automatically Vaporize when reached enough boost from new Clouds. (Need to be enabled in Settings)${global.strangenessInfo[2].max[4] > 1 ? `\nSecond level will allow to automatically gain ${format(2.5)}% of Clouds per second.${player.stage.true >= 7 ? ' (Not affected by global speed)' : ''}` : ''}`,
                 () => 'Make auto for all Submerged Structures permanent.',
                 () => `Unspent Strange quarks will boost Submerged by improving Puddles.\n(Current effect: ${format(global.strangeInfo.stageBoost[2], { padding: true })})`,
-                () => `Submerged Structures that improve other Submerged Structures will do it ${format(1.24)} times stonger.`,
+                () => `Submerged Structures that improve other Submerged Structures will do it ${format(1.24)} times stonger.\n(Affected Structures are Ponds, Lakes, Seas and Oceans)`,
                 () => { //[8]
                     let extraText = 'none';
                     if (player.strangeness[2][8] >= 1) { extraText = "max level increased for 'Stronger surface tension' (+3)"; }
@@ -1092,7 +1092,7 @@ export const global: globalType = { //For information that doesn't need to be sa
             ],
             effectText: [
                 () => `Increase strength of Cosmic dust by ${format(1.8)}.`,
-                () => `Accretion Structures that produce other Structures will do it ${format(player.inflation.vacuum ? 1.48 : 1.6)} times faster.`,
+                () => `Accretion Structures that produce other Accretion Structures will do it ${format(player.inflation.vacuum ? 1.48 : 1.6)} times faster.\n(Affected Structures are Planetesimals and Protoplanets)`,
                 () => { //[2]
                     let extraText = 'none';
                     if (player.strangeness[3][2] >= 1) { extraText = "max level increased for 'Rank boost' (+6)"; }
@@ -1100,7 +1100,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                     if (player.strangeness[3][2] >= 3) { extraText += ", a new Upgrade ‒ 'Hydrostatic equilibrium'"; }
                     return `Increase max level for one of the Rank Researches. Final level will instead unlock a new Upgrade.\n(Current effect: ${extraText})`;
                 },
-                () => `Satellites will be able to improve Cosmic dust and Planetesimals, but at reduced strength (^${format(player.inflation.vacuum ? 0.1 : 0.2)}).`,
+                () => `Satellites will be able to improve remaining ${player.inflation.vacuum ? 'Accretion ' : ''} Structures, but at reduced strength (^${format(player.inflation.vacuum ? 0.1 : 0.2)}).\n(Affected Structures are Cosmic dust and Planetesimals)`,
                 () => `Automatically increase Rank when possible. (Need to be enabled in Settings)${global.strangenessInfo[3].max[4] > 1 ? '\nSecond level will make Rank increase use Mass produced this reset instead of current.' : ''}`,
                 () => 'Make auto for all Accretion Structures permanent.',
                 () => `Always automatically create all ${['Upgrades', 'Stage Researches', 'Special Researches'][Math.min(player.strangeness[3][6], 2)]} from any Stage${!player.inflation.vacuum && player.strangeness[5][3] < 1 && !global.milestonesInfoS6.active[2] ? ' before Intergalactic' : ''}. (Need to be enabled in Settings)`,
@@ -1134,7 +1134,7 @@ export const global: globalType = { //For information that doesn't need to be sa
                     if (player.strangeness[4][2] >= 1) { extraText = "'Planetary nebula' (Stage Research)"; }
                     if (player.strangeness[4][2] >= 2) { extraText += ", 'White dwarfs' (Collapse Research)"; }
                     if (player.strangeness[4][2] >= 3) { extraText += ", 'Helium fusion' (Upgrade)"; }
-                    return `Unlock a new Upgrade, its quite good.\n(Current unlocks: ${extraText})`;
+                    return `Unlock a new Upgrade, its pretty good.\n(Current unlocks: ${extraText})`;
                 },
                 () => '10% of Brown dwarfs will be able to turn into Red giants after Collapse.',
                 () => `Automatically Collapse once reached enough boost. (Need to be enabled in Settings)${global.strangenessInfo[4].max[4] > 1 ? '\nSecond level will allow to automatically gain Star remnants without needing to reset.' : ''}`,

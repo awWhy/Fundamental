@@ -4,7 +4,7 @@ import { getId, getQuery } from './Main';
 import { global, logAny, player, playerStart } from './Player';
 import { reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, globalSave, playEvent } from './Special';
-import { format, getChallengeDescription, getChallengeReward, numbersUpdate, setRemnants, stageUpdate, switchTab, visualTrueStageUnlocks, visualUpdateInflation, visualUpdateResearches, visualUpdateUpgrades } from './Update';
+import { format, getChallengeDescription, getChallengeReward, numbersUpdate, setRemnants, stageUpdate, switchTab, visualTrueStageUnlocks, visualUpdate, visualUpdateInflation, visualUpdateResearches, visualUpdateUpgrades } from './Update';
 import { prepareVacuum, switchVacuum } from './Vacuum';
 
 export const calculateEffects = {
@@ -1490,19 +1490,22 @@ const assignQuarksGain = () => {
 export const stageResetCheck = (stageIndex: number, quarks = null as number | null): boolean => {
     if (stageIndex === 5) {
         assignQuarksGain(); //Also visually updates numbers
-        if (player.elements[26] < 1) { return false; }
-
         if (quarks !== null) {
+            if (player.elements[26] < 0.5) { return false; }
+
             const { stage } = player;
             const peakCheck = global.strangeInfo.quarksGain / player.time.stage;
             if (stage.peak < peakCheck) { stage.peak = peakCheck; }
+
+            if (player.elements[26] < 1) { return false; }
             if (player.strange[1].current > 0) { gainStrange(quarks); }
 
             if (!player.toggles.auto[0] || player.strangeness[5][6] < (player.inflation.vacuum ? 1 : 2) || player.challenges.active !== null ||
                 (stage.input[0] <= 0 && stage.input[1] <= 0) || stage.input[0] > global.strangeInfo.quarksGain || stage.input[1] > player.time.stage) { return false; }
             stageResetReward(stageIndex);
+            return true;
         }
-        return true;
+        return player.elements[26] >= 1;
     } else if (stageIndex === 3) {
         if (player.buildings[3][0].current.lessThan('2.45576045e31')) { return false; }
     } else if (stageIndex === 2) {
@@ -1680,11 +1683,14 @@ const stageFullReset = () => {
 };
 
 export const switchStage = (stage: number, active = stage) => {
-    if (!global.stageInfo.activeAll.includes(stage)) { return; }
-    if (player.stage.active === stage) {
-        if (global.trueActive !== stage) {
+    if (!global.stageInfo.activeAll.includes(stage) || player.stage.active === stage) {
+        if (player.stage.active === stage && global.trueActive !== stage) {
             global.trueActive = stage;
             getId(`${global.stageInfo.word[stage]}Switch`).style.textDecoration = 'underline';
+        }
+        if (!global.paused) {
+            visualUpdate();
+            numbersUpdate();
         }
         return;
     }
