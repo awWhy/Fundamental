@@ -1677,6 +1677,7 @@ export const updatePlayer = (load: playerType): string => {
     }
 
     //Move into v0.2.2
+    if (load.collapse.show === 0) { load.collapse.show = load.elements.findLastIndex((e) => e > 0); }
     if (load.collapse.points === undefined) { load.collapse.points = []; }
 
     for (let s = 1; s <= 6; s++) {
