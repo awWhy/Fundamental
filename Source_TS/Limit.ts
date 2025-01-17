@@ -127,7 +127,7 @@ export default class Overlimit extends Array<number> {
 
     /** Returns formatted string, takes object as arqument (some default values are from limitSettings)
      * @param type "number" is default, "input" will make formatted number to be usable in Overlimit
-     * @param padding should zeros be added past point, if bellow max digits. 'exponent' value will behave as true, but only after number turns into its shorter version
+     * @param padding should zeros be added past point, if below max digits. 'exponent' value will behave as true, but only after number turns into its shorter version
      */
     format(settings = {} as { type?: 'number' | 'input', padding?: boolean | 'exponent' }): string { return technical.format(this, settings); }
     /** Returns value as Number, doesn't change original number */

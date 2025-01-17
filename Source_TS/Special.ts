@@ -1,13 +1,14 @@
 import { assignHotkeys, removeHotkey } from './Hotkeys';
 import { getId, getQuery, globalSaveStart, pauseGame } from './Main';
 import { deepClone, global, player } from './Player';
-import { assignMaxRank } from './Stage';
+import { assignResetInformation } from './Stage';
 import type { globalSaveType, hotkeysList } from './Types';
 import { format, numbersUpdate, stageUpdate, visualTrueStageUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
         main: 20,
+        offline: 40,
         numbers: 80,
         visual: 1000,
         autoSave: 20000
@@ -24,6 +25,7 @@ export const globalSave: globalSaveType = {
         toggleAll: ['Shift A', 'Shift A'],
         merge: ['Shift M', 'Shift M'],
         universe: ['Shift U', 'Shift U'],
+        exitChallenge: ['Shift E', 'Shift E'],
         tabRight: ['Arrow Right', 'Arrow Right'],
         tabLeft: ['Arrow Left', 'Arrow Left'],
         subtabUp: ['Arrow Up', 'Arrow Up'],
@@ -31,8 +33,8 @@ export const globalSave: globalSaveType = {
         stageRight: ['Shift Arrow Right', 'Shift Arrow Right'],
         stageLeft: ['Shift Arrow Left', 'Shift Arrow Left']
     },
-    toggles: [false, false, false],
-    //Hotkeys type[0]; Elements as tab[1]; Allow text selection[2]
+    toggles: [false, false, false, false],
+    //Hotkeys type[0]; Elements as tab[1]; Allow text selection[2]; Footer on top[3]
     format: ['.', ''], //Point[0]; Separator[1]
     theme: null,
     fontSize: 16,
@@ -200,7 +202,9 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchS6.png', 'stage4borderImage']
         ], [
             ['ResearchG1.png', 'stage1borderImage'],
-            ['ResearchG2.png', 'stage6borderImage']
+            ['ResearchG2.png', 'stage6borderImage'],
+            ['ResearchG3.png', 'stage6borderImage'],
+            ['Missing.png', 'stage4borderImage'] //ResearchG4
         ], []
     ],
     longestResearchExtra: 5,
@@ -224,7 +228,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchClouds1.png', 'stage3borderImage'],
             ['ResearchClouds2.png', 'stage2borderImage'],
             ['ResearchClouds3.png', 'stage4borderImage'],
-            ['ResearchClouds4.png', 'stage2borderImage']
+            ['ResearchClouds4.png', 'stage2borderImage'],
+            ['ResearchClouds5.png', 'stage2borderImage']
         ], [
             ['ResearchRank1.png', 'stage3borderImage'],
             ['ResearchRank2.png', 'stage3borderImage'],
@@ -235,9 +240,10 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchCollapse1.png', 'stage6borderImage'],
             ['ResearchCollapse2.png', 'stage7borderImage'],
             ['ResearchCollapse3.png', 'stage1borderImage'],
-            ['ResearchCollapse1.png', 'stage6borderImage']
+            ['ResearchCollapse4.png', 'stage6borderImage']
         ], [
-            ['ResearchGalaxy1.png', 'stage3borderImage']
+            ['ResearchGalaxy1.png', 'stage3borderImage'],
+            ['Missing.png', 'stage3borderImage'] //ResearchGalaxy2
         ], []
     ],
     longestFooterStats: 3,
@@ -307,19 +313,21 @@ export const preventImageUnload = () => {
     specialHTML.cache.imagesDiv.innerHTML = images; //Saved just in case
 };
 
-export const setTheme = (theme: number | null) => {
-    if (theme !== null) {
-        if (player.stage.true < theme) { theme = null; }
-        if (theme === 6 && player.stage.true < 7) { theme = null; }
-    }
+/** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
+export const setTheme = (theme = 'current' as 'current' | number | null) => {
+    if (theme !== 'current') {
+        if (theme !== null) {
+            if (player.stage.true < theme) { theme = null; }
+            if (theme === 6 && player.stage.true < 7) { theme = null; }
+        }
+        getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
 
-    globalSave.theme = theme;
-    saveGlobalSettings();
-    switchTheme();
-    getId('currentTheme').textContent = globalSave.theme === null ? 'Default' : global.stageInfo.word[globalSave.theme];
-};
+        globalSave.theme = theme;
+        saveGlobalSettings();
+        getId('currentTheme').textContent = theme === null ? 'Default' : global.stageInfo.word[theme];
+        getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
+    } else { theme = globalSave.theme; }
 
-export const switchTheme = () => {
     const upgradeTypes = ['upgrade', 'element', 'inflation'];
     const properties = {
         '--background-color': '#030012',
@@ -347,7 +355,7 @@ export const switchTheme = () => {
         '--gray-text': '#8f8f8f',
         '--orchid-text': '#e14bdb',
         '--darkorchid-text': '#bd24ef',
-        '--darkviolet-text': '#8635eb',
+        '--darkviolet-text': '#8b3cec',
         '--red-text': '#eb0000',
         '--green-text': '#00e900',
         '--yellow-text': '#fafa00'
@@ -355,7 +363,7 @@ export const switchTheme = () => {
     };
 
     /* Many of these colors will need to be changed in other places (find them with quick search, there are too many of them) */
-    switch (globalSave.theme ?? player.stage.active) {
+    switch (theme ?? player.stage.active) {
         case 1:
             for (const text of upgradeTypes) {
                 getId(`${text}Text`).style.color = '';
@@ -385,7 +393,7 @@ export const switchTheme = () => {
             properties['--main-text'] = 'var(--blue-text)';
             properties['--gray-text'] = '#9b9b9b';
             properties['--darkorchid-text'] = '#c71bff';
-            properties['--darkviolet-text'] = '#8b6bff';
+            properties['--darkviolet-text'] = '#8766ff';
             properties['--green-text'] = '#82cb3b';
             properties['--red-text'] = '#f70000';
             break;
@@ -471,7 +479,7 @@ export const switchTheme = () => {
             properties['--white-text'] = '#ff79ff';
             properties['--orchid-text'] = '#ff00f4';
             properties['--darkorchid-text'] = '#c000ff';
-            properties['--darkviolet-text'] = '#9f52ff';
+            properties['--darkviolet-text'] = '#8861ff';
             properties['--yellow-text'] = 'var(--darkviolet-text)';
             break;
         case 6:
@@ -699,7 +707,8 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
     });
 };
 
-export const Notify = (text: string) => {
+/** Repeats will make it behave as if X duplicates have been detected */
+export const Notify = (text: string, repeats = 0) => {
     const { notifications } = specialHTML;
 
     let index;
@@ -711,11 +720,11 @@ export const Notify = (text: string) => {
     }
 
     if (index === undefined) {
-        let count = 1;
+        let count = 1 + repeats;
         let timeout: number;
 
         const html = document.createElement('p');
-        html.textContent = text;
+        html.textContent = `${text}${count > 1 ? ` | x${count}` : ''}`;
         html.style.animation = 'hideX 800ms ease-in-out reverse';
         html.style.pointerEvents = 'none';
         if (globalSave.SRSettings[0]) { html.role = 'alert'; }
@@ -875,9 +884,9 @@ export const MDStrangenessPage = (stageIndex: number) => {
 export const replayEvent = async() => {
     let last;
     if (player.stage.true >= 6) {
-        last = player.events[1] ? 8 : player.stage.resets >= 1 ? 7 : 6;
+        last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
     } else {
-        last = player.stage.true - (player.events[0] ? 0 : 1);
+        last = player.stage.true - (player.event ? 0 : 1);
         if (last < 1) { return void Alert('There are no unlocked events'); }
     }
 
@@ -895,64 +904,37 @@ export const replayEvent = async() => {
     playEvent(event);
 };
 
-/** Sets player.events[index] to true if provided */
-export const playEvent = (event: number, index = null as number | null) => {
+/** Sets player.event to true if replay is false */
+export const playEvent = (event: number, replay = true) => {
     if (specialHTML.alert[0] !== null) { return Notify(`Missed Event ${event}, you can replay it from options`); }
-    if (index !== null) { player.events[index] = true; }
+    if (!replay) { player.event = true; }
 
-    switch (event) {
-        case 1:
-            return void Alert('New reset tier has been unlocked. It will allow to reach higher tiers of Structures, but for the price of everything else');
-        case 2:
-            return void Alert(`Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to softcap`);
-        case 3:
-            if (index !== null) {
-                assignMaxRank();
-                global.debug.rankUpdated = null;
-            }
-            return void Alert("Can't gain any more Mass with current Rank. New one has been unlocked, but reaching it will softcap the Mass production");
-        case 4:
-            return void Alert('Last explosion not only created first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis');
-        case 5:
-            if (index !== null) { stageUpdate('soft'); }
-            return void Alert("There are no Structures in Intergalactic yet, but they can be created within previous Stages. Any new Stage reset and export from now on will award Strange quarks, also unlock new effect for '[26] Iron' Element\n(Stars in Intergalactic are just Stars from Interstellar)");
-        case 6:
-            return void Alert('As Galaxies started to Merge, their combined Gravity pushed Vacuum out of its local minimum into more stable global minimum. New forces and Structures are expected within this new and true Vacuum state');
-        case 7:
-            return void Alert("With Vacuum decaying remaining matter had rearranged itself in such way that lead to the formation of the 'Void'. Check it out in 'Advanced' subtab");
-        case 8:
-            return void Alert("Soon there will be enough matter to create first 'Universe' within 'Abyss' Stage. Doing it will require getting at least 40 Galaxies before Merge reset. Creating it will do a Vacuum reset, while also resetting Vacuum state back to false");
+    let text = 'No such event';
+    if (event === 1) {
+        text = 'New reset tier has been unlocked. It will allow to reach higher tiers of Structures, but for the price of everything else';
+    } else if (event === 2) {
+        text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to softcap`;
+    } else if (event === 3) {
+        if (!replay) {
+            assignResetInformation.maxRank();
+            global.debug.rankUpdated = null;
+        }
+        text = "Can't gain any more Mass with current Rank. New one has been unlocked, but reaching it will softcap the Mass production";
+    } else if (event === 4) {
+        text = 'Last explosion not only created first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis';
+    } else if (event === 5) {
+        if (!replay) { stageUpdate(false); }
+        text = "There are no Structures in Intergalactic yet, but they can be created within previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
+    } else if (event === 6) {
+        text = 'As Galaxies started to Merge, their combined Gravity pushed Vacuum out of its local minimum into more stable global minimum. New forces and Structures are expected within this new and true Vacuum state';
+    } else if (event === 7) {
+        text = "With Vacuum decaying remaining matter had rearranged itself in such way that lead to the formation of the 'Void'. Check it out in 'Advanced' subtab";
+    } else if (event === 8) {
+        if (!replay) { stageUpdate(false); }
+        text = "Soon there will be enough matter to create first 'Universe' within 'Abyss' Stage. Doing it will require getting at least 40 Galaxies before Merging them. Creating it will do a Vacuum reset, while also resetting Vacuum state back to false";
     }
-};
-
-export const showHints = async() => {
-    let mainText = "These hints can explain some parts of the game, write hint of interest into the input bellow\n'Mobile device', 'Screen reader', 'Safe reset'";
-    if (player.stage.true >= 5) {
-        mainText += ", 'Intergalactic Stage', 'Export reward'";
-    }
-    if (player.stage.true >= 6) {
-        mainText += ", 'True Vacuum'";
-    }
-    const hint = await Prompt(mainText);
-    if (hint === null || hint === '') { return; }
-
-    let hintText = `Hint about '${hint}' doesn't exist`;
-    const lower = hint.replaceAll(' ', '').toLowerCase();
-    if (lower === 'mobiledevice') {
-        hintText = 'Example of changes that this support does:\n- Replaces mouse events with touch events\n- Adds abbility to change tab/subtab by swiping\n- Makes creation of Upgrades require usage of new special button, but some will require holding down instead\n- Adds buttons accross all tabs to be used as hotkeys\n- Disables unwanted browser behaviours and can fix bugs related to poor browser support (will need to disable forced zoom in browser settings if footer moves on its own)';
-    } else if (lower === 'screenreader') {
-        hintText = 'Example of changes that this support does:\n- Adds events based on focus changing\n- Adds more information for Aria, like more text based on performed actions';
-    } if (lower === 'safereset') {
-        hintText = "'Safe' setting for confirmation toggles causes warning to pop up if game considers action to be unwanted. After progressing further, some of them might start getting in a way";
-    } else if (lower === 'exportreward') {
-        hintText = 'Export reward is based on highest Stage reset reward, after collecting it timer will reset to 0 and storage will decrease by collected amount\nStrange quarks storage is always increased by +1';
-    } else if (lower === 'intergalacticstage') {
-        hintText = `Intergalactic Stage is a direct continuation of Interstellar Stage. ${player.stage.true >= 6 ? 'In false Vacuum ' : ''}Structures for it are unlocked by completing Milestones, Collapse also resets Intergalactic Stage`;
-    } else if (lower === 'truevacuum') {
-        const allUnlocked = player.stage.true >= 7 || player.stage.resets >= 1;
-        hintText = `In true Vacuum all Stages are combined\n${allUnlocked || player.researchesExtra[1][2] >= 1 ? 'Since Accretion Stage shares Mass with Microworld, turning off auto Preons after reaching hardcap will speed up Mass accumulation' : 'More information after unlocking Accretion Stage'}\n${allUnlocked || player.researchesExtra[1][2] >= 2 ? 'Submerged Stage acts like a bonus Stage, its not required for progression and will only speed up other Stages' : 'More information after unlocking Submerged Stage'}\n${allUnlocked || player.accretion.rank >= 6 ? "Since Interstellar Stage also shares Mass with Accretion, turning off all related auto's will speed up reaching Solar mass hardcap" : 'More information after unlocking Intestellar Stage'}`;
-    }
-    if (await Confirm(`${hintText}\nView another one?`)) { void showHints(); }
+    if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
+    return void Alert(text);
 };
 
 const buildBigWindow = () => {
@@ -967,7 +949,8 @@ export const getVersionInfoHTML = () => {
     buildBigWindow();
     if (getId('versionHTML', true) === null) {
         const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<label>v0.2.1</label><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions\n<a href="https://docs.google.com/document/d/1o6rk6mG-fCG7Xi1BpA4w4g_5_h9A87wrCv7bODweBWA/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        mainHTML.innerHTML = `<label>v0.2.2</label><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit\n<a href="https://docs.google.com/document/d/1x8zHjxB6mPQGwpZT3DV_bAyatFIB3SOlxp9TvzbrUds/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <label>v0.2.1</label><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
         <label>v0.2.0</label><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
         <label>v0.1.9</label><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
         <label>v0.1.8</label><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Added copy to clipboard, load from string save file options</p>
@@ -1026,17 +1009,20 @@ export const getHotkeysHTML = () => {
     buildBigWindow();
     if (getId('hotkeysHTML', true) === null) {
         const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<p id="hotkeysMessage" class="mainText bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
-        <label id="tabRightHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change tab to the next one</span></label>
-        <label id="tabLeftHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
-        <label id="subtabUpHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
-        <label id="subtabDownHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
-        <label id="stageRightHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
-        <label id="stageLeftHotkey" class="mainText"><button></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
-        <p class="mainText">Numbers ‒ <span class="whiteText">make a Structure</span></p>
-        <label id="makeAllHotkey" class="mainText">0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">make all Structures</span></label>
-        <p class="mainText">Shift Numbers ‒ <span class="whiteText">toggle auto Structure</span></p>
-        <label id="toggleAllHotkey" class="mainText">Shift 0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
+        mainHTML.innerHTML = `<p id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
+        ${globalSave.MDSettings[0] ? `<p>Swipe Left or Right ‒ <span class="whiteText">change current tab</span></p>
+        <p>Swipe Down or Up ‒ <span class="whiteText">change current subtab</span></p>` : ''}
+        <label id="tabRightHotkey"><button></button> ‒ <span class="whiteText">change tab to the next one</span></label>
+        <label id="tabLeftHotkey"><button></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
+        <label id="subtabUpHotkey"><button></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
+        <label id="subtabDownHotkey"><button></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
+        <label id="stageRightHotkey"><button></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
+        <label id="stageLeftHotkey"><button></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
+        <p>Numbers ‒ <span class="whiteText">make a Structure</span></p>
+        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">make all Structures</span></label>
+        <p>Shift Numbers ‒ <span class="whiteText">toggle auto Structure</span></p>
+        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
+        <label id="exitChallengeHotkey"><button></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
         <div>
             <label id="stageHotkey" class="stageText"><button></button> ‒ <span class="whiteText">Stage reset</span></label>
             <label id="dischargeHotkey" class="orangeText stage1Include"><button></button> ‒ <span class="whiteText">Discharge</span></label>
@@ -1048,10 +1034,10 @@ export const getHotkeysHTML = () => {
             <label id="universeHotkey" class="darkvioletText stage6Include"><button></button> ‒ <span class="whiteText">Universe</span></label>
             <label id="pauseHotkey" class="grayText"><button></button> ‒ <span class="whiteText">pause</span></label>
         </div>
-        <p class="mainText">Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
-        <p class="mainText">Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
-        <p class="mainText">Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
-        <p class="mainText">Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
+        <p>Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
+        <p>Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
+        <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
+        <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
         <label id="hotkeysToggleLabel" title="Turn ON, if using non QWERTY layout keyboard">Language dependant hotkeys </label>
         <button id="restoreHotkeys" type="button">Restore default hotkeys values</button>`;
         getQuery('#bigWindow > div').prepend(mainHTML);
@@ -1138,7 +1124,7 @@ export const getHotkeysHTML = () => {
             assignHotkeys();
             saveGlobalSettings();
         });
-        stageUpdate('soft');
+        stageUpdate(false);
         visualTrueStageUnlocks();
     }
 
@@ -1164,7 +1150,6 @@ export const getHotkeysHTML = () => {
     };
     body.addEventListener('keydown', key);
     closeButton.addEventListener('click', close);
-    getId('pauseHotkey').style.display = globalSave.developerMode ? '' : 'none';
     mainHTML.style.display = '';
     windowHMTL.style.display = '';
     getQuery('#tabRightHotkey > button').focus();

@@ -30,17 +30,20 @@ export interface playerType {
         massMax: number
         stars: [number, number, number]
         show: number
+        maxElement: number
         input: [number, number]
         points: number[]
     }
     merge: {
-        reward: [number]
+        reward: [number, number, number, number]
         resets: number
+        input: number
     }
     inflation: {
         tree: number[]
         vacuum: boolean
         resets: number
+        time: number
         age: number
     }
     time: {
@@ -50,6 +53,7 @@ export interface playerType {
         offline: number
         online: number
         stage: number
+        vacuum: number
         universe: number
     }
     buildings: Array<[
@@ -82,7 +86,9 @@ export interface playerType {
     milestones: number[][]
     challenges: {
         active: number | null
+        super: boolean
         void: number[]
+        supervoid: number[]
         voidCheck: number[]
     }
     toggles: {
@@ -109,7 +115,11 @@ export interface playerType {
             input: [number, number]
         }
     }
-    events: boolean[]
+    event: boolean
+    clone: {
+        depth?: 'stage' | 'vacuum'
+        [key: string]: any
+    }
 }
 
 export type gameTab = 'stage' | 'upgrade' | 'Elements' | 'strangeness' | 'inflation' | 'settings';
@@ -134,8 +144,6 @@ export interface globalType {
         inflationSubtabs: string[]
     }
     debug: {
-        offlineSpeed: number
-        offlineUpdate: false | 'normal' | 'soft' | 'reload'
         errorID: boolean
         errorQuery: boolean
         errorGain: boolean
@@ -146,6 +154,11 @@ export interface globalType {
     }
     trueActive: number
     lastSave: number
+    offline: {
+        active: boolean
+        speed: number
+        stageUpdate: null | boolean
+    }
     paused: boolean
     footer: boolean
     hotkeys: {
@@ -163,15 +176,14 @@ export interface globalType {
         energyType: number[][]
         energyStage: number[]
         energyTrue: number
-        tritium: Overlimit
-        base: number
         total: number
         next: number
+        scaling: number
     }
     vaporizationInfo: {
-        trueResearch0: number
-        trueResearch1: number
-        trueResearchRain: number
+        S2Research0: number
+        S2Research1: number
+        S2Extra1: number
         get: Overlimit
     }
     accretionInfo: {
@@ -179,15 +191,16 @@ export interface globalType {
         rankU: number[]
         rankR: number[]
         rankE: number[]
-        dustSoft: number
-        maxRank: number
         rankCost: number[]
         rankColor: string[]
         rankName: string[]
         rankImage: string[]
+        maxRank: number
+        effective: number
+        disableAuto: boolean
+        dustSoft: number
     }
     collapseInfo: {
-        neutronEffect: number
         unlockB: number[]
         unlockU: number[]
         unlockR: number[]
@@ -195,18 +208,19 @@ export interface globalType {
         starCheck: [number, number, number]
         trueStars: number
         pointsLoop: number
+        solarCap: number
+        timeUntil: number
     }
     mergeInfo: {
-        galaxyBase: number
-        checkReward: [number]
+        unlockR: number[]
+        unlockE: number[]
+        checkReward: [number, number, number, number]
+        galaxies: number
     }
     inflationInfo: {
         globalSpeed: number
-        preonCap: Overlimit
-        dustCap: Overlimit
-        massCap: number
-        preonTrue: Overlimit
-        dustTrue: Overlimit
+        totalSuper: number
+        instability: number
     }
     intervalsId: {
         main: number | undefined
@@ -220,6 +234,7 @@ export interface globalType {
         textColor: string[]
         buttonBorder: string[]
         imageBorderColor: string[]
+        costName: string[]
         activeAll: number[]
     }
     buildingsInfo: {
@@ -236,7 +251,6 @@ export interface globalType {
         stageBoost: number[]
         strangeletsInfo: [number, number]
         quarksGain: number
-        bestHistoryRate: number
     }
     upgradesInfo: Array<{
         name: string[]
@@ -309,6 +323,7 @@ export interface globalType {
         rewardText: Array<() => string>
         need: Overlimit[]
         time: number[]
+        reward: number[]
         scaling: number[][]
         max: number[]
     }>
@@ -322,8 +337,11 @@ export interface globalType {
         effectText: Array<() => string>
         needText: Array<Array<Array<() => string>>>
         rewardText: string[][][]
+        resetType: Array<'stage' | 'vacuum'>
+        time: number[]
         color: string[]
     }
+    voidRewards: [string[][], string[][]]
     historyStorage: {
         stage: Array<[number, number, number, number]>
         vacuum: Array<[number, boolean, number]>
@@ -334,6 +352,7 @@ export interface globalType {
 export interface globalSaveType {
     intervals: {
         main: number
+        offline: number
         numbers: number
         visual: number
         autoSave: number
@@ -348,4 +367,4 @@ export interface globalSaveType {
     developerMode: boolean
 }
 
-export type hotkeysList = 'makeAll' | 'stage' | 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'pause' | 'toggleAll' | 'merge' | 'universe' | 'tabRight' | 'tabLeft' | 'subtabUp' | 'subtabDown' | 'stageRight' | 'stageLeft';
+export type hotkeysList = 'makeAll' | 'stage' | 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'pause' | 'toggleAll' | 'merge' | 'universe' | 'exitChallenge' | 'tabRight' | 'tabLeft' | 'subtabUp' | 'subtabDown' | 'stageRight' | 'stageLeft';

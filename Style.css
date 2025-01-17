@@ -47,7 +47,7 @@ html {
     --gray-text: #8f8f8f;
     --orchid-text: #e14bdb;
     --darkorchid-text: #bd24ef;
-    --darkviolet-text: #8635eb;
+    --darkviolet-text: #8b3cec;
     --red-text: #eb0000;
     --green-text: #00e900;
     --yellow-text: #fafa00;
@@ -166,8 +166,7 @@ img {
 }
 
 #footerStats img,
-#strangenessResearch .interactiveImage,
-#researches .interactiveImage {
+.researchesDiv .interactiveImage {
     border-radius: 3px;
     z-index: 2;
 }
@@ -401,6 +400,7 @@ input:-webkit-autofill { /* Chrome related pain */
     padding: 0.5em 0.6em 0.6em;
     overflow-wrap: break-word;
     z-index: 8;
+    cursor: default;
 }
 
 .insideTab {
@@ -577,10 +577,10 @@ input:-webkit-autofill { /* Chrome related pain */
     cursor: help;
 }
 
-#mergeEffects:hover > p > span:first-of-type,
-#starEffects:hover > p > span:first-of-type { display: none; }
-#mergeEffects:not(:hover) > p > span:last-of-type,
-#starEffects:not(:hover) > p > span:last-of-type { display: none; }
+#mergeEffects:hover > p > span:not(.info),
+#starEffects:hover > p > span:not(.info) { display: none; }
+#mergeEffects:not(:hover) > p > span.info,
+#starEffects:not(:hover) > p > span.info { display: none; }
 
 #timeInfo {
     display: flex;
@@ -602,6 +602,8 @@ input:-webkit-autofill { /* Chrome related pain */
     height: 48px;
     border-radius: 0;
 }
+
+#challenge0 { cursor: help; }
 
 #challengesMain > div:first-of-type {
     display: flex;
@@ -637,7 +639,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #voidRewards { position: relative; }
-#voidRewards:focus-within > #voidRewardsDiv { display: block; }
+#voidRewardsExtraText { white-space: pre-line; }
 
 #voidRewardsDivText {
     display: flex;
@@ -652,6 +654,11 @@ input:-webkit-autofill { /* Chrome related pain */
     text-align: center;
     row-gap: 0.3em;
     width: 100%;
+}
+
+#advancedInfo > label {
+    width: fit-content;
+    align-self: center;
 }
 
 #upgrades, #researches {
@@ -682,10 +689,11 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #researches > section:not(:last-of-type) { margin-bottom: 0.4em; }
 
-#researches > section > div {
+#researches .researchesDiv {
     display: flex;
     flex-wrap: wrap;
-    border: 2px solid var(--stage-image-borderColor);
+    justify-content: center;
+    border: 2px solid;
     border-left-width: 1px;
     border-radius: 4px;
     padding: 0.25em;
@@ -694,7 +702,9 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--window-color);
 }
 
-#researches p {
+.researchesDiv > div { display: flex; }
+
+.researchesDiv p {
     display: flex;
     align-items: center;
     border: 2px solid;
@@ -707,10 +717,7 @@ input:-webkit-autofill { /* Chrome related pain */
     height: 32px;
 }
 
-#researches div > div { display: flex; }
-
-#inflationBottomDiv,
-#researchBottomDiv {
+.descriptionTextMain {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -731,15 +738,13 @@ input:-webkit-autofill { /* Chrome related pain */
 .descriptionText > h3,
 .descriptionText > p { max-width: 80%; }
 
-#inflationToggles,
-#researchToggles {
+.descriptionTextMain > div:first-of-type {
     display: flex;
     align-items: center;
     column-gap: 0.4em;
 }
 
-#inflationToggles > .hollowButton,
-#researchToggles > .hollowButton {
+.descriptionTextMain .hollowButton {
     height: 1.76em;
     padding: 0 0.44em;
     border-radius: 2px;
@@ -754,6 +759,8 @@ input:-webkit-autofill { /* Chrome related pain */
     padding: 0.4em;
     border: 2px solid darkgreen;
     background-color: var(--window-color);
+    margin-top: -1em;
+    margin-bottom: -0.6em;
 }
 
 #elementsGrid > .interactiveImage {
@@ -793,21 +800,21 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: -0.4em;
 }
 
-#strangeStructures > div {
+#strangeStructures section {
     display: flex;
     flex-direction: column;
     text-align: center;
     row-gap: 0.2em;
 }
 
-#strangeStructures > div > div { display: flex; }
+#strangeStructures div { display: flex; }
 
 #strangeStructures img {
     background-color: black;
     border-radius: 0;
 }
 
-#strangeStructures > div > div:first-of-type > p {
+#strangeStructures p {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -849,7 +856,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: -0.6em;
 }
 
-#strangenessResearch > section {
+#strangenessResearch > .researchesDiv {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -857,20 +864,6 @@ input:-webkit-autofill { /* Chrome related pain */
     width: 100%;
     padding: 0.5em;
     gap: 0.5em;
-}
-
-#strangenessResearch > section > div { display: flex; }
-
-#strangenessResearch p {
-    display: flex;
-    align-items: center;
-    border: 2px solid;
-    border-left: none;
-    padding-left: calc(3px + 0.25em);
-    padding-right: 0.25em;
-    background-color: var(--background-color);
-    margin-left: -3px;
-    height: 32px;
 }
 
 #milestones {
@@ -895,6 +888,8 @@ input:-webkit-autofill { /* Chrome related pain */
     cursor: help;
     border-radius: 3px;
 }
+
+#milestonesMultiline { display: contents; }
 
 #milestonesProgressArea {
     display: flex;
@@ -921,30 +916,17 @@ input:-webkit-autofill { /* Chrome related pain */
 #milestonesProgressArea span { width: 5em; }
 #milestonesProgressArea span:first-of-type { width: 10.8em; }
 
-#inflationContainer {
+#inflations {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
     background-color: var(--window-color);
     border: 2px solid var(--stage-image-borderColor);
     border-radius: 4px;
     padding: 0.4em;
-    margin-bottom: -0.4em;
-}
-
-#inflationContainer > div {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    min-height: 32px;
-    width: 100%;
-    gap: 0.4em;
-}
-
-#inflationCreated {
-    border-top: 2px solid var(--stage-image-borderColor);
-    margin-top: 0.4em;
-    padding-top: 0.4em;
-    box-sizing: content-box;
+    gap: 0.5em;
+    margin-top: -1em;
+    margin-bottom: -0.6em;
 }
 
 #inflationMilestones {
@@ -1467,7 +1449,7 @@ li .hollowButton {
     body { scrollbar-color: var(--input-border) black; }
 }
 
-/* Everything bellow gets edited in changeFontSize function, because rem units are bugged and there isn't any better alternatives */
+/* Everything below gets edited in changeFontSize function, because rem units are bugged and there isn't any better alternatives */
 @media screen and (max-width: 925px) {
     html { --elements-columns-phone: min(var(--elements-columns), 9); }
 
@@ -1534,13 +1516,15 @@ li .hollowButton {
         margin-bottom: 0;
     }
 
+    #inflations,
+    #elementsGrid,
     #strangenessResearch {
         margin-top: -0.5em;
         margin-bottom: -0.3em;
     }
 
     #logoLinks { align-self: unset; }
-    #themeArea > div > div { width: 80vw; }
+    #themeArea > div > div { width: 80vw !important; }
 
     #fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); }
     #footerMain > * { column-gap: 0.8em; }
