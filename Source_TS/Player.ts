@@ -1576,7 +1576,6 @@ Object.assign(player.toggles, {
 });
 player.inflation.tree = createArray(global.inflationTreeInfo.startCost.length, 0);
 player.toggles.normal[1] = true;
-player.toggles.normal[4] = true;
 
 //player.example = playerStart.example; Is not allowed (if example is an array or object), instead iterate or create clone
 export const playerStart = deepClone(player);
@@ -1706,6 +1705,12 @@ export const updatePlayer = (load: playerType): string => {
         if (load.version !== playerStart.version) {
             throw new ReferenceError('Save file version is higher than game version');
         }
+    }
+
+    //Move into v0.2.3 eventualy
+    for (let i = 0; i < load.toggles.confirm.length; i++) {
+        if ((load.toggles.confirm[i] as unknown) !== 'All') { continue; }
+        load.toggles.confirm[i] = 'Safe';
     }
 
     const highest = load.stage.true;

@@ -100,7 +100,8 @@ const calculateOffline = (warpTime: number, start = warpTime) => {
         timeUpdate(Math.max(time / 600, rate), time);
     } catch (error) {
         offlineEnd();
-        void Alert(`Offline calculation failed due to error:\n${error}`, 1);
+        const stack = (error as { stack: string }).stack;
+        void Alert(`Offline calculation failed due to error:\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
         throw error;
     }
     if (warpTime > 0) {

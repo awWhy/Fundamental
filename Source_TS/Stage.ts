@@ -1718,9 +1718,9 @@ const autoResearchesAddOne = (type: 'researches' | 'researchesExtra', stageIndex
 
     const auto = global.automatization[type === 'researches' ? 'autoR' : 'autoE'][stageIndex];
     if (auto.includes(which)) { return; }
-    const cost = pointer.cost[which] as Overlimit;
+    const cost = pointer.cost[which];
     for (let i = 0; i < auto.length; i++) {
-        if (stageIndex === 1 ? cost < pointer.cost[auto[i]] : cost.lessThan(pointer.cost[auto[i]])) {
+        if (cost < pointer.cost[auto[i]]) {
             auto.splice(i, 0, which);
             return;
         }
@@ -2570,8 +2570,7 @@ export const toggleSupervoid = (change = false) => {
 
 /* For now just index 0 */
 export const assignChallengeInformation = () => {
-    let time = player.challenges.super ? 1200 : 3600;
-    if (!player.challenges.super) { time /= 3; }
+    let time = player.challenges.super || player.inflation.tree[4] >= 1 ? 1200 : 3600;
     if (player.inflation.tree[0] === 1) { time /= 4; }
     global.challengesInfo.time[0] = time;
 };
