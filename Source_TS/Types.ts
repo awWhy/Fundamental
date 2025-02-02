@@ -261,8 +261,9 @@ export interface globalType {
     researchesInfo: Array<{
         name: string[]
         effectText: Array<() => string>
-        cost: number[]
-        startCost: number[]
+        /** Cost is number for stage 1, Overlimit for rest */
+        cost: Array<number | Overlimit>
+        startCost: Array<number | Overlimit>
         scaling: number[]
         max: number[]
         maxActive: number
@@ -270,8 +271,9 @@ export interface globalType {
     researchesExtraInfo: Array<{
         name: string[]
         effectText: Array<() => string>
-        cost: number[]
-        startCost: number[]
+        /** Cost is number for stage 1, Overlimit for rest */
+        cost: Array<number | Overlimit>
+        startCost: Array<number | Overlimit>
         scaling: number[]
         max: number[]
         maxActive: number
@@ -292,7 +294,7 @@ export interface globalType {
     elementsInfo: {
         name: string[]
         effectText: Array<() => string>
-        startCost: number[]
+        startCost: Overlimit[]
     }
     strangenessInfo: Array<{
         name: string[]
@@ -331,24 +333,22 @@ export interface globalType {
         requirement: number[]
         active: boolean[]
     }
-    challengesInfo: {
-        name: string[]
-        description: Array<() => string>
-        effectText: Array<() => string>
-        needText: Array<Array<Array<() => string>>>
+    challengesInfo: [{
+        name: string
+        description: () => string
+        effectText: () => string
+        needText: Array<Array<() => string>>
         rewardText: string[][][]
-        resetType: Array<'stage' | 'vacuum'>
-        time: number[]
-        color: string[]
-    }
-    voidRewards: [string[][], string[][]]
+        resetType: 'stage' | 'vacuum'
+        time: number
+        color: string
+    }]
     historyStorage: {
         stage: Array<[number, number, number, number]>
         vacuum: Array<[number, boolean, number]>
     }
 }
 
-/* Because I am lazy to deal with missing types right now */
 export interface globalSaveType {
     intervals: {
         main: number

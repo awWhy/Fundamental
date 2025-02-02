@@ -87,7 +87,9 @@ export const removeHotkey = (remove: string): string | null => {
 };
 
 export const detectHotkey = (check: KeyboardEvent) => {
-    if (check.code === 'Tab') {
+    let { shiftKey } = check;
+    const { key, code } = check;
+    if (code === 'Tab' || code === 'Enter' || code === 'Space') {
         if (check.metaKey || check.ctrlKey || check.altKey) { return; }
         document.body.classList.remove('noFocusOutline');
         return;
@@ -97,9 +99,6 @@ export const detectHotkey = (check: KeyboardEvent) => {
         document.body.classList.add('noFocusOutline');
     }
     if (global.hotkeys.disabled) { return; }
-    const { key, code } = check;
-    let { shiftKey } = check;
-
     if (shiftKey) { global.hotkeys.shift = true; }
     if (check.ctrlKey) { global.hotkeys.ctrl = true; }
 

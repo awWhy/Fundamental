@@ -35,9 +35,9 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         upgrades1Cost = [40, 60, 100, 120, 180, 360, 1200, 3600, 12000, 80000];
         upgradesInfo[2].startCost[0] = 10;
         upgradesInfo[5].startCost[3] = 1e160;
-        //upgradesInfo[1].maxActive = 10;
-        upgradesInfo[2].maxActive = 9;
-        //upgradesInfo[3].maxActive = 13;
+        upgradesInfo[1].maxActive = 11;
+        upgradesInfo[2].maxActive = 10;
+        upgradesInfo[3].maxActive = 14;
         upgradesInfo[4].maxActive = 5;
         //upgradesInfo[5].maxActive = 4;
 
@@ -51,14 +51,14 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         researchesInfo[4].maxActive = 6;
         researchesInfo[5].maxActive = 4;
 
-        researchesExtraInfo[1].maxActive = 5;
+        researchesExtraInfo[1].maxActive = 6;
         researchesExtraInfo[2].maxActive = 5;
-        researchesExtraInfo[3].maxActive = 5;
+        researchesExtraInfo[3].maxActive = 6;
         researchesExtraInfo[4].maxActive = 4;
         researchesExtraInfo[5].maxActive = 2;
 
-        global.elementsInfo.startCost[27] = 1e54;
-        global.elementsInfo.startCost[28] = 1e58;
+        global.elementsInfo.startCost[27].setValue('1e54');
+        global.elementsInfo.startCost[28].setValue('1e58');
 
         global.ASRInfo.costRange[1] = [2000, 8000, 16000, 32000, 56000];
         global.ASRInfo.costRange[3][3] = 2.45576045e31;
@@ -77,7 +77,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangenessInfo[2].maxActive = 10;
         strangenessInfo[3].maxActive = 10;
         strangenessInfo[4].maxActive = 10;
-        strangenessInfo[5].maxActive = 10;
+        strangenessInfo[5].maxActive = 11;
 
         const milestone1S1 = getQuery('#milestone1Stage1Div > img') as HTMLImageElement;
         milestone1S1.src = milestone1S1.src.replace('Quarks.png', 'Preon.png');
@@ -100,8 +100,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('preonCap').style.display = '';
         getId('molesProduction').style.display = '';
         getId('massProduction').style.display = '';
-        getId('dustCap').style.display = '';
-        getId('mainCapS5').style.display = '';
+        getId('mainCapHardS5').style.display = '';
         getId('element0').style.display = '';
         getId('strange1Effect1Allowed').style.display = '';
         getId('strange7Stage1').style.display = '';
@@ -163,8 +162,8 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         researchesExtraInfo[4].maxActive = 3;
         researchesExtraInfo[5].maxActive = 1;
 
-        global.elementsInfo.startCost[27] = 1e52;
-        global.elementsInfo.startCost[28] = 1e54;
+        global.elementsInfo.startCost[27].setValue('1e52');
+        global.elementsInfo.startCost[28].setValue('1e54');
 
         global.ASRInfo.costRange[1] = [2000, 8000, 16000];
         global.ASRInfo.costRange[3][3] = 2e30;
@@ -214,7 +213,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('dustCap').style.display = 'none';
         getId('submersionBoost').style.display = 'none';
         getId('mainCap').style.display = 'none';
-        getId('mainCapS5').style.display = 'none';
+        getId('mainCapHardS5').style.display = 'none';
         getId('mergeBoost').style.display = 'none';
         getId('mergeEffects').style.display = 'none';
         getId('mergeBoostTotal').style.display = 'none';

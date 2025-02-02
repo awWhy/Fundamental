@@ -33,13 +33,13 @@ export const globalSave: globalSaveType = {
         stageRight: ['Shift Arrow Right', 'Shift Arrow Right'],
         stageLeft: ['Shift Arrow Left', 'Shift Arrow Left']
     },
-    toggles: [false, false, false, false],
-    //Hotkeys type[0]; Elements as tab[1]; Allow text selection[2]; Footer on top[3]
-    format: ['.', ''], //Point[0]; Separator[1]
+    toggles: [false, false, false, false, false],
+    /* Hotkeys type[0], Elements as tab[1], Allow text selection[2], Footer on top[3], Show Strangeness[4] */
+    format: ['.', ''], //Point[0], Separator[1]
     theme: null,
     fontSize: 16,
-    MDSettings: [false, false], //Status[0]; Mouse events[1]
-    SRSettings: [false, false, false], //Status[0]; Tabindex Upgrades[1]; Tabindex primary[2]
+    MDSettings: [false, false], //Status[0], Mouse events[1]
+    SRSettings: [false, false, false], //Status[0], Tabindex Upgrades[1], Tabindex primary[2]
     developerMode: false
 };
 
@@ -117,7 +117,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Nebula.png', 'Star%20cluster.png', 'Galaxy.png'],
         ['Universe.png']
     ],
-    longestUpgrade: 13,
+    longestUpgrade: 14,
     upgradeHTML: [
         [], [
             'UpgradeQ1.png',
@@ -129,7 +129,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeQ7.png',
             'UpgradeQ8.png',
             'UpgradeQ9.png',
-            'UpgradeQ10.png'
+            'UpgradeQ10.png',
+            'Missing.png'
         ], [
             'UpgradeW1.png',
             'UpgradeW2.png',
@@ -139,7 +140,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeW6.png',
             'UpgradeW7.png',
             'UpgradeW8.png',
-            'UpgradeW9.png'
+            'UpgradeW9.png',
+            'Missing.png'
         ], [
             'UpgradeA1.png',
             'UpgradeA2.png',
@@ -153,7 +155,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeA10.png',
             'UpgradeA11.png',
             'UpgradeA12.png',
-            'UpgradeA13.png'
+            'UpgradeA13.png',
+            'Missing.png'
         ], [
             'UpgradeS1.png',
             'UpgradeS2.png',
@@ -191,12 +194,12 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchA5.png', 'stage3borderImage'],
             ['ResearchA6.png', 'stage3borderImage'],
             ['ResearchA7.png', 'stage1borderImage'],
-            ['ResearchA8.png', 'stage7borderImage'],
+            ['ResearchA8.png', 'redBorderImage'],
             ['ResearchA9.png', 'stage1borderImage']
         ], [
             ['ResearchS1.png', 'stage5borderImage'],
             ['ResearchS2.png', 'stage5borderImage'],
-            ['ResearchS3.png', 'stage7borderImage'],
+            ['ResearchS3.png', 'redBorderImage'],
             ['ResearchS4.png', 'stage5borderImage'],
             ['ResearchS5.png', 'stage6borderImage'],
             ['ResearchS6.png', 'stage4borderImage']
@@ -207,7 +210,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Missing.png', 'stage4borderImage'] //ResearchG4
         ], []
     ],
-    longestResearchExtra: 5,
+    longestResearchExtra: 6,
     researchExtraDivHTML: [
         [],
         ['Energy%20Researches.png', 'stage4borderImage'],
@@ -215,7 +218,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Rank%20Researches.png', 'stage6borderImage'],
         ['Collapse%20Researches.png', 'stage6borderImage'],
         ['Galaxy%20Researches.png', 'stage3borderImage'],
-        ['Missing.png', 'stage7borderImage']
+        ['Missing.png', 'redBorderImage']
     ],
     researchExtraHTML: [
         [], [
@@ -223,7 +226,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchEnergy2.png', 'stage5borderImage'],
             ['ResearchEnergy3.png', 'stage3borderImage'],
             ['ResearchEnergy4.png', 'stage1borderImage'],
-            ['ResearchEnergy5.png', 'stage6borderImage']
+            ['ResearchEnergy5.png', 'stage6borderImage'],
+            ['Missing.png', 'redBorderImage']
         ], [
             ['ResearchClouds1.png', 'stage3borderImage'],
             ['ResearchClouds2.png', 'stage2borderImage'],
@@ -235,10 +239,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchRank2.png', 'stage3borderImage'],
             ['ResearchRank3.png', 'stage3borderImage'],
             ['ResearchRank4.png', 'stage2borderImage'],
-            ['ResearchRank5.png', 'stage2borderImage']
+            ['ResearchRank5.png', 'stage2borderImage'],
+            ['Missing.png', 'redBorderImage']
         ], [
             ['ResearchCollapse1.png', 'stage6borderImage'],
-            ['ResearchCollapse2.png', 'stage7borderImage'],
+            ['ResearchCollapse2.png', 'redBorderImage'],
             ['ResearchCollapse3.png', 'stage1borderImage'],
             ['ResearchCollapse4.png', 'stage6borderImage']
         ], [
@@ -263,7 +268,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ], [
             ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
             ['Elements.png', 'stage4borderImage orangeText', 'Elements'],
-            ['Stars.png', 'stage7borderImage redText', 'Stars']
+            ['Stars.png', 'redBorderImage redText', 'Stars']
         ], [
             ['Dark%20matter.png', 'stage3borderImage grayText', 'Matter'],
             ['Cosmon.png', 'stage6borderImage darkvioletText', 'Cosmon']

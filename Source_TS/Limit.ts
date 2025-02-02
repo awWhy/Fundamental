@@ -13,6 +13,11 @@ export default class Overlimit extends Array<number> {
     get mantissa() { return this[0]; }
     get exponent() { return this[1]; }
 
+    /** Can be used inside native sorting function, equal to a - b. First variable must be Overlimit, doesn't require cloning, example: [1, '2', new Overlimit(3)].sort((a, b) => Overlimit.compareFunc(new Overlimit(b), a)) */
+    static compareFunc(left: Overlimit, right: allowedTypes): 1 | 0 | -1 {
+        return left.moreThan(right) ? 1 : left.notEqual(right) ? -1 : 0;
+    }
+
     /** Creates new Overlimit */
     clone(): Overlimit { return new Overlimit(this); }
     setValue(newValue: allowedTypes) { return this.#privateSet(technical.convert(newValue)); }
@@ -515,3 +520,5 @@ const technical = {
         return type === 'input' ? formated : mantissa >= 1e3 ? formated.replace('.', globalSave.format[0]).replace(/\B(?=(\d{3})+(?!\d))/, globalSave.format[1]) : formated.replace('.', globalSave.format[0]);
     }
 };
+
+export const { compareFunc } = Overlimit;

@@ -89,14 +89,15 @@ body {
 .yellowText { color: var(--yellow-text); }
 
 /* These colors are same as Image border outer layer */
-.stage0borderImage { border-color: #006400 !important; }
+.greenBorderImage { border-color: #006400 !important; }
+.redBorderImage { border-color: #b21111 !important; }
+.brownBorderImage { border-color: #752f27 !important; }
 .stage1borderImage { border-color: #008b8b !important; }
 .stage2borderImage { border-color: #1460a8 !important; }
 .stage3borderImage { border-color: #5b5b75 !important; }
 .stage4borderImage { border-color: #e87400 !important; }
 .stage5borderImage { border-color: #b324e2 !important; }
 .stage6borderImage { border-color: #5300c1 !important; }
-.stage7borderImage { border-color: #b21111 !important; }
 .stageAllborderImage { border-color: var(--stage-image-borderColor) !important; }
 
 /* These colors are shared with --button-border */
@@ -648,7 +649,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-top: 0.3em;
 }
 
-#advancedInfo {
+.togglesDiv {
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -656,7 +657,7 @@ input:-webkit-autofill { /* Chrome related pain */
     width: 100%;
 }
 
-#advancedInfo > label {
+.togglesDiv > label {
     width: fit-content;
     align-self: center;
 }

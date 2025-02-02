@@ -233,7 +233,7 @@ const loadGame = (save: string) => {
     }
 };
 const exportFileGame = () => {
-    if (player.stage.true >= 7 || player.strange[0].total > 0) {
+    if ((player.stage.true >= 7 || player.strange[0].total > 0) && (player.challenges.active === null || global.challengesInfo[player.challenges.active].resetType === 'stage')) {
         awardExport();
         numbersUpdate();
     }
@@ -247,7 +247,7 @@ const exportFileGame = () => {
 };
 const awardExport = () => {
     const exportReward = player.time.export;
-    if (exportReward[0] < 0) { return; }
+    if (exportReward[0] <= 0) { return; }
     const { strange } = player;
     const conversion = Math.min(exportReward[0] / 86400, 1);
     const quarks = (exportReward[1] / 2.5 + 1) * conversion;
@@ -605,6 +605,7 @@ try { //Start everything
 
             getId('MDToggle1').addEventListener('click', () => toggleSpecial(1, 'mobile', true, true));
             for (let i = 0; i < globalSaveStart.MDSettings.length; i++) { toggleSpecial(i, 'mobile'); }
+            MDStrangenessPage(1);
         }
         if (globalSave.SRSettings[0]) {
             const message = getId('SRMessage1');
@@ -865,7 +866,7 @@ try { //Start everything
         input.value = format(value, { type: 'input' });
     });
 
-    for (let i = 0; i < global.challengesInfo.name.length; i++) {
+    for (let i = 0; i < global.challengesInfo.length; i++) {
         const image = getId(`challenge${i + 1}`);
         if (PC) { image.addEventListener('mouseover', () => hoverChallenge(i)); }
         if (MD) { image.addEventListener('touchstart', () => hoverChallenge(i)); }
@@ -884,11 +885,11 @@ try { //Start everything
             getId('voidRewardsDiv').style.display = '';
             global.lastChallenge[1] = null;
         };
-        for (let i = 1; i < global.challengesInfo.rewardText[0].length; i++) {
-            const image = getId(`voidReward${i}`);
+        for (let s = 1; s <= 5; s++) {
+            const image = getId(`voidReward${s}`);
             image.addEventListener('click', () => {
-                global.lastChallenge[1] = i;
-                getChallengeReward(i);
+                global.lastChallenge[1] = s;
+                getChallengeReward(s);
                 getId('voidRewardsDiv').style.display = 'block';
             });
             image.addEventListener('blur', close);
@@ -1083,7 +1084,7 @@ try { //Start everything
 
     /* Inflation tab */
     for (let i = 0; i < playerStart.inflation.tree.length; i++) {
-        const image = getId(`inflation${i + 1}`);
+        const image = getId(`inflation${i + 1}Image`);
         const hoverFunc = () => hoverUpgrades(i, 'inflation');
         if (PC) { image.addEventListener('mouseover', hoverFunc); }
         if (MD) {
