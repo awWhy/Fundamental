@@ -859,7 +859,7 @@ export const visualUpdate = () => {
         if (subtab.settingsCurrent === 'Settings') {
             const { researchesAuto, strangeness } = player;
 
-            getId('exportReward').style.display = (highest >= 7 || player.strange[0].total > 0) && (player.challenges.active === null || global.challengesInfo[player.challenges.active].resetType === 'stage') ? '' : 'none';
+            getQuery('#exportReward > span:last-of-type').style.display = player.challenges.active !== null && global.challengesInfo[player.challenges.active].resetType !== 'stage' ? '' : 'none';
             getId('collapsePointsMax').textContent = strangeness[5][4] >= 1 ? 'There is no maximum value' : 'Maximum value is 40';
             getId('exportStrangeletsUnlocked').style.display = strangeness[5][8] >= 1 ? '' : 'none';
             getId('toggleAuto0').style.display = strangeness[5][6] >= 1 ? '' : 'none';
@@ -904,6 +904,7 @@ export const visualUpdate = () => {
                 }
                 getId('stageToggleReset').style.display = player.stage.resets >= 1 || (vacuum ? player.elements[26] >= 1 : player.upgrades[1][9] === 1) ? '' : 'none';
                 getId('vaporizationExtra').style.display = player.challenges.void[4] >= 1 ? '' : 'none';
+                getId('exportReward').style.display = player.strange[0].total > 0 ? '' : 'none';
                 getId('mergeToggleReset').style.display = vacuum && player.upgrades[5][3] === 1 ? '' : 'none';
                 if (hotkeyTest !== null) {
                     getId('exitChallengeHotkey').style.display = highest >= 6 && player.stage.resets >= 1 ? '' : 'none';
@@ -1038,6 +1039,7 @@ export const visualTrueStageUnlocks = () => {
         getId('collapseToggleReset').style.display = '';
         getId('strangenessTabBtn').style.display = '';
         getId('stageResets').style.display = '';
+        getId('exportReward').style.display = '';
         getId('exportStats').style.display = '';
         if (hotkeyTest !== null) { getId('exitChallengeHotkey').style.display = ''; }
     }

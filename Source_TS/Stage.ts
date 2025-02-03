@@ -2724,7 +2724,6 @@ const challengeReset = (next: number | null, old: number | null) => {
         cloneBeforeReset(resetType);
         if (resetType === 'vacuum') {
             if (player.stage.active < 6) { setActiveStage(1); }
-            player.time.export[0] = 0;
             if (!player.inflation.vacuum) {
                 player.inflation.vacuum = true;
                 prepareVacuum(true);

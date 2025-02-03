@@ -1729,7 +1729,6 @@ export const updatePlayer = (load: playerType): string => {
     }
 
     //Remove eventualy
-    if (load.clone.time?.export !== undefined) { load.time.export = load.clone.time.export; }
     if (load.inflation.vacuum) {
         if (load.strangeness[1][5] >= 1) { load.ASR[1] = 5; }
         if (load.strangeness[2][5] >= 1) { load.ASR[2] = 6; }
@@ -1799,14 +1798,12 @@ export const updatePlayer = (load: playerType): string => {
                 clone.researchesExtra[s][i] = 0;
             }
 
-            if (s >= 6) { continue; }
-            if (clone.depth !== 'stage') {
-                for (let i = clone.strangeness[s].length; i < playerStart.strangeness[s].length; i++) {
-                    clone.strangeness[s][i] = 0;
-                }
-                for (let i = clone.milestones[s].length; i < playerStart.milestones[s].length; i++) {
-                    clone.milestones[s][i] = 0;
-                }
+            if (clone.depth === 'stage' || s >= 6) { continue; }
+            for (let i = clone.strangeness[s].length; i < playerStart.strangeness[s].length; i++) {
+                clone.strangeness[s][i] = 0;
+            }
+            for (let i = clone.milestones[s].length; i < playerStart.milestones[s].length; i++) {
+                clone.milestones[s][i] = 0;
             }
         }
         for (let i = clone.researchesAuto.length; i < playerStart.researchesAuto.length; i++) {

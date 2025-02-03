@@ -499,11 +499,11 @@ export const loadFromClone = () => {
 
     if (depth !== 'stage') {
         for (let i = 0; i < clone.strange.length; i++) {
+            player.time.export[i + 1] = clone.time.export[i + 1];
             player.strange[i].current = clone.strange[i].current;
             player.strange[i].total = clone.strange[i].total;
         }
         player.stage.resets = clone.stage.resets;
-        player.time.export = clone.time.export;
         player.time.vacuum = clone.time.vacuum;
         player.inflation.time = clone.inflation.time;
         global.historyStorage.stage = clone.history.stage.list;
