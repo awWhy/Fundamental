@@ -428,10 +428,15 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
     } else { global.lastMilestone = [index, stageIndex]; }
     getStrangenessDescription(index, stageIndex, type);
 };
-const hoverChallenge = (index: number | null) => {
+const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
     getChallengeDescription(index);
-    visualUpdate(); //Lazy way to update unlocked buttons
+    if (index === 0) { getChallengeReward(global.lastChallenge[1]); }
+    visualUpdate();
+};
+export const changeRewardType = (state = !global.sessionToggles[0]) => {
+    global.sessionToggles[0] = state;
+    getId('rewardsType').textContent = `${state ? 'Supervoid' : 'Void'} rewards:`;
 };
 /** Handles requirement to switch Stage, returns true if can safely return early */
 const handleAutoSwitch = (index: number, type = 'researchesAuto'): boolean => {
@@ -452,12 +457,12 @@ export const buyAll = () => {
 };
 
 export const updateCollapsePointsText = () => {
-    let pointsText = '';
+    const array = [];
     const points = player.collapse.points;
     for (let i = 0; i < points.length; i++) {
-        pointsText += `${i > 0 ? ', ' : ''}${format(points[i], { type: 'input' })}`;
+        array.push(format(points[i], { type: 'input' }));
     }
-    getId('collapsePoints').textContent = pointsText !== '' ? `${pointsText} or ` : '';
+    getId('collapsePoints').textContent = array.length > 0 ? `${array.join(', ')} or ` : '';
 };
 
 export const globalSaveStart = deepClone(globalSave);
@@ -715,32 +720,33 @@ try { //Start everything
     const MD = globalSave.MDSettings[0];
     const SR = globalSave.SRSettings[0];
     const PC = !MD || globalSave.MDSettings[1];
-    body.addEventListener('keydown', (key: KeyboardEvent) => detectHotkey(key));
     const releaseHotkey = (event: KeyboardEvent | MouseEvent) => {
         if (global.hotkeys.shift && !event.shiftKey) { global.hotkeys.shift = false; }
         if (global.hotkeys.ctrl && !event.ctrlKey) { global.hotkeys.ctrl = false; }
+        global.hotkeys.tab = false;
     };
-    body.addEventListener('keyup', releaseHotkey, { passive: true });
     body.addEventListener('contextmenu', (event) => {
         const activeType = (document.activeElement as HTMLInputElement)?.type;
         if (activeType !== 'text' && activeType !== 'number' && !globalSave.developerMode) { event.preventDefault(); }
     });
+    body.addEventListener('keydown', (key) => detectHotkey(key));
+    body.addEventListener('keyup', releaseHotkey);
     if (PC) {
         body.addEventListener('mouseup', (event) => {
             cancelRepeat();
             releaseHotkey(event);
-        }, { passive: true });
-        body.addEventListener('mouseleave', cancelRepeat, { passive: true });
+        });
+        body.addEventListener('mouseleave', cancelRepeat);
     }
     if (MD) {
         body.addEventListener('touchstart', (event) => {
             specialHTML.mobileDevice.start = [event.touches[0].clientX, event.touches[0].clientY];
-        }, { passive: true });
+        }, { passive: true }); //Passive just in case to prevent issues with scrolling
         body.addEventListener('touchend', (event) => {
             cancelRepeat();
             handleTouchHotkeys(event);
-        }, { passive: true });
-        body.addEventListener('touchcancel', cancelRepeat, { passive: true });
+        });
+        body.addEventListener('touchcancel', cancelRepeat);
     }
 
     /* Toggles */
@@ -880,33 +886,27 @@ try { //Start everything
 
     for (let i = 0; i < global.challengesInfo.length; i++) {
         const image = getId(`challenge${i + 1}`);
-        if (PC) { image.addEventListener('mouseover', () => hoverChallenge(i)); }
-        if (MD) { image.addEventListener('touchstart', () => hoverChallenge(i)); }
-        if (SR) { image.addEventListener('focus', () => hoverChallenge(i)); }
-        image.addEventListener('click', () => { enterExitChallengeUser(i); });
+        if (!MD) { image.addEventListener('mouseover', () => hoverChallenge(i)); }
+        image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
     }
-    {
-        const image = getId('challenge0');
-        if (PC) { image.addEventListener('mouseover', () => hoverChallenge(null)); }
-        if (MD) { image.addEventListener('touchstart', () => hoverChallenge(null)); }
-        if (SR) { image.addEventListener('focus', () => hoverChallenge(null)); }
-    }
-    getId('supervoidToggle').addEventListener('click', () => { toggleSupervoid(true); });
-    {
-        const close = () => {
-            getId('voidRewardsDiv').style.display = '';
-            global.lastChallenge[1] = null;
+    getId('challengeName').addEventListener('click', () => { toggleSupervoid(true); });
+    getId('rewardsType').addEventListener('click', () => {
+        changeRewardType();
+        getChallengeReward(global.lastChallenge[1]);
+    });
+    for (let s = 1; s <= 5; s++) {
+        const image = getId(`voidReward${s}`);
+        const clickFunc = () => {
+            global.lastChallenge[1] = s;
+            getChallengeReward(s);
         };
-        for (let s = 1; s <= 5; s++) {
-            const image = getId(`voidReward${s}`);
-            image.addEventListener('click', () => {
-                global.lastChallenge[1] = s;
-                getChallengeReward(s);
-                getId('voidRewardsDiv').style.display = 'block';
+        image.addEventListener('mouseover', clickFunc);
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                clickFunc();
             });
-            image.addEventListener('blur', close);
         }
-        if (MD) { getId('voidRewardsDiv').addEventListener('click', close); }
     }
 
     /* Upgrade tab */
@@ -921,7 +921,12 @@ try { //Start everything
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     for (let i = 0; i < specialHTML.longestResearch; i++) {
         const image = getId(`research${i + 1}Image`);
@@ -934,7 +939,12 @@ try { //Start everything
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     for (let i = 0; i < specialHTML.longestResearchExtra; i++) {
         const image = getId(`researchExtra${i + 1}Image`);
@@ -947,7 +957,12 @@ try { //Start everything
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     for (let i = 0; i < playerStart.researchesAuto.length; i++) {
         const image = getId(`researchAuto${i + 1}Image`);
@@ -963,7 +978,12 @@ try { //Start everything
             });
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     {
         const image = getId('ASRImage');
@@ -976,7 +996,12 @@ try { //Start everything
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     if (MD) {
         const button = getId('upgradeCreate');
@@ -1026,17 +1051,23 @@ try { //Start everything
     for (let i = 1; i < playerStart.elements.length; i++) {
         const image = getId(`element${i}`);
         const clickFunc = () => buyUpgrades(i, 4, 'elements');
+        const hoverFunc = () => hoverUpgrades(i, 'elements');
         if (PC) {
-            image.addEventListener('mouseover', () => hoverUpgrades(i, 'elements'));
+            image.addEventListener('mouseover', hoverFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
         if (MD) {
             image.addEventListener('touchstart', () => {
-                hoverUpgrades(i, 'elements');
+                hoverFunc();
                 repeatFunction(clickFunc);
             });
         }
-        if (SR) { image.addEventListener('focus', () => hoverUpgrades(i, 'elements')); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
         if (!MD || SR) { image.addEventListener('click', clickFunc); }
     }
 
@@ -1050,7 +1081,12 @@ try { //Start everything
         };
         const closeFunc = () => (getId(`strange${i}EffectsMain`).style.display = 'none');
         strange.addEventListener('click', openFunction, { capture: true }); //Clicking on window does unnessary call, before closing
-        if (SR) { strange.addEventListener('focus', openFunction); }
+        if (PC || SR) {
+            strange.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                openFunction();
+            });
+        }
         strange.addEventListener('blur', closeFunc);
         getId(`strange${i}EffectsMain`).addEventListener('click', closeFunc);
     }
@@ -1067,7 +1103,12 @@ try { //Start everything
                 image.addEventListener('click', clickFunc);
                 image.addEventListener('mousedown', () => repeatFunction(clickFunc));
             }
-            if (SR) { image.addEventListener('focus', hoverFunc); }
+            if (PC || SR) {
+                image.addEventListener('focus', () => {
+                    if (!global.hotkeys.tab) { return; }
+                    hoverFunc();
+                });
+            }
         }
     }
     if (MD) {
@@ -1080,16 +1121,23 @@ try { //Start everything
         button.addEventListener('touchstart', () => repeatFunction(clickFunc));
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
     }
+    getId('strangenessVisibility').addEventListener('click', () => {
+        global.sessionToggles[1] = !global.sessionToggles[1];
+        getId('strangenessVisibility').textContent = `Permanent ones are ${global.sessionToggles[1] ? 'shown' : 'hidden'}`;
+        visualUpdate();
+    });
 
     for (let s = 1; s < playerStart.milestones.length; s++) {
         for (let i = 0; i < playerStart.milestones[s].length; i++) {
             const image = getQuery(`#milestone${i + 1}Stage${s}Div > img`);
-            if (PC) { image.addEventListener('mouseover', () => hoverStrangeness(i, s, 'milestones')); }
-            if (MD) { image.addEventListener('touchstart', () => hoverStrangeness(i, s, 'milestones')); }
-            if (SR) {
-                image.tabIndex = 0;
-                image.classList.add('noFocusOutline');
-                image.addEventListener('focus', () => hoverStrangeness(i, s, 'milestones'));
+            const hoverFunc = () => hoverStrangeness(i, s, 'milestones');
+            if (PC) { image.addEventListener('mouseover', hoverFunc); }
+            if (MD) { image.addEventListener('touchstart', hoverFunc); }
+            if (PC || SR) {
+                image.addEventListener('focus', () => {
+                    if (!global.hotkeys.tab) { return; }
+                    hoverFunc();
+                });
             }
         }
     }
@@ -1106,7 +1154,12 @@ try { //Start everything
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
-        if (SR) { image.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     getId('inflationRefund').addEventListener('click', inflationRefund);
     if (MD) {
@@ -1218,7 +1271,12 @@ try { //Start everything
         const button = getId('saveFileHoverButton');
         const hoverFunc = () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials());
         button.addEventListener('mouseover', hoverFunc);
-        if (SR) { button.addEventListener('focus', hoverFunc); }
+        if (PC || SR) {
+            button.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverFunc();
+            });
+        }
     }
     getId('mainInterval').addEventListener('change', () => {
         const input = getId('mainInterval') as HTMLInputElement;

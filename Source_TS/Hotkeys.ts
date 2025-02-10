@@ -91,6 +91,7 @@ export const detectHotkey = (check: KeyboardEvent) => {
     const { key, code } = check;
     if (code === 'Tab' || code === 'Enter' || code === 'Space') {
         if (check.metaKey || check.ctrlKey || check.altKey) { return; }
+        if (code === 'Tab') { global.hotkeys.tab = true; }
         document.body.classList.remove('noFocusOutline');
         return;
     } else {

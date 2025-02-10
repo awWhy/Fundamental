@@ -13,7 +13,7 @@ export const globalSave: globalSaveType = {
         visual: 1000,
         autoSave: 20000
     },
-    hotkeys: { //hotkeyFunction: [key, code]
+    hotkeys: {
         stage: ['S', 'S'],
         discharge: ['D', 'D'],
         vaporization: ['V', 'V'],
@@ -33,13 +33,12 @@ export const globalSave: globalSaveType = {
         stageRight: ['Shift Arrow Right', 'Shift Arrow Right'],
         stageLeft: ['Shift Arrow Left', 'Shift Arrow Left']
     },
-    toggles: [false, false, false, false, false],
-    /* Hotkeys type[0], Elements as tab[1], Allow text selection[2], Footer on top[3], Show Strangeness[4] */
-    format: ['.', ''], //Point[0], Separator[1]
+    toggles: [false, false, false, false],
+    format: ['.', ''],
     theme: null,
     fontSize: 16,
-    MDSettings: [false, false], //Status[0], Mouse events[1]
-    SRSettings: [false, false, false], //Status[0], Tabindex Upgrades[1], Tabindex primary[2]
+    MDSettings: [false, false],
+    SRSettings: [false, false, false],
     developerMode: false
 };
 
@@ -106,11 +105,13 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
 };
 
 export const specialHTML = { //Images here are from true vacuum for easier cache
-    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', ''], //[0] === textContent
+    /** [textContent] */
+    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', ''],
     longestBuilding: 7, //+1
-    buildingHTML: [ //outerHTML is slow
+    /** [src] */
+    buildingHTML: [
         [],
-        ['Preon.png', 'Quarks.png', 'Particle.png', 'Atom.png', 'Molecule.png'], //[0] === src
+        ['Preon.png', 'Quarks.png', 'Particle.png', 'Atom.png', 'Molecule.png'],
         ['Drop.png', 'Puddle.png', 'Pond.png', 'Lake.png', 'Sea.png', 'Ocean.png'],
         ['Cosmic%20dust.png', 'Planetesimal.png', 'Protoplanet.png', 'Natural%20satellite.png', 'Subsatellite.png'],
         ['Brown%20dwarf.png', 'Orange%20dwarf.png', 'Red%20supergiant.png', 'Blue%20hypergiant.png', 'Quasi%20star.png'],
@@ -118,6 +119,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Universe.png']
     ],
     longestUpgrade: 14,
+    /** [src] */
     upgradeHTML: [
         [], [
             'UpgradeQ1.png',
@@ -130,7 +132,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeQ8.png',
             'UpgradeQ9.png',
             'UpgradeQ10.png',
-            'Missing.png'
+            'UpgradeQ11.png'
         ], [
             'UpgradeW1.png',
             'UpgradeW2.png',
@@ -140,8 +142,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeW6.png',
             'UpgradeW7.png',
             'UpgradeW8.png',
-            'UpgradeW9.png',
-            'Missing.png'
+            'UpgradeW9.png'
         ], [
             'UpgradeA1.png',
             'UpgradeA2.png',
@@ -156,7 +157,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeA11.png',
             'UpgradeA12.png',
             'UpgradeA13.png',
-            'Missing.png'
+            'UpgradeA14.png'
         ], [
             'UpgradeS1.png',
             'UpgradeS2.png',
@@ -167,13 +168,15 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG1.png',
             'UpgradeG2.png',
             'UpgradeG3.png',
-            'UpgradeG4.png'
+            'UpgradeG4.png',
+            'Missing.png'
         ], []
     ],
     longestResearch: 9,
+    /** [src, className] */
     researchHTML: [
         [], [
-            ['ResearchQ1.png', 'stage1borderImage'], //[1] === className
+            ['ResearchQ1.png', 'stage1borderImage'],
             ['ResearchQ2.png', 'stage1borderImage'],
             ['ResearchQ3.png', 'stage1borderImage'],
             ['ResearchQ4.png', 'stage4borderImage'],
@@ -207,10 +210,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchG1.png', 'stage1borderImage'],
             ['ResearchG2.png', 'stage6borderImage'],
             ['ResearchG3.png', 'stage6borderImage'],
-            ['Missing.png', 'stage4borderImage'] //ResearchG4
+            ['ResearchG4.png', 'stage4borderImage']
         ], []
     ],
     longestResearchExtra: 6,
+    /** [src, className] */
     researchExtraDivHTML: [
         [],
         ['Energy%20Researches.png', 'stage4borderImage'],
@@ -220,6 +224,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Galaxy%20Researches.png', 'stage3borderImage'],
         ['Missing.png', 'redBorderImage']
     ],
+    /** [src, className] */
     researchExtraHTML: [
         [], [
             ['ResearchEnergy1.png', 'stage1borderImage'],
@@ -227,7 +232,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchEnergy3.png', 'stage3borderImage'],
             ['ResearchEnergy4.png', 'stage1borderImage'],
             ['ResearchEnergy5.png', 'stage6borderImage'],
-            ['Missing.png', 'redBorderImage']
+            ['ResearchEnergy6.png', 'stage1borderImage']
         ], [
             ['ResearchClouds1.png', 'stage3borderImage'],
             ['ResearchClouds2.png', 'stage2borderImage'],
@@ -240,7 +245,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchRank3.png', 'stage3borderImage'],
             ['ResearchRank4.png', 'stage2borderImage'],
             ['ResearchRank5.png', 'stage2borderImage'],
-            ['Missing.png', 'redBorderImage']
+            ['ResearchRank6.png', 'stage6borderImage']
         ], [
             ['ResearchCollapse1.png', 'stage6borderImage'],
             ['ResearchCollapse2.png', 'redBorderImage'],
@@ -248,13 +253,15 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchCollapse4.png', 'stage6borderImage']
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
-            ['Missing.png', 'stage3borderImage'] //ResearchGalaxy2
+            ['Missing.png', 'stage3borderImage'],
+            ['Missing.png', 'greenBorderImage']
         ], []
     ],
     longestFooterStats: 3,
+    /** [src, className, textcontent] */
     footerStatsHTML: [
         [], [
-            ['Energy%20mass.png', 'stage1borderImage cyanText', 'Mass'], //[2] === textcontent
+            ['Energy%20mass.png', 'stage1borderImage cyanText', 'Mass'],
             ['Energy.png', 'stage4borderImage orangeText', 'Energy']
         ], [
             ['Water.png', 'stage2borderImage blueText', 'Moles'],
@@ -275,7 +282,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ]
     ],
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
-        start: [0, 0] //[X, Y]
+        /** [X, Y] */
+        start: [0, 0]
     },
     localStorage: {
         /** Index for game's primary save slot */
@@ -284,13 +292,16 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         settings: 'fundamentalSettings'
     },
     cache: {
-        imagesDiv: document.createElement('div'),
+        imagesDiv: document.createElement('div'), //Saved just in case
+        innerHTML: new Map<string | HTMLElement, string>(), //Lazy way to get around automatic html replacings
         idMap: new Map<string, HTMLElement>(),
         classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
         queryMap: new Map<string, HTMLElement>()
     },
-    notifications: [] as Array<[string, (instantClose?: boolean) => void]>, //[text, true ? incrementFunc : closeFunc]
-    alert: [null, null] as [number | null, (() => void) | null], //[priority, closeFunc]
+    /** [text, true ? incrementFunc : closeFunc] */
+    notifications: [] as Array<[string, (instantClose?: boolean) => void]>,
+    /** [priority, closeFunc] */
+    alert: [null, null] as [number | null, (() => void) | null],
     bigWindow: null as string | null,
     styleSheet: document.createElement('style') //Secondary
 };
@@ -321,7 +332,7 @@ export const preventImageUnload = () => {
         images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`;
         images += `<img src="Used_art/Stage${s}%20border.png" loading="lazy">`;
     }
-    specialHTML.cache.imagesDiv.innerHTML = images; //Saved just in case
+    specialHTML.cache.imagesDiv.innerHTML = images;
 };
 
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
@@ -877,14 +888,16 @@ export const SRHotkeysInfo = (short = false) => {
     for (let i = 0; i < list.length; i++) {
         if (list[i] == null || list[i] === '') { list[i] = 'None'; }
     }
-    getId('reset1Main').ariaLabel = `${resetName} reset, hotkey is ${list[0]}`;
+    const reset1Id = getId('reset1Main');
+    reset1Id.ariaLabel = `${resetName} reset`;
+    reset1Id.ariaDescription = `Hotkey is ${list[0]}`;
     if (short) { return; }
-    getQuery('#footerMain > nav').ariaLabel = `Tab list, hotkeys are ${list[1]} and ${list[2]}`;
-    getId('subtabs').ariaLabel = `Subtab list, hotkeys are ${list[3]} and ${list[4]}`;
-    getId('stageSelect').ariaLabel = `Active Stages list, hotkeys are ${list[5]} and ${list[6]}`;
-    getId('resetStage').ariaLabel = `Stage reset, hotkey is ${list[7]}`;
-    getId('makeAllStructures').ariaLabel = `Make all Structures, hotkey is ${list[8]}`;
-    getId('toggleBuilding0').ariaLabel = `Toggle all Structures, hotkey is ${list[9]}`;
+    getQuery('#footerMain > nav').ariaDescription = `Hotkeys are ${list[1]} and ${list[2]}`;
+    getId('subtabs').ariaDescription = `Hotkeys are ${list[3]} and ${list[4]}`;
+    getId('stageSelect').ariaDescription = `Hotkeys are ${list[5]} and ${list[6]}`;
+    getId('resetStage').ariaDescription = `Hotkey is ${list[7]}`;
+    getId('makeAllStructures').ariaDescription = `Hotkey is ${list[8]}`;
+    getId('toggleBuilding0').ariaDescription = `Hotkey is ${list[9]}`;
 };
 
 export const MDStrangenessPage = (stageIndex: number) => {
@@ -960,7 +973,8 @@ export const getVersionInfoHTML = () => {
     buildBigWindow();
     if (getId('versionHTML', true) === null) {
         const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<label>v0.2.2</label><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit\n<a href="https://docs.google.com/document/d/1x8zHjxB6mPQGwpZT3DV_bAyatFIB3SOlxp9TvzbrUds/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        mainHTML.innerHTML = `<label>v0.2.3</label><p>- Small amount of new content\n- Supervoid rework\n- Abyss small rebalance\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <label>v0.2.2</label><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit</p>
         <label>v0.2.1</label><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
         <label>v0.2.0</label><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
         <label>v0.1.9</label><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
@@ -985,6 +999,8 @@ export const getVersionInfoHTML = () => {
         <label>v0.0.0</label><p>- First published version\n\n- Submerged Stage placeholder</p>`;
         getQuery('#bigWindow > div').prepend(mainHTML);
         mainHTML.id = 'versionHTML';
+        mainHTML.role = 'dialog';
+        mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += '#versionHTML label { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }';
     }
 
@@ -1023,42 +1039,42 @@ export const getHotkeysHTML = () => {
         mainHTML.innerHTML = `<p id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
         ${globalSave.MDSettings[0] ? `<p>Swipe Left or Right ‒ <span class="whiteText">change current tab</span></p>
         <p>Swipe Down or Up ‒ <span class="whiteText">change current subtab</span></p>` : ''}
-        <label id="tabRightHotkey"><button></button> ‒ <span class="whiteText">change tab to the next one</span></label>
-        <label id="tabLeftHotkey"><button></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
-        <label id="subtabUpHotkey"><button></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
-        <label id="subtabDownHotkey"><button></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
-        <label id="stageRightHotkey"><button></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
-        <label id="stageLeftHotkey"><button></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
+        <label id="tabRightHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change tab to the next one</span></label>
+        <label id="tabLeftHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
+        <label id="subtabUpHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
+        <label id="subtabDownHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
+        <label id="stageRightHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
+        <label id="stageLeftHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
         <p>Numbers ‒ <span class="whiteText">make a Structure</span></p>
-        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">make all Structures</span></label>
+        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button class="selectBtn" type="button"></button> ‒ <span class="whiteText">make all Structures</span></label>
         <p>Shift Numbers ‒ <span class="whiteText">toggle auto Structure</span></p>
-        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
-        <label id="exitChallengeHotkey"><button></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
+        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button class="selectBtn" type="button"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
+        <label id="exitChallengeHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
         <div>
-            <label id="stageHotkey" class="stageText"><button></button> ‒ <span class="whiteText">Stage reset</span></label>
-            <label id="dischargeHotkey" class="orangeText stage1Include"><button></button> ‒ <span class="whiteText">Discharge</span></label>
-            <label id="vaporizationHotkey" class="blueText stage2Include"><button></button> ‒ <span class="whiteText">Vaporization</span></label>
-            <label id="rankHotkey" class="darkorchidText stage3Include"><button></button> ‒ <span class="whiteText">Rank</span></label>
-            <label id="collapseHotkey" class="orchidText stage4Include"><button></button> ‒ <span class="whiteText">Collapse</span></label>
-            <label id="galaxyHotkey" class="grayText stage5Include"><button></button> ‒ <span class="whiteText">Galaxy</span></label>
-            <label id="mergeHotkey" class="darkvioletText stage5Include"><button></button> ‒ <span class="whiteText">Merge</span></label>
-            <label id="universeHotkey" class="darkvioletText stage6Include"><button></button> ‒ <span class="whiteText">Universe</span></label>
-            <label id="pauseHotkey" class="grayText"><button></button> ‒ <span class="whiteText">pause</span></label>
+            <label id="stageHotkey" class="stageText"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Stage reset</span></label>
+            <label id="dischargeHotkey" class="orangeText stage1Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Discharge</span></label>
+            <label id="vaporizationHotkey" class="blueText stage2Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Vaporization</span></label>
+            <label id="rankHotkey" class="darkorchidText stage3Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Rank</span></label>
+            <label id="collapseHotkey" class="orchidText stage4Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Collapse</span></label>
+            <label id="galaxyHotkey" class="grayText stage5Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Galaxy</span></label>
+            <label id="mergeHotkey" class="darkvioletText stage5Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Merge</span></label>
+            <label id="universeHotkey" class="darkvioletText stage6Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Universe</span></label>
+            <label id="pauseHotkey" class="grayText"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">pause</span></label>
         </div>
         <p>Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
         <p>Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
         <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
         <label id="hotkeysToggleLabel" title="Turn ON, if using non QWERTY layout keyboard">Language dependant hotkeys </label>
-        <button id="restoreHotkeys" type="button">Restore default hotkeys values</button>`;
+        <button id="restoreHotkeys" class="selectBtn" type="button">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
         getQuery('#bigWindow > div').prepend(mainHTML);
         mainHTML.id = 'hotkeysHTML';
+        mainHTML.role = 'dialog';
+        mainHTML.ariaLabel = 'Hotkeys menu';
         const toggle = getId('globalToggle0');
-        toggle.className = 'specialToggle';
         toggle.style.display = '';
         getId('hotkeysToggleLabel').append(toggle);
         specialHTML.styleSheet.textContent += '#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; } #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; } #hotkeysHTML > div label { justify-self: center; width: max-content; }';
-        specialHTML.styleSheet.textContent += '#hotkeysHTML button:not(.specialToggle) { color: inherit; background-color: unset; border-width: 1px; border-color: inherit; border-right: none; border-left: none; border-top: none; font-size: inherit; height: unset; }';
 
         const changeHotkey = async(disableFirstUp = false): Promise<string[] | null> => {
             return await new Promise((resolve) => {
@@ -1112,7 +1128,7 @@ export const getHotkeysHTML = () => {
             button.addEventListener('click', async(event) => {
                 const button = getQuery(`#${key}Hotkey > button`);
                 button.style.borderBottomStyle = 'dashed';
-                const newHotkey = await changeHotkey(event.clientX <= 0); //Check if click was caused by pressing Enter
+                const newHotkey = await changeHotkey(event.clientX === 0); //Check if click was caused by pressing Enter
                 if (newHotkey !== null) {
                     const index = globalSave.toggles[0] ? 0 : 1;
                     const removed = removeHotkey(newHotkey[index]);

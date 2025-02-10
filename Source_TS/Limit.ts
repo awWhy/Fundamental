@@ -92,9 +92,8 @@ export default class Overlimit extends Array<number> {
     moreThan(compare: allowedTypes): boolean { return technical.more(this, technical.convert(compare)); }
     moreOrEqual(compare: allowedTypes): boolean { return technical.moreOrEqual(this, technical.convert(compare)); }
     notEqual(compare: allowedTypes): boolean { return technical.notEqual(this, technical.convert(compare)); }
-    equal(compare: allowedTypes): boolean { return !technical.notEqual(this, technical.convert(compare)); }
     /** Can take any amount of arquments; Returns true if no arquments provided */
-    allEqual(...compare: allowedTypes[]): boolean {
+    equal(...compare: allowedTypes[]): boolean {
         let previous: [number, number] | Overlimit = this;
         for (let i = 0; i < compare.length; i++) {
             const next = technical.convert(compare[i]);
@@ -130,9 +129,9 @@ export default class Overlimit extends Array<number> {
         return this.#privateSet(result);
     }
 
-    /** Returns formatted string, takes object as arqument (some default values are from limitSettings)
+    /** Returns formatted string, takes object as arqument
      * @param type "number" is default, "input" will make formatted number to be usable in Overlimit
-     * @param padding should zeros be added past point, if below max digits. 'exponent' value will behave as true, but only after number turns into its shorter version
+     * @param padding should zeros be added past point, if below max digits. 'exponent' value will behave as true, but only after number turns to power version or above
      */
     format(settings = {} as { type?: 'number' | 'input', padding?: boolean | 'exponent' }): string { return technical.format(this, settings); }
     /** Returns value as Number, doesn't change original number */
@@ -151,11 +150,12 @@ export default class Overlimit extends Array<number> {
     toJSON(): string { return technical.turnString(this); }
 }
 
+/** Private Overlimit functions */
 const technical = {
     convert: (number: allowedTypes): [number, number] | Overlimit => {
         if (typeof number === 'object' && number !== null) { return number; } //Readonly Array
         if (typeof number !== 'string') { number = `${number}`; } //Using log10 could cause floating point error
-        const index = number.indexOf('e');
+        const index = number.indexOf('e'); //Array.split is 3 times slower
         const result: [number, number] = index === -1 ? [Number(number), 0] : [Number(number.slice(0, index)), Number(number.slice(index + 1))];
 
         if (!isFinite(result[0]) || !isFinite(result[1])) {
@@ -471,53 +471,67 @@ const technical = {
         const type = settings.type ?? 'number';
         let padding = settings.padding;
 
-        //1.23e1.23e123
-        if (power >= 1e4 || power <= -1e4) {
+        if (power >= 1e4 || power <= -1e4) { //e1.23e123 (-e-1.23e123)
+            if (padding === 'exponent') { padding = true; }
             let exponent = power;
-            let mantissa = Math.round(base * 100) / 100;
-            if (Math.abs(mantissa) === 10) {
-                mantissa /= 10;
-                exponent++; //Mantissa in short version kept only for this
+            let inputBase = base;
+            if (Math.abs(Math.round(inputBase)) === 10) { //Probably not required, but just in case
+                inputBase /= 10;
+                exponent++;
+                if (exponent < 0 && exponent > -1e4) { return technical.format([inputBase, exponent], settings); }
             }
 
             exponent = Math.floor(Math.log10(Math.abs(exponent)));
-            let powerMantissa = Math.round(power / 10 ** (exponent - 2)) / 100;
-            if (Math.abs(powerMantissa) === 10) {
-                powerMantissa /= 10;
-                exponent++;
-            }
-
-            if (padding === 'exponent') { padding = true; }
-            const formatedPower = padding ? powerMantissa.toFixed(2) : `${powerMantissa}`;
-            if (type !== 'input') { //1.23ee123 (-1.23e-e123)
-                powerMantissa = Math.abs(powerMantissa);
-                if (base < 0) { powerMantissa *= -1; }
-                return `${formatedPower.replace('.', globalSave.format[0])}e${power < 0 ? '-' : ''}e${exponent}`;
-            }
-
-            const formatedBase = padding ? mantissa.toFixed(2) : `${mantissa}`;
-            return type === 'input' ? `${formatedBase}e${formatedPower}e${exponent}` : `${formatedBase.replace('.', globalSave.format[0])}e${formatedPower.replace('.', globalSave.format[0])}e${exponent}`;
-        }
-
-        //1.23e123
-        if (power >= 6 || power < -3) {
-            let exponent = power;
-            let mantissa = Math.round(base * 100) / 100;
-            if (Math.abs(mantissa) === 10) {
+            let digits = 2 - Math.floor(Math.log10(exponent));
+            let mantissa = Math.round(power / 10 ** (exponent - digits)) / 10 ** digits;
+            if (Math.abs(mantissa) === 10) { //To remove rare bugs
                 mantissa /= 10;
                 exponent++;
+                if (padding) { digits = 2 - Math.floor(Math.log10(exponent)); }
             }
+
+            if (type !== 'input') { mantissa = Math.abs(mantissa); }
+            const formated = padding ? mantissa.toFixed(digits) : `${mantissa}`;
+            return type === 'input' ? `${inputBase}e${formated}e${exponent}` :
+                `${base < 0 ? '-' : ''}${formated.replace('.', globalSave.format[0])}e${power < 0 ? '-' : ''}e${exponent}`; //1.23ee123 (-1.23e-e123)
+        }
+
+        if (power >= 6 || power < -4) { //1.23e123 (-1.23e-123)
             if (padding === 'exponent') { padding = true; }
-            const formated = padding ? mantissa.toFixed(2) : `${mantissa}`;
+
+            let digits = 3 - Math.floor(Math.log10(Math.abs(power)));
+            let mantissa = Math.round(base * 10 ** digits) / 10 ** digits;
+            let exponent = power;
+            if (Math.abs(mantissa) === 10) { //To remove rare bugs
+                mantissa /= 10;
+                exponent++;
+                if (exponent === -4 || exponent === 1e4) { return technical.format([mantissa, exponent], settings); }
+                if (padding) { digits = 3 - Math.floor(Math.log10(Math.abs(exponent))); }
+            }
+
+            const formated = padding ? mantissa.toFixed(digits) : `${mantissa}`;
             return type === 'input' ? `${formated}e${exponent}` : `${formated.replace('.', globalSave.format[0])}e${exponent}`;
         }
 
-        //12345
-        const digits = Math.max(4 - Math.max(power, 0), 0);
+        //12345 (-12345)
+        let digits = power < 1 ? 5 : (5 - power);
         const mantissa = Math.round(base * 10 ** (digits + power)) / 10 ** digits;
-        if (padding === 'exponent') { padding = false; }
-        const formated = padding ? mantissa.toFixed(digits) : `${mantissa}`;
-        return type === 'input' ? formated : mantissa >= 1e3 ? formated.replace('.', globalSave.format[0]).replace(/\B(?=(\d{3})+(?!\d))/, globalSave.format[1]) : formated.replace('.', globalSave.format[0]);
+
+        const powerCheck = Math.floor(Math.log10(Math.abs(mantissa))); //To remove rare bugs
+        if (powerCheck === 6) { return technical.format([base < 0 ? -1 : 1, powerCheck], settings); }
+        if (padding === 'exponent') {
+            padding = false;
+        } else if (padding && powerCheck !== power) { digits = powerCheck < 1 ? 5 : (5 - powerCheck); }
+
+        let formated = padding ? mantissa.toFixed(digits) : `${mantissa}`;
+        if (type === 'input') { return formated; }
+        let ending = ''; //Being lazy
+        const index = formated.indexOf('.');
+        if (index !== -1) { //For some reason this replaces dot 2 times faster (?), also fixes spaces after dot (not required)
+            ending = `${globalSave.format[0]}${formated.slice(index + 1)}`;
+            formated = formated.slice(0, index);
+        }
+        return `${mantissa >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, globalSave.format[1]) : formated}${ending}`;
     }
 };
 

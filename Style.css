@@ -74,22 +74,22 @@ body {
     touch-action: manipulation;
 }
 
-.stageText { color: var(--stage-text); }
-.mainText { color: var(--main-text); }
-.whiteText { color: var(--white-text); }
-.cyanText { color: var(--cyan-text); }
-.blueText { color: var(--blue-text); }
-.orangeText { color: var(--orange-text); }
-.grayText { color: var(--gray-text); }
-.orchidText { color: var(--orchid-text); }
-.darkorchidText { color: var(--darkorchid-text); }
-.darkvioletText { color: var(--darkviolet-text); }
-.redText { color: var(--red-text); }
-.greenText { color: var(--green-text); }
-.yellowText { color: var(--yellow-text); }
+.stageText { color: var(--stage-text) !important; }
+.mainText { color: var(--main-text) !important; }
+.whiteText { color: var(--white-text) !important; }
+.cyanText { color: var(--cyan-text) !important; }
+.blueText { color: var(--blue-text) !important; }
+.orangeText { color: var(--orange-text) !important; }
+.grayText { color: var(--gray-text) !important; }
+.orchidText { color: var(--orchid-text) !important; }
+.darkorchidText { color: var(--darkorchid-text) !important; }
+.darkvioletText { color: var(--darkviolet-text) !important; }
+.redText { color: var(--red-text) !important; }
+.greenText { color: var(--green-text) !important; }
+.yellowText { color: var(--yellow-text) !important; }
 
 /* These colors are same as Image border outer layer */
-.greenBorderImage { border-color: #006400 !important; }
+.greenBorderImage { border-color: #006400 !important; } /* Same as darkgreen */
 .redBorderImage { border-color: #b21111 !important; }
 .brownBorderImage { border-color: #752f27 !important; }
 .stage1borderImage { border-color: #008b8b !important; }
@@ -193,8 +193,8 @@ p > img {
     pointer-events: none;
 }
 
-.bigWord { font-size: 1.1em; }
-.biggerWord { font-size: 1.2em; }
+.bigWord { font-size: 1.1em !important; }
+.biggerWord { font-size: 1.2em !important; }
 
 a { color: red; }
 .center { text-align: center; }
@@ -366,6 +366,23 @@ button:hover, #load:hover { background-color: var(--button-hover); }
 .toggleNormal:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
 .specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
 
+button.selectBtn {
+    background-color: unset !important;
+
+    /* Done this way to keep same priority */
+    border: none;
+    border-bottom: 1px solid;
+    border-color: inherit;
+    color: inherit;
+    font-size: unset;
+    height: unset;
+}
+
+button.selectBtn:disabled {
+    cursor: default;
+    border: none;
+}
+
 input[type = "number"] { appearance: textfield; }
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
 
@@ -486,9 +503,9 @@ input:-webkit-autofill { /* Chrome related pain */
     align-items: center;
 }
 
-.buyBuilding > div > p:first-of-type { width: 19.4em; }
+.buyBuilding > div > p:first-of-type { width: 18.6em; }
 .buyBuilding > div > p:first-of-type > span.whiteText { padding-right: 0.06em; }
-.buyBuilding > div > p:last-of-type { width: 10.6em; }
+.buyBuilding > div > p:last-of-type { width: 10em; }
 
 .buyBuilding > div > div {
     grid-area: buy;
@@ -604,49 +621,52 @@ input:-webkit-autofill { /* Chrome related pain */
     border-radius: 0;
 }
 
-#challenge0 { cursor: help; }
+#challenge2 { cursor: help; }
 
-#challengesMain > div:first-of-type {
+#challengesMain > section {
     display: flex;
     gap: 0.44em;
 }
 
-#challengeMultiline { text-align: center; }
+#challengesMain > div {
+    display: flex;
+    text-align: center;
+    gap: 0.6em;
+}
+
 #challengeMultiline p { white-space: pre-line; }
 #challengeMultiline > div { margin-top: 1.2em; }
 
-#voidRewards > h3 {
-    text-align: center;
-    margin-top: 0.6em;
-    margin-bottom: 0.3em;
+#challengeMultiline > div > div {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
 }
 
-#voidRewards button {
+#voidRewards > div:not(:last-of-type) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3em;
+    margin-top: 0.3em;
+}
+
+#voidRewards > div:not(:last-of-type) button {
     height: 1.9em;
     padding: 0 0.4em;
     border-radius: 4px;
 }
 
-#voidRewards > div:first-of-type {
-    display: flex;
-    gap: 0.3em;
-}
-
-#voidRewardsDiv {
-    display: none;
-    border-radius: 11px;
-    max-width: none;
-    margin-top: 0.6em;
-}
-
-#voidRewards { position: relative; }
-#voidRewardsExtraText { white-space: pre-line; }
-
-#voidRewardsDivText {
+#voidRewards > div:last-of-type {
     display: flex;
     flex-direction: column;
-    row-gap: 0.25em;
-    margin-top: 0.3em;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 7px;
+    padding: 0.5em 0.6em 0.6em;
+    margin-top: 0.6em;
+    text-align: left;
+    row-gap: 0.2em;
 }
 
 .togglesDiv {
@@ -821,7 +841,7 @@ input:-webkit-autofill { /* Chrome related pain */
     justify-content: center;
     border: 2px solid #006400;
     border-left: none;
-    padding: 0 0.25em;
+    padding: 0 0.5em;
     background-color: black;
     width: 6em;
     height: 32px;
@@ -852,7 +872,7 @@ input:-webkit-autofill { /* Chrome related pain */
     border: 2px solid darkgreen;
     border-radius: 6px;
     background-color: var(--window-color);
-    padding: 0.5em 0.25em;
+    padding: 0.3em 0.3em 0.5em;
     margin-top: -1em;
     margin-bottom: -0.6em;
 }
@@ -919,15 +939,26 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #inflations {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     background-color: var(--window-color);
     border: 2px solid var(--stage-image-borderColor);
     border-radius: 4px;
-    padding: 0.4em;
+    padding: 0.5em;
     gap: 0.5em;
     margin-top: -1em;
     margin-bottom: -0.6em;
+}
+
+#inflations > section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+#inflations > section:not(:first-of-type) {
+    border-top: 2px solid var(--stage-image-borderColor);
+    padding-top: 0.5em;
 }
 
 #inflationMilestones {
@@ -1306,26 +1337,20 @@ li .hollowButton {
 #inflationTabBtn.tabActive { border-color: var(--tab-inflation) !important; }
 
 #footer img { background-color: black; }
-#footerStats > div { display: flex; }
 
 #footerStats p {
-    display: flex;
-    align-items: center;
     text-align: center;
-    border: 2px solid;
-    border-left: none;
     border-radius: 0 6px 6px 0;
     background-color: black;
-    margin-left: -3px;
     padding-left: calc(3px + 0.5em);
-    padding-right: 0.25em;
-    height: 32px;
+    padding-right: 0.5em;
     z-index: 1; /* Text color issue */
 }
 
 #footerStats span:last-of-type {
     display: inline-block;
-    width: 5.2em;
+    white-space: nowrap;
+    width: 4.4em;
 }
 
 #footer > div:first-child {
@@ -1476,7 +1501,7 @@ li .hollowButton {
         row-gap: 0.2em;
         width: 100vw;
         min-width: min-content; /* clamp() breaks with that value */
-        max-width: calc(32px + 32.198em);
+        max-width: calc(32px + 31.598em);
     }
 
     .buyBuilding, #specials > div { column-gap: 0.15em; }
@@ -1507,6 +1532,11 @@ li .hollowButton {
     .availableBuilding > div > div > p { border-color: var(--building-afford); }
 
     .descriptionText > p { max-width: 90vw; }
+
+    #challengesMain > div {
+        flex-direction: column;
+        gap: 1.2em;
+    }
 
     #elementsGrid { grid-template-columns: repeat(var(--elements-columns-phone), 1fr); }
     #element2 { grid-column: var(--elements-columns-phone); }
