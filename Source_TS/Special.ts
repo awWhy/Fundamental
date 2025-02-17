@@ -55,7 +55,7 @@ export const saveGlobalSettings = (noSaving = false): string => {
     const clone = { ...globalSave };
     clone.hotkeys = hotkeysClone;
     const save = btoa(JSON.stringify(clone));
-    if (!noSaving) { localStorage.setItem('fundamentalSettings', save); }
+    if (!noSaving) { localStorage.setItem(specialHTML.localStorage.settings, save); }
     return save;
 };
 
@@ -286,7 +286,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     notifications: [] as Array<[string, (instantClose?: boolean) => void]>, //[text, true ? incrementFunc : closeFunc]
     alert: [null, null] as [number | null, (() => void) | null], //[priority, closeFunc]
     bigWindow: null as string | null,
-    styleSheet: document.createElement('style') //Secondary
+    styleSheet: document.createElement('style'), //Secondary
+    localStorage: {
+        main: 'save',
+        settings: 'fundamentalSettings'
+    }
 };
 
 export const preventImageUnload = () => {
