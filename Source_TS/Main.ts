@@ -280,10 +280,15 @@ const saveConsole = async() => {
         const save = lower === 'global_copy' ? saveGlobalSettings(true) : saveGame(true);
         if (save !== null) {
             try {
-                void navigator.clipboard.writeText(save);
+                await navigator.clipboard.writeText(save);
             } catch (error) {
-                console.log(`Could not copy text to clipboard:\n${error}`);
-                void Alert(`Could not copy text into clipboard\nYour browser may not support it, or the connection may be insecure\n\nCopy the save string manually:\n${save}`);
+                console.warn(`Full error for being unable to write to clipboard:\n${error}`);
+                if (await Confirm("Could not copy text into clipboard, press 'Confrim' to save it as file instead")) {
+                    const a = document.createElement('a');
+                    a.href = `data:text/plain,${save}`;
+                    a.download = `${lower === 'global_copy' ? 'Settings' : 'Save'} clipboard`;
+                    a.click();
+                }
             }
         }
     } else if (lower === 'delete' || lower === 'clear' || lower === 'global_reset') {

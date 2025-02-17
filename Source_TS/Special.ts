@@ -277,6 +277,12 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
         start: [0, 0] //[X, Y]
     },
+    localStorage: {
+        /** Index for game's primary save slot */
+        main: 'save',
+        /** Index for global game settings */
+        settings: 'fundamentalSettings'
+    },
     cache: {
         imagesDiv: document.createElement('div'),
         idMap: new Map<string, HTMLElement>(),
@@ -286,11 +292,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     notifications: [] as Array<[string, (instantClose?: boolean) => void]>, //[text, true ? incrementFunc : closeFunc]
     alert: [null, null] as [number | null, (() => void) | null], //[priority, closeFunc]
     bigWindow: null as string | null,
-    styleSheet: document.createElement('style'), //Secondary
-    localStorage: {
-        main: 'save',
-        settings: 'fundamentalSettings'
-    }
+    styleSheet: document.createElement('style') //Secondary
 };
 
 export const preventImageUnload = () => {
