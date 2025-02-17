@@ -55,7 +55,7 @@ export const saveGlobalSettings = (noSaving = false): string => {
     const clone = { ...globalSave };
     clone.hotkeys = hotkeysClone;
     const save = btoa(JSON.stringify(clone));
-    if (!noSaving) { localStorage.setItem('fundamentalSettings', save); }
+    if (!noSaving) { localStorage.setItem(specialHTML.localStorage.settings, save); }
     return save;
 };
 
@@ -276,6 +276,12 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     ],
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
         start: [0, 0] //[X, Y]
+    },
+    localStorage: {
+        /** Index for game's primary save slot */
+        main: 'save',
+        /** Index for global game settings */
+        settings: 'fundamentalSettings'
     },
     cache: {
         imagesDiv: document.createElement('div'),
