@@ -1,6 +1,9 @@
 name: Deploy to github pages
 
 on:
+  workflow_dispatch:
+    branches:
+      - main
   push:
     branches:
       - main
