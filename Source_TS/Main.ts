@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, deepClone, cloneArray } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription, visualUpdateResearches, visualUpdateUpgrades } from './Update';
-import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
+import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
 import { Alert, hideFooter, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, getHotkeysHTML, getVersionInfoHTML } from './Special';
 import { assignHotkeys, detectHotkey, handleTouchHotkeys } from './Hotkeys';
 import { prepareVacuum } from './Vacuum';
@@ -55,34 +55,34 @@ export const getQuery = (query: string): HTMLElement => {
     throw new ReferenceError(`Query ‒ '${query}' failed`);
 };
 
+/** Returns offline time in milliseconds */
 const handleOfflineTime = (): number => {
     const timeNow = Date.now();
-    const offlineTime = (timeNow - player.time.updated) / 1000;
+    const offlineTime = timeNow - player.time.updated;
     player.time.updated = timeNow;
     player.time.export[0] += offlineTime;
     return offlineTime;
 };
 export const simulateOffline = async(offline: number) => {
     if (!global.offline.active) { pauseGame(); }
-    if (player.time.offline < 0) {
-        offline += player.time.offline;
-        player.time.offline = 0;
-    }
+    offline += player.time.offline;
+    player.time.offline = 0;
+
     let decline = false;
-    if (offline > 0 && !player.toggles.normal[4]) {
-        decline = !await Confirm(`Claim ${format(Math.min(offline, 43200), { type: 'time', padding: false })} worth of Offline time?\n(Includes time spent to click any of the buttons)`, 2) &&
+    if (offline >= 20 && !player.toggles.normal[4]) {
+        decline = !await Confirm(`Claim ${format(Math.min(offline / 1000, 43200), { type: 'time', padding: false })} worth of Offline time?\n(Includes time spent to click any of the buttons)`, 2) &&
             (globalSave.developerMode || !await Confirm("Press 'Cancel' again to confirm losing Offline time, 'Confirm' to keep it"));
         const extra = handleOfflineTime();
         global.lastSave += extra;
         offline += extra;
     }
-    if (decline || offline <= 0) {
-        if (offline <= 0) { player.time.offline += offline; }
-        timeUpdate(1, 0.04); //Just in case
+    if (decline || offline < 20) {
+        if (offline < 0) { player.time.offline = offline - 20; }
+        timeUpdate(20, 20); //Just in case
         return offlineEnd(true);
-    } else if (offline > 43200) { offline = 43200; }
+    } else if (offline > 43200_000) { offline = 43200_000; }
     global.offline.stageUpdate = null;
-    global.offline.speed = globalSave.intervals.offline / 1000;
+    global.offline.speed = globalSave.intervals.offline;
 
     const accelerate = getId('offlineAccelerate');
     accelerate.addEventListener('click', offlineAccelerate);
@@ -106,8 +106,8 @@ const calculateOffline = (warpTime: number, start = warpTime) => {
     }
     if (warpTime > 0) {
         setTimeout(calculateOffline, 0, warpTime, start);
-        getId('offlineTick').textContent = format(rate);
-        getId('offlineRemains').textContent = format(warpTime, { type: 'time' });
+        getId('offlineTick').textContent = format(rate / 1000);
+        getId('offlineRemains').textContent = format(warpTime / 1000, { type: 'time' });
         getId('offlinePercentage').textContent = format(100 - warpTime / start * 100, { padding: true });
         if (globalSave.SRSettings[0]) { getQuery('#offlineMain > div').ariaValueText = `${format(100 - warpTime / start * 100)}% done`; }
     } else { offlineEnd(); }
@@ -156,7 +156,7 @@ const changeIntervals = () => {
     clearInterval(intervalsId.numbers);
     clearInterval(intervalsId.visual);
     clearInterval(intervalsId.autoSave);
-    intervalsId.main = paused ? undefined : setInterval(timeUpdate, intervals.main, intervals.offline / 1000);
+    intervalsId.main = paused ? undefined : setInterval(timeUpdate, intervals.main, intervals.main);
     intervalsId.numbers = paused ? undefined : setInterval(numbersUpdate, intervals.numbers);
     intervalsId.visual = paused ? undefined : setInterval(visualUpdate, intervals.visual);
     intervalsId.autoSave = paused ? undefined : setInterval(saveGame, intervals.autoSave);
@@ -198,6 +198,12 @@ const saveGame = (noSaving = false): string | null => {
 
         const clone = { ...player };
         clone.fileName = String.fromCharCode(...new TextEncoder().encode(clone.fileName));
+        const loadouts = {} as typeof clone.inflation.loadouts;
+        for (const name in clone.inflation.loadouts) {
+            loadouts[String.fromCharCode(...new TextEncoder().encode(name))] = clone.inflation.loadouts[name];
+        }
+        clone.inflation = { ...clone.inflation };
+        clone.inflation.loadouts = loadouts;
         const save = btoa(JSON.stringify(clone));
         if (!noSaving) {
             localStorage.setItem(specialHTML.localStorage.main, save);
@@ -220,7 +226,7 @@ const loadGame = (save: string) => {
         const versionCheck = updatePlayer(JSON.parse(atob(save)));
 
         global.lastSave = handleOfflineTime();
-        Notify(`This save is ${format(global.lastSave, { type: 'time', padding: false })} old${versionCheck !== player.version ? `\nSave file version is ${versionCheck}` : ''}`);
+        Notify(`This save is ${format(global.lastSave / 1000, { type: 'time', padding: false })} old${versionCheck !== player.version ? `\nSave file version is ${versionCheck}` : ''}`);
         stageUpdate();
 
         void simulateOffline(global.lastSave);
@@ -249,7 +255,7 @@ const awardExport = () => {
     const exportReward = player.time.export;
     if (exportReward[0] <= 0) { return; }
     const { strange } = player;
-    const conversion = Math.min(exportReward[0] / 86400, 1);
+    const conversion = Math.min(exportReward[0] / 86400_000, 1);
     const quarks = (exportReward[1] / 2.5 + 1) * conversion;
 
     strange[0].current += quarks;
@@ -465,6 +471,47 @@ export const updateCollapsePointsText = () => {
     getId('collapsePoints').textContent = array.length > 0 ? `${array.join(', ')} or ` : '';
 };
 
+export const loadoutsVisual = (loadout: number[]) => {
+    if (getId('loadoutsMain').dataset.open !== 'true') { return; }
+    let string = '';
+    for (let i = 0, dupes = 1; i < loadout.length; i += dupes, dupes = 1) {
+        const current = loadout[i];
+        while (loadout[i + dupes] === current) { dupes++; }
+        if (i > 0) { string += ', '; }
+        string += `${current + 1}`;
+        if (dupes > 1) { string += `x${dupes}`; }
+    }
+    (getId('loadoutsEdit') as HTMLInputElement).value = string;
+};
+export const loadoutsRecreate = () => {
+    const old = global.loadouts.buttons;
+    for (const button in old) { //Just in case to prevent memory leak
+        old[button].html.removeEventListener('click', old[button].event);
+    }
+    const newOld = {} as typeof old;
+    const listHTML = getQuery('#loadoutsList > span');
+    const load = player.inflation.loadouts;
+    listHTML.textContent = '';
+    for (const key in load) {
+        const button = document.createElement('button');
+        button.textContent = key;
+        button.className = 'selectBtn redText';
+        button.type = 'button';
+        const event = () => {
+            (getId('loadoutsName') as HTMLInputElement).value = key;
+            global.loadouts.input = player.inflation.loadouts[key];
+            loadoutsVisual(player.inflation.loadouts[key]);
+        };
+        newOld[key] = {
+            html: button,
+            event: event
+        };
+        listHTML.append(button, ', ');
+        button.addEventListener('click', event);
+    }
+    global.loadouts.buttons = newOld;
+};
+
 export const globalSaveStart = deepClone(globalSave);
 try { //Start everything
     preventImageUnload();
@@ -481,10 +528,8 @@ try { //Start everything
                     array[i] = decoder.decode(Uint8Array.from(array[i], (c) => c.codePointAt(0) as number));
                 }
             }
-            if (!(globalSave.intervals.main >= 20)) { globalSave.intervals.main = 20; }
-            if (!(globalSave.intervals.offline >= globalSave.intervals.main * 2)) {
-                globalSave.intervals.offline = globalSave.intervals.main * 2;
-            }
+            if (!(globalSave.intervals.main >= 20)) { globalSave.intervals.main = 20; } //Fix NaN and undefined
+            if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
             for (let i = globalSave.toggles.length; i < globalSaveStart.toggles.length; i++) {
                 globalSave.toggles[i] = false;
             }
@@ -550,10 +595,10 @@ try { //Start everything
             (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
 
             const arrowStage = document.createElement('button');
-            arrowStage.append(document.createElement('div'));
+            arrowStage.innerHTML = '<div class="downArrow"></div>';
             arrowStage.type = 'button';
             const arrowReset1 = document.createElement('button');
-            arrowReset1.append(document.createElement('div'));
+            arrowReset1.innerHTML = '<div class="downArrow"></div>';
             arrowReset1.type = 'button';
             getId('resetStage').append(arrowStage);
             arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
@@ -562,7 +607,7 @@ try { //Start everything
             arrowReset1.addEventListener('click', () => getId('reset1Main').classList.toggle('open'));
             arrowReset1.addEventListener('blur', () => getId('reset1Main').classList.remove('open'));
             specialHTML.styleSheet.textContent += '#resets { row-gap: 1em; } #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; } #resets > section:not(.open) > p { display: none !important; }';
-            specialHTML.styleSheet.textContent += '#resets > section > button:last-of-type { width: 2.2em !important; margin-left: -2px; } #resets button > div { clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%); width: 1.24em; height: 1.24em; background-color: var(--main-text); pointer-events: none; margin: auto; } #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 1; box-sizing: content-box; }';
+            specialHTML.styleSheet.textContent += '#resets > section > button:last-of-type { width: 2.2em !important; margin-left: -2px; } #resets .downArrow { width: 1.24em; height: 1.24em; margin: auto; } #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 1; box-sizing: content-box; }';
 
             const structuresButton = document.createElement('button');
             structuresButton.textContent = 'Structures';
@@ -629,6 +674,7 @@ try { //Start everything
             message.textContent = 'Screen reader support is enabled, disable it if its not required';
             message.className = 'greenText';
             message.ariaHidden = 'true';
+            getId('inflationLoadouts').ariaExpanded = 'false';
             for (let i = 0; i <= 3; i++) {
                 const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
                 effectID.textContent = ` (${effectID.textContent})`;
@@ -1076,10 +1122,16 @@ try { //Start everything
         const strange = getId(`strange${i}`);
         const openFunction = () => {
             if (i === 0 && player.stage.true < 6 && player.milestones[4][0] < 8) { return; }
-            getId(`strange${i}EffectsMain`).style.display = '';
+            const html = getId(`strange${i}EffectsMain`);
+            html.dataset.open = 'true';
+            html.style.display = '';
             numbersUpdate();
         };
-        const closeFunc = () => (getId(`strange${i}EffectsMain`).style.display = 'none');
+        const closeFunc = () => {
+            const html = getId(`strange${i}EffectsMain`);
+            html.dataset.open = 'false';
+            html.style.display = 'none';
+        };
         strange.addEventListener('click', openFunction, { capture: true }); //Clicking on window does unnessary call, before closing
         if (PC || SR) {
             strange.addEventListener('focus', () => {
@@ -1161,7 +1213,65 @@ try { //Start everything
             });
         }
     }
-    getId('inflationRefund').addEventListener('click', inflationRefund);
+    getId('inflationRefund').addEventListener('click', () => void inflationRefund());
+    getId('inflationLoadouts').addEventListener('click', () => {
+        const windowHTML = getId('loadoutsMain');
+        const status = windowHTML.dataset.open !== 'true';
+        if (status) {
+            windowHTML.style.display = '';
+            windowHTML.dataset.open = 'true';
+            loadoutsVisual(global.loadouts.input);
+        } else {
+            windowHTML.style.display = 'none';
+            windowHTML.dataset.open = 'false';
+        }
+        if (globalSave.SRSettings[0]) { getId('inflationLoadouts').ariaExpanded = `${status}`; }
+    });
+    getId('loadoutsEdit').addEventListener('change', () => {
+        const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(',');
+        const final = [];
+        for (let i = 0; i < first.length; i++) {
+            const index = first[i].indexOf('x');
+            let repeat = 1;
+            if (index >= 0) {
+                repeat = Number(first[i].slice(index + 1));
+                first[i] = first[i].slice(0, index);
+            }
+            const number = Math.trunc(Number(first[i]) - 1);
+            if (isNaN(number) || number < 0) { continue; }
+            if (isNaN(repeat)) { repeat = 1; }
+            if (repeat > 8) { repeat = 8; }
+            for (let r = 0; r < repeat; r++) { final.push(number); }
+        }
+        global.loadouts.input = final;
+        loadoutsVisual(final);
+    });
+    getId('loadoutsLoadAuto').addEventListener('click', () => {
+        (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate';
+        loadoutsLoadAuto();
+    });
+    getId('loadoutsSave').addEventListener('click', () => {
+        const name = (getId('loadoutsName') as HTMLInputElement).value;
+        const check = Number(name); //Lazy check for all types of only having spacebars
+        if ((!isNaN(check) && `${check}` !== name) || name === 'Auto-generate') { return Notify(`Loadout name: '${name}' is not allowed`); }
+        player.inflation.loadouts[name] = global.loadouts.input;
+        loadoutsRecreate();
+    });
+    getId('loadoutsLoad').addEventListener('click', async() => {
+        if (!await inflationRefund(true)) { return; }
+        const loadout = global.loadouts.input;
+        for (let i = 0; i < loadout.length; i++) {
+            buyStrangeness(loadout[i], 0, 'inflations', true);
+        }
+        if ((getId('loadoutsName') as HTMLInputElement).value === 'Auto-generate') { loadoutsLoadAuto(); }
+        numbersUpdate();
+    });
+    getId('loadoutsDelete').addEventListener('click', () => {
+        const name = (getId('loadoutsName') as HTMLInputElement).value;
+        if (player.inflation.loadouts[name] === undefined) { return; }
+        delete player.inflation.loadouts[name];
+        loadoutsRecreate();
+    });
     if (MD) {
         const button = getId('inflationActivate');
         const clickFunc = () => {
@@ -1225,8 +1335,14 @@ try { //Start everything
     getId('mergeInput').addEventListener('change', () => {
         if (global.offline.active) { return; }
         const input = getId('mergeInput') as HTMLInputElement;
-        player.merge.input = Math.max(Number(input.value), 0);
-        input.value = format(player.merge.input, { type: 'input' });
+        player.merge.input[0] = Math.max(Math.trunc(Number(input.value)), 0);
+        input.value = format(player.merge.input[0], { type: 'input' });
+    });
+    getId('mergeInputSince').addEventListener('change', () => {
+        if (global.offline.active) { return; }
+        const input = getId('mergeInputSince') as HTMLInputElement;
+        player.merge.input[1] = Number(input.value);
+        input.value = format(player.merge.input[1], { type: 'input' });
     });
     getId('stageInput').addEventListener('change', () => {
         if (global.offline.active) { return; }
@@ -1259,13 +1375,7 @@ try { //Start everything
         const input = getId('saveFileNameInput') as HTMLInputElement;
         const testValue = input.value;
         if (testValue.length < 1) { return void (input.value = playerStart.fileName); }
-
-        try {
-            btoa(String.fromCharCode(...new TextEncoder().encode(testValue))); //Test for any illegal characters
-            player.fileName = testValue;
-        } catch (error) {
-            void Alert(`Save file name is not allowed\n${error}`);
-        }
+        player.fileName = testValue;
     });
     {
         const button = getId('saveFileHoverButton');
@@ -1281,20 +1391,15 @@ try { //Start everything
     getId('mainInterval').addEventListener('change', () => {
         const input = getId('mainInterval') as HTMLInputElement;
         globalSave.intervals.main = Math.min(Math.max(Math.trunc(Number(input.value)), 20), 200);
-        if (globalSave.intervals.offline < globalSave.intervals.main * 2) {
-            globalSave.intervals.offline = globalSave.intervals.main * 2;
-            (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
-        }
         input.value = `${globalSave.intervals.main}`;
         saveGlobalSettings();
         changeIntervals();
     });
     getId('offlineInterval').addEventListener('change', () => {
         const input = getId('offlineInterval') as HTMLInputElement;
-        globalSave.intervals.offline = Math.min(Math.max(Math.trunc(Number(input.value)), globalSave.intervals.main * 2), 6000);
+        globalSave.intervals.offline = Math.min(Math.max(Math.trunc(Number(input.value)), 20), 6000);
         input.value = `${globalSave.intervals.offline}`;
         saveGlobalSettings();
-        changeIntervals();
     });
     getId('numbersInterval').addEventListener('change', () => {
         const input = getId('numbersInterval') as HTMLInputElement;
@@ -1384,7 +1489,7 @@ try { //Start everything
     }
     if (save !== null) {
         global.lastSave = handleOfflineTime();
-        Notify(`Welcome back, you were away for ${format(global.lastSave, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${globalSave.developerMode ?
+        Notify(`Welcome back, you were away for ${format(global.lastSave / 1000, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${globalSave.developerMode ?
             `\nGame loaded after ${format((Date.now() - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
         `);
         void simulateOffline(global.lastSave);

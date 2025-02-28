@@ -40,10 +40,14 @@ export interface playerType {
     merge: {
         reward: [number, number, number, number]
         resets: number
-        input: number
+        /** [Min Galaxies, time since last Galaxy] */
+        input: [number, number]
+        /** How much real time passed since last Galaxy */
+        since: number
     }
     inflation: {
         tree: number[]
+        loadouts: Record<string, number[]>
         spent: number
         vacuum: boolean
         resets: number
@@ -53,8 +57,11 @@ export interface playerType {
     time: {
         updated: number
         started: number
-        export: [number, number, number, number]
+        /** [Milliseconds, Strange quarks, Strangelets] */
+        export: [number, number, number]
+        /** In milliseconds */
         offline: number
+        /** In milliseconds */
         online: number
         stage: number
         vacuum: number
@@ -103,7 +110,7 @@ export interface playerType {
     }
     toggles: {
         /** Auto Stage switch[0], Auto disable Vaporization[1], Auto disable Stage[2], Automatic leave[3],
-           Auto accept Offline[4], Instant Merge[5] */
+           Auto accept Offline[4] */
         normal: boolean[]
         /** Stage[0], Discharge[1], Vaporization[2], Rank[3], Collapse[4], Merge[5] */
         confirm: Array<'Safe' | 'None'>
@@ -122,10 +129,10 @@ export interface playerType {
         }
     }
     history: {
-        /** [time, quarks, strangelets, reserve] */
+        /** [time, quarks, strangelets] */
         stage: {
-            best: [number, number, number, number]
-            list: Array<[number, number, number, number]>
+            best: [number, number, number]
+            list: Array<[number, number, number]>
             input: [number, number]
         }
         /** [time, state, cosmon] */
@@ -180,6 +187,7 @@ export interface globalType {
         historyVacuum: number | null
     }
     trueActive: number
+    /** In milliseconds */
     lastSave: number
     offline: {
         active: boolean
@@ -399,8 +407,15 @@ export interface globalType {
         color: string
     }]
     historyStorage: {
-        stage: Array<[number, number, number, number]>
+        stage: Array<[number, number, number]>
         vacuum: Array<[number, boolean, number]>
+    }
+    loadouts: {
+        input: number[]
+        buttons: Record<string, {
+            html: HTMLElement
+            event: () => void
+        }>
     }
 }
 

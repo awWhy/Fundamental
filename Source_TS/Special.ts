@@ -10,7 +10,7 @@ export const globalSave: globalSaveType = {
         main: 20,
         offline: 40,
         numbers: 80,
-        visual: 1000,
+        visual: 800,
         autoSave: 20000
     },
     hotkeys: {
@@ -169,6 +169,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG2.png',
             'UpgradeG3.png',
             'UpgradeG4.png',
+            'Missing.png',
+            'UpgradeG6.png',
             'Missing.png'
         ], []
     ],
@@ -254,7 +256,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
             ['Missing.png', 'stage3borderImage'],
-            ['Missing.png', 'greenBorderImage']
+            ['Missing.png', 'greenBorderImage'],
+            ['ResearchGalaxy4.png', 'brownBorderImage']
         ], []
     ],
     longestFooterStats: 3,
@@ -271,10 +274,10 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Mass.png', 'stage3borderImage grayText', 'Mass']
         ], [
             ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
-            ['Elements.png', 'stage4borderImage orangeText', 'Elements']
+            ['Elements.png', 'stage4borderImage orangeText', 'Stardust']
         ], [
             ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
-            ['Elements.png', 'stage4borderImage orangeText', 'Elements'],
+            ['Elements.png', 'stage4borderImage orangeText', 'Stardust'],
             ['Stars.png', 'redBorderImage redText', 'Stars']
         ], [
             ['Dark%20matter.png', 'stage3borderImage grayText', 'Matter'],
@@ -293,7 +296,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     },
     cache: {
         imagesDiv: document.createElement('div'), //Saved just in case
-        innerHTML: new Map<string | HTMLElement, string>(), //Lazy way to get around automatic html replacings
+        /** Lazy way to optimize HTML, without it can't properly detect changes */
+        innerHTML: new Map<string | HTMLElement, string | number>(),
         idMap: new Map<string, HTMLElement>(),
         classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
         queryMap: new Map<string, HTMLElement>()
@@ -314,7 +318,7 @@ export const preventImageUnload = () => {
         for (let i = 0; i < footer[s].length; i++) {
             if (s === 2) {
                 if (i === 2) { continue; } //Drops
-            } else if (s === 5 && i < 2) { continue; } //Solar mass and Elements
+            } else if (s === 5 && i < 2) { continue; } //Solar mass and Stardust
             images += `<img src="Used_art/${footer[s][i][0]}" loading="lazy">`;
         }
         for (let i = 0; i < build[s].length; i++) {
@@ -818,14 +822,26 @@ export const hideFooter = () => {
     }
 };
 
+export const resetMinSizes = (full = true) => {
+    for (let i = 1; i <= 3; i++) {
+        const element = getQuery(`#special${i} > p`);
+        specialHTML.cache.innerHTML.set(element, '');
+        element.style.minWidth = '';
+    }
+
+    if (!full) { return; }
+    const mile = getId('milestonesMultiline').parentElement as HTMLElement;
+    specialHTML.cache.innerHTML.set(mile, '');
+    mile.style.minHeight = '';
+};
+
 export const changeFontSize = (initial = false) => {
     const input = getId('customFontSize') as HTMLInputElement;
     const size = Math.min(Math.max(initial ? globalSave.fontSize : (input.value === '' ? 16 : Math.floor(Number(input.value) * 100) / 100), 12), 24);
     if (!initial) {
         globalSave.fontSize = size;
         saveGlobalSettings();
-
-        (getId('milestonesMultiline').parentElement as HTMLElement).style.minHeight = '';
+        resetMinSizes();
     }
 
     document.documentElement.style.fontSize = size === 16 ? '' : `${size}px`;
@@ -973,35 +989,36 @@ export const getVersionInfoHTML = () => {
     buildBigWindow();
     if (getId('versionHTML', true) === null) {
         const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<label>v0.2.3</label><p>- Small amount of new content\n- Supervoid rework\n- Abyss small rebalance\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
-        <label>v0.2.2</label><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit</p>
-        <label>v0.2.1</label><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
-        <label>v0.2.0</label><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
-        <label>v0.1.9</label><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
-        <label>v0.1.8</label><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Added copy to clipboard, load from string save file options</p>
-        <label>v0.1.7</label><p>- New content (Void)\n- Further balance changes</p>
-        <label>v0.1.6</label><p>- Massive rebalance and reworks for all Stages</p>
-        <label>v0.1.5</label><p>- True Vacuum minor balance\n- Images no longer unload\n- Screen reader support reworked</p>
-        <label>v0.1.4</label><p>- Custom scrolls\n- Notifications</p>
-        <label>v0.1.3</label><p>- True Vacuum balance changes\n- Submerged Stage minor balance\n- Replay event button\n\n- History for Stage resets</p>
-        <label>v0.1.2</label><p>- New content (Vacuum)\n- Offline time reworked\n- Added version window (removed change log on game load)\n- Permanently removed text movement</p>
-        <label>v0.1.1</label><p>- More balance changes for late game</p>
-        <label>v0.1.0</label><p>- New content (Intergalactic)\n- Balance changes for late game</p>
-        <label>v0.0.9</label><p>- New content (Milestones)\n- More Interstellar and late game balance</p>
-        <label>v0.0.8</label><p>- Minor speed up to all Stages past Microworld</p>
-        <label>v0.0.7</label><p>- New content (Strangeness)\n- Microworld Stage rework\n\n- Added stats for Save file name</p>
-        <label>v0.0.6</label><p>- Added hotkeys list\n\n- Option to remove text movement\n- Ability to rename save file</p>
-        <label>v0.0.5</label><p>- New content (Interstellar)\n- Basic loading screen\n\n- Added hotkeys</p>
-        <label>v0.0.4</label><p>- Speed up to all Stages\n- Added events\n\n- Added numbers format</p>
-        <label>v0.0.3</label><p>- New content (Accretion)\n- Submerged Stage extended\n- Offline time calculated better</p>
-        <label>v0.0.2</label><p>- Stats subtab</p>
-        <label>v0.0.1</label><p>- Submerged Stage rework\n- Added change log on game load\n\n- Mobile device support</p>
-        <label>v0.0.0</label><p>- First published version\n\n- Submerged Stage placeholder</p>`;
+        mainHTML.innerHTML = `<h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.3</h6><p>- Small amount of new content\n- Supervoid rework\n- Abyss small rebalance</p>
+        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit</p>
+        <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
+        <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
+        <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
+        <h6>v0.1.8</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Added copy to clipboard, load from string save file options</p>
+        <h6>v0.1.7</h6><p>- New content (Void)\n- Further balance changes</p>
+        <h6>v0.1.6</h6><p>- Massive rebalance and reworks for all Stages</p>
+        <h6>v0.1.5</h6><p>- True Vacuum minor balance\n- Images no longer unload\n- Screen reader support reworked</p>
+        <h6>v0.1.4</h6><p>- Custom scrolls\n- Notifications</p>
+        <h6>v0.1.3</h6><p>- True Vacuum balance changes\n- Submerged Stage minor balance\n- Replay event button\n\n- History for Stage resets</p>
+        <h6>v0.1.2</h6><p>- New content (Vacuum)\n- Offline time reworked\n- Added version window (removed change log on game load)\n- Permanently removed text movement</p>
+        <h6>v0.1.1</h6><p>- More balance changes for late game</p>
+        <h6>v0.1.0</h6><p>- New content (Intergalactic)\n- Balance changes for late game</p>
+        <h6>v0.0.9</h6><p>- New content (Milestones)\n- More Interstellar and late game balance</p>
+        <h6>v0.0.8</h6><p>- Minor speed up to all Stages past Microworld</p>
+        <h6>v0.0.7</h6><p>- New content (Strangeness)\n- Microworld Stage rework\n\n- Added stats for Save file name</p>
+        <h6>v0.0.6</h6><p>- Added hotkeys list\n\n- Option to remove text movement\n- Ability to rename save file</p>
+        <h6>v0.0.5</h6><p>- New content (Interstellar)\n- Basic loading screen\n\n- Added hotkeys</p>
+        <h6>v0.0.4</h6><p>- Speed up to all Stages\n- Added events\n\n- Added numbers format</p>
+        <h6>v0.0.3</h6><p>- New content (Accretion)\n- Submerged Stage extended\n- Offline time calculated better</p>
+        <h6>v0.0.2</h6><p>- Stats subtab</p>
+        <h6>v0.0.1</h6><p>- Submerged Stage rework\n- Added change log on game load\n\n- Mobile device support</p>
+        <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
         getQuery('#bigWindow > div').prepend(mainHTML);
         mainHTML.id = 'versionHTML';
         mainHTML.role = 'dialog';
         mainHTML.ariaLabel = 'Versions menu';
-        specialHTML.styleSheet.textContent += '#versionHTML label { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }';
+        specialHTML.styleSheet.textContent += '#versionHTML h6 { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }';
     }
 
     specialHTML.bigWindow = 'version';

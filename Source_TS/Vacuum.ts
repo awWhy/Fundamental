@@ -44,7 +44,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         upgradesInfo[2].maxActive = 9;
         upgradesInfo[3].maxActive = 14;
         upgradesInfo[4].maxActive = 5;
-        upgradesInfo[5].maxActive = 5;
+        upgradesInfo[5].maxActive = 7;
 
         researches1Cost = [1600, 4800, 16000, 32000, 16000, 24000];
         researches1Scaling = [400, 1200, 8000, 40000, 16000, 16000];
@@ -60,7 +60,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         researchesExtraInfo[2].maxActive = 5;
         researchesExtraInfo[3].maxActive = 6;
         researchesExtraInfo[4].maxActive = 4;
-        researchesExtraInfo[5].maxActive = 3;
+        researchesExtraInfo[5].maxActive = 4;
 
         global.elementsInfo.startCost[27].setValue('1e54');
         global.elementsInfo.startCost[28].setValue('1e58');
@@ -227,8 +227,6 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
             }
         }
         getId('toggleAuto9Main').style.display = 'none';
-        getId('energyGainStage1Build1Name').style.display = 'none';
-        getId('energyGainStage1Build2Name').style.display = 'none';
         getId('energyGainStage1Build1').style.display = 'none';
         getId('energyGainStage1Build2').style.display = 'none';
         for (let s = 2; s <= 5; s++) {

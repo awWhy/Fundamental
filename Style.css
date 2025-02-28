@@ -205,6 +205,14 @@ h1, h2, h3, h4, h5, h6 {
     cursor: default;
 }
 
+.downArrow {
+    background-color: var(--main-text);
+    clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
+    pointer-events: none;
+    width: 0.8em;
+    height: 0.8em;
+}
+
 #loading > p { padding: 0.5em 2vw; }
 
 #loading, #alertMain, #offlineMain, #bigWindow {
@@ -961,6 +969,42 @@ input:-webkit-autofill { /* Chrome related pain */
     padding-top: 0.5em;
 }
 
+#inflationLoadouts { width: max-content; }
+#inflationLoadouts > .downArrow { display: inline-block; }
+
+#loadoutsMain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5em 0.6em 0.6em;
+    row-gap: 0.4em;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 7px;
+    width: 24em;
+}
+
+#loadoutsMain > div {
+    display: flex;
+    column-gap: 0.3em;
+    align-items: center;
+}
+
+#loadoutsName {
+    width: 7.8em;
+    height: 1.8em;
+}
+
+#loadoutsList {
+    text-align: center;
+    min-height: 1.31em;
+}
+
+#loadoutsEdit {
+    width: 100%;
+    height: 1.8em;
+}
+
 #inflationMilestones {
     display: flex;
     flex-direction: column;
@@ -1273,17 +1317,16 @@ li .hollowButton {
 }
 
 #energyGainStats section {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: max-content 4.4em max-content;
+    grid-auto-rows: max-content;
     border-left: 2px solid;
+    column-gap: 0.2em;
     padding: 0 0.4em;
 }
 
-#energyGainStats p > span:first-of-type {
-    display: inline-block;
-    text-align: center;
-    width: 4.6em;
-}
+#energyGainStats section > p { display: contents; }
+#energyGainStats p > span:nth-of-type(2) { text-align: center; }
 
 .imageList {
     display: flex;
@@ -1435,14 +1478,6 @@ li .hollowButton {
     border-radius: 10px 10px 0 0;
     user-select: none;
     cursor: pointer;
-}
-
-#hideArrow {
-    background-color: var(--main-text);
-    width: 0.8em;
-    height: 0.8em;
-    clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
-    pointer-events: none;
 }
 
 @keyframes hideX {
