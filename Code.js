@@ -41,80 +41,80 @@ Event 7: Void unlocked`),e>=8&&(s+=`
 Event 8: New Universe`);let n=Number(await dt(s,`${e}`));n>e||le(n)},le=(e,s=!0)=>{if(T.alert[0]!==null)return B(`Missed Event ${e}, you can replay it from options`);s||(t.event=!0);let n="No such event";return e===1?n="New reset tier has been unlocked. It will allow to reach higher tiers of Structures, but for the price of everything else":e===2?n=`Cloud density is too high... Any new Clouds past ${f(1e4)} will be weaker due to softcap`:e===3?(s||(O.maxRank(),r.debug.rankUpdated=null),n="Can't gain any more Mass with current Rank. New one has been unlocked, but reaching it will softcap the Mass production"):e===4?n="Last explosion not only created first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis":e===5?(s||F(!1),n=`There are no Structures in Intergalactic yet, but they can be created within previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve reward.
 (Stars in Intergalactic are just Stars from Interstellar)`):e===6?n="As Galaxies started to Merge, their combined Gravity pushed Vacuum out of its local minimum into more stable global minimum. New forces and Structures are expected within this new and true Vacuum state":e===7?n="With Vacuum decaying remaining matter had rearranged itself in such way that lead to the formation of the 'Void'. Check it out in 'Advanced' subtab":e===8&&(s||F(!1),n="Soon there will be enough matter to create first 'Universe' within 'Abyss' Stage. Doing it will require getting at least 40 Galaxies before Merging them. Creating it will do a Vacuum reset, while also resetting Vacuum state back to false"),s||(n+=`
 
-(Can be viewed again with 'Events' button in Settings tab)`),void oe(n)},is=()=>{a("closeBigWindow",!0)===null&&(a("bigWindow").innerHTML='<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>',T.styleSheet.textContent+="#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }",T.styleSheet.textContent+="#bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; margin-top: auto; } #bigWindow > div > div { width: 100%; overflow-y: auto; overscroll-behavior-y: none; }")},os=()=>{if(T.bigWindow!==null)return;if(is(),a("versionHTML",!0)===null){let u=document.createElement("div");u.innerHTML=`<label>v0.2.4</label><p>- Offline ticks are now as effective as Online
+(Can be viewed again with 'Events' button in Settings tab)`),void oe(n)},is=()=>{a("closeBigWindow",!0)===null&&(a("bigWindow").innerHTML='<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>',T.styleSheet.textContent+="#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }",T.styleSheet.textContent+="#bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; margin-top: auto; } #bigWindow > div > div { width: 100%; overflow-y: auto; overscroll-behavior-y: none; }")},os=()=>{if(T.bigWindow!==null)return;if(is(),a("versionHTML",!0)===null){let u=document.createElement("div");u.innerHTML=`<h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online
 - Inflation loadouts
 <a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
-        <label>v0.2.3</label><p>- Small amount of new content
+        <h6>v0.2.3</h6><p>- Small amount of new content
 - Supervoid rework
 - Abyss small rebalance</p>
-        <label>v0.2.2</label><p>- New content (Supervoid)
+        <h6>v0.2.2</h6><p>- New content (Supervoid)
 - Better Offline calculation and more options related to it
 - Entering Void now saves current game state to load on exit</p>
-        <label>v0.2.1</label><p>- New content (Abyss)
+        <h6>v0.2.1</h6><p>- New content (Abyss)
 - Full game rebalance
 - Custom hotkeys
 - Updated supports
 - Many small changes and additions</p>
-        <label>v0.2.0</label><p>- Reworked balance for all Stages past first reset cycle
+        <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle
 - Many quality of life additions
 - Most of settings are now saved separate from save file
 - Some more work on Mobile device support</p>
-        <label>v0.1.9</label><p>- More true Vacuum balance
+        <h6>v0.1.9</h6><p>- More true Vacuum balance
 - Reworked time related formats
 - Warp and Offline time usage reworked</p>
-        <label>v0.1.8</label><p>- True Vacuum small balance changes
+        <h6>v0.1.8</h6><p>- True Vacuum small balance changes
 - Upgrades and Researches merged
 - Added copy to clipboard, load from string save file options</p>
-        <label>v0.1.7</label><p>- New content (Void)
+        <h6>v0.1.7</h6><p>- New content (Void)
 - Further balance changes</p>
-        <label>v0.1.6</label><p>- Massive rebalance and reworks for all Stages</p>
-        <label>v0.1.5</label><p>- True Vacuum minor balance
+        <h6>v0.1.6</h6><p>- Massive rebalance and reworks for all Stages</p>
+        <h6>v0.1.5</h6><p>- True Vacuum minor balance
 - Images no longer unload
 - Screen reader support reworked</p>
-        <label>v0.1.4</label><p>- Custom scrolls
+        <h6>v0.1.4</h6><p>- Custom scrolls
 - Notifications</p>
-        <label>v0.1.3</label><p>- True Vacuum balance changes
+        <h6>v0.1.3</h6><p>- True Vacuum balance changes
 - Submerged Stage minor balance
 - Replay event button
 
 - History for Stage resets</p>
-        <label>v0.1.2</label><p>- New content (Vacuum)
+        <h6>v0.1.2</h6><p>- New content (Vacuum)
 - Offline time reworked
 - Added version window (removed change log on game load)
 - Permanently removed text movement</p>
-        <label>v0.1.1</label><p>- More balance changes for late game</p>
-        <label>v0.1.0</label><p>- New content (Intergalactic)
+        <h6>v0.1.1</h6><p>- More balance changes for late game</p>
+        <h6>v0.1.0</h6><p>- New content (Intergalactic)
 - Balance changes for late game</p>
-        <label>v0.0.9</label><p>- New content (Milestones)
+        <h6>v0.0.9</h6><p>- New content (Milestones)
 - More Interstellar and late game balance</p>
-        <label>v0.0.8</label><p>- Minor speed up to all Stages past Microworld</p>
-        <label>v0.0.7</label><p>- New content (Strangeness)
+        <h6>v0.0.8</h6><p>- Minor speed up to all Stages past Microworld</p>
+        <h6>v0.0.7</h6><p>- New content (Strangeness)
 - Microworld Stage rework
 
 - Added stats for Save file name</p>
-        <label>v0.0.6</label><p>- Added hotkeys list
+        <h6>v0.0.6</h6><p>- Added hotkeys list
 
 - Option to remove text movement
 - Ability to rename save file</p>
-        <label>v0.0.5</label><p>- New content (Interstellar)
+        <h6>v0.0.5</h6><p>- New content (Interstellar)
 - Basic loading screen
 
 - Added hotkeys</p>
-        <label>v0.0.4</label><p>- Speed up to all Stages
+        <h6>v0.0.4</h6><p>- Speed up to all Stages
 - Added events
 
 - Added numbers format</p>
-        <label>v0.0.3</label><p>- New content (Accretion)
+        <h6>v0.0.3</h6><p>- New content (Accretion)
 - Submerged Stage extended
 - Offline time calculated better</p>
-        <label>v0.0.2</label><p>- Stats subtab</p>
-        <label>v0.0.1</label><p>- Submerged Stage rework
+        <h6>v0.0.2</h6><p>- Stats subtab</p>
+        <h6>v0.0.1</h6><p>- Submerged Stage rework
 - Added change log on game load
 
 - Mobile device support</p>
-        <label>v0.0.0</label><p>- First published version
+        <h6>v0.0.0</h6><p>- First published version
 
-- Submerged Stage placeholder</p>`,M("#bigWindow > div").prepend(u),u.id="versionHTML",u.role="dialog",u.ariaLabel="Versions menu",T.styleSheet.textContent+="#versionHTML label { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }"}T.bigWindow="version";let e=document.body,s=a("closeBigWindow"),n=a("versionHTML"),i=a("bigWindow"),o=u=>{if(T.alert[0]!==null||u.metaKey||u.ctrlKey||u.shiftKey||u.altKey)return;let d=u.code;(d==="Escape"||d==="Enter"||d==="Space")&&(u.preventDefault(),l())},l=()=>{T.bigWindow=null,i.style.display="none",n.style.display="none",e.removeEventListener("keydown",o),s.removeEventListener("click",l)};e.addEventListener("keydown",o),s.addEventListener("click",l),n.style.display="",i.style.display="",s.focus()},ls=()=>{if(T.bigWindow!==null)return;if(is(),a("hotkeysHTML",!0)===null){let u=document.createElement("div");u.innerHTML=`<p id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
+- Submerged Stage placeholder</p>`,M("#bigWindow > div").prepend(u),u.id="versionHTML",u.role="dialog",u.ariaLabel="Versions menu",T.styleSheet.textContent+="#versionHTML h6 { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }"}T.bigWindow="version";let e=document.body,s=a("closeBigWindow"),n=a("versionHTML"),i=a("bigWindow"),o=u=>{if(T.alert[0]!==null||u.metaKey||u.ctrlKey||u.shiftKey||u.altKey)return;let d=u.code;(d==="Escape"||d==="Enter"||d==="Space")&&(u.preventDefault(),l())},l=()=>{T.bigWindow=null,i.style.display="none",n.style.display="none",e.removeEventListener("keydown",o),s.removeEventListener("click",l)};e.addEventListener("keydown",o),s.addEventListener("click",l),n.style.display="",i.style.display="",s.focus()},ls=()=>{if(T.bigWindow!==null)return;if(is(),a("hotkeysHTML",!0)===null){let u=document.createElement("div");u.innerHTML=`<p id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
         ${b.MDSettings[0]?`<p>Swipe Left or Right \u2012 <span class="whiteText">change current tab</span></p>
         <p>Swipe Down or Up \u2012 <span class="whiteText">change current subtab</span></p>`:""}
         <label id="tabRightHotkey"><button class="selectBtn" type="button"></button> \u2012 <span class="whiteText">change tab to the next one</span></label>
