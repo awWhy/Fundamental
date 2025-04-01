@@ -30,7 +30,7 @@
         </div>
         <div id="offlineMain" style="display: none;" role="alertdialog" aria-modal="true">
             <div role="progressbar" aria-valuetext="0% done">
-                <p>Calculating Offline time by using <span id="offlineTick">1</span> seconds per tick. Remains <span id="offlineRemains">0 seconds</span> to calculate (<span id="offlinePercentage">0</span>% done)</p>
+                <p>Calculating Offline time by using <span id="offlineTick">1</span> milliseconds per tick. Remains <span id="offlineRemains">0 seconds</span> to calculate (<span id="offlinePercentage">0</span>% done)</p>
                 <div>
                     <button type="button" id="offlineAccelerate">Accelerate by 2</button>
                     <button type="button" id="offlineCancel">Finish now</button>
@@ -168,7 +168,7 @@
                             </div>
                             <div id="autoWaitMain">
                                 <input type="number" id="autoWaitInput" step="any">
-                                <label for="autoWaitInput" class="popUpMenu">How many times of cost Auto should wait before making a Structure</label>
+                                <label for="autoWaitInput" class="popUpMenu">How many times of the Structure cost Auto should wait before making that Structure</label>
                             </div>
                             <button type="button" id="toggleBuilding0" class="toggleBuilding" tabindex="-1">All ON</button>
                         </div>
@@ -209,7 +209,7 @@
                             <p id="mergeBoostTotal" class="darkvioletText">Total boost after Merge: <span class="grayText">1</span> ^2</p>
                             <section id="mergeEffects">
                                 <h3 class="cyanText bigWord">Current effects | Requirements</h3>
-                                <p id="merge1Effect" class="grayText">Groups: <span class="greenText">1</span><span class="info greenText">Boost to Galaxies</span><span> | <span class="greenText">40</span> Galaxies</span></p>
+                                <p id="merge1Effect" class="grayText">Groups: <span class="greenText">1</span><span class="info greenText">Boost to Galaxies</span><span> | <span class="greenText">0</span> out of <span class="greenText">40</span> Galaxies</span></p>
                             </section>
                         </div>
                         <div class="stage6Only">
@@ -760,8 +760,8 @@
                                 <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="Strange gain" draggable="false" id="inflation3Image" class="interactiveImage" aria-controls="inflationCost inflationEffect">
                                 <p><span id="inflation3Level" class="redText">0</span>/<span id="inflation3Max" class="greenText">1</span></p>
                             </div>
-                            <div id="inflation4" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Missing.png" alt="Instability" draggable="false" id="inflation4Image" class="interactiveImage" aria-controls="inflationCost inflationEffect">
+                            <div id="inflation4" class="whiteText stage5borderImage">
+                                <input type="image" src="Used_art/Instability.png" alt="Instability" draggable="false" id="inflation4Image" class="interactiveImage" aria-controls="inflationCost inflationEffect">
                                 <p><span id="inflation4Level" class="redText">0</span>/<span id="inflation4Max" class="greenText">1</span></p>
                             </div>
                             <div id="inflation5" class="whiteText stage6borderImage">
@@ -769,7 +769,7 @@
                                 <p><span id="inflation5Level" class="redText">0</span>/<span id="inflation5Max" class="greenText">1</span></p>
                             </div>
                         </section>
-                        <section id="inflationsDiv2" class="researchesDiv" aria-label="Non refundable">
+                        <section id="inflationsDiv2" class="researchesDiv" aria-label="Non-refundable">
                             <div id="inflation6" class="whiteText stage4borderImage">
                                 <input type="image" src="Used_art/ResearchQ5.png" alt="Discharge improvement" draggable="false" id="inflation6Image" class="interactiveImage" aria-controls="inflationCost inflationEffect">
                                 <p><span id="inflation6Level" class="redText">0</span>/<span id="inflation6Max" class="greenText">1</span></p>
@@ -790,6 +790,7 @@
                             </div>
                             <input type="text" id="loadoutsEdit" autocomplete="off">
                             <p id="loadoutsList">Saved: <span></span><button type="button" id="loadoutsLoadAuto" class="selectBtn greenText">Auto-generate</button></p>
+                            <p>(Hold shift to quick load and refund)</p>
                         </section>
                         <div class="descriptionText">
                             <h3>Research: <span id="inflationText" class="darkorchidText">Hover to see.</span></h3>
@@ -815,7 +816,7 @@
             <div id="settingsTab" style="display: none;">
                 <section id="settingsSubtabSettings" class="insideTab" aria-label="Current tab">
                     <article id="resetToggles">
-                        <h2 class="center">Reset confirmation<span> and automatization</span> toggles</h2>
+                        <h2 class="center">Reset confirmations<span> and automatization toggles</span></h2>
                         <div>
                             <section id="stageToggleReset" aria-labelledby="stageToggleImage">
                                 <img id="stageToggleImage" src="Used_art/Stage%20toggle.png" alt="Stage" loading="lazy" draggable="false" title="Stage" class="stageBorderImage">
@@ -825,7 +826,7 @@
                                         <button type="button" class="hollowButton stageAllborderButton" aria-haspopup="menu" aria-label="Settings">!</button>
                                         <div class="popUpMenu" role="menu" aria-label="Settings menu">
                                             <p id="stageAutoInterstellar"><label>Perform <span>Interstellar Stage</span> reset when can get at least <input type="number" id="stageInput" step="any" inputmode="text"> Strange quarks</label> and <label><input type="number" id="stageInputTime" step="any"> seconds have passed, doesn't reset if both are set to 0</label></p>
-                                            <label id="stageAutoElse">Reset pre Interstellar Stages only if all Milestones are maxed <button type="button" id="toggleNormal2" class="toggleNormal">ON</button>, ignored if time limit is reached</label>
+                                            <label id="stageAutoElse">Reset pre-Interstellar Stages only if all Milestones are maxed <button type="button" id="toggleNormal2" class="toggleNormal">ON</button>, ignored if time limit is reached</label>
                                         </div>
                                     </div>
                                 </div>
@@ -949,9 +950,8 @@
                                     </div>
                                 </div>
                             </li>
-                            <li><label>Automatization speed interval <input type="number" id="mainInterval" min="20" max="200" step="1"> ms</label><button type="button" id="pauseButton" class="hollowButton">Pause</button></li>
-                            <li><label>Starting Offline tick interval <input type="number" id="offlineInterval" min="20" max="6000" step="1"> ms</label></li>
-                            <li><label>Visual numbers update interval <input type="number" id="numbersInterval" min="40" max="200" step="1"> ms</label></li>
+                            <li><label>Starting Offline tick interval <input type="number" id="offlineInterval" min="20" max="6000" step="1"> ms</label><button type="button" id="pauseButton" class="hollowButton">Pause</button></li>
+                            <li><label>Visual numbers update interval <input type="number" id="numbersInterval" min="40" max="200" step="1"> ms</label><button type="button" id="showLog" class="hollowButton" aria-haspopup="dialog">Log</button></li>
                             <li><label>Visual update interval <input type="number" id="visualInterval" min="200" max="2000" step="1"> ms</label><button type="button" id="reviewEvents" class="hollowButton">Events</button></li>
                             <li><label>Game autosave interval <input type="number" id="autoSaveInterval" min="4" max="1800" step="1"> s</label></li>
                             <li><label>Auto accept Offline time<button type="button" id="toggleNormal4" class="toggleNormal">OFF</button></label></li>
@@ -960,7 +960,7 @@
                             <li id="MDLi"><label>Mobile device support<button type="button" id="MDToggle0" class="specialToggle">OFF</button></label></li>
                             <li id="SRLi"><label>Screen reader support<button type="button" id="SRToggle0" class="specialToggle">OFF</button></label></li>
                             <li><label>Allow text selection<button type="button" id="globalToggle2" class="specialToggle">OFF</button></label></li>
-                            <li><label>Move footer to the top<button type="button" id="globalToggle3" class="specialToggle">OFF</button></label></li>
+                            <li><label>Footer at the top<button type="button" id="globalToggle3" class="specialToggle">OFF</button></label></li>
                             <li id="elementsAsTab"><label>Elements as Tab<button type="button" id="globalToggle1" class="specialToggle">OFF</button></label></li>
                             <li title="Default is 16px. Art won't scale"><label>Font size: <input type="number" id="customFontSize" step="any" min="12" max="24" value="16" tabindex="-1"> px</label></li>
                         </ul>
