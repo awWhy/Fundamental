@@ -170,6 +170,7 @@ img {
 .researchesDiv .interactiveImage {
     border-radius: 3px;
     z-index: 2;
+    transition-property: background-color;
 }
 
 p > img {
@@ -729,9 +730,13 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-left: -1px;
     gap: 0.5em;
     background-color: var(--window-color);
+    transition-property: background-color;
 }
 
-.researchesDiv > div { display: flex; }
+.researchesDiv > div {
+    display: flex;
+    transition-property: background-color;
+}
 
 .researchesDiv p {
     display: flex;
@@ -744,6 +749,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--background-color);
     margin-left: -3px;
     height: 32px;
+    transition-property: background-color;
 }
 
 .descriptionTextMain {
@@ -1388,6 +1394,7 @@ li .hollowButton {
     padding-left: calc(3px + 0.5em);
     padding-right: 0.5em;
     z-index: 1; /* Text color issue */
+    transition-property: background-color;
 }
 
 #footerStats span:last-of-type {

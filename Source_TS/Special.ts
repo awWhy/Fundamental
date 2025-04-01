@@ -7,8 +7,7 @@ import { format, numbersUpdate, stageUpdate, visualTrueStageUnlocks, visualUpdat
 
 export const globalSave: globalSaveType = {
     intervals: {
-        main: 20,
-        offline: 40,
+        offline: 20,
         numbers: 80,
         visual: 800,
         autoSave: 20000
@@ -71,7 +70,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
     if (change) {
         if (reload) {
             return void (async() => {
-                if (!await Confirm('Changing this setting will reload game, confirm?\n(Game will not autosave)')) { return; }
+                if (!await Confirm('Changing this setting will reload the page, confirm?\n(Game will not autosave)')) { return; }
                 pauseGame();
                 toggles[number] = !toggles[number];
                 saveGlobalSettings();
@@ -169,7 +168,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG2.png',
             'UpgradeG3.png',
             'UpgradeG4.png',
-            'Missing.png',
+            'UpgradeG5.png',
             'UpgradeG6.png',
             'Missing.png'
         ], []
@@ -256,7 +255,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
             ['Missing.png', 'stage3borderImage'],
-            ['Missing.png', 'greenBorderImage'],
+            ['ResearchGalaxy3.png', 'stage3borderImage'],
             ['ResearchGalaxy4.png', 'brownBorderImage']
         ], []
     ],
@@ -273,11 +272,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ], [
             ['Mass.png', 'stage3borderImage grayText', 'Mass']
         ], [
-            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
-            ['Elements.png', 'stage4borderImage orangeText', 'Stardust']
-        ], [
-            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
             ['Elements.png', 'stage4borderImage orangeText', 'Stardust'],
+            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass']
+        ], [
+            ['Elements.png', 'stage4borderImage orangeText', 'Stardust'],
+            ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'Mass'],
             ['Stars.png', 'redBorderImage redText', 'Stars']
         ], [
             ['Dark%20matter.png', 'stage3borderImage grayText', 'Matter'],
@@ -306,18 +305,19 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     notifications: [] as Array<[string, (instantClose?: boolean) => void]>,
     /** [priority, closeFunc] */
     alert: [null, null] as [number | null, (() => void) | null],
-    bigWindow: null as string | null,
+    bigWindow: null as 'version' | 'hotkeys' | 'log' | null,
     styleSheet: document.createElement('style') //Secondary
 };
 
-export const preventImageUnload = () => {
+export const preventImageUnload = (): void => {
+    if (global.offline.active || global.paused) { return void (global.offline.cacheUpdate = true); }
     const { footerStatsHTML: footer, buildingHTML: build, upgradeHTML: upgrade, researchHTML: research, researchExtraHTML: extra, researchExtraDivHTML: extraDiv } = specialHTML;
 
-    let images = '<img src="Used_art/Red%20giant.png" loading="lazy"><img src="Used_art/White%20dwarf.png" loading="lazy">';
+    let images = '';
     for (let s = 1; s <= 6; s++) {
         for (let i = 0; i < footer[s].length; i++) {
             if (s === 2) {
-                if (i === 2) { continue; } //Drops
+                if (i === 1) { continue; } //Drops
             } else if (s === 5 && i < 2) { continue; } //Solar mass and Stardust
             images += `<img src="Used_art/${footer[s][i][0]}" loading="lazy">`;
         }
@@ -336,7 +336,15 @@ export const preventImageUnload = () => {
         images += `<img src="Used_art/${extraDiv[s][0]}" loading="lazy">`;
         images += `<img src="Used_art/Stage${s}%20border.png" loading="lazy">`;
     }
+    for (const text of global.accretionInfo.rankImage) { //Already cached in Accretion stats, this only refreshes it
+        images += `<img src="Used_art/${text}" loading="lazy">`;
+    }
+    for (const text of ['Red%20giant', 'White%20dwarf', 'Neutron%20star', 'Quark%20star', 'Galaxy%20group']) { //Galaxy%20cluster
+        images += `<img src="Used_art/${text}.png" loading="lazy">`;
+    }
     specialHTML.cache.imagesDiv.innerHTML = images;
+
+    setTimeout(preventImageUnload, 3600_000);
 };
 
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
@@ -733,8 +741,8 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
     });
 };
 
-/** Repeats will make it behave as if X duplicates have been detected */
-export const Notify = (text: string, repeats = 0) => {
+/** Start will make it behave as if X duplicates have been detected */
+export const Notify = (text: string, start = 1) => {
     const { notifications } = specialHTML;
 
     let index;
@@ -746,7 +754,7 @@ export const Notify = (text: string, repeats = 0) => {
     }
 
     if (index === undefined) {
-        let count = 1 + repeats;
+        let count = start;
         let timeout: number;
 
         const html = document.createElement('p');
@@ -857,7 +865,7 @@ const adjustCSSRules = (initial: boolean) => {
                 adjustCSSRules(false);
             }, { once: true });
         }
-        return Notify(`Due to ${styleSheet} related Error some font size features will not work`);
+        return Notify(`Due to '${styleSheet}' related Error some font size features will not work`);
     }
     const styleLength = styleSheet.cssRules.length - 1;
     const fontRatio = globalSave.fontSize / 16;
@@ -923,7 +931,9 @@ export const MDStrangenessPage = (stageIndex: number) => {
 
 export const replayEvent = async() => {
     let last;
-    if (player.stage.true >= 6) {
+    if (player.stage.true >= 7) {
+        last = global.quantum ? 10 : 9; //player.event ? 10 : 9;
+    } else if (player.stage.true === 6) {
         last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
     } else {
         last = player.stage.true - (player.event ? 0 : 1);
@@ -937,7 +947,9 @@ export const replayEvent = async() => {
     if (last >= 5) { text += '\nEvent 5: Intergalactic'; }
     if (last >= 6) { text += '\nEvent 6: True Vacuum'; }
     if (last >= 7) { text += '\nEvent 7: Void unlocked'; }
-    if (last >= 8) { text += '\nEvent 8: New Universe'; }
+    if (last >= 8) { text += '\nEvent 8: First Merge'; }
+    if (last >= 9) { text += '\nEvent 9: Inflation'; }
+    if (last >= 10) { text += '\nEvent 10: Quantum'; } //Supervoid
 
     const event = Number(await Prompt(text, `${last}`));
     if (event > last) { return; }
@@ -946,12 +958,12 @@ export const replayEvent = async() => {
 
 /** Sets player.event to true if replay is false */
 export const playEvent = (event: number, replay = true) => {
-    if (specialHTML.alert[0] !== null) { return Notify(`Missed Event ${event}, you can replay it from options`); }
+    if (global.offline.active || specialHTML.alert[0] !== null) { return; }
     if (!replay) { player.event = true; }
 
     let text = 'No such event';
     if (event === 1) {
-        text = 'New reset tier has been unlocked. It will allow to reach higher tiers of Structures, but for the price of everything else';
+        text = 'A new reset tier has been unlocked. It will allow the creation of higher tier Structures, but for the price of everything else';
     } else if (event === 2) {
         text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to softcap`;
     } else if (event === 3) {
@@ -959,39 +971,81 @@ export const playEvent = (event: number, replay = true) => {
             assignResetInformation.maxRank();
             global.debug.rankUpdated = null;
         }
-        text = "Can't gain any more Mass with current Rank. New one has been unlocked, but reaching it will softcap the Mass production";
+        text = 'Cannot gain any more Mass with current Rank. A new one has been unlocked, but reaching it will softcap the Mass production';
     } else if (event === 4) {
-        text = 'Last explosion not only created first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis';
+        text = 'That last explosion not only created the first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis';
     } else if (event === 5) {
         if (!replay) { stageUpdate(false); }
-        text = "There are no Structures in Intergalactic yet, but they can be created within previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
+        text = "There are no Structures in Intergalactic yet, but knowledge for their creation can be found within previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve Stage reset reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
     } else if (event === 6) {
-        text = 'As Galaxies started to Merge, their combined Gravity pushed Vacuum out of its local minimum into more stable global minimum. New forces and Structures are expected within this new and true Vacuum state';
+        text = 'As Galaxies began to Merge, their combined Gravity pushed Vacuum out of its local minimum into a more stable global minimum. New forces and Structures are expected within this new and true Vacuum state';
     } else if (event === 7) {
-        text = "With Vacuum decaying remaining matter had rearranged itself in such way that lead to the formation of the 'Void'. Check it out in 'Advanced' subtab";
+        text = "With Vacuum decaying, the remaining matter had rearranged itself, which had lead to the formation of the 'Void'. Check it out in the 'Advanced' subtab";
     } else if (event === 8) {
         if (!replay) { stageUpdate(false); }
-        text = "Soon there will be enough matter to create first 'Universe' within 'Abyss' Stage. Doing it will require getting at least 40 Galaxies before Merging them. Creating it will do a Vacuum reset, while also resetting Vacuum state back to false";
+        text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. You will need to Merge 40 Galaxies at once into a Galaxy group to finish that first Universe inside the Abyss Stage.\n(Merge reset can only be done a limited amount of times per Stage reset)";
+    } else if (event === 9) {
+        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the 'Inflation' tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements based on self-made Universes)";
+    } else if (event === 10) {
+        if (!replay) {
+            localStorage.setItem('quantum', 'true');
+            global.quantum = true;
+        }
+        text = "New Vacuum state is now available. It can be changed into from the 'Advanced' tab. You won't be able to get any lower Energy state, than that";
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
     return void Alert(text);
 };
 
-const buildBigWindow = () => {
-    if (getId('closeBigWindow', true) !== null) { return; }
-    getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
-    specialHTML.styleSheet.textContent += '#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }';
-    specialHTML.styleSheet.textContent += '#bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; margin-top: auto; } #bigWindow > div > div { width: 100%; overflow-y: auto; overscroll-behavior-y: none; }';
+const buildBigWindow = (subWindow: string): null | HTMLElement => {
+    if (getId('closeBigWindow', true) === null) {
+        getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
+        specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
+            #bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
+            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; }`;
+    }
+
+    if (getId(subWindow, true) !== null) { return null; }
+    const mainHTML = document.createElement('div');
+    getQuery('#bigWindow > div').prepend(mainHTML);
+    mainHTML.id = subWindow;
+    mainHTML.role = 'dialog';
+    return mainHTML;
+};
+const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTMLElement | null) => {
+    const closeButton = getId('closeBigWindow');
+    const windowHMTL = getId('bigWindow');
+    if (firstTargetHTML === null) { firstTargetHTML = closeButton; }
+    const key = (event: KeyboardEvent) => {
+        if (specialHTML.alert[0] !== null || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+        const code = event.code;
+        if (firstTargetHTML === closeButton ? (code === 'Escape' || code === 'Enter' || code === 'Space') :
+            ((!global.hotkeys.disabled && code === 'Escape') || ((code === 'Enter' || code === 'Space') && document.activeElement === closeButton))) {
+            event.preventDefault();
+            close();
+        }
+    };
+    const close = () => {
+        specialHTML.bigWindow = null;
+        windowHMTL.style.display = 'none';
+        sectionHTML.style.display = 'none';
+        document.body.removeEventListener('keydown', key);
+        closeButton.removeEventListener('click', close);
+    };
+    document.body.addEventListener('keydown', key);
+    closeButton.addEventListener('click', close);
+    sectionHTML.style.display = '';
+    windowHMTL.style.display = '';
+    firstTargetHTML.focus();
 };
 
-export const getVersionInfoHTML = () => {
+export const openVersionInfo = () => {
     if (specialHTML.bigWindow !== null) { return; }
-    buildBigWindow();
-    if (getId('versionHTML', true) === null) {
-        const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+    const mainHTML = buildBigWindow('versionHTML');
+    if (mainHTML !== null) {
+        mainHTML.innerHTML = `<h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.3</h6><p>- Small amount of new content\n- Supervoid rework\n- Abyss small rebalance</p>
-        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves current game state to load on exit</p>
+        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves the game to load it after exiting</p>
         <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
         <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
         <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
@@ -1014,46 +1068,21 @@ export const getVersionInfoHTML = () => {
         <h6>v0.0.2</h6><p>- Stats subtab</p>
         <h6>v0.0.1</h6><p>- Submerged Stage rework\n- Added change log on game load\n\n- Mobile device support</p>
         <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
-        getQuery('#bigWindow > div').prepend(mainHTML);
-        mainHTML.id = 'versionHTML';
-        mainHTML.role = 'dialog';
         mainHTML.ariaLabel = 'Versions menu';
-        specialHTML.styleSheet.textContent += '#versionHTML h6 { font-size: 1.18em; } #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; } #versionHTML p:last-of-type { margin-bottom: 0; }';
+        specialHTML.styleSheet.textContent += `#versionHTML h6 { font-size: 1.18em; }
+            #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; }
+            #versionHTML p:last-of-type { margin-bottom: 0; }`;
     }
 
     specialHTML.bigWindow = 'version';
-    const body = document.body;
-    const closeButton = getId('closeBigWindow');
-    const mainHTML = getId('versionHTML');
-    const windowHMTL = getId('bigWindow');
-    const key = (event: KeyboardEvent) => {
-        if (specialHTML.alert[0] !== null || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
-        const code = event.code;
-        if (code === 'Escape' || code === 'Enter' || code === 'Space') {
-            event.preventDefault();
-            close();
-        }
-    };
-    const close = () => {
-        specialHTML.bigWindow = null;
-        windowHMTL.style.display = 'none';
-        mainHTML.style.display = 'none';
-        body.removeEventListener('keydown', key);
-        closeButton.removeEventListener('click', close);
-    };
-    body.addEventListener('keydown', key);
-    closeButton.addEventListener('click', close);
-    mainHTML.style.display = '';
-    windowHMTL.style.display = '';
-    closeButton.focus();
+    addCloseEvents(getId('versionHTML'));
 };
 
-export const getHotkeysHTML = () => {
+export const openHotkeys = () => {
     if (specialHTML.bigWindow !== null) { return; }
-    buildBigWindow();
-    if (getId('hotkeysHTML', true) === null) {
-        const mainHTML = document.createElement('div');
-        mainHTML.innerHTML = `<p id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</p>
+    const mainHTML = buildBigWindow('hotkeysHTML');
+    if (mainHTML !== null) {
+        mainHTML.innerHTML = `<h3 id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</h3>
         ${globalSave.MDSettings[0] ? `<p>Swipe Left or Right ‒ <span class="whiteText">change current tab</span></p>
         <p>Swipe Down or Up ‒ <span class="whiteText">change current subtab</span></p>` : ''}
         <label id="tabRightHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change tab to the next one</span></label>
@@ -1082,16 +1111,15 @@ export const getHotkeysHTML = () => {
         <p>Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
         <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
-        <label id="hotkeysToggleLabel" title="Turn ON, if using non QWERTY layout keyboard">Language dependant hotkeys </label>
+        <label id="hotkeysToggleLabel" title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
         <button id="restoreHotkeys" class="selectBtn" type="button">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
-        getQuery('#bigWindow > div').prepend(mainHTML);
-        mainHTML.id = 'hotkeysHTML';
-        mainHTML.role = 'dialog';
         mainHTML.ariaLabel = 'Hotkeys menu';
         const toggle = getId('globalToggle0');
         toggle.style.display = '';
         getId('hotkeysToggleLabel').append(toggle);
-        specialHTML.styleSheet.textContent += '#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; } #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; } #hotkeysHTML > div label { justify-self: center; width: max-content; }';
+        specialHTML.styleSheet.textContent += `#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
+            #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; }
+            #hotkeysHTML > div label { justify-self: center; width: max-content; }`;
 
         const changeHotkey = async(disableFirstUp = false): Promise<string[] | null> => {
             return await new Promise((resolve) => {
@@ -1168,33 +1196,33 @@ export const getHotkeysHTML = () => {
             assignHotkeys();
             saveGlobalSettings();
         });
-        stageUpdate(false);
-        visualTrueStageUnlocks();
     }
 
     specialHTML.bigWindow = 'hotkeys';
-    const body = document.body;
-    const closeButton = getId('closeBigWindow');
-    const mainHTML = getId('hotkeysHTML');
-    const windowHMTL = getId('bigWindow');
-    const key = (event: KeyboardEvent) => {
-        if (specialHTML.alert[0] !== null || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
-        const code = event.code;
-        if ((!global.hotkeys.disabled && code === 'Escape') || ((code === 'Enter' || code === 'Space') && document.activeElement === closeButton)) {
-            event.preventDefault();
-            close();
-        }
-    };
-    const close = () => {
-        specialHTML.bigWindow = null;
-        windowHMTL.style.display = 'none';
-        mainHTML.style.display = 'none';
-        body.removeEventListener('keydown', key);
-        closeButton.removeEventListener('click', close);
-    };
-    body.addEventListener('keydown', key);
-    closeButton.addEventListener('click', close);
-    mainHTML.style.display = '';
-    windowHMTL.style.display = '';
-    getQuery('#tabRightHotkey > button').focus();
+    addCloseEvents(getId('hotkeysHTML'), getQuery('#tabRightHotkey > button'));
+    stageUpdate(false);
+    visualTrueStageUnlocks();
+};
+
+export const openLog = () => {
+    if (specialHTML.bigWindow !== null) { return; }
+    const mainHTML = buildBigWindow('logHTML');
+    if (mainHTML !== null) {
+        mainHTML.innerHTML = `<h2 class="whiteText"><span class="biggerWord mainText">Log</span> | <button id="logOrder" class="selectBtn mainText" type="button">Entries on top are newer</button></h2>
+        <ul id="logMain"><li></li></ul>`; //Empty <li> is required
+        mainHTML.ariaLabel = 'Versions menu';
+        specialHTML.styleSheet.textContent += `#logHTML { display: flex; flex-direction: column; }
+            #logMain { display: flex; flex-direction: column; text-align: start; border-top: 2px solid; border-bottom: 2px solid; height: 100%; padding: 0.2em 0.4em; margin-top: 0.4em; overflow-y: scroll; overscroll-behavior-y: none; }
+            #logMain > li { list-style: inside "‒ "; }
+            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change order */
+            #logMain.bottom > li:first-of-type { margin-bottom: auto; }`;
+        getId('logOrder').addEventListener('click', () => {
+            const bottom = getId('logMain').classList.toggle('bottom');
+            getId('logOrder').textContent = `Entries on ${bottom ? 'bottom' : 'top'} are newer`;
+        });
+    }
+
+    specialHTML.bigWindow = 'log';
+    addCloseEvents(getId('logHTML'));
+    visualUpdate();
 };

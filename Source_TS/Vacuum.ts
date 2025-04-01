@@ -4,7 +4,7 @@ import { global, player, playerStart } from './Player';
 import { resetVacuum } from './Reset';
 import { globalSave, playEvent, specialHTML } from './Special';
 import { setActiveStage } from './Stage';
-import { visualTrueStageUnlocks } from './Update';
+import { addIntoLog, visualTrueStageUnlocks } from './Update';
 
 export const prepareVacuum = (state: boolean) => { //Must not use direct player values
     const { buildings } = playerStart;
@@ -69,15 +69,15 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         global.ASRInfo.costRange[3][3] = 2.45576045e31;
 
         strangeness1Cost = [1, 1, 1, 2, 12, 2, 24];
-        strangeness1Scaling = [2.46, 2, 6, 6, 400, 1, 1];
+        strangeness1Scaling = [2.46, 2, 6, 4, 400, 1, 1];
         strangeness2Cost = [1, 1, 2, 2, 12, 4, 24];
-        strangeness2Scaling = [2.46, 2, 3, 3.4, 800, 1, 1];
+        strangeness2Scaling = [2.46, 2, 3, 4, 800, 1, 1];
         strangeness3Cost = [1, 2, 2, 24, 12, 4, 4, 24];
         strangeness3Scaling = [2, 3.4, 3, 1, 100, 1, 1.74, 1];
         strangeness4Cost = [1, 2, 4, 2, 12, 6, 6, 24];
-        strangeness4Scaling = [2, 3.4, 3, 6, 1900, 1, 1.74, 1];
-        strangeness5Cost = [24, 36, 6, 24, 15600, 24, 240, 120];
-        strangeness5Scaling = [2, 2, 3.4, 1, 1, 1, 1, 1];
+        strangeness4Scaling = [2, 3.4, 3, 4, 1900, 1, 1.74, 1];
+        strangeness5Cost = [24, 36, 4, 24, 15600, 24, 480, 120];
+        strangeness5Scaling = [2, 2, 4, 1, 1, 1, 1, 1];
         strangenessInfo[1].maxActive = 10;
         strangenessInfo[2].maxActive = 10;
         strangenessInfo[3].maxActive = 10;
@@ -95,8 +95,8 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         global.milestonesInfo[3].name[0] = 'Center of gravity';
         getQuery('#milestone1Stage3Main > span').textContent = 'Center of gravity';
         milestone1S4.src = milestone1S4.src.replace('Main_sequence%20mass.png', 'Black%20hole.png');
-        getId('mergeResetText').innerHTML = '<span class="darkvioletText">Merge</span> does a <span class="grayText">Galaxy</span> reset, while also converting self-made <span class="grayText">Galaxies</span> into non self-made.';
-        getQuery('#toggleAuto0Main label > span').textContent = 'Stage';
+        getId('mergeResetText').innerHTML = '<span class="darkvioletText">Merge</span> does a <span class="grayText">Galaxy</span> reset, while also converting all self-made <span class="grayText">Galaxies</span> into bonus ones.';
+        getQuery('#stageAutoInterstellar span').textContent = 'Stage';
         getQuery('#stageHistory > h3').textContent = 'Stage resets:';
 
         getId('preonCap').style.display = '';
@@ -171,11 +171,11 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         global.ASRInfo.costRange[3][3] = 2e30;
 
         strangeness1Cost = [1, 1, 1, 2, 4, 2, 24];
-        strangeness1Scaling = [1, 0.75, 1.5, 3, 0, 0, 0];
+        strangeness1Scaling = [1, 0.75, 1.5, 2, 0, 0, 0];
         strangeness2Cost = [1, 1, 2, 2, 4, 2, 24];
         strangeness2Scaling = [0.5, 0.75, 2, 2, 0, 0, 0];
-        strangeness3Cost = [1, 1, 2, 6, 4, 2, 6, 24];
-        strangeness3Scaling = [0.75, 1.5, 2, 0, 0, 0, 3, 0];
+        strangeness3Cost = [1, 1, 2, 6, 4, 2, 4, 24];
+        strangeness3Scaling = [0.75, 1.5, 2, 0, 0, 0, 2.5, 0];
         strangeness4Cost = [1, 1, 3, 2, 4, 2, 4, 24];
         strangeness4Scaling = [1, 2, 2.5, 2, 0, 0, 68, 0];
         strangeness5Cost = [20, 24, 240, 24, 6000, 24, 20, 120];
@@ -198,7 +198,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getQuery('#milestone1Stage3Main > span').textContent = 'Cluster of Mass';
         milestone1S4.src = milestone1S4.src.replace('Black%20hole.png', 'Main_sequence%20mass.png');
         getId('mergeResetText').innerHTML = 'Attempt to <span class="darkvioletText">Merge</span> <span class="grayText">Galaxies</span> together, which will result in <span class="orchidText">Vacuum</span> decaying into its true state.';
-        getQuery('#toggleAuto0Main label > span').textContent = 'Interstellar Stage';
+        getQuery('#stageAutoInterstellar span').textContent = 'Interstellar Stage';
         getQuery('#stageHistory > h3').textContent = 'Interstellar Stage resets:';
 
         getId('strange8Stage5').style.display = '';
@@ -287,4 +287,5 @@ export const switchVacuum = () => {
     player.challenges.active = null;
     prepareVacuum(true);
     resetVacuum();
+    addIntoLog('Vacuum reset');
 };

@@ -192,10 +192,17 @@ export interface globalType {
     offline: {
         active: boolean
         speed: number
+        cacheUpdate: boolean
         stageUpdate: null | boolean
     }
     paused: boolean
     footer: boolean
+    log: {
+        /** ['Text', count, time] */
+        add: Array<[string, number, number]>
+        /** Last added HTML into list, ['Text', count, time, changed] */
+        lastHTML: [string, number, number, boolean]
+    }
     hotkeys: {
         disabled: boolean
         /** Used to test if focus was received through keyboard press */
@@ -211,6 +218,7 @@ export interface globalType {
     lastChallenge: [number, number]
     /** Void reward type[0], Strangeness shown[1] */
     sessionToggles: boolean[]
+    quantum: boolean
     /** Sorted cheapest first */
     automatization: {
         /** Upgrades */
@@ -394,7 +402,7 @@ export interface globalType {
         name: string
         description: () => string
         effectText: () => string
-        needText: Array<Array<() => string>>
+        needText: Array<Array<() => string | null>>
         /** [Void, Supervoid] */
         rewardText: string[][][]
         resetType: 'stage' | 'vacuum'
@@ -421,7 +429,6 @@ export interface globalType {
 
 export interface globalSaveType {
     intervals: {
-        main: number
         offline: number
         numbers: number
         visual: number

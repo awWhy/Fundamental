@@ -103,7 +103,6 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             if (stageIndex === 1) {
                 return player.upgrades[1][5] === 1;
             } else if (stageIndex === 2) {
-                if (upgrade === 0) { return player.buildings[2][1].true >= 1 || player.buildings[2][2].true >= 1 || player.researches[2][0] >= 1; }
                 return true;
             } else if (stageIndex === 3) {
                 return player.accretion.rank >= global.accretionInfo.rankR[upgrade] && player.accretion.rank !== 0;
@@ -201,8 +200,9 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             }
             return true;
         case 'inflations':
+            if (upgrade === 0) { return player.stage.true >= 7; }
             if (upgrade === 5) { return player.challenges.supervoid[1] >= 1; }
-            return player.stage.true >= 7;
+            return true;
     }
 
     return false;
