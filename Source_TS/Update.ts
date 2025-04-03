@@ -522,7 +522,7 @@ export const visualUpdate = () => {
         } else if (highest === 1) {
             if (player.upgrades[1][9] === 1) { playEvent(1, false); }
         }
-    } else if (!global.quantum && vacuum && player.buildings[6][1].true >= 1) { playEvent(10, false); }
+    }
 
     if (global.footer) {
         if (globalSave.toggles[1]) { getId('ElementsTabBtn').style.display = player.upgrades[4][1] === 1 ? '' : 'none'; }
@@ -1283,8 +1283,7 @@ export const getChallengeDescription = (index: number) => {
         const gain = player.inflation.vacuum ? player.buildings[6][1].true + 1 : 1;
         text = `<p class="orchidText">Vacuum state: <span class="${player.inflation.vacuum ? 'greenText">true' : 'redText">false'}</span> | Resets: <span class="darkorchidText">${player.inflation.resets}</span></p>
         ${player.stage.true >= 7 || player.event ? `<p class="darkvioletText">Current Cosmon gain: <span class="${player.inflation.vacuum ? 'green' : 'red'}Text">${format(gain, { padding: 'exponent' })}</span> | Rate: <span class="${player.inflation.vacuum ? 'green' : 'red'}Text">${format(gain / player.time.vacuum, { type: 'income' })}</span></p>` : ''}
-        <p class="orchidText">Time since last reset: <span class="darkorchidText">${format(player.inflation.time, { type: 'time' })}</span>${player.inflation.time !== player.time.vacuum ? ` (Real: <span class="darkorchidText">${format(player.time.vacuum, { type: 'time' })}</span>)` : ''}</p>
-        ${global.quantum ? '<p class="orchidText">(Entering it will change Vacuum state to <span class="cyanText bigWord">Quantum</span>)</p>' : ''}`;
+        <p class="orchidText">Time since last reset: <span class="darkorchidText">${format(player.inflation.time, { type: 'time' })}</span>${player.inflation.time !== player.time.vacuum ? ` (Real: <span class="darkorchidText">${format(player.time.vacuum, { type: 'time' })}</span>)` : ''}</p>`;
     } else {
         text = `<p class="whiteText">${info.description()}</p>
         <div><h4 class="${info.color}Text bigWord">Effect:</h4>

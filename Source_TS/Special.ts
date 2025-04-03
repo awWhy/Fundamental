@@ -932,7 +932,7 @@ export const MDStrangenessPage = (stageIndex: number) => {
 export const replayEvent = async() => {
     let last;
     if (player.stage.true >= 7) {
-        last = global.quantum ? 10 : 9; //player.event ? 10 : 9;
+        last = 9;
     } else if (player.stage.true === 6) {
         last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
     } else {
@@ -949,7 +949,6 @@ export const replayEvent = async() => {
     if (last >= 7) { text += '\nEvent 7: Void unlocked'; }
     if (last >= 8) { text += '\nEvent 8: First Merge'; }
     if (last >= 9) { text += '\nEvent 9: Inflation'; }
-    if (last >= 10) { text += '\nEvent 10: Quantum'; } //Supervoid
 
     const event = Number(await Prompt(text, `${last}`));
     if (event > last) { return void Alert("Not unlocked or doesn't exist"); }
@@ -986,12 +985,6 @@ export const playEvent = (event: number, replay = true) => {
         text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. You will need to Merge 40 Galaxies at once into a Galaxy group to finish that first Universe inside the Abyss Stage.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
         text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the 'Inflation' tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements based on self-made Universes)";
-    } else if (event === 10) {
-        if (!replay) {
-            localStorage.setItem('quantum', 'true');
-            global.quantum = true;
-        }
-        text = "New Vacuum state is now available. It can be changed into from the 'Advanced' tab. You won't be able to get any lower Energy state, than that";
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
     return void Alert(text);

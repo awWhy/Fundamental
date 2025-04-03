@@ -2797,35 +2797,7 @@ export const enterExitChallengeUser = (index: number | null) => {
     } else {
         if (index === 0) {
             if (player.challenges.super ? player.buildings[6][1].current.lessThan('2') : !player.inflation.vacuum) { return; }
-        } else if (index === 1) {
-            if (!global.quantum) { return; }
-            getId('body').style.display = 'none';
-            getId('notifications').style.display = 'none';
-            document.documentElement.style.backgroundColor = 'black';
-            global.hotkeys.disabled = true;
-            const input = document.createElement('input');
-            input.className = 'interactiveImage insideTab';
-            input.draggable = false;
-            input.type = 'image';
-            input.alt = '';
-            input.src = 'Used_art/False%20vacuum.png';
-            input.style.cssText = 'position: absolute; transform: translateX(50%); right: 50%; opacity: 0; width: 48px; height: 48px; transition: opacity 30s, background-color var(--transition-buttons); cursor: help;';
-            setTimeout(() => {
-                document.body.append(input);
-                const event = () => {
-                    input.removeEventListener('click', event);
-                    input.remove();
-                    document.documentElement.style.backgroundColor = '';
-                    getId('body').style.display = '';
-                    getId('notifications').style.display = '';
-                    global.hotkeys.disabled = false;
-                    addIntoLog('Experienced Quantum Vacuum');
-                };
-                input.addEventListener('click', event);
-                setTimeout(() => (input.style.opacity = ''), 4000);
-            }, 6000);
-            return;
-        }
+        } else if (index === 1) { return; }
         player.challenges.active = index;
 
         challengeReset(index, old);

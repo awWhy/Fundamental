@@ -338,7 +338,6 @@ export const global: globalType = {
     lastMilestone: [null, 0],
     lastChallenge: [1, 1],
     sessionToggles: [false, false],
-    quantum: localStorage.getItem('quantum') === 'true',
     automatization: {
         autoU: [
             [],

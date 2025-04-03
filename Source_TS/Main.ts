@@ -1,5 +1,5 @@
 import { player, global, playerStart, updatePlayer, deepClone, cloneArray } from './Player';
-import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription, visualUpdateResearches, visualUpdateUpgrades } from './Update';
+import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription, visualUpdateResearches, visualUpdateUpgrades, addIntoLog } from './Update';
 import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
 import { Alert, hideFooter, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog } from './Special';
 import { assignHotkeys, detectHotkey, handleTouchHotkeys } from './Hotkeys';
@@ -323,6 +323,13 @@ const saveConsole = async() => {
         Notify(`Found a ${lower === 'secret_secret' ? "ultra rare secret, but it doesn't proof anything" : `${lower === 'global_secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
     } else if (lower === 'secret_proof') {
         Notify('Found a proof that you were looking for!');
+    } else if (lower === 'quantum') {
+        getId('body').style.display = 'none';
+        document.documentElement.style.backgroundColor = 'black';
+        await Alert('Close when you are done enjoying the Quantum Vacuum');
+        document.documentElement.style.backgroundColor = '';
+        getId('body').style.display = '';
+        addIntoLog('Experienced the Quantum Vacuum');
     } else {
         if (value.length < 20) { return void Alert(`Input '${value}' doesn't match anything`); }
         if (lower.includes('global_')) {

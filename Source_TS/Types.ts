@@ -218,7 +218,6 @@ export interface globalType {
     lastChallenge: [number, number]
     /** Void reward type[0], Strangeness shown[1] */
     sessionToggles: boolean[]
-    quantum: boolean
     /** Sorted cheapest first */
     automatization: {
         /** Upgrades */
