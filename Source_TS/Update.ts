@@ -417,7 +417,7 @@ export const numbersUpdate = () => {
                 for (let s = 1; s <= (vacuum ? 5 : 1); s++) {
                     const buildings = player.buildings[s];
                     const energyType = global.dischargeInfo.energyType[s];
-                    getId(`energyGainStage${s}TotalCur`).textContent = format(global.dischargeInfo.energyStage[s], { padding: 'exponent' });
+                    getId(`energyGainStage${s}Total`).textContent = format(global.dischargeInfo.energyStage[s], { padding: 'exponent' });
                     for (let i = 1; i < global.buildingsInfo.maxActive[s]; i++) {
                         getId(`energyGainStage${s}Build${i + (vacuum ? 0 : 2)}Cur`).textContent = format(energyType[i] * buildings[i as 1].true, { padding: 'exponent' });
                         getId(`energyGainStage${s}Build${i + (vacuum ? 0 : 2)}Per`).textContent = format(energyType[i]);
@@ -1012,7 +1012,7 @@ export const visualUpdate = () => {
                 getId('galaxyBase').style.display = player.researchesExtra[5][0] >= 1 ? '' : 'none';
                 if (vacuum) {
                     getId('mergeResets').style.display = player.upgrades[5][3] === 1 ? '' : 'none';
-                    getQuery('#mergeResets > span').className = `${player.merge.resets >= calculateEffects.mergeMaxResets() ? 'green' : 'red'}Text`;
+                    getQuery('#mergeResets > span').style.color = `var(--${player.merge.resets >= calculateEffects.mergeMaxResets() ? 'green' : 'red'}-text)`;
                     getId('mergeBoost').style.display = player.upgrades[5][3] === 1 ? '' : 'none';
                 }
             }
@@ -1275,7 +1275,7 @@ export const getChallengeDescription = (index: number) => {
     const isActive = player.challenges.active === index;
     const nameID = getId('challengeName');
     nameID.textContent = info.name;
-    nameID.className = `selectBtn ${info.color}Text`;
+    nameID.style.color = `var(--${info.color}-text)`;
     getId('challengeActive').style.display = isActive ? '' : 'none';
 
     let text;
@@ -1413,13 +1413,13 @@ export const visualUpdateResearches = (index: number, stageIndex: number, type: 
 
     upgradeHTML.textContent = `${level}`;
     if (level >= max) {
-        upgradeHTML.className = 'greenText';
+        upgradeHTML.style.color = 'var(--green-text)';
         image.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
     } else if (level === 0) {
-        upgradeHTML.className = 'redText';
+        upgradeHTML.style.color = 'var(--red-text)';
         image.tabIndex = 0;
     } else {
-        upgradeHTML.className = 'orchidText';
+        upgradeHTML.style.color = 'var(--orchid-text)';
         image.tabIndex = 0;
     }
 };
@@ -1445,7 +1445,7 @@ const setRemnants = () => {
             specialHTML.cache.innerHTML.set('#special1 > img', src1);
             (getQuery('#special1 > img') as HTMLImageElement).src = `Used_art/${src1}.png`;
             getId('special1').title = whiteDwarf ? 'White dwarfs (Red giants)' : 'Red giants';
-            getId('special1Cur').className = whiteDwarf ? 'cyanText' : 'redText';
+            getId('special1Cur').style.color = `var(--${whiteDwarf ? 'cyan' : 'red'}-text)`;
         }
 
         const quarkStar = player.researchesExtra[4][3] >= 1;
@@ -1463,7 +1463,7 @@ const setRemnants = () => {
         specialHTML.cache.innerHTML.set('#special1 > img', 'Galaxy%20group');
         (getQuery('#special1 > img') as HTMLImageElement).src = 'Used_art/Galaxy%20group.png';
         getId('special1').title = 'Galaxy groups';
-        getId('special1Cur').className = 'grayText';
+        getId('special1Cur').style.color = 'var(--gray-text)';
         if (globalSave.SRSettings[0]) { getId('specials').ariaLabel = 'Merge results'; }
     }
 };

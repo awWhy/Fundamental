@@ -619,10 +619,10 @@ try { //Start everything
             (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
 
             const arrowStage = document.createElement('button');
-            arrowStage.innerHTML = '<div class="downArrow"></div>';
+            arrowStage.innerHTML = '<span class="downArrow"></span>';
             arrowStage.type = 'button';
             const arrowReset1 = document.createElement('button');
-            arrowReset1.innerHTML = '<div class="downArrow"></div>';
+            arrowReset1.innerHTML = '<span class="downArrow"></span>';
             arrowReset1.type = 'button';
             getId('resetStage').append(arrowStage);
             arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
@@ -633,8 +633,8 @@ try { //Start everything
             specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
                 #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
                 #resets > section:not(.open) > p { display: none !important; }
-                #resets > section > button:last-of-type { width: 2.2em !important; margin-left: -2px; }
-                #resets .downArrow { width: 1.24em; height: 1.24em; margin: auto; }
+                #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em !important; margin-left: -2px; }
+                #resets .downArrow { width: 1.24em; height: 1.24em; }
                 #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 1; box-sizing: content-box; }`;
 
             const structuresButton = document.createElement('button');
@@ -704,7 +704,6 @@ try { //Start everything
             message.textContent = 'Screen reader support is enabled, disable it if its not required';
             message.className = 'greenText';
             message.ariaHidden = 'true';
-            getId('inflationLoadouts').ariaExpanded = 'false';
             for (let i = 0; i <= 3; i++) {
                 const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
                 effectID.textContent = ` (${effectID.textContent})`;

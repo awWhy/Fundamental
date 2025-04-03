@@ -400,9 +400,9 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
     switch (theme ?? player.stage.active) {
         case 1:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = '';
-                getId(`${text}Effect`).style.color = '';
-                getId(`${text}Cost`).style.color = '';
+                getId(`${text}Text`).style.color = 'var(--darkorchid-text)';
+                getId(`${text}Effect`).style.color = 'var(--blue-text)';
+                getId(`${text}Cost`).style.color = 'var(--orange-text)';
             }
             properties['--tab-inflation'] = 'var(--tab-active)';
             break;
@@ -434,7 +434,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
         case 3:
             for (const text of upgradeTypes) {
                 getId(`${text}Text`).style.color = 'var(--orange-text)';
-                getId(`${text}Effect`).style.color = '';
+                getId(`${text}Effect`).style.color = 'var(--blue-text)';
                 getId(`${text}Cost`).style.color = 'var(--green-text)';
             }
             properties['--background-color'] = '#000804';
@@ -952,7 +952,7 @@ export const replayEvent = async() => {
     if (last >= 10) { text += '\nEvent 10: Quantum'; } //Supervoid
 
     const event = Number(await Prompt(text, `${last}`));
-    if (event > last) { return; }
+    if (event > last) { return void Alert("Not unlocked or doesn't exist"); }
     playEvent(event);
 };
 
@@ -1085,34 +1085,34 @@ export const openHotkeys = () => {
         mainHTML.innerHTML = `<h3 id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</h3>
         ${globalSave.MDSettings[0] ? `<p>Swipe Left or Right ‒ <span class="whiteText">change current tab</span></p>
         <p>Swipe Down or Up ‒ <span class="whiteText">change current subtab</span></p>` : ''}
-        <label id="tabRightHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change tab to the next one</span></label>
-        <label id="tabLeftHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
-        <label id="subtabUpHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
-        <label id="subtabDownHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
-        <label id="stageRightHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
-        <label id="stageLeftHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
+        <label id="tabRightHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change tab to the next one</span></label>
+        <label id="tabLeftHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
+        <label id="subtabUpHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
+        <label id="subtabDownHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
+        <label id="stageRightHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
+        <label id="stageLeftHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
         <p>Numbers ‒ <span class="whiteText">make a Structure</span></p>
-        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button class="selectBtn" type="button"></button> ‒ <span class="whiteText">make all Structures</span></label>
+        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make all Structures</span></label>
         <p>Shift Numbers ‒ <span class="whiteText">toggle auto Structure</span></p>
-        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button class="selectBtn" type="button"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
-        <label id="exitChallengeHotkey"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
+        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
+        <label id="exitChallengeHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
         <div>
-            <label id="stageHotkey" class="stageText"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Stage reset</span></label>
-            <label id="dischargeHotkey" class="orangeText stage1Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Discharge</span></label>
-            <label id="vaporizationHotkey" class="blueText stage2Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Vaporization</span></label>
-            <label id="rankHotkey" class="darkorchidText stage3Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Rank</span></label>
-            <label id="collapseHotkey" class="orchidText stage4Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Collapse</span></label>
-            <label id="galaxyHotkey" class="grayText stage5Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Galaxy</span></label>
-            <label id="mergeHotkey" class="darkvioletText stage5Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Merge</span></label>
-            <label id="universeHotkey" class="darkvioletText stage6Include"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">Universe</span></label>
-            <label id="pauseHotkey" class="grayText"><button class="selectBtn" type="button"></button> ‒ <span class="whiteText">pause</span></label>
+            <label id="stageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage reset</span></label>
+            <label id="dischargeHotkey" class="orangeText stage1Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
+            <label id="vaporizationHotkey" class="blueText stage2Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
+            <label id="rankHotkey" class="darkorchidText stage3Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>
+            <label id="collapseHotkey" class="orchidText stage4Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Collapse</span></label>
+            <label id="galaxyHotkey" class="grayText stage5Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Galaxy</span></label>
+            <label id="mergeHotkey" class="darkvioletText stage5Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Merge</span></label>
+            <label id="universeHotkey" class="darkvioletText stage6Include"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Universe</span></label>
+            <label id="pauseHotkey" class="grayText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">pause</span></label>
         </div>
         <p>Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
         <p>Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
         <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
         <label id="hotkeysToggleLabel" title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
-        <button id="restoreHotkeys" class="selectBtn" type="button">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
+        <button type="button" id="restoreHotkeys" class="selectBtn">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
         mainHTML.ariaLabel = 'Hotkeys menu';
         const toggle = getId('globalToggle0');
         toggle.style.display = '';
@@ -1208,7 +1208,7 @@ export const openLog = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('logHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h2 class="whiteText"><span class="biggerWord mainText">Log</span> | <button id="logOrder" class="selectBtn mainText" type="button">Entries on top are newer</button></h2>
+        mainHTML.innerHTML = `<h2 class="whiteText"><span class="biggerWord mainText">Log</span> | <button type="button" id="logOrder" class="selectBtn mainText">Entries on top are newer</button></h2>
         <ul id="logMain"><li></li></ul>`; //Empty <li> is required
         mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += `#logHTML { display: flex; flex-direction: column; }
