@@ -207,6 +207,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .downArrow {
+    display: inline-block;
     background-color: var(--main-text);
     clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
     pointer-events: none;
@@ -974,9 +975,6 @@ input:-webkit-autofill { /* Chrome related pain */
     border-top: 2px solid var(--stage-image-borderColor);
     padding-top: 0.5em;
 }
-
-#inflationLoadouts { width: max-content; }
-#inflationLoadouts > .downArrow { display: inline-block; }
 
 #loadoutsMain {
     display: flex;
