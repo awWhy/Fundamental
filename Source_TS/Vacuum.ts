@@ -173,11 +173,11 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangeness1Cost = [1, 1, 1, 2, 4, 2, 24];
         strangeness1Scaling = [1, 0.75, 1.5, 2, 0, 0, 0];
         strangeness2Cost = [1, 1, 2, 2, 4, 2, 24];
-        strangeness2Scaling = [0.5, 0.75, 2, 2, 0, 0, 0];
+        strangeness2Scaling = [0.5, 0.75, 1, 2, 0, 0, 0];
         strangeness3Cost = [1, 1, 2, 6, 4, 2, 4, 24];
-        strangeness3Scaling = [0.75, 1.5, 2, 0, 0, 0, 2.5, 0];
+        strangeness3Scaling = [0.75, 1.5, 1, 0, 0, 0, 2.5, 0];
         strangeness4Cost = [1, 1, 3, 2, 4, 2, 4, 24];
-        strangeness4Scaling = [1, 2, 2.5, 2, 0, 0, 68, 0];
+        strangeness4Scaling = [1, 2, 1.5, 2, 0, 0, 68, 0];
         strangeness5Cost = [20, 24, 240, 24, 6000, 24, 20, 120];
         strangeness5Scaling = [20, 24, 240, 0, 0, 0, 220, 0];
         strangenessInfo[1].maxActive = 7;
