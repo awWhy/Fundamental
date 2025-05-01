@@ -970,8 +970,8 @@ export const buyBuilding = (index: number, stageIndex: number, howMany = player.
             }
             if (afford > 1) { total.multiply(new Overlimit(scaling).power(afford).minus('1').divide(scaling - 1)); }
         }
-        if (!isFinite(afford)) {
-            Notify(`Error encountered, couldn't create ${afford} of ${global.buildingsInfo.name[stageIndex][index]}\n(Extra data for debugging: cost scaling is ${scaling}; final cost is ${total}; first cost is ${calculateBuildingsCost(index, stageIndex)}; post processed budget is ${budget}${stageIndex === 1 ? `; Energy is ${player.discharge.energy}` : ''})`);
+        if (!isFinite(afford) || typeof afford !== 'number') {
+            Notify(`Error encountered, couldn't create ${afford} of ${global.buildingsInfo.name[stageIndex][index]}`);
             return;
         }
     }
