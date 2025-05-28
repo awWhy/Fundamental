@@ -31,6 +31,7 @@
         "no-void": "off", //Bugs, doesn't allow to void promises
         "no-useless-concat": "warn",
         "no-extra-label": "warn",
+        "no-unmodified-loop-condition": "off", //Stupid
         "switch-colon-spacing": "error",
         "generator-star-spacing": "error",
         "no-var": "warn",
@@ -62,6 +63,7 @@
         "@typescript-eslint/space-before-function-paren": ["error", "never"],
         "@typescript-eslint/lines-between-class-members": "off",
         "@typescript-eslint/no-unused-vars": ["warn", { "args": "all", "caughtErrors": "all", "vars": "all" }],
+        "@typescript-eslint/no-unnecessary-type-assertion": "off", //Buggy
         "@typescript-eslint/no-empty-function": "warn", //When testing add comment inside
         "@typescript-eslint/no-empty-interface": "warn", //When testing add comment inside
         "@typescript-eslint/no-invalid-this": "error",

@@ -1,8 +1,8 @@
 import { assignHotkeys, detectShift, removeHotkey } from './Hotkeys';
-import { getId, getQuery, globalSaveStart, pauseGame } from './Main';
-import { deepClone, global, player } from './Player';
+import { deepClone, getId, getQuery, globalSaveStart, pauseGame } from './Main';
+import { global, player } from './Player';
 import { assignResetInformation } from './Stage';
-import type { globalSaveType, hotkeysList } from './Types';
+import type { globalSaveType, hotkeysList, numbersList } from './Types';
 import { format, stageUpdate, switchTab, visualTrueStageUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
@@ -19,12 +19,17 @@ export const globalSave: globalSaveType = {
         rank: ['R', 'R'],
         collapse: ['C', 'C'],
         galaxy: ['G', 'G'],
+        nucleation: ['N', 'N'],
+        warp: ['Shift W', 'Shift W'],
         pause: ['P', 'P'],
         makeAll: ['M', 'M'],
         toggleAll: ['Shift A', 'Shift A'],
+        createAll: ['U', 'U'],
         merge: ['Shift M', 'Shift M'],
         universe: ['Shift U', 'Shift U'],
-        exitChallenge: ['E', 'E'],
+        end: ['Shift B', 'Shift B'],
+        supervoid: ['Shift S', 'Shift S'],
+        exitChallenge: ['Shift E', 'Shift E'],
         tabRight: ['Arrow Right', 'Arrow Right'],
         tabLeft: ['Arrow Left', 'Arrow Left'],
         subtabUp: ['Arrow Up', 'Arrow Up'],
@@ -32,12 +37,17 @@ export const globalSave: globalSaveType = {
         stageRight: ['Shift Arrow Right', 'Shift Arrow Right'],
         stageLeft: ['Shift Arrow Left', 'Shift Arrow Left']
     },
+    numbers: {
+        makeStructure: 'Numbers',
+        toggleStructure: 'Numpad',
+        enterChallenge: 'Shift Numbers'
+    },
     toggles: [false, false, false, false, false],
     format: ['.', ''],
     theme: null,
     fontSize: 16,
     MDSettings: [false, false, false],
-    SRSettings: [false, false, false],
+    SRSettings: [false, false],
     developerMode: false
 };
 
@@ -105,7 +115,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
 
 export const specialHTML = { //Images here are from true vacuum for easier cache
     /** [textContent] */
-    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', ''],
+    resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', 'Nucleation'],
     longestBuilding: 7, //+1
     /** [src] */
     buildingHTML: [
@@ -115,7 +125,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Cosmic%20dust.png', 'Planetesimal.png', 'Protoplanet.png', 'Natural%20satellite.png', 'Subsatellite.png'],
         ['Brown%20dwarf.png', 'Orange%20dwarf.png', 'Red%20supergiant.png', 'Blue%20hypergiant.png', 'Quasi%20star.png'],
         ['Nebula.png', 'Star%20cluster.png', 'Galaxy.png'],
-        ['Universe.png']
+        ['Dark%20planet.png']
     ],
     longestUpgrade: 14,
     /** [src] */
@@ -171,7 +181,10 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG5.png',
             'UpgradeG6.png',
             'Missing.png'
-        ], []
+        ], [
+            'Missing.png',
+            'Missing.png'
+        ]
     ],
     longestResearch: 9,
     /** [src, className] */
@@ -189,7 +202,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchW3.png', 'stage2borderImage'],
             ['ResearchW4.png', 'stage2borderImage'],
             ['ResearchW5.png', 'stage2borderImage'],
-            ['ResearchW6.png', 'stage2borderImage']
+            ['ResearchW6.png', 'stage2borderImage'],
+            ['Missing.png', 'stage2borderImage']
         ], [
             ['ResearchA1.png', 'stage3borderImage'],
             ['ResearchA2.png', 'stage2borderImage'],
@@ -213,18 +227,24 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchG3.png', 'stage6borderImage'],
             ['ResearchG4.png', 'stage4borderImage'],
             ['Missing.png', 'redBorderImage']
-        ], []
+        ], [
+            ['Missing.png', 'redBorderImage'],
+            ['Missing.png', 'redBorderImage'],
+            ['ResearchD3.png', 'stage2borderImage'],
+            ['ResearchD4.png', 'stage3borderImage'],
+            ['Missing.png', 'redBorderImage']
+        ]
     ],
     longestResearchExtra: 6,
-    /** [src, className] */
+    /** [src, className, hoverText] */
     researchExtraDivHTML: [
         [],
-        ['Energy%20Researches.png', 'stage4borderImage'],
-        ['Cloud%20Researches.png', 'stage2borderImage'],
-        ['Rank%20Researches.png', 'stage6borderImage'],
-        ['Collapse%20Researches.png', 'stage6borderImage'],
-        ['Galaxy%20Researches.png', 'stage3borderImage'],
-        ['Missing.png', 'redBorderImage']
+        ['Energy%20Researches.png', 'stage4borderImage', 'Energy'],
+        ['Cloud%20Researches.png', 'stage2borderImage', 'Clouds'],
+        ['Rank%20Researches.png', 'stage6borderImage', 'Rank'],
+        ['Collapse%20Researches.png', 'stage6borderImage', 'Collapse'],
+        ['Galaxy%20Researches.png', 'stage3borderImage', 'Galaxy'],
+        ['Missing.png', 'stage3borderImage', 'Dark']
     ],
     /** [src, className] */
     researchExtraHTML: [
@@ -260,7 +280,12 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchGalaxy4.png', 'brownBorderImage'],
             ['Missing.png', 'redBorderImage'],
             ['Missing.png', 'redBorderImage']
-        ], []
+        ], [
+            ['ResearchDark1.png', 'stage6borderImage'],
+            ['ResearchDark2.png', 'stage3borderImage'],
+            ['Missing.png', 'redBorderImage'],
+            ['Missing.png', 'redBorderImage']
+        ]
     ],
     longestFooterStats: 3,
     /** [src, className, textcontent] */
@@ -283,7 +308,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Stars.png', 'redBorderImage redText', 'Stars']
         ], [
             ['Dark%20matter.png', 'stage3borderImage grayText', 'Matter'],
-            ['Inflaton.png', 'stage6borderImage darkvioletText', 'Inflatons']
+            ['Dark%20energy.png', 'stage3borderImage grayText', 'Energy'],
+            ['Dark%20fluid.png', 'stage6borderImage darkvioletText', 'Fluid']
         ]
     ],
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
@@ -299,7 +325,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     cache: {
         imagesDiv: document.createElement('div'), //Saved just in case
         /** Lazy way to optimize HTML, without it can't properly detect changes */
-        innerHTML: new Map<string | HTMLElement, string | number>(),
+        innerHTML: new Map<string | HTMLElement, any>(),
         idMap: new Map<string, HTMLElement>(),
         classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
         queryMap: new Map<string, HTMLElement>()
@@ -313,8 +339,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     styleSheet: document.createElement('style') //Secondary
 };
 
-export const preventImageUnload = (): void => {
-    if (global.offline.active || global.paused) { return void (global.offline.cacheUpdate = true); }
+export const preventImageUnload = () => {
+    if (global.offline.active || global.paused) {
+        global.offline.cacheUpdate = true;
+        return;
+    }
     const { footerStatsHTML: footer, buildingHTML: build, upgradeHTML: upgrade, researchHTML: research, researchExtraHTML: extra, researchExtraDivHTML: extraDiv } = specialHTML;
 
     let images = '';
@@ -366,7 +395,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
         getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
     } else { theme = globalSave.theme; }
 
-    const upgradeTypes = ['upgrade', 'element', 'inflation'];
+    const upgradeTypes = ['upgrade', 'element'];
     const properties = {
         '--background-color': '#030012',
         '--window-color': '#12121c',
@@ -548,15 +577,15 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
             properties['--yellow-text'] = 'var(--green-text)';
     }
 
-    const body = document.documentElement.style;
-    body.setProperty('--transition-all', '800ms');
-    body.setProperty('--transition-buttons', '600ms');
-    for (const property in properties) { body.setProperty(property, properties[property as '--main-text']); }
+    const bodyStyle = document.documentElement.style;
+    bodyStyle.setProperty('--transition-all', '500ms');
+    bodyStyle.setProperty('--transition-buttons', '500ms');
+    for (const property in properties) { bodyStyle.setProperty(property, properties[property as '--main-text']); }
 
     setTimeout(() => {
-        body.setProperty('--transition-all', '0ms');
-        body.setProperty('--transition-buttons', '100ms');
-    }, 800);
+        bodyStyle.setProperty('--transition-all', '0ms');
+        bodyStyle.setProperty('--transition-buttons', '100ms');
+    }, 500);
 };
 
 export const Alert = async(text: string, priority = 0): Promise<void> => {
@@ -573,7 +602,7 @@ export const Alert = async(text: string, priority = 0): Promise<void> => {
         }
 
         getId('alertText').textContent = text;
-        const body = document.body;
+        const body = document.documentElement;
         const blocker = getId('alertMain');
         const confirm = getId('alertConfirm');
         blocker.style.display = '';
@@ -622,7 +651,7 @@ export const Confirm = async(text: string, priority = 0): Promise<boolean> => {
         }
 
         getId('alertText').textContent = text;
-        const body = document.body;
+        const body = document.documentElement;
         const blocker = getId('alertMain');
         const cancel = getId('alertCancel');
         const confirm = getId('alertConfirm');
@@ -684,7 +713,7 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
         }
 
         getId('alertText').textContent = text;
-        const body = document.body;
+        const body = document.documentElement;
         const blocker = getId('alertMain');
         const input = getId('alertInput') as HTMLInputElement;
         const cancel = getId('alertCancel');
@@ -771,7 +800,7 @@ export const Notify = (text: string) => {
                 return;
             }
             html.textContent = `${text} | x${++count}`;
-            if (timeout === undefined) { return; } //Required to make it work properly if call happened too early
+            if (timeout === undefined) { return; }
             clearTimeout(timeout);
             timeout = setTimeout(remove, 7200);
         }]) - 1];
@@ -813,12 +842,12 @@ export const resetMinSizes = (full = true) => {
         element.style.minWidth = '';
     }
     for (let i = 0; i < global.researchesInfo[player.stage.active].maxActive; i++) {
-        const element = getQuery(`#research${i + 1} > p`);
+        const element = getQuery(`#research${i + 1} span`);
         specialHTML.cache.innerHTML.set(element, '');
         element.style.minWidth = '';
     }
     for (let i = 0; i < global.researchesExtraInfo[player.stage.active].maxActive; i++) {
-        const element = getQuery(`#researchExtra${i + 1} > p`);
+        const element = getQuery(`#researchExtra${i + 1} span`);
         specialHTML.cache.innerHTML.set(element, '');
         element.style.minWidth = '';
     }
@@ -860,23 +889,6 @@ export const changeFormat = (point: boolean) => {
     saveGlobalSettings();
 };
 
-/** Short is only for hotkeys that can change */
-export const SRHotkeysInfo = (short = false) => {
-    const index = globalSave.toggles[0] ? 0 : 1;
-    const hotkeys = globalSave.hotkeys;
-    const resetName = specialHTML.resetHTML[player.stage.active];
-    const reset1Id = getId('reset1Main');
-    reset1Id.ariaLabel = `${resetName} reset`;
-    reset1Id.ariaDescription = `Hotkey is ${hotkeys[resetName.toLowerCase() as hotkeysList] ?? 'None'}`;
-    if (short) { return; }
-    getQuery('#footerMain > nav').ariaDescription = `Hotkeys are ${hotkeys.tabLeft[index]} and ${hotkeys.tabRight[index]}`;
-    getId('subtabs').ariaDescription = `Hotkeys are ${hotkeys.subtabDown[index]} and ${hotkeys.subtabUp[index]}`;
-    getId('stageSelect').ariaDescription = `Hotkeys are ${hotkeys.stageLeft[index]} and ${hotkeys.stageRight[index]}`;
-    getId('resetStage').ariaDescription = `Hotkey is ${hotkeys.stage[index]}`;
-    getId('makeAllStructures').ariaDescription = `Hotkey is ${hotkeys.makeAll[index]}`;
-    getId('toggleBuilding0').ariaDescription = `Hotkey is ${hotkeys.toggleAll[index]}`;
-};
-
 export const MDStrangenessPage = (stageIndex: number) => {
     getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
     getId(`strangenessSection${stageIndex}`).style.display = '';
@@ -886,9 +898,9 @@ export const MDStrangenessPage = (stageIndex: number) => {
 export const replayEvent = async() => {
     let last;
     if (player.stage.true >= 8) {
-        last = 11;
+        last = player.event ? 13 : 12;
     } else if (player.stage.true >= 7) {
-        last = player.buildings[6][1].true >= 6 ? 11 : player.event ? 10 : 9;
+        last = player.verses[0].true >= 6 ? 11 : player.event ? 10 : 9;
     } else if (player.stage.true === 6) {
         last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
     } else {
@@ -907,6 +919,8 @@ export const replayEvent = async() => {
     if (last >= 9) { text += '\nEvent 9: Inflation'; }
     if (last >= 10) { text += '\nEvent 10: Supervoid'; }
     if (last >= 11) { text += '\nEvent 11: Stability'; }
+    if (last >= 12) { text += '\nEvent 12: Big rip'; }
+    if (last >= 13) { text += '\nEvent 13: Void Universes'; }
 
     const event = Number(await Prompt(text, `${last}`));
     if (event <= 0 || !isFinite(event)) { return; }
@@ -929,12 +943,12 @@ export const playEvent = (event: number, replay = true) => {
             assignResetInformation.maxRank();
             global.debug.rankUpdated = null;
         }
-        text = 'Cannot gain any more Mass with current Rank. A new one has been unlocked, but reaching it will softcap the Mass production';
+        text = 'Cannot gain any more Mass with the current Rank. A new one has been unlocked, but reaching it will softcap the Mass production';
     } else if (event === 4) {
         text = 'That last explosion not only created the first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis';
     } else if (event === 5) {
         if (!replay) { stageUpdate(false); }
-        text = "There are no Structures in Intergalactic yet, but knowledge for their creation can be found within previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve Stage reset reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
+        text = "There are no Structures in Intergalactic yet, but knowledge for their creation can be found within the previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve Stage reset reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
     } else if (event === 6) {
         text = 'As Galaxies began to Merge, their combined Gravity pushed Vacuum out of its local minimum into a more stable global minimum. New forces and Structures are expected within this new and true Vacuum state';
     } else if (event === 7) {
@@ -943,7 +957,7 @@ export const playEvent = (event: number, replay = true) => {
         if (!replay) { stageUpdate(false); }
         text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
-        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements based on self-made Universes)";
+        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements for every Universe and exports now fully claims their storage)";
     } else if (event === 10) {
         if (!replay) {
             visualTrueStageUnlocks();
@@ -952,6 +966,10 @@ export const playEvent = (event: number, replay = true) => {
         text = "Now that there was even more matter to rearrange ‒ the 'Supervoid' was formed. Check it out by clicking on the Void name in the 'Advanced' subtab.\n(Also unlocked 2 new Inflations, Supervoid unlocks are kept through Universe reset)";
     } else if (event === 11) {
         text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, which had unlocked a new Challenge ‒ 'Vacuum stability'";
+    } else if (event === 12) {
+        text = "Unlocked ability to End everything:\nBy converting Dark energy into the Phantom energy, you can now trigger the scenario known as 'Big Rip', meaning that everything up to this point is going to be converted into Cosmons.\n(Also reduce time required for a max Export reward by 4)";
+    } else if (event === 13) {
+        text = 'Void Universes are weaker version of self-made Universes. They do not count as self-made, but do award Inflatons and unlock new Elements. They can be created only under the Void time limit.';
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
     return void Alert(text);
@@ -973,6 +991,7 @@ const buildBigWindow = (subWindow: string): null | HTMLElement => {
     return mainHTML;
 };
 const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTMLElement | null) => {
+    const body = document.documentElement;
     const closeButton = getId('closeBigWindow');
     const windowHMTL = getId('bigWindow');
     if (firstTargetHTML === null) { firstTargetHTML = closeButton; }
@@ -989,10 +1008,10 @@ const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTML
         specialHTML.bigWindow = null;
         windowHMTL.style.display = 'none';
         sectionHTML.style.display = 'none';
-        document.body.removeEventListener('keydown', key);
+        body.removeEventListener('keydown', key);
         closeButton.removeEventListener('click', close);
     };
-    document.body.addEventListener('keydown', key);
+    body.addEventListener('keydown', key);
     closeButton.addEventListener('click', close);
     sectionHTML.style.display = '';
     windowHMTL.style.display = '';
@@ -1003,20 +1022,21 @@ export const openVersionInfo = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones\n<a href="https://docs.google.com/document/d/1O8Zz1f7Ez2HsfTVAxG_V2t9-yC77-mJuEru15HeDy0U/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        mainHTML.innerHTML = `<h6>v0.2.6</h6><p>- New content (Big Rip)\n- Mobile shorcuts are now available outside of related support\n- Create all Upgrades button and hotkey\n- Number hotkeys can now be changed\n- Improved hover text\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones</p>
         <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>
         <h6>v0.2.3</h6><p>- Supervoid rework\n- Abyss small rebalance</p>
-        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves the game to load it after exiting</p>
+        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Entering Void now saves the game to load it after exiting</p>
         <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
         <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
-        <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
+        <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Offline time reworked</p>
         <h6>v0.1.8</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Copy to the clipboard, load from string save file options</p>
         <h6>v0.1.7</h6><p>- New content (Void)\n- Further balance changes</p>
         <h6>v0.1.6</h6><p>- Massive rebalance and reworks for all Stages</p>
         <h6>v0.1.5</h6><p>- True Vacuum minor balance\n- Images no longer unload\n- Screen reader support reworked</p>
         <h6>v0.1.4</h6><p>- Custom scrolls\n- Notifications</p>
         <h6>v0.1.3</h6><p>- True Vacuum balance changes\n- Submerged Stage minor balance\n- Replay event button\n\n- History for Stage resets</p>
-        <h6>v0.1.2</h6><p>- New content (Vacuum)\n- Offline time reworked\n- Version window\n- Permanently removed text movement</p>
+        <h6>v0.1.2</h6><p>- New content (Vacuum)\n- Version window\n- Permanently removed text movement</p>
         <h6>v0.1.1</h6><p>- More balance changes for late game</p>
         <h6>v0.1.0</h6><p>- New content (Intergalactic)\n- Balance changes for late game</p>
         <h6>v0.0.9</h6><p>- New content (Milestones)\n- More Interstellar and late game balance</p>
@@ -1025,7 +1045,7 @@ export const openVersionInfo = () => {
         <h6>v0.0.6</h6><p>- Added hotkeys list\n\n- Option to remove text movement\n- Ability to rename the save file</p>
         <h6>v0.0.5</h6><p>- New content (Interstellar)\n- Basic loading screen\n\n- Added hotkeys</p>
         <h6>v0.0.4</h6><p>- Speed up to all Stages\n- Basic events\n\n- Added numbers format</p>
-        <h6>v0.0.3</h6><p>- New content (Accretion)\n- Submerged Stage extended\n- Offline time calculated better</p>
+        <h6>v0.0.3</h6><p>- New content (Accretion)\n- Submerged Stage extended</p>
         <h6>v0.0.2</h6><p>- Stats subtab</p>
         <h6>v0.0.1</h6><p>- Submerged Stage rework\n\n- Mobile device support</p>
         <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
@@ -1043,7 +1063,7 @@ export const openHotkeys = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('hotkeysHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h3 id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</h3>
+        mainHTML.innerHTML = `<h3 id="hotkeysMessage" class="bigWord" aria-live="assertive">Highlighted hotkeys can be modified</h3>
         ${globalSave.MDSettings[0] ? `<p>Left or Right swipe ‒ <span class="whiteText">change current tab</span></p>
         <p>Diagonal Down or Up swipe ‒ <span class="whiteText">change current subtab</span></p>
         <p id="stageSwipe">Long Left or Right swipe ‒ <span class="whiteText">change current active Stage</span></p>` : ''}
@@ -1053,108 +1073,171 @@ export const openHotkeys = () => {
         <label id="subtabDownHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change subtab to the previous one</span></label>
         <label id="stageRightHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change active Stage to the next one</span></label>
         <label id="stageLeftHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
-        <p>Numbers ‒ <span class="whiteText">make a Structure</span></p>
-        <label id="makeAllHotkey">0 <span class="whiteText">or</span> <button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make all Structures</span></label>
-        <p>Shift Numbers ‒ <span class="whiteText">toggle auto Structure</span></p>
-        <label id="toggleAllHotkey">Shift 0 <span class="whiteText">or</span> <button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label>
-        <label id="exitChallengeHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Exit out of current Challenge</span></label>
+        <label id="makeStructureHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make a Structure</span></label>
+        <p id="makeAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make all Structures</span></label></p>
+        <label id="toggleStructureHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle auto Structure</span></label>
+        <p id="toggleAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label></p>
+        <label id="enterChallengeHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">enter the Challenge</span></label>
+        <p id="exitChallengeHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">exit out of the current Challenge</span></label></p>
         <div>
-            <label id="stageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage reset</span></label>
+            <label id="createAllHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Upgrades</span></label>
             <label id="dischargeHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
             <label id="vaporizationHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
             <label id="rankHotkey" class="darkorchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>
             <label id="collapseHotkey" class="orchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Collapse</span></label>
             <label id="galaxyHotkey" class="grayText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Galaxy</span></label>
             <label id="mergeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Merge</span></label>
+            <label id="nucleationHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Nucleation</span></label>
+            <label id="stageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage</span></label>
             <label id="universeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Universe</span></label>
+            <label id="endHotkey" class="redText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">End</span></label>
+            <label id="supervoidHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Supervoid</span></label>
+            <label id="warpHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Warp</span></label>
             <label id="pauseHotkey" class="grayText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">pause</span></label>
         </div>
         <p>Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
-        <p>Escape ‒ <span class="whiteText">cancel changing hotkey, close Alert or Notification</span></p>
+        <p>Escape ‒ <span class="whiteText">cancel changing the hotkey, close Alert or Notification</span></p>
         <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
+        <p>Numlock being ON can break Numpad hotkeys</p>
+        <p>Shift clicking the hotkey will remove it</p>
         <label id="hotkeysToggleLabel" title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
         <button type="button" id="restoreHotkeys" class="selectBtn">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
         mainHTML.ariaLabel = 'Hotkeys menu';
         const toggle = getId('globalToggle0');
-        toggle.style.display = '';
         getId('hotkeysToggleLabel').append(toggle);
+        toggle.style.display = '';
         specialHTML.styleSheet.textContent += `#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
             #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; }
             #hotkeysHTML > div label { justify-self: center; width: max-content; } `;
 
-        const changeHotkey = async(disableFirstUp = false): Promise<string[] | null> => {
+        const changeHotkey = async(number: boolean): Promise<string | string[] | null> => {
             return await new Promise((resolve) => {
                 getId('hotkeysMessage').textContent = 'Awaiting new value for the hotkey';
-                const body = document.body;
-                let result: null | string[] = null;
-                const prevent = (event: KeyboardEvent) => {
-                    const code = event.code;
-                    if (code === 'Tab') { return; }
-                    event.preventDefault();
-                    if (code === 'Escape' || ((code === 'Enter' || code === 'Space') && document.activeElement === getId('closeBigWindow'))) {
-                        finish();
-                    }
-                };
+                const body = document.documentElement;
+                let result: null | string | string[] = null;
                 const detect = async(event: KeyboardEvent) => {
-                    if (disableFirstUp) { return void (disableFirstUp = false); }
                     const { key, code } = event;
-                    if (code === 'Tab' || code === 'Escape') { return; }
-                    let prefix = event.metaKey ? 'Meta ' : '';
-                    if (event.ctrlKey) { prefix += 'Ctrl '; }
-                    if (event.shiftKey) { prefix += 'Shift '; }
-                    if (event.altKey) { prefix += 'Alt '; }
-                    if ((!isNaN(Number(code.replace('Digit', '').replace('Numpad', ''))) && code !== '') ||
-                        key === 'Meta' || key === 'Control' || key === 'Shift' || key === 'Alt' || code === 'Enter' || code === 'Space') {
-                        getId('hotkeysMessage').textContent = `Value '${prefix}${globalSave.toggles[0] ? key : code}' for hotkeys isn't allowed`;
+                    if (code === 'Tab' || code === 'Enter' || code === 'Space') { return; }
+                    event.preventDefault();
+                    if (code === 'Escape') { return finish(); }
+                    if (key === 'Control' || key === 'Shift' || key === 'Alt') { return; }
+                    if (key === 'Meta' || event.metaKey) {
+                        getId('hotkeysMessage').textContent = "Meta isn't allowed";
                         return;
                     }
-                    result = [`${prefix}${key.length === 1 ? key.toUpperCase() : key.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`,
-                        `${prefix}${key.length === 1 ? code.replace('Key', '') : code.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`];
-                    if (result[0] === '') { result[0] = 'None'; }
-                    if (result[1] === '') { result[1] = 'None'; }
+                    let prefix = event.ctrlKey ? 'Ctrl ' : '';
+                    if (event.shiftKey) { prefix += 'Shift '; }
+                    if (event.altKey) { prefix += 'Alt '; }
+                    if (!isNaN(Number(code.replace('Digit', '').replace('Numpad', ''))) && code !== '') {
+                        if (!number) {
+                            getId('hotkeysMessage').textContent = "Numbers can't used here";
+                            return;
+                        }
+                        result = `${prefix}${code.includes('Numpad') ? 'Numpad' : 'Numbers'}`;
+                        if (result === '') { result = 'None'; }
+                    } else {
+                        if (number) {
+                            if (key !== 'NumLock') { getId('hotkeysMessage').textContent = 'Only numbers can be used here'; }
+                            return;
+                        }
+                        result = [`${prefix}${key.length === 1 ? key.toUpperCase() : key.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`,
+                            `${prefix}${key.length === 1 ? code.replace('Key', '') : code.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`];
+                        if (result[0] === '') { result[0] = 'None'; }
+                        if (result[1] === '') { result[1] = 'None'; }
+                    }
                     finish();
                 };
-                const finish = () => {
-                    body.removeEventListener('keydown', prevent);
-                    body.removeEventListener('keyup', detect);
-                    body.removeEventListener('click', finish, { capture: true });
+                const clickClose = () => {
                     global.hotkeys.disabled = false;
+                    finish(false);
+                };
+                const finish = (keyboard = true) => {
+                    body.removeEventListener('keydown', detect);
+                    body.removeEventListener('click', clickClose, { capture: true });
+                    if (keyboard) {
+                        body.addEventListener('keyup', () => { global.hotkeys.disabled = false; }, { once: true });
+                    }
                     resolve(result);
                 };
                 global.hotkeys.disabled = true;
-                body.addEventListener('keydown', prevent);
-                body.addEventListener('keyup', detect);
-                body.addEventListener('click', finish, { capture: true });
+                body.addEventListener('keydown', detect);
+                body.addEventListener('click', clickClose, { capture: true });
             });
         };
         const index = globalSave.toggles[0] ? 0 : 1;
         for (const key in globalSaveStart.hotkeys) {
-            const button = getQuery(`#${key}Hotkey > button`) as HTMLButtonElement;
+            const button = getQuery(`#${key}Hotkey button`);
             button.textContent = globalSave.hotkeys[key as hotkeysList][index];
-            button.type = 'button';
             button.addEventListener('click', async(event) => {
-                const button = getQuery(`#${key}Hotkey > button`);
+                if (event.shiftKey) {
+                    if (removeHotkey(globalSave.hotkeys[key as hotkeysList][globalSave.toggles[0] ? 0 : 1]) !== null) {
+                        button.textContent = 'None';
+                        assignHotkeys();
+                        saveGlobalSettings();
+                    }
+                    return;
+                }
                 button.style.borderBottomStyle = 'dashed';
-                const newHotkey = await changeHotkey(event.clientX === 0); //Check if click was caused by pressing Enter
+                const newHotkey = await changeHotkey(false) as string[];
                 if (newHotkey !== null) {
                     const index = globalSave.toggles[0] ? 0 : 1;
                     const removed = removeHotkey(newHotkey[index]);
-                    if (removed !== null) { getQuery(`#${removed}Hotkey > button`).textContent = 'None'; }
+                    if (removed !== null) { getQuery(`#${removed}Hotkey button`).textContent = 'None'; }
                     button.textContent = newHotkey[index];
                     globalSave.hotkeys[key as hotkeysList] = newHotkey;
                     assignHotkeys();
                     saveGlobalSettings();
                 }
                 button.style.borderBottomStyle = '';
-                getId('hotkeysMessage').textContent = 'Some hotkeys can be changed by clicking on them';
+                getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
+            });
+        }
+        const extraHotkeyName: Record<string, string> = {
+            makeStructure: 'makeAll',
+            toggleStructure: 'toggleAll',
+            enterChallenge: 'exitChallenge'
+        };
+        for (const key in globalSaveStart.numbers) {
+            const button = getQuery(`#${key}Hotkey button`);
+            button.textContent = globalSave.numbers[key as numbersList];
+            getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = globalSave.numbers[key as numbersList].replace('Numbers', '0').replace('Numpad', 'Num 0');
+            button.addEventListener('click', async(event) => {
+                if (event.shiftKey) {
+                    if (removeHotkey(globalSave.numbers[key as numbersList], true) !== null) {
+                        button.textContent = 'None';
+                        assignHotkeys();
+                        saveGlobalSettings();
+                    }
+                    return;
+                }
+                button.style.borderBottomStyle = 'dashed';
+                const newHotkey = await changeHotkey(true) as string;
+                if (newHotkey !== null) {
+                    const removed = removeHotkey(newHotkey, true);
+                    if (removed !== null) {
+                        getQuery(`#${removed}Hotkey button`).textContent = 'None';
+                        getQuery(`#${extraHotkeyName[removed]}Hotkey span`).textContent = 'None';
+                    }
+                    button.textContent = newHotkey;
+                    getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = newHotkey.replace('Numbers', '0').replace('Numpad', 'Num 0');
+                    globalSave.numbers[key as numbersList] = newHotkey;
+                    assignHotkeys();
+                    saveGlobalSettings();
+                }
+                button.style.borderBottomStyle = '';
+                getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
             });
         }
         getId('restoreHotkeys').addEventListener('click', () => {
             globalSave.hotkeys = deepClone(globalSaveStart.hotkeys);
+            globalSave.numbers = deepClone(globalSaveStart.numbers);
             const index = globalSave.toggles[0] ? 0 : 1;
-            for (const key in globalSave.hotkeys) {
-                getQuery(`#${key}Hotkey > button`).textContent = globalSave.hotkeys[key as hotkeysList][index];
+            for (const key in globalSave.hotkeys) { getQuery(`#${key}Hotkey button`).textContent = globalSave.hotkeys[key as hotkeysList][index]; }
+            for (const key in globalSave.numbers) {
+                const value = globalSave.numbers[key as numbersList];
+                getQuery(`#${key}Hotkey button`).textContent = value;
+                getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = value.replace('Numbers', '0').replace('Numpad', 'Num 0');
             }
             assignHotkeys();
             saveGlobalSettings();
@@ -1162,7 +1245,7 @@ export const openHotkeys = () => {
     }
 
     specialHTML.bigWindow = 'hotkeys';
-    addCloseEvents(getId('hotkeysHTML'), getQuery('#tabRightHotkey > button'));
+    addCloseEvents(getId('hotkeysHTML'), getQuery('#tabRightHotkey button'));
     visualTrueStageUnlocks();
     visualUpdate();
 };

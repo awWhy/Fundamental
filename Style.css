@@ -121,9 +121,8 @@ body {
 .stage6windowBackground { background-color: #01003c !important; }
 
 /* Right now it works only with keyboard tab button */
-body.noFocusOutline button, body.noFocusOutline .noFocusOutline,
-body.noFocusOutline input:not(input[type = "text"], input[type = "number"]) { outline: none; }
-body.noTextSelection { user-select: none; }
+html.noFocusOutline button, html.noFocusOutline input:not(input[type = "text"], input[type = "number"]) { outline: none; }
+html.noTextSelection { user-select: none; }
 
 ::-webkit-scrollbar {
     width: 1.2vh;
@@ -174,7 +173,7 @@ p > img {
     margin: 0.5em 0.5em 0 0.2em;
 }
 
-.interactiveImage { cursor: pointer; }
+input[type = "image"] { cursor: pointer; }
 
 .stageBorderImage {
     background-image: var(--image-border);
@@ -315,26 +314,26 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     width: clamp(25vw, 29rem, 95vw);
     overflow-wrap: break-word;
     pointer-events: auto;
-    user-select: none;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 #notifications > p:not(:first-of-type) { margin-top: -1px; }
 
-label { cursor: pointer; }
-label:has(input[type = "number"], input[type = "text"]) { cursor: text; }
+.hasTitle { cursor: help; }
+label { cursor: pointer !important; }
+label:has(input[type = "number"], input[type = "text"]) { cursor: text !important; }
 button, input { appearance: none; }
 
 #load, button {
     height: 2.08em;
-    cursor: pointer;
+    cursor: pointer !important;
     background-color: var(--button-color);
     border: 2px solid var(--button-border);
     color: var(--button-text);
     font-size: 0.84em;
 }
 
-.toggleNormal, .toggleConfirm, .toggleBuilding, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
+.toggleNormal, .toggleConfirm, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
     color: var(--green-text);
     border-color: forestgreen;
     background-color: var(--background-color);
@@ -360,14 +359,13 @@ button, input { appearance: none; }
 
 .hollowButton { background-color: var(--background-color); }
 
-img, input[type = "image"], button, #load, a {
-    user-select: none;
+img, input[type = "image"], button, #load, #logoLinks > a {
     transition-duration: var(--transition-buttons);
 }
 
 button:hover, #load:hover { background-color: var(--button-hover); }
-.toggleNormal:hover, .toggleConfirm:hover, .toggleBuilding:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
-.specialToggle:hover, .interactiveImage:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
+.toggleNormal:hover, .toggleConfirm:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
+.specialToggle:hover, input[type = "image"]:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
 
 button.selectBtn {
     background-color: unset !important;
@@ -379,10 +377,11 @@ button.selectBtn {
     color: inherit;
     font-size: unset;
     height: unset;
+    transition-duration: var(--transition-all);
 }
 
 button.selectBtn:disabled {
-    cursor: default;
+    cursor: default !important;
     border: none;
 }
 
@@ -415,6 +414,8 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 .popUpMenu {
+    display: flex;
+    flex-direction: column;
     position: absolute;
     transform: translateX(50%);
     right: 50%;
@@ -422,11 +423,27 @@ input:-webkit-autofill { /* Chrome related pain */
     border: 2px solid var(--window-border);
     border-radius: 7px;
     width: max-content;
-    max-width: 90vw;
+    max-width: min(55em, 90vw);
     padding: 0.5em 0.6em 0.6em;
+    margin-top: 0.3em;
     overflow-wrap: break-word;
     z-index: 8;
-    cursor: default;
+}
+
+#hoverWindow {
+    position: fixed;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 7px;
+    width: max-content;
+    max-width: min(55em, 90vw);
+    padding: 0.2em 0.5em 0.3em;
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+    font-size: 0.92em;
+    pointer-events: none;
+    white-space: pre-line;
+    z-index: 20;
 }
 
 .insideTab {
@@ -536,14 +553,15 @@ input:-webkit-autofill { /* Chrome related pain */
 .buyBuilding button:first-of-type {
     grid-area: button;
     width: 15em;
+    white-space: nowrap;
 }
 
-.toggleBuilding {
+#buildings .specialToggle {
     width: 5.8em;
     height: 1.95em;
 }
 
-.buyBuilding .toggleBuilding {
+.buyBuilding .specialToggle {
     grid-area: toggle;
     margin-left: 0.4em;
 }
@@ -570,18 +588,15 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-left: 0.3em;
 }
 
-#buildingToggles label {
-    display: none;
+#buildingToggles .popUpMenu {
     text-align: center;
     border-radius: 8px;
-    max-width: min(26em, 60vw); /* Temporary to limit it going off screen */
     padding: 0.3em 0.8em 0.4em;
     margin-top: 0.38em;
+    cursor: default !important;
 }
 
 #buildingToggles div { position: relative; }
-#buildingToggles div:focus-within > label { display: block; }
-
 #toggleBuilding0 { margin-left: 0.3em; }
 
 #stageInfo > div {
@@ -631,7 +646,7 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.6em;
 }
 
-#challengesMain .interactiveImage {
+#challengesMain input {
     width: 48px;
     height: 48px;
     border-radius: 0;
@@ -690,6 +705,7 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.2em;
 }
 
+.challengeRewards p { white-space: pre-line; }
 #voidRewards > .challengeRewards { margin-top: 0.6em; }
 
 .togglesDiv {
@@ -745,19 +761,18 @@ input:-webkit-autofill { /* Chrome related pain */
     transition-property: background-color;
 }
 
-.researchesDiv > div {
+.researchesDiv > label {
     display: flex;
     transition-property: background-color;
 }
 
-.researchesDiv img,
-.researchesDiv .interactiveImage {
+.researchesDiv input {
     border-radius: 3px;
     z-index: 2;
     transition-property: background-color;
 }
 
-.researchesDiv p {
+.researchesDiv label > span {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -769,6 +784,7 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--background-color);
     margin-left: -3px;
     height: 32px;
+    pointer-events: none;
     transition-property: background-color;
 }
 
@@ -784,15 +800,17 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     align-items: center;
     text-align: center;
-    max-width: 80vw;
+    max-width: 90vw;
     row-gap: 0.3em;
     white-space: pre-line;
 }
 
 .descriptionTextMain > div:first-of-type {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    column-gap: 0.4em;
+    gap: 0.4em;
 }
 
 .descriptionTextMain .hollowButton {
@@ -814,7 +832,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: -0.6em;
 }
 
-#elementsGrid > .interactiveImage {
+#elementsGrid > input {
     width: 38px;
     height: 38px;
     border-radius: 0;
@@ -834,52 +852,59 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #element0:hover { opacity: 1; }
 
-.elementType1.awaiting { background: #780000 linear-gradient(45deg, #780000 50%, var(--background-color) 50%); }
-.elementType2.awaiting { background: #a55900 linear-gradient(45deg, #a55900 50%, var(--background-color) 50%); }
-.elementType3.awaiting { background: #0000c1 linear-gradient(45deg, #0000c1 50%, var(--background-color) 50%); }
-.elementType1.created, .elementType1.awaiting:hover { background: #780000; }
-.elementType2.created, .elementType2.awaiting:hover { background: #a55900; }
-.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; }
+input.elementType1.awaiting { background: #780000 linear-gradient(45deg, #780000 50%, var(--background-color) 50%); }
+input.elementType2.awaiting { background: #a55900 linear-gradient(45deg, #a55900 50%, var(--background-color) 50%); }
+input.elementType3.awaiting { background: #0000c1 linear-gradient(45deg, #0000c1 50%, var(--background-color) 50%); }
+input.elementType1.created, .elementType1.awaiting:hover { background: #780000; }
+input.elementType2.created, .elementType2.awaiting:hover { background: #a55900; }
+input.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; }
 
+#abyssResources,
 #strangeStructures {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    column-gap: 0.6em;
+    gap: 0.6em;
     margin-top: -0.8em;
     margin-bottom: -0.4em;
 }
 
-#strangeStructures section {
+#abyssResources > section,
+#strangeStructures > section {
     display: flex;
     flex-direction: column;
     text-align: center;
     row-gap: 0.2em;
 }
 
+#strangeStructures > section { cursor: help; }
+#abyssResources div,
 #strangeStructures div { display: flex; }
 
+#abyssResources img,
 #strangeStructures img {
     background-color: black;
     border-radius: 0;
 }
 
+#abyssResources p,
 #strangeStructures p {
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid #006400;
     border-left: none;
-    padding: 0 0.5em;
     background-color: black;
     width: 6em;
     height: 32px;
 }
 
+#abyssResources p { border-color: #5300c1; }
+
 #strangeStructures .popUpMenu {
-    flex-direction: column;
     margin-top: calc(1.9em + 32px);
     row-gap: 0.2em;
+    pointer-events: none;
 }
 
 #strangeStructures .popUpMenu ul {
@@ -893,6 +918,11 @@ input:-webkit-autofill { /* Chrome related pain */
     list-style: inside "− ";
     line-height: 1.2em;
     text-align: start;
+}
+
+#strangenessHeader {
+    display: flex;
+    flex-direction: column;
 }
 
 #strangenessResearch {
@@ -932,7 +962,7 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-grow: 1;
 }
 
-#milestones img {
+#milestones input {
     cursor: help;
     border-radius: 3px;
 }
@@ -967,8 +997,8 @@ input:-webkit-autofill { /* Chrome related pain */
 #inflations {
     display: flex;
     flex-direction: column;
-    background-color: var(--window-color);
-    border: 2px solid var(--stage-image-borderColor);
+    background-color: #01003c;
+    border: 2px solid #5300c1;
     border-radius: 4px;
     padding: 0.5em;
     gap: 0.5em;
@@ -984,7 +1014,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #inflations > section:not(:first-of-type) {
-    border-top: 2px solid var(--stage-image-borderColor);
+    border-top: 2px solid #5300c1;
     padding-top: 0.5em;
 }
 
@@ -999,11 +1029,11 @@ input:-webkit-autofill { /* Chrome related pain */
     align-items: center;
     padding: 0.5em 0.6em 0.6em;
     row-gap: 0.4em;
-    background-color: var(--window-color);
-    border: 2px solid var(--window-border);
+    background-color: #01003c;
+    border: 2px solid #5300c1;
     border-radius: 7px;
     min-width: min-content;
-    max-width: 28em;
+    max-width: 30em;
 }
 
 #loadoutsMain > div {
@@ -1220,24 +1250,12 @@ li .hollowButton {
     padding: 0 0.4em;
 }
 
-.settingsMenu { display: inline-block; }
+#resetToggles .popUpMenu { margin-top: 1.6776em; }
 
-.settingsMenu > div {
-    display: none;
-    flex-direction: column;
-    max-width: min(33em, 90vw);
-    margin-top: 0.3em;
-}
-
-.settingsMenu > div input { margin: -0.2em 0; }
-
-.options .settingsMenu > div {
+.options .popUpMenu {
     row-gap: 0.2em;
     line-height: 1.26em;
 }
-
-.settingsMenu > button:hover ~ div, .settingsMenu > div:hover,
-.settingsMenu:focus-within > div { display: flex; }
 
 #saveFileNameInput {
     width: 19.2em;
@@ -1261,14 +1279,12 @@ li .hollowButton {
     margin-bottom: 1.2em;
 }
 
-#autoTogglesUpgrades > div {
-    display: flex;
-    align-items: center;
-    column-gap: 0.4em;
-}
-
 #autoTogglesUpgrades label { font-size: 0.92em; }
-#autoTogglesUpgrades button { font-size: 0.8em; }
+
+#autoTogglesUpgrades button {
+    margin-left: 0.46em;
+    font-size: 0.87em;
+}
 
 #themeArea > h3 {
     text-align: center;
@@ -1365,6 +1381,7 @@ li .hollowButton {
     margin: 0.2em 0;
 }
 
+#energyGainStage6,
 #energyGainStats section {
     display: grid;
     grid-template-columns: max-content 4.4em max-content;
@@ -1374,7 +1391,9 @@ li .hollowButton {
     padding: 0 0.4em;
 }
 
+#energyGainStage6 p,
 #energyGainStats section > p { display: contents; }
+#energyGainStage6 p > span:nth-of-type(2),
 #energyGainStats p > span:nth-of-type(2) { text-align: center; }
 
 .imageList {
@@ -1386,11 +1405,39 @@ li .hollowButton {
     justify-content: center;
 }
 
+.statsDiv > div {
+    display: flex;
+    transition-property: none;
+}
+
+.statsDiv img {
+    border-radius: 3px;
+    background-color: black;
+    transition-property: none;
+    z-index: 2;
+}
+
+.statsDiv p {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    border: 2px solid;
+    border-color: inherit;
+    border-left: none;
+    padding-left: calc(3px + 0.5em);
+    padding-right: 0.5em;
+    background-color: black;
+    margin-left: -3px;
+    height: 32px;
+    white-space: nowrap;
+    transition-property: none;
+}
+
 #globalStats {
     display: flex;
     flex-direction: column;
     position: fixed;
-    bottom: calc(32px + min(3.9vh, 2.4em) + 2.02em + 0.4vw);
+    bottom: calc(32px + min(3.9vh, 2.4em) + 3.7672em + 0.8vw);
     right: 3vw;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
@@ -1402,16 +1449,10 @@ li .hollowButton {
 }
 
 #globalStats:hover { opacity: 0.2; }
-#globalStats img { background-color: black; }
 
 #globalStats p {
-    text-align: center;
     border-radius: 0 4px 4px 0;
-    background-color: black;
-    padding-left: calc(3px + 0.5em);
-    padding-right: 0.5em;
     width: 100%;
-    white-space: nowrap;
 }
 
 #globalStats span {
@@ -1429,6 +1470,7 @@ li .hollowButton {
     width: 100vw;
     bottom: 0;
     z-index: 6;
+    pointer-events: none;
 }
 
 #footerMain {
@@ -1439,6 +1481,7 @@ li .hollowButton {
     row-gap: min(1.3vh, 0.8em);
     overflow-x: overlay;
     overscroll-behavior-x: none;
+    pointer-events: auto;
 }
 
 #footerStats,
@@ -1462,27 +1505,17 @@ li .hollowButton {
 #strangenessTabBtn.tabActive { border-color: var(--tab-strangeness) !important; }
 #inflationTabBtn.tabActive { border-color: var(--tab-inflation) !important; }
 
-#footer img { background-color: black; }
-
 #footerStats p {
-    text-align: center;
     border-radius: 0 6px 6px 0;
-    background-color: black;
-    padding-left: calc(3px + 0.5em);
-    padding-right: 0.5em;
     z-index: 1; /* Text color issue */
 }
 
-#footerStats span:last-of-type {
-    white-space: nowrap;
-    width: 4.4em;
-}
+#footerStats span:last-of-type { width: 4.4em; }
 
 #footer > div:first-child {
     display: flex;
     align-items: end;
     justify-content: center;
-    pointer-events: none;
 }
 
 #footer > div:first-child button { pointer-events: auto; }
@@ -1497,7 +1530,7 @@ li .hollowButton {
     gap: 0.4vw;
 }
 
-#phoneHotkeys {
+#shortcuts {
     display: flex;
     flex-wrap: wrap-reverse;
     justify-content: end;
@@ -1507,7 +1540,7 @@ li .hollowButton {
     gap: 0.4vw;
 }
 
-#phoneHotkeys button,
+#shortcuts button,
 #subtabs button {
     min-width: 5.5em;
     background-color: var(--background-color);

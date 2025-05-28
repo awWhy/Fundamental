@@ -1,15 +1,18 @@
 .buyBuilding { margin-left: calc(-32px - 0.348em); }
 
+#hoverWindow,
+.popUpMenu { max-width: 100vw; }
+
 #elementsGrid {
     gap: 0.15em;
     padding: 0.25em;
 }
 
-#elementsGrid > .interactiveImage {
+#elementsGrid > input {
     width: 32px;
     height: 32px;
     object-fit: scale-down;
 }
 
 #subtabs { margin-left: 1vw; }
-#phoneHotkeys { margin-right: 1vw; }
+#shortcuts { margin-right: 1vw; }
