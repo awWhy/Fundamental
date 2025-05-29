@@ -388,7 +388,7 @@ export const global: globalType = {
         rankE: [2, 3, 4, 5, 3, 6],
         rankCost: [5.9722e27, 1e-7, 1e10, 1e24, 5e29, 2.45576045e31, 1.98847e40],
         rankColor: ['blue', 'cyan', 'gray', 'gray', 'gray', 'darkviolet', 'orange', 'gray'],
-        rankName: ['Ocean world', 'Cosmic dust', 'Meteoroid', 'Asteroid', 'Planet', 'Jovian planet', 'Protostar', 'Protogalaxy'],
+        rankName: ['Океанический мир', 'Космическая пыль', 'Метеороид', 'Астероид', 'Планета', 'Джовиановская планета', 'Протозвезда', 'Протогалактика'],
         rankImage: ['Ocean%20world.png', 'Dust.png', 'Meteoroids.png', 'Asteroid.png', 'Planet.png', 'Giant.png', 'Protostar.png', 'Protogalaxy.png'],
         maxRank: 4,
         effective: 1,
@@ -427,32 +427,32 @@ export const global: globalType = {
         mouseRepeat: undefined
     },
     stageInfo: {
-        word: ['', 'Microworld', 'Submerged', 'Accretion', 'Interstellar', 'Intergalactic', 'Abyss'],
+        word: ['', 'Микромир', 'Погружённый', 'Аккреция', 'Межзвёздный', 'Межгалактический', 'Бездна'],
         textColor: ['', 'cyan', 'blue', 'gray', 'orange', 'darkorchid', 'darkviolet'],
         buttonBorder: ['', 'darkcyan', '#386cc7', '#424242', '#a35700', '#8f004c', '#6c1ad1'],
         imageBorderColor: ['', '#008b8b', '#1460a8', '#5b5b75', '#e87400', '#b324e2', '#5300c1'],
-        costName: ['', 'Energy', 'Drops', 'Mass', 'Stardust', 'Stardust', 'Dark matter'],
+        costName: ['', 'Энергия', 'Капли', 'Масса', 'Звёздная пыль', 'Звёздная пыль', 'Тёмная материя'],
         activeAll: [1]
     },
     buildingsInfo: {
         maxActive: [0, 4, 6, 5, 5, 4, 2],
         name: [
             [],
-            ['Mass', 'Preons', 'Quarks', 'Particles', 'Atoms', 'Molecules'], //[0] Must be 'Mass'
-            ['Moles', 'Drops', 'Puddles', 'Ponds', 'Lakes', 'Seas', 'Oceans'],
-            ['Mass', 'Cosmic dust', 'Planetesimals', 'Protoplanets', 'Satellites', 'Subsatellites'],
-            ['Stardust', 'Brown dwarfs', 'Main sequence', 'Red supergiants', 'Blue hypergiants', 'Quasi-stars'],
-            ['Stars', 'Nebulas', 'Star clusters', 'Galaxies'],
-            ['Dark matter', 'Universes']
+            ['Mass', 'Преоны', 'Кварки', 'Частицы', 'Атомы', 'Молекулы'], //[0] Must be 'Mass'
+            ['Моли', 'Капли', 'Лужи', 'Пруда', 'Озёра', 'Моря', 'Океаны'],
+            ['Масса', 'Космическая пыль', 'Планетезимали', 'Протопланеты', 'Спутники', 'Спутник спутника'],
+            ['Звёздная пыль', 'Коричневые карлики', 'Главная последовательность', 'Красные супергиганты', 'Синие гипергиганты', 'Квазизвезда'],
+            ['Звёзды', 'Туманности', 'Звёздные скопления', 'Галактики'],
+            ['Тёмная материя', 'Вселенные']
         ],
         hoverText: [
             [],
-            ['Mass', 'Preons', 'Quarks', 'Particles', 'Atoms'],
-            ['Tritium', 'Drops', 'Puddles', 'Puddles', 'Puddles', 'Puddles'],
-            ['Preons hardcap', 'Cosmic dust', 'Planetesimals', 'Protoplanets', 'Satellites'],
-            ['Stardust', 'Stardust', 'Stardust', 'Stardust', 'Stardust'],
-            ['Interstellar Stars', 'Interstellar Stars', 'Nebulas and Star clusters'],
-            ['Dark matter']
+            ['Масса', 'Преоны', 'Кварки', 'Частицы', 'Атомы'],
+            ['Тритий', 'Капли', 'Лужи', 'Лужи', 'Лужи', 'Лужи'],
+            ['Хардкап преонов', 'Космическая пыль', 'Планетезимали', 'Протопланеты', 'Спутники'],
+            ['Звёздная пыль', 'Звёздная пыль', 'Звёздная пыль', 'Звёздная пыль', 'Звёздная пыль'],
+            ['Межзвёздные звёзды', 'Межзвёздные звёзды', 'Туманности и Звёздные скопления'],
+            ['Тёмная материя']
         ],
         type: [
             [],
@@ -492,58 +492,60 @@ export const global: globalType = {
     upgradesInfo: [
         {} as globalType['upgradesInfo'][0], { //Stage 1
             name: [
-                'Weak force',
-                'Strong force',
-                'Electrons',
-                'Protons',
-                'Neutrons',
-                'Superposition',
-                'Protium',
-                'Deuterium',
-                'Tritium',
-                'Nuclear fusion',
-                'Nuclear fission'
+                'Слабое воздействие',
+                'Сильное воздействие',
+                'Электроны',
+                'Протоны',
+                'Нейтроны',
+                'Суперпозиция',
+                'Протий',
+                'Дейтерий',
+                'Тритий',
+                'Ядерное слияние',
+                'Ядерное деление'
             ],
-            effectText: [
-                () => 'Particles will produce 8 times more Quarks.',
-                () => 'Gluons will be able to bind Quarks into Particles, which will make Particles 16 times cheaper.',
-                () => `${player.inflation.vacuum ? 'Atoms' : 'Particles'} will be 8 times cheaper.`,
-                () => `Atoms will produce ${player.inflation.vacuum ? 6 : 4} times more Particles.`,
-                () => 'Molecules will produce 4 times more Atoms.',
-                () => `Ability to regain spent Energy and if had enough Energy, it will also boost production of all ${player.inflation.vacuum ? 'Microworld ' : ''}Structures by ${format(global.dischargeInfo.base, { padding: true })}.${player.inflation.vacuum ? `\n(In true Vacuum it will also reset resources and all non-self-made Structures from all Stages${player.stage.true >= 7 ? ' before Abyss' : ''}, and enough self-made Structures to fully regain spent Energy)` : ''}`,
-                () => `Decrease Structures cost scaling by -${format(calculateEffects.S1Upgrade6() / 100)}.`,
-                () => `Make self-made Structures boost themselves by ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ? `\n(Self-made Preons boost themselves by ${format(calculateEffects.S1Upgrade7(true), { padding: true })} instead, softcaps instantly and gets completely disabled after ${format(1001)} Preons)` : ''}`,
-                () => `Molecules will produce Molecules, at a reduced rate.\n(${format(new Overlimit(effectsCache.tritium).multiply(global.inflationInfo.globalSpeed), { padding: true })} Molecules per second)`,
-                () => `Unspent Energy ${player.upgrades[1][10] === 1 ? '' : `^${format(0.5)}`} will boost 'Tritium' production of Molecules.\n(Boost: ${format(calculateEffects.S1Upgrade9(), { padding: true })})`,
-                () => "Unlock the full strength of 'Nuclear fusion' and increase effective Energy by 2."
-            ],
+effectText: [
+    () => 'Частицы производят в 8 раз больше кварков.',
+    () => 'Глюоны получат способность объединять кварки в частицы, снижая их стоимость в 16 раз.',
+    () => `${player.inflation.vacuum ? 'Атомы' : 'Частицы'} станут в 8 раз дешевле.`,
+    () => `Атомы будут производить в ${player.inflation.vacuum ? 6 : 4} раз больше частиц.`,
+    () => 'Молекулы увеличат производство атомов в 4 раза.',
+    () => `Возможность вернуть потраченную энергию при достижении цели + ускорение всех ${player.inflation.vacuum ? 'микромира ' : ''}структур в ${format(global.dischargeInfo.base, { padding: true })}.${player.inflation.vacuum ? 
+        `\n(В истинном Вакууме также произойдёт сброс ресурсов и чужих структур со всех Уровней${player.stage.true >= 7 ? ' до Бездны' : ''}, а ваших структур будет достаточно для полного восстановления энергии)` : ''}`,
+    () => `Снижение роста стоимости структур на -${format(calculateEffects.S1Upgrade6() / 100)}.`,
+    () => `Самосозданные структуры усиливают себя на ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ? 
+        `\n(Самосозданные Преоны усиливают себя на ${format(calculateEffects.S1Upgrade7(true), { padding: true })} (быстрый софткоп и отключение после ${format(1001)} Преонов)` : ''}`,
+    () => `Молекулы смогут создавать новые молекулы с уменьшенной скоростью.\n(${format(new Overlimit(effectsCache.tritium).multiply(global.inflationInfo.globalSpeed), { padding: true })} молекул/сек)`,
+    () => `Неиспользованная энергия ${player.upgrades[1][10] === 1 ? '' : `^${format(0.5)}`} усиливает производство "Трития".\n(Текущий бонус: ${format(calculateEffects.S1Upgrade9(), { padding: true })})`,
+    () => "Раскрывает полную силу ядерного синтеза, увеличивая эффективность энергии в 2 раза."
+],
             startCost: [40, 60, 100, 120, 180, 360, 1200, 3600, 12000, 80000, 2.4e6],
             maxActive: 10
         }, { //Stage 2
             name: [
-                'Molecules to Moles',
-                'Water spread',
-                'Vaporization',
-                'Surface tension',
-                'Surface stress',
-                'Stream',
-                'River',
-                'Tsunami',
-                'Tide'
+                'Молекулы в моли',
+                'Распространение воды',
+                'Испарение',
+                'Поверхностное натяжение',
+                'Поверхностное напряжение',
+                'Поток',
+                'Река',
+                'Цунами',
+                'Прилив'
             ],
             effectText: [
-                () => `Drops will ${player.inflation.vacuum ? 'improve Tritium' : 'produce Moles'} ${format(player.inflation.vacuum ? 1.02 : 1.04)} times ${player.inflation.vacuum ? 'more' : 'faster'} for every self-made Drop.`,
-                () => `Spread water faster with every Puddle, current formula is ${format(1.02)} ^ effective Puddles.\nPuddles after 200 and non-self-made ones are raised to the power of ${format(0.7)}.\n(Total effect: ${format(calculateEffects.S2Upgrade1(), { padding: true })})`,
+                () => `Капли ${player.inflation.vacuum ? 'улучшают тритий в' : 'производят моли в'} ${format(player.inflation.vacuum ? 1.02 : 1.04)} раз ${player.inflation.vacuum ? 'больше' : 'быстрее'} за каждую купленную каплю.`,
+                () => `Распространяет воду быстрее с каждой лужей, текущая формула это ${format(1.02)} ^ эффективные лужи.\nЛужи после 200 и купленные возведены в степень ${format(0.7)}.\n(Общий эффект: ${format(calculateEffects.S2Upgrade1(), { padding: true })})`,
                 () => { //[2]
                     const softcap = format(calculateEffects.cloudsGain());
-                    return `Gain ability to convert Drops into Clouds. Cloud gain formula: (Clouds ^ (1 / ${softcap}) + (Drops / ${format(calculateEffects.S2Upgrade2())})) ^ ${softcap} - Clouds.`;
+                    return `Получить возможность конвертировать капли в облака. Формула получения облаков: (Облака ^ (1 / ${softcap}) + (Капли / ${format(calculateEffects.S2Upgrade2())})) ^ ${softcap} - Облака.`;
                 },
-                () => `Puddles will get a boost based on Moles ^${format(calculateEffects.S2Upgrade3_power())}.\n(Boost: ${format(calculateEffects.S2Upgrade3(), { padding: true })})`,
-                () => `Puddles will get a boost based on Drops ^${format(calculateEffects.S2Upgrade4_power())}.\n(Boost: ${format(calculateEffects.S2Upgrade4(), { padding: true })})`,
-                () => `Ponds will increase current Puddle amount. (${1 + player.researches[2][4]} extra Puddles per Pond)`,
-                () => `Lakes will increase current Pond amount. (${1 + player.researches[2][5]} extra Ponds per Lake)`,
-                () => 'Spreads enough water to make Seas increase current Lake amount. (1 extra Lakes per Sea)',
-                () => 'Spreads water too fast. 1 extra Seas per Ocean.\nIt will also improve Oceans effect scaling.'
+                () => `Лужи забустятся в зависимости от молей ^${format(calculateEffects.S2Upgrade3_power())}.\n(Буст: ${format(calculateEffects.S2Upgrade3(), { padding: true })})`,
+                () => `Лужи забустятся в зависимости от капель ^${format(calculateEffects.S2Upgrade4_power())}.\n(Буст: ${format(calculateEffects.S2Upgrade4(), { padding: true })})`,
+                () => `Пруды увеличат количество луж. (${1 + player.researches[2][4]} луж за пруд)`,
+                () => `Озёра увеличат количество прудов. (${1 + player.researches[2][5]} прудов за озеро)`,
+                () => 'Распространение достаточно воды для создания моря увеличит количество озёл. (1 озеро за море)',
+                () => 'Распространяет воду слишком быстро. 1 море за океан.\nТакже увеличит множитель эффекта океана.'
             ],
             startCost: [10, 1e6, 1e10, 1e3, 1e4, 2e9, 5e20, 1e28, 2e48],
             maxActive: 8

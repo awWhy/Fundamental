@@ -986,17 +986,17 @@
                             </div>
                         </section>
                         <div id="themeArea">
-                            <h3>Current theme</h3>
+                            <h3>Текущая тема</h3>
                             <div>
-                                <button type="button" id="currentTheme" class="mainText hollowButton" tabindex="-1">Default</button>
+                                <button type="button" id="currentTheme" class="mainText hollowButton" tabindex="-1">Обычная</button>
                                 <div>
-                                    <button type="button" id="switchTheme0" class="stageAllborderButton hollowButton stageText" style="text-decoration: underline;">Default</button>
-                                    <button type="button" id="switchTheme1" class="stage1borderButton hollowButton cyanText">Microworld</button>
-                                    <button type="button" id="switchTheme2" class="stage2borderButton hollowButton blueText">Submerged</button>
-                                    <button type="button" id="switchTheme3" class="stage3borderButton hollowButton grayText">Accretion</button>
-                                    <button type="button" id="switchTheme4" class="stage4borderButton hollowButton orangeText">Interstellar</button>
-                                    <button type="button" id="switchTheme5" class="stage5borderButton hollowButton darkorchidText">Intergalactic</button>
-                                    <button type="button" id="switchTheme6" class="stage6borderButton hollowButton darkvioletText">Abyss</button>
+                                    <button type="button" id="switchTheme0" class="stageAllborderButton hollowButton stageText" style="text-decoration: underline;">Обычная</button>
+                                    <button type="button" id="switchTheme1" class="stage1borderButton hollowButton cyanText">Микромир</button>
+                                    <button type="button" id="switchTheme2" class="stage2borderButton hollowButton blueText">Погруженный</button>
+                                    <button type="button" id="switchTheme3" class="stage3borderButton hollowButton grayText">Аккреция</button>
+                                    <button type="button" id="switchTheme4" class="stage4borderButton hollowButton orangeText">Межзвёздный</button>
+                                    <button type="button" id="switchTheme5" class="stage5borderButton hollowButton darkorchidText">Межгалактический</button>
+                                    <button type="button" id="switchTheme6" class="stage6borderButton hollowButton darkvioletText">Бездна</button>
                                 </div>
                             </div>
                         </div>
@@ -1005,194 +1005,194 @@
                 <section id="settingsSubtabHistory" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div id="historyMainDiv">
                         <section id="vacuumHistory" class="orchidText">
-                            <h3 class="bigWord">Vacuum resets:</h3>
-                            <p><label>Save <input type="number" id="vacuumHistorySave" min="0" max="100" step="1"></label>, <label>show <input type="number" id="vacuumHistoryShow" min="10" max="100" step="1"></label></p>
+                            <h3 class="bigWord">Сбросов вакуума:</h3>
+                            <p><label>Сохранить <input type="number" id="vacuumHistorySave" min="0" max="100" step="1"></label>, <label>показать <input type="number" id="vacuumHistoryShow" min="10" max="100" step="1"></label></p>
                             <ol id="vacuumHistoryList">
                                 <li class="redText">Reference list is empty</li>
                             </ol>
-                            <p>Best reset: <span id="vacuumHistoryBest" class="whiteText">Missing</span></p>
+                            <p>Лучший сброс: <span id="vacuumHistoryBest" class="whiteText">Missing</span></p>
                         </section>
                         <section id="stageHistory" class="stageText">
-                            <h3 class="bigWord">Interstellar Stage resets:</h3>
-                            <p><label>Save <input type="number" id="stageHistorySave" min="0" max="100" step="1"></label>, <label>show <input type="number" id="stageHistoryShow" min="10" max="100" step="1"></label></p>
+                            <h3 class="bigWord">Межзвёздных сбросов этапа:</h3>
+                            <p><label>Сохранить <input type="number" id="stageHistorySave" min="0" max="100" step="1"></label>, <label>показать <input type="number" id="stageHistoryShow" min="10" max="100" step="1"></label></p>
                             <ol id="stageHistoryList">
                                 <li class="redText">Reference list is empty</li>
                             </ol>
-                            <p>Best reset: <span id="stageHistoryBest" class="whiteText">Missing</span></p>
+                            <p>Лучший сброс: <span id="stageHistoryBest" class="whiteText">Missing</span></p>
                         </section>
                     </div>
                 </section>
                 <section id="settingsSubtabStats" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div class="stats">
-                        <p>Started playing: <span class="whiteText"><span id="firstPlay">00.00.0000, 00:00:00</span> (<span id="firstPlayAgo">0 seconds</span> ago)</span> | Online time: <span id="onlineTotal" class="whiteText">0 seconds</span></p>
-                        <p id="exportStats" title="Increased by gaining more than storage value in a single Stage reset">Max export: <span id="exportQuarksMax" class="whiteText">1</span> (<span id="exportQuarksStorage" class="whiteText">1</span> in the storage) <span class="whiteText">Strange quarks</span><span id="exportStatsStrangeletsUnlocked">, <span id="exportStrangeletsMax" class="whiteText">0</span> (<span id="exportStrangeletsStorage" class="whiteText">0</span>) <span class="whiteText">Strangelets</span></span> in <span id="exportTimeToMax" class="whiteText">24 hours</span></p>
-                        <p id="stageResets">Stage resets: <span class="whiteText">0</span></p>
+                        <p>Начало игры: <span class="whiteText"><span id="firstPlay">00.00.0000, 00:00:00</span> (<span id="firstPlayAgo">0 секунд</span> назад)</span> | Время онлайн: <span id="onlineTotal" class="whiteText">0 секунд</span></p>
+                        <p id="exportStats" title="Increased by gaining more than storage value in a single Stage reset">Максимум от экспорта: <span id="exportQuarksMax" class="whiteText">1</span> (<span id="exportQuarksStorage" class="whiteText">1</span> в хранилище) <span class="whiteText">Странных кварков</span><span id="exportStatsStrangeletsUnlocked">, <span id="exportStrangeletsMax" class="whiteText">0</span> (<span id="exportStrangeletsStorage" class="whiteText">0</span>) <span class="whiteText">Странгелетов</span></span> за <span id="exportTimeToMax" class="whiteText">24 часа</span></p>
+                        <p id="stageResets">Сбросов этапов: <span class="whiteText">0</span></p>
                         <article class="statsWindows" aria-label="Structures">
                             <section id="building0Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building0StatTotal" class="whiteText">0</span>
                                 <div>
                                 </div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building0StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building1Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building1StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building1StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building2Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building2StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building2StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building3Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building3StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building3StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building4Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building4StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building4StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building5Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building5StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building5StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="building6Stats">
                                 <h4 class="stageText bigWord">Missing</h4>
                                 <div>
-                                    <p>This reset:</p>
+                                    <p>Этот сброс:</p>
                                     <span id="building6StatTotal" class="whiteText">0</span>
                                 </div>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="building6StatTrueTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                         </article>
                         <article id="strangeAllStats" class="statsWindows" aria-label="Strange Structures">
                             <section id="strange0Stats">
-                                <h4 class="greenText bigWord">Quarks</h4>
+                                <h4 class="greenText bigWord">Кварки</h4>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="strange0StatTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                             <section id="strange1Stats">
-                                <h4 class="greenText bigWord">Strangelets</h4>
+                                <h4 class="greenText bigWord">Странгелеты</h4>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="strange1StatTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                         </article>
                         <article id="cosmonStat" class="statsWindows" role="none">
                             <section>
-                                <h4 class="darkvioletText bigWord">Cosmon</h4>
+                                <h4 class="darkvioletText bigWord">Космон</h4>
                                 <div>
-                                    <p>Total:</p>
+                                    <p>Всего:</p>
                                     <span id="cosmonStatTotal" class="whiteText">0</span>
                                 </div>
                             </section>
                         </article>
                         <div class="stats stage1Only">
-                            <p id="dischargeStat" class="orangeText">Discharge goals: <span class="whiteText">0</span><span id="dischargeStatTrue" class="cyanText">[0]</span></p>
-                            <p id="dischargeScaleStat" class="orangeText">Discharge goal requirement scaling: <span class="whiteText">0</span></p>
+                            <p id="dischargeStat" class="orangeText">Цели разряжения: <span class="whiteText">0</span><span id="dischargeStatTrue" class="cyanText">[0]</span></p>
+                            <p id="dischargeScaleStat" class="orangeText">Рост требований разряжения: <span class="whiteText">0</span></p>
                             <section id="energyGainStats">
-                                <h3 class="orangeText">Energy gained from creating Structures:</h3>
+                                <h3 class="orangeText">Энергии от создания структур:</h3>
                                 <div>
                                     <section class="cyanText stage1borderImage" aria-label="Microworld Stage">
-                                        <p id="energyGainStage1Build1"><span>Preons:</span> <span id="energyGainStage1Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build1Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage1Build2"><span>Quarks:</span> <span id="energyGainStage1Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build2Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage1Build3"><span>Particles:</span> <span id="energyGainStage1Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build3Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage1Build4"><span>Atoms:</span> <span id="energyGainStage1Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build4Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage1Build5"><span>Molecules:</span> <span id="energyGainStage1Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build5Per" class="greenText">0</span> per)</span></p>
-                                        <p><span>Total:</span> <span id="energyGainStage1Total" class="greenText">0</span></p>
+                                        <p id="energyGainStage1Build1"><span>Преонов:</span> <span id="energyGainStage1Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build1Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage1Build2"><span>Кварков:</span> <span id="energyGainStage1Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build2Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage1Build3"><span>Частиц:</span> <span id="energyGainStage1Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build3Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage1Build4"><span>Атомов:</span> <span id="energyGainStage1Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build4Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage1Build5"><span>Молекул:</span> <span id="energyGainStage1Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage1Build5Per" class="greenText">0</span> per)</span></p>
+                                        <p><span>Всего:</span> <span id="energyGainStage1Total" class="greenText">0</span></p>
                                     </section>
                                     <section id="energyGainStage2" class="blueText stage2borderImage" aria-label="Submerged Stage">
-                                        <p id="energyGainStage2Build1"><span>Drops:</span> <span id="energyGainStage2Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build1Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage2Build2"><span>Puddles:</span> <span id="energyGainStage2Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build2Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage2Build3"><span>Ponds:</span> <span id="energyGainStage2Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build3Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage2Build4"><span>Lakes:</span> <span id="energyGainStage2Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build4Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage2Build5"><span>Seas:</span> <span id="energyGainStage2Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build5Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage2Build6"><span>Oceans:</span> <span id="energyGainStage2Build6Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build6Per" class="greenText">0</span> per)</span></p>
-                                        <p><span>Total:</span> <span id="energyGainStage2Total" class="greenText">0</span></p>
+                                        <p id="energyGainStage2Build1"><span>Каплей:</span> <span id="energyGainStage2Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build1Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage2Build2"><span>Луж:</span> <span id="energyGainStage2Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build2Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage2Build3"><span>Прудов:</span> <span id="energyGainStage2Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build3Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage2Build4"><span>Озёр:</span> <span id="energyGainStage2Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build4Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage2Build5"><span>Морей:</span> <span id="energyGainStage2Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build5Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage2Build6"><span>Океанов:</span> <span id="energyGainStage2Build6Cur" class="greenText">0</span> <span>(<span id="energyGainStage2Build6Per" class="greenText">0</span> per)</span></p>
+                                        <p><span>Всего:</span> <span id="energyGainStage2Total" class="greenText">0</span></p>
                                     </section>
                                     <section id="energyGainStage3" class="grayText stage3borderImage" aria-label="Accretion Stage">
-                                        <p id="energyGainStage3Build1"><span>Cosmic dust:</span> <span id="energyGainStage3Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build1Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage3Build2"><span>Planetesimals:</span> <span id="energyGainStage3Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build2Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage3Build3"><span>Protoplanets:</span> <span id="energyGainStage3Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build3Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage3Build4"><span>Satellites:</span> <span id="energyGainStage3Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build4Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage3Build5"><span>Subsatellites:</span> <span id="energyGainStage3Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build5Per" class="greenText">0</span> per)</span></p>
-                                        <p><span>Total:</span> <span id="energyGainStage3Total" class="greenText">0</span></p>
+                                        <p id="energyGainStage3Build1"><span>Космической пыли:</span> <span id="energyGainStage3Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build1Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage3Build2"><span>Планетезималей:</span> <span id="energyGainStage3Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build2Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage3Build3"><span>Протопланет:</span> <span id="energyGainStage3Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build3Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage3Build4"><span>Спутников:</span> <span id="energyGainStage3Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build4Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage3Build5"><span>Спутников спутника:</span> <span id="energyGainStage3Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage3Build5Per" class="greenText">0</span> per)</span></p>
+                                        <p><span>Всего:</span> <span id="energyGainStage3Total" class="greenText">0</span></p>
                                     </section>
                                     <section id="energyGainStage4" class="orangeText stage4borderImage" aria-label="Interstellar Stage">
-                                        <p id="energyGainStage4Build1"><span>Brown dwarfs:</span> <span id="energyGainStage4Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build1Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage4Build2"><span>Main sequence:</span> <span id="energyGainStage4Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build2Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage4Build3"><span>Red supergiants:</span> <span id="energyGainStage4Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build3Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage4Build4"><span>Blue hypergiants:</span> <span id="energyGainStage4Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build4Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage4Build5"><span>Quasi-stars:</span> <span id="energyGainStage4Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build5Per" class="greenText">0</span> per)</span></p>
-                                        <p><span>Total:</span> <span id="energyGainStage4Total" class="greenText">0</span></p>
+                                        <p id="energyGainStage4Build1"><span>Коричневых карликов:</span> <span id="energyGainStage4Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build1Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage4Build2"><span>Главных последовательностей:</span> <span id="energyGainStage4Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build2Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage4Build3"><span>Красных супергигантов:</span> <span id="energyGainStage4Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build3Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage4Build4"><span>Синих гипергигантов:</span> <span id="energyGainStage4Build4Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build4Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage4Build5"><span>Квазизвёзд:</span> <span id="energyGainStage4Build5Cur" class="greenText">0</span> <span>(<span id="energyGainStage4Build5Per" class="greenText">0</span> per)</span></p>
+                                        <p><span>Всего:</span> <span id="energyGainStage4Total" class="greenText">0</span></p>
                                     </section>
                                     <section id="energyGainStage5" class="darkorchidText stage5borderImage" aria-label="Intergalactic Stage">
-                                        <p id="energyGainStage5Build1"><span>Nebulas:</span> <span id="energyGainStage5Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build1Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage5Build2"><span>Star clusters:</span> <span id="energyGainStage5Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build2Per" class="greenText">0</span> per)</span></p>
-                                        <p id="energyGainStage5Build3"><span>Galaxies:</span> <span id="energyGainStage5Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build3Per" class="greenText">0</span> per)</span></p>
-                                        <p><span>Total:</span> <span id="energyGainStage5Total" class="greenText">0</span></p>
+                                        <p id="energyGainStage5Build1"><span>Туманностей:</span> <span id="energyGainStage5Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build1Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage5Build2"><span>Звёздных скоплений:</span> <span id="energyGainStage5Build2Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build2Per" class="greenText">0</span> per)</span></p>
+                                        <p id="energyGainStage5Build3"><span>Галактик:</span> <span id="energyGainStage5Build3Cur" class="greenText">0</span> <span>(<span id="energyGainStage5Build3Per" class="greenText">0</span> per)</span></p>
+                                        <p><span>Всего:</span> <span id="energyGainStage5Total" class="greenText">0</span></p>
                                     </section>
                                 </div>
                             </section>
-                            <p id="effectiveEnergyStat" class="orangeText">Effective Energy: <span class="whiteText">0</span></p>
-                            <p id="maxEnergyStat" class="orangeText">Most Energy at once: <span class="whiteText">0</span></p>
+                            <p id="effectiveEnergyStat" class="orangeText">Эффективной энергии: <span class="whiteText">0</span></p>
+                            <p id="maxEnergyStat" class="orangeText">Рекорд энергии: <span class="whiteText">0</span></p>
                         </div>
                         <div class="stats stage2Only">
                             <section id="vaporizationBoost">
-                                <h3 class="grayText">Boost after Vaporization</h3>
-                                <p id="cloudStat" class="grayText">Clouds: <span class="greenText">1</span></p>
-                                <p id="rainStat" class="blueText">Rain Clouds: <span class="greenText">1</span></p>
-                                <p id="stormStat" class="orangeText">Storm Clouds: <span class="greenText">1</span></p>
-                                <h4 class="darkorchidText">Total: <span id="cloudEffectTotal" class="greenText">1</span></h4>
+                                <h3 class="grayText">Буст после испарения</h3>
+                                <p id="cloudStat" class="grayText">Облаков: <span class="greenText">1</span></p>
+                                <p id="rainStat" class="blueText">Дождевых облаков: <span class="greenText">1</span></p>
+                                <p id="stormStat" class="orangeText">Штормовых облаков: <span class="greenText">1</span></p>
+                                <h4 class="darkorchidText">Всего: <span id="cloudEffectTotal" class="greenText">1</span></h4>
                             </section>
-                            <p id="maxCloudStat" class="grayText">Most Clouds at once: <span class="blueText">0</span></p>
+                            <p id="maxCloudStat" class="grayText">Рекорд облаков: <span class="blueText">0</span></p>
                         </div>
                         <div class="stats stage3Only">
-                            <p class="grayText">Current Rank: <span id="currentRank" class="darkorchidText">0</span><span id="currentRankTrue" class="orchidText">[0]</span></p>
+                            <p class="grayText">Текущий ранг: <span id="currentRank" class="darkorchidText">0</span><span id="currentRankTrue" class="orchidText">[0]</span></p>
                             <div class="imageList">
                                 <img src="Used_art/Ocean%20world.png" alt="Ocean world" loading="lazy" draggable="false" title="Ocean world" id="rankStat0">
                                 <img src="Used_art/Dust.png" alt="Cosmic dust" loading="lazy" draggable="false" title="Cosmic dust" id="rankStat1">
@@ -1206,28 +1206,28 @@
                         </div>
                         <div class="stats stage4Only">
                             <section>
-                                <h3 class="orangeText">Boost after Collapse</h3>
-                                <p id="solarMassStat" class="cyanText">Solar mass: <span class="greenText">1</span></p>
-                                <p id="star1Stat" class="redText">Red giants: <span class="greenText">1</span></p>
-                                <p id="star2Stat" class="darkvioletText">Neutron stars: <span class="greenText">1</span></p>
-                                <p id="star3Stat" class="grayText">Black holes: <span class="greenText">1</span></p>
-                                <p id="gammaRayStat" class="darkvioletText">Gamma-ray burst: <span class="greenText">1</span></p>
-                                <p id="quasarStat" class="redText">Quasar: <span class="greenText">1</span> ^2</p>
-                                <h4 class="orchidText">Total: <span id="starTotal" class="greenText">1</span></h4>
+                                <h3 class="orangeText">Буст после коллапса</h3>
+                                <p id="solarMassStat" class="cyanText">Солнечной массы: <span class="greenText">1</span></p>
+                                <p id="star1Stat" class="redText">Красных гигантов: <span class="greenText">1</span></p>
+                                <p id="star2Stat" class="darkvioletText">Нейтронных звёзд: <span class="greenText">1</span></p>
+                                <p id="star3Stat" class="grayText">Чёрных дыр: <span class="greenText">1</span></p>
+                                <p id="gammaRayStat" class="darkvioletText">Всплесков гамма-лучей: <span class="greenText">1</span></p>
+                                <p id="quasarStat" class="redText">Квазаров: <span class="greenText">1</span> ^2</p>
+                                <h4 class="orchidText">Всего: <span id="starTotal" class="greenText">1</span></h4>
                             </section>
                         </div>
                         <div class="stats stage5Only">
                             <section id="mergeBoost">
-                                <h3 class="cyanText">Boost after Merge</h3>
-                                <p id="mergeBaseStat" class="grayText">Galaxies: <span class="greenText">1</span></p>
-                                <p id="merge1Stat" class="grayText">Groups: <span class="greenText">1</span></p>
-                                <h4 class="darkvioletText">Total: <span id="mergeTotal" class="greenText">1</span> ^2</h4>
+                                <h3 class="cyanText">Буст после слияния</h3>
+                                <p id="mergeBaseStat" class="grayText">Галактик: <span class="greenText">1</span></p>
+                                <p id="merge1Stat" class="grayText">Групп: <span class="greenText">1</span></p>
+                                <h4 class="darkvioletText">Всего: <span id="mergeTotal" class="greenText">1</span> ^2</h4>
                             </section>
-                            <p id="mergeResets" class="darkvioletText">Merge resets: <span>0</span> | <span class="greenText">1</span> Max</p>
-                            <p id="galaxyBase" class="grayText">Galaxy base: <span class="orangeText">0</span></p>
-                            <p class="redText">Self-made Stars: <span id="trueStarsStat" class="orangeText">0</span></p>
+                            <p id="mergeResets" class="darkvioletText">Сбросов слиянием: <span>0</span> | <span class="greenText">1</span> Макс</p>
+                            <p id="galaxyBase" class="grayText">База галактик: <span class="orangeText">0</span></p>
+                            <p class="redText">Купленных звёзд: <span id="trueStarsStat" class="orangeText">0</span></p>
                         </div>
-                        <p id="maxSolarMassStat" class="cyanText">Highest Solar mass: <span class="orchidText">0.01235</span></p>
+                        <p id="maxSolarMassStat" class="cyanText">Высшая солнечная масса: <span class="orchidText">0.01235</span></p>
                     </div>
                 </section>
             </div>
@@ -1235,34 +1235,34 @@
             <footer id="footer" aria-label="Footer">
                 <div>
                     <nav id="stageSelect" class="active" style="display: none;" aria-label="Active Stages list">
-                        <button type="button" id="currentSwitch" class="stageText stageAllborderButton" tabindex="-1" aria-hidden="true">Microworld</button>
+                        <button type="button" id="currentSwitch" class="stageText stageAllborderButton" tabindex="-1" aria-hidden="true">Микромир</button>
                         <div>
                             <!-- [stageName] + 'Switch' -->
-                            <button type="button" class="stage1borderButton stage1Include cyanText" id="stageSwitch1" tabindex="-1">Microworld</button>
-                            <button type="button" class="stage2borderButton stage2Include blueText" id="stageSwitch2" tabindex="-1">Submerged</button>
-                            <button type="button" class="stage3borderButton stage3Include grayText" id="stageSwitch3" tabindex="-1">Accretion</button>
-                            <button type="button" class="stage4borderButton stage4Include orangeText" id="stageSwitch4" tabindex="-1">Interstellar</button>
-                            <button type="button" class="stage5borderButton stage5Include darkorchidText" id="stageSwitch5" tabindex="-1">Intergalactic</button>
-                            <button type="button" class="stage6borderButton stage6Include darkvioletText" id="stageSwitch6" tabindex="-1">Abyss</button>
+                            <button type="button" class="stage1borderButton stage1Include cyanText" id="stageSwitch1" tabindex="-1">Микромир</button>
+                            <button type="button" class="stage2borderButton stage2Include blueText" id="stageSwitch2" tabindex="-1">Погружённый</button>
+                            <button type="button" class="stage3borderButton stage3Include grayText" id="stageSwitch3" tabindex="-1">Аккреция</button>
+                            <button type="button" class="stage4borderButton stage4Include orangeText" id="stageSwitch4" tabindex="-1">Межзвёздный</button>
+                            <button type="button" class="stage5borderButton stage5Include darkorchidText" id="stageSwitch5" tabindex="-1">Межгалактический</button>
+                            <button type="button" class="stage6borderButton stage6Include darkvioletText" id="stageSwitch6" tabindex="-1">Бездна</button>
                         </div>
                     </nav>
                     <nav id="subtabs" style="display: none;" aria-label="Subtab list">
                         <!-- [tabName] + 'SubtabBtn' + [subtabName] -->
-                        <button type="button" id="stageSubtabBtnStructures" class="tabActive" tabindex="-1" style="display: none;">Structures</button>
+                        <button type="button" id="stageSubtabBtnStructures" class="tabActive" tabindex="-1" style="display: none;">Структуры</button>
                         <button type="button" id="stageSubtabBtnAdvanced"  tabindex="-1" style="display: none;">Advanced</button>
-                        <button type="button" id="upgradeSubtabBtnUpgrades" class="tabActive" tabindex="-1" style="display: none;">Upgrades</button>
-                        <button type="button" id="upgradeSubtabBtnElements" tabindex="-1" style="display: none;">Elements</button>
-                        <button type="button" id="strangenessSubtabBtnMatter" class="tabActive" tabindex="-1" style="display: none;">Matter</button>
-                        <button type="button" id="strangenessSubtabBtnMilestones" tabindex="-1" style="display: none;">Milestones</button>
-                        <button type="button" id="inflationSubtabBtnResearches" class="tabActive" tabindex="-1" style="display: none;">Researches</button>
-                        <button type="button" id="inflationSubtabBtnMilestones" tabindex="-1" style="display: none;">Milestones</button>
-                        <button type="button" id="settingsSubtabBtnSettings" class="tabActive" tabindex="-1" style="display: none;">Settings</button>
-                        <button type="button" id="settingsSubtabBtnHistory" tabindex="-1" style="display: none;">History</button>
-                        <button type="button" id="settingsSubtabBtnStats" tabindex="-1" style="display: none;">Stats</button>
+                        <button type="button" id="upgradeSubtabBtnUpgrades" class="tabActive" tabindex="-1" style="display: none;">Улучшения</button>
+                        <button type="button" id="upgradeSubtabBtnElements" tabindex="-1" style="display: none;">Элементы</button>
+                        <button type="button" id="strangenessSubtabBtnMatter" class="tabActive" tabindex="-1" style="display: none;">Материя</button>
+                        <button type="button" id="strangenessSubtabBtnMilestones" tabindex="-1" style="display: none;">Цели</button>
+                        <button type="button" id="inflationSubtabBtnResearches" class="tabActive" tabindex="-1" style="display: none;">Исследования</button>
+                        <button type="button" id="inflationSubtabBtnMilestones" tabindex="-1" style="display: none;">Цели</button>
+                        <button type="button" id="settingsSubtabBtnSettings" class="tabActive" tabindex="-1" style="display: none;">Настройки</button>
+                        <button type="button" id="settingsSubtabBtnHistory" tabindex="-1" style="display: none;">История</button>
+                        <button type="button" id="settingsSubtabBtnStats" tabindex="-1" style="display: none;">Статистика</button>
                     </nav>
                     <div id="phoneHotkeys">
                         <aside id="hideToggle" aria-hidden="true">
-                            <p>Hide</p>
+                            <p>Спрятать</p>
                             <div id="hideArrow" class="downArrow"></div>
                         </aside>
                     </div>
@@ -1283,11 +1283,11 @@
                         </div>
                     </section>
                     <nav aria-label="Tab list">
-                        <button type="button" id="stageTabBtn" class="tabActive" tabindex="-1">Stage</button>
-                        <button type="button" id="upgradeTabBtn" tabindex="-1">Upgrade</button>
-                        <button type="button" id="strangenessTabBtn" tabindex="-1">Strangeness</button>
-                        <button type="button" id="inflationTabBtn" class="stage6Include" tabindex="-1">Inflation</button>
-                        <button type="button" id="settingsTabBtn" tabindex="-1">Settings</button>
+                        <button type="button" id="stageTabBtn" class="tabActive" tabindex="-1">Этап</button>
+                        <button type="button" id="upgradeTabBtn" tabindex="-1">Улучшения</button>
+                        <button type="button" id="strangenessTabBtn" tabindex="-1">Странность</button>
+                        <button type="button" id="inflationTabBtn" class="stage6Include" tabindex="-1">Инфляция</button>
+                        <button type="button" id="settingsTabBtn" tabindex="-1">Настройки</button>
                     </nav>
                 </div>
             </footer>
