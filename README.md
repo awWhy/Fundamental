@@ -1,22 +1,22 @@
 # Fundamental
-Attempt to make something\
-Can be played at 'https://awwhy.github.io/Fundamental/' \
-If you want to report a bug (here or on discord), try to give details on how it happened and screenshot of any errors in console (Errors look like small wall of red text, as example: Uncaught TypeError: Cannot read properties of null (reading '0'))
+Попытка сделать перевод на игру\
+Оригинал можно сыграть на 'https://awwhy.github.io/Fundamental/' \
+Если хотите сообщить об ошибке (тут или в discord), попытайтесь дать информацию как случилось и скриншот ошибки (Ошибки выглядят как стены красного текста, например: Uncaught TypeError: Cannot read properties of null (reading '0'))
 
 #### Should be supported by:
-1. Modern browsers,
-2. Mobile devices,
-3. Screen readers
+1. Современными браузерами,
+2. Мобильными устройствами,
+3. Читалками экранов
 
 ---
-### If you plan do anything with this, then you need to:
-#### `npm install` - This will install everything that was used in here.
-#### Keep in mind it will install latest version of dependencies, so something might break.
+### Если планируете что-то сделать с этим, то:
+#### `npm install` - Установит всё нужное здесь.
+#### Помните, что оно установит самые свежие зависимости, так что что-то может сломаться.
 ---
 
-## Special NPM commands: (Configure first)
-1. `npm build` - to convert all .ts files into a single .js (browsers cant use .ts).
-2. `npm watch` - same as build, but will convert automatically, when detects any changes.
-##### You can add `:map` if you need to see from which file and line, error has came from in a browser.
-3. `npm lint` - to check if there are any obvious mistakes in .ts file, also helps to keep same style.
-4. `npm fix` - will auto fix lint for you that it can by itself.
+## Особые NPM комманды: (Сначала настрой)
+1. `npm build` - конвертировать .ts файлы в один .js (браузеры не умеют использовать .ts).
+2. `npm watch` - тоже самое что и buidl, но конвертирует автоматический, когда обнаружит изменения.
+##### Вы можете добавить `:map` если хотите узнать откуда пришла ошибка через браузер.
+3. `npm lint` - проверить на очевидные ошибки в .ts файле, также помогает остаться с тем же стилем.
+4. `npm fix` - автоматически починит если сможет.
