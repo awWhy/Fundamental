@@ -513,8 +513,8 @@ export const global: globalType = {
                 () => `Возможность вернуть потраченную энергию при достижении цели + ускорение всех ${player.inflation.vacuum ? 'микромира ' : ''}структур в ${format(global.dischargeInfo.base, { padding: true })} раза.${player.inflation.vacuum ?
                     `\n(В истинном Вакууме также произойдёт сброс ресурсов и прозведённых структур со всех Уровней${player.stage.true >= 7 ? ' до Бездны' : ''}, а ваших структур будет достаточно для полного восстановления энергии)` : ''}`,
                 () => `Снижение роста стоимости структур на -${format(calculateEffects.S1Upgrade6() / 100)}.`,
-                () => `Купленные структуры усиливают себя на ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ?
-                    `\n(Купленные Преоны усиливают себя на ${format(calculateEffects.S1Upgrade7(true), { padding: true })} (быстрый софткоп и отключение после ${format(1001)} Преонов)` : ''}`,
+                () => `Купленные структуры усиливают себя в ${format(calculateEffects.S1Upgrade7())} раз.${player.inflation.vacuum ?
+                    `\n(Купленные Преоны усиливают себя в ${format(calculateEffects.S1Upgrade7(true), { padding: true })} раз (быстрый софткап и отключение после ${format(1001)} Преонов)` : ''}`,
                 () => `Молекулы смогут создавать новые молекулы с уменьшенной скоростью.\n(${format(new Overlimit(effectsCache.tritium).multiply(global.inflationInfo.globalSpeed), { padding: true })} молекул/сек)`,
                 () => `Неиспользованная энергия ${player.upgrades[1][10] === 1 ? '' : `^${format(0.5)}`} усиливает производство "Трития".\n(Текущий бонус: ${format(calculateEffects.S1Upgrade9(), { padding: true })})`,
                 () => 'Раскрывает полную силу ядерного синтеза, увеличивая эффективность энергии в 2 раза.'

@@ -12,7 +12,7 @@
     <body class="noFocusOutline noTextSelection">
         <aside id="loading">
             <h1 class="biggerWord">Fundamental</h1>
-            <p class="whiteText">Game is loading. If it won't load (after trying to reload at least once), then can try to report it on <a href="https://discord.gg/JftTEJW83d" target="_blank" rel="noopener noreferrer">discord</a> or <a href="https://github.com/awWhy/Fundamental/issues" target="_blank" rel="noopener noreferrer">github</a></p>
+            <p class="whiteText">Игра загружается. Если не загружается (попсле попытки перезагрузиться), то ты можешь это зарепортить тут: <a href="https://discord.gg/JftTEJW83d" target="_blank" rel="noopener noreferrer">официальный сервер discord</a> или <a href="https://github.com/awWhy/Fundamental/issues" target="_blank" rel="noopener noreferrer"> официальный github</a> или <a href="https://github.com/Caleneen/FundamentalRus/issues" target="_blank" rel="noopener noreferrer">github перевода</a></p>
             <noscript>Java Script disabled, game will not work without it</noscript>
         </aside>
         <div id="bigWindow" style="display: none;">
@@ -20,20 +20,20 @@
         </div>
         <div id="alertMain" style="display: none;">
             <div role="dialog" aria-modal="true">
-                <p id="alertText" aria-live="assertive">Welcome back</p>
+                <p id="alertText" aria-live="assertive">С возвращением</p>
                 <div>
                     <input type="text" id="alertInput" autocomplete="off" style="display: none;">
-                    <button type="button" id="alertConfirm">Confirm</button>
-                    <button type="button" id="alertCancel" style="display: none;">Cancel</button>
+                    <button type="button" id="alertConfirm">Подтвердить</button>
+                    <button type="button" id="alertCancel" style="display: none;">Отмена</button>
                 </div>
             </div>
         </div>
         <div id="offlineMain" style="display: none;" role="alertdialog" aria-modal="true">
             <div role="progressbar" aria-valuetext="0% done">
-                <p>Calculating Offline time by using <span id="offlineTick">1</span> milliseconds per tick. Remains <span id="offlineRemains">0 seconds</span> to calculate (<span id="offlinePercentage">0</span>% done)</p>
+                <p>Вычисляем оффлайн время используя <span id="offlineTick">1</span> миллисекунду за тик. Осталось <span id="offlineRemains">0 секунд</span> до вычисления (<span id="offlinePercentage">0</span>% сделано)</p>
                 <div>
-                    <button type="button" id="offlineAccelerate">Accelerate by 2</button>
-                    <button type="button" id="offlineCancel">Finish now</button>
+                    <button type="button" id="offlineAccelerate">Ускорить в 2 раза</button>
+                    <button type="button" id="offlineCancel">Завершить сейчас</button>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                 <section id="stageSubtabStructures" class="insideTab" aria-label="Current tab">
                     <article id="resets" aria-label="Resets">
                         <section id="resetStage" aria-label="Stage reset">
-                            <p class="whiteText">Current Stage is <span id="stageWord" class="bigWord">Microworld</span>.<br>Resets everything Stage related to <span id="stageRewardNew">gain <span id="stageReward">0</span> Strange quarks</span><span id="stageRewardOld">increase current Stage</span>.</p>
+                            <p class="whiteText">Текущий этап <span id="stageWord" class="bigWord">микромир</span>.<br>Resets everything Stage related to <span id="stageRewardNew">gain <span id="stageReward">0</span> Strange quarks</span><span id="stageRewardOld">increase current Stage</span>.</p>
                             <button type="button" id="stageReset" tabindex="-1">Missing</button>
                         </section>
                         <section id="reset1Main" aria-label="Basic reset">
@@ -240,7 +240,7 @@
                                 <div id="challengeMultiline"></div>
                             </section>
                             <section id="voidRewards" aria-labelledby="rewardsType">
-                                <button type="button" id="rewardsType" class="selectBtn darkvioletText bigWord">Void rewards:</button>
+                                <button type="button" id="rewardsType" class="selectBtn darkvioletText bigWord">Пустотные награды:</button>
                                 <div>
                                     <button type="button" id="voidReward1" class="hollowButton stage1borderButton cyanText" aria-controls="voidRewardsMultiline">Microworld</button>
                                     <button type="button" id="voidReward2" class="hollowButton stage2borderButton blueText" aria-controls="voidRewardsMultiline">Submerged</button>
@@ -253,14 +253,14 @@
                         </div>
                     </div>
                     <div id="challengesToggles" class="togglesDiv">
-                        <label class="whiteText">Automatically leave current Challenge after reaching its time limit <button type="button" id="toggleNormal3" class="toggleNormal">ON</button></label>
+                        <label class="whiteText">Автоматически покинуть челлендж по достижении его лимита времени <button type="button" id="toggleNormal3" class="toggleNormal">ON</button></label>
                     </div>
                 </section>
             </div>
             <div id="upgradeTab" style="display: none;">
                 <section id="upgradeSubtabUpgrades" class="insideTab" aria-label="Current tab">
                     <div id="upgrades">
-                        <h2 id="upgradesHeader" class="biggerWord">Upgrades</h2>
+                        <h2 id="upgradesHeader" class="biggerWord">Улучшения</h2>
                         <section aria-labelledby="upgradesHeader">
                             <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade1" class="interactiveImage" aria-controls="upgradeCost upgradeEffect">
                             <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade2" class="interactiveImage" aria-controls="upgradeCost upgradeEffect">
@@ -279,7 +279,7 @@
                         </section>
                     </div>
                     <div id="researches">
-                        <h2 class="bigWord" aria-hidden="true">Researches</h2>
+                        <h2 class="bigWord" aria-hidden="true">Исследования</h2>
                         <section id="stageResearches" aria-label="Stage Researches">
                             <img src="Used_art/Stage.png" alt="" title="Stage Researches" loading="lazy" draggable="false" class="stageBorderImage">
                             <div class="researchesDiv stageAllborderImage">
@@ -378,14 +378,14 @@
                             <button type="button" id="toggleMax0" class="toggleMax">Max create ON</button>
                         </div>
                         <div class="descriptionText">
-                            <h3>Type: <span id="upgradeText">Hover to see.</span></h3>
-                            <p>Effect: <span id="upgradeEffect">Hover to see.</span></p>
-                            <p>Next: <span id="upgradeCost">Resource.</span></p>
+                            <h3>Тип: <span id="upgradeText">Наведись чтобы увидеть.</span></h3>
+                            <p>Эффект: <span id="upgradeEffect">Наведись чтобы увидеть.</span></p>
+                            <p>Следующее: <span id="upgradeCost">Ресурс.</span></p>
                         </div>
                     </div>
                 </section>
                 <section id="upgradeSubtabElements" class="insideTab" style="display: none;" aria-label="Current tab">
-                    <h2 id="elementsHeader" class="fullWidth orangeText biggerWord center">Elements</h2>
+                    <h2 id="elementsHeader" class="fullWidth orangeText biggerWord center">Элементы</h2>
                     <section id="elementsGrid" aria-labelledby="elementsHeader">
                         <input type="image" src="Used_art/Element0.png" alt="Neutronium" draggable="false" id="element0" class="interactiveImage elementType1" aria-controls="elementCost elementEffect" aria-hidden="true" tabindex="-1">
                         <input type="image" src="Used_art/Element1.png" alt="Hydrogen" draggable="false" id="element1" class="interactiveImage elementType1" aria-controls="elementCost elementEffect">
