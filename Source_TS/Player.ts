@@ -508,9 +508,9 @@ effectText: [
     () => 'Частицы производят в 8 раз больше кварков.',
     () => 'Глюоны получат способность объединять кварки в частицы, снижая их стоимость в 16 раз.',
     () => `${player.inflation.vacuum ? 'Атомы' : 'Частицы'} станут в 8 раз дешевле.`,
-    () => `Атомы будут производить в ${player.inflation.vacuum ? 6 : 4} раз больше частиц.`,
+    () => `Атомы будут производить в ${player.inflation.vacuum ? 6 : 4} раз(а) больше частиц.`,
     () => 'Молекулы увеличат производство атомов в 4 раза.',
-    () => `Возможность вернуть потраченную энергию при достижении цели + ускорение всех ${player.inflation.vacuum ? 'микромира ' : ''}структур в ${format(global.dischargeInfo.base, { padding: true })}.${player.inflation.vacuum ? 
+    () => `Возможность вернуть потраченную энергию при достижении цели + ускорение всех ${player.inflation.vacuum ? 'микромира ' : ''}структур в ${format(global.dischargeInfo.base, { padding: true }) } раза.${player.inflation.vacuum ?  
         `\n(В истинном Вакууме также произойдёт сброс ресурсов и чужих структур со всех Уровней${player.stage.true >= 7 ? ' до Бездны' : ''}, а ваших структур будет достаточно для полного восстановления энергии)` : ''}`,
     () => `Снижение роста стоимости структур на -${format(calculateEffects.S1Upgrade6() / 100)}.`,
     () => `Самосозданные структуры усиливают себя на ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ? 
@@ -551,36 +551,36 @@ effectText: [
             maxActive: 8
         }, { //Stage 3
             name: [
-                'Brownian motion',
-                'Gas',
-                'Micrometeoroid',
-                'Streaming instability',
-                'Gravitational field',
-                'Rubble pile',
-                'Magma ocean',
-                'Hydrostatic equilibrium',
-                'Satellite system',
-                'Atmosphere',
-                'Pebble accretion',
-                'Tidal force',
-                'Ring system',
-                'Self-gravity'
+                'Броуновское движение',
+                'Газ',
+                'Микрометеороид',
+                'Нестабильность потока',
+                'Поле гравитации',
+                'Куча щебня',
+                'Магмовый океан',
+                'Гидростатичный эквилибриум',
+                'Спутниковая система',
+                'Атмосфера',
+                'Аккреция гальки',
+                'Приливная сила',
+                'Кольцевая система',
+                'Само-гравитация'
             ],
             effectText: [
-                () => `Through random collisions every self-made Cosmic dust will ${player.inflation.vacuum ? 'delay Preons hardcap even more' : 'produce even more Mass'}.\n(By ${format(calculateEffects.S3Upgrade0())} per self-made Cosmic dust)`,
-                () => `A new substance for the Accretion, it will provide boost to Cosmic dust based on its quantity.\n(Formula: ((self-made + 1) * current) ^${format(calculateEffects.S3Upgrade1_power())} | Boost: ${format(calculateEffects.S3Upgrade1(), { padding: true })})`,
-                () => 'Just a small meteoroid, but it will be a good base for what to come.\n(Unlock a new Structure and get 2x boost to Cosmic dust)',
-                () => `Small bodies will spontaneously concentrate into clumps.\n(Self-made Planetesimals will boost each other by ${format(calculateEffects.S3Upgrade3())})`,
-                () => 'Bodies will become massive enough to affect each other with their own gravity.\n(Unlock a new Structure and get 3x boost to Planetesimals)',
-                () => `Shattered pieces will fall back together. ${player.inflation.vacuum ? 'Preons hardcap delay' : 'Mass production'} from Cosmic dust will be increased by 3.`,
-                () => `Melt the core to increase Accretion speed.\n(Cosmic dust strength will be increased by ${format(2 * 1.5 ** player.researches[3][7])})`,
-                () => `After reaching equilibrium, self-made Protoplanets will boost each other by ${format(1.02)}.`,
-                () => 'Unlock yet another Structure.',
-                () => `${player.inflation.vacuum ? 'Preons hardcap delay' : 'Mass production'} from Cosmic dust will be increased again (because of drag and escape velocity), by 2.`,
-                () => `${player.inflation.vacuum ? 'Preons hardcap delay' : 'Mass production'} from Cosmic dust will be greatly increased by ${8 * 2 ** player.researches[3][8]}.`,
-                () => `Satellites cost scaling will be 2 times smaller.${player.inflation.vacuum ? '\nAlso unlock a new Structure.' : ''}`,
-                () => 'Satellites effect will scale better.',
-                () => `Allow for Star clusters to be boosted by ('Gravity' / ${format(2e5)}) ^${format(0.5)} + 1.\n(Boost is equal to ${format((calculateEffects.S3Research6() / 2e5) ** 0.5 + 1, { padding: true })})`
+                () => `Через случайные сталкивания купленная космическая пыль ${player.inflation.vacuum ? 'задержит хардкап преонов сильнее' : 'произведёт больше массы'}.\n(На ${format(calculateEffects.S3Upgrade0())} за каждую купленную пыль)`,
+                () => `Новая субстанция для аккреции, она даст буст космичкеской пыли, основываясь на количестве.\n(Формула: ((купленные + 1) * текущие) ^${format(calculateEffects.S3Upgrade1_power())} | Буст: ${format(calculateEffects.S3Upgrade1(), { padding: true })})`,
+                () => 'Просто маленький метеороид, но он станет хорошей основой для грядущего.\n(Откроется новая структура и удвоение эффективности Космической пыли)',
+                () => `Мелкие тела будут стихийно собираться в комки.\n(Созданные вами Планетезимали будут усиливать друг друга на ${format(calculateEffects.S3Upgrade3())})`,
+                () => 'Тела станут достаточно массивными, чтобы влиять друг на друга своей гравитацией.\n(Откроется новая структура и 3x эффективность Планетезималей)',
+                () => `Осколки снова объединятся. ${player.inflation.vacuum ? 'Задержка хардкапа преонов' : 'Производство массы'} от космической пыли увеличится в 3 раза.`,
+                () => `Расплавить ядро чтоб увеличить скорость аккреции.\n(Сила космической пыли повысится в ${format(2 * 1.5 ** player.researches[3][7])} раз)`,
+                () => `После достижения эквилибриума, купленные протопланеты забустят друг друга в ${format(1.02)} раз.`,
+                () => 'Откроет ещё одну структуру.',
+                () => `${player.inflation.vacuum ? 'Задержка хардкапа преонов' : 'Производство массы'} от космической пыли ещё увеличится (из-за сопротивления и скорости убегания), в 2 раза.`,
+                () => `${player.inflation.vacuum ? 'Задержка хардкапа преонов' : 'Производство массы'} от космической пыли сильно увеличится в ${8 * 2 ** player.researches[3][8]} раз.`,
+                () => `Увеличение стоимости спутников уменьшится в 2 раза.${player.inflation.vacuum ? '\nЕщё откроет новую структуру.' : ''}`,
+                () => 'Эффект спутников будет расти лучше.',
+                () => `Позволит скоплениям звёзд забуститься от ('Гравитация' / ${format(2e5)}) ^${format(0.5)} + 1.\n(Буст равен ${format((calculateEffects.S3Research6() / 2e5) ** 0.5 + 1, { padding: true })})`
             ],
             startCost: [1e-16, 1e-13, 1e-13, 1, 1e14, 1e17, 1e10, 1e22, 1e22, 1e23, 1e9, 1e26, 1e29, 1e86],
             maxActive: 13
@@ -1413,44 +1413,44 @@ effectText: [
         },
         needText: [
             [], [
-                () => 'Perform the Discharge',
-                () => 'Unlock Accretion Stage',
-                () => 'Unlock Submerged Stage'
+                () => 'Сделать разряжение',
+                () => 'Разблокировать этап аккреции',
+                () => 'Разблокировать погружённый этап'
             ], [
-                () => 'Vaporize the Drops',
-                () => `Have more than ${format(1e4)} Clouds`,
-                () => player.stage.true >= 7 ? `Reach ${format(1e12)} Clouds without increasing Rank` : null
+                () => 'Испарить капли',
+                () => `Иметь больше чем ${format(1e4)} облаков`,
+                () => player.stage.true >= 7 ? `Достичь ${format(1e12)} облаков без повышения ранга` : null
             ], [
-                () => "Reach 'Meteoroid' Rank",
-                () => "Reach 'Asteroid' Rank",
-                () => "Reach 'Planet' Rank",
-                () => "Reach 'Jovian planet' Rank",
-                () => "Reach 'Protostar' Rank",
+                () => "Достичь ранг 'Метеороид'",
+                () => "Достичь ранг 'Астероид'",
+                () => "Достичь ранг 'Планета'",
+                () => "Достичь ранг 'Джовиановская планета'",
+                () => "Достичь ранг 'Протозвезда'",
                 () => player.stage.true >= 7 ? "Reach 'Protogalaxy' Rank" : null
             ], [
-                () => 'Cause the Collapse',
-                () => 'Get the first Red giant',
-                () => 'Get the first Neutron star',
-                () => 'Get the first Black hole',
-                () => 'Unlock Intergalactic Stage'
+                () => 'Вызвать коллапс',
+                () => 'Получить первый красный гигант',
+                () => 'Получить первую нейтронную звезду',
+                () => 'Получить первую чёрную дыру',
+                () => 'Разблокировать межгалактический этап'
             ], [
-                () => 'Create a Galaxy',
-                () => player.stage.true >= 7 ? 'Force a Galaxic Merge (WIP)' : null,
-                () => player.stage.true >= 7 ? 'Create a Galaxy group (WIP)' : null
+                () => 'Создать галактику',
+                () => player.stage.true >= 7 ? 'Сделать слияние галактик (WIP)' : null,
+                () => player.stage.true >= 7 ? 'Создать группу галактик (WIP)' : null
             ]
         ],
         rewardText: [[
             [],
-            ["'Energy increase' (Microworld)", "'Conservation of Mass' (Microworld)", "'Improved flow' (Submerged)"],
-            ["'Mechanical spread' (Submerged)", "'Ocean world' (Submerged)", "'Galactic tide' (Intergalactic)"],
-            ['Multiple max level increases', 'Multiple max level increases', 'Multiple max level increases', 'Multiple max level increases', "'Strange growth' (Intergalactic)", "'Automatic Merge' (Intergalactic)"],
-            ['Max level increased for Auto resets', "'Conservation of Energy' (Microworld)", "'Neutronium' (Interstellar)", "'Mass delay' (Accretion)", "'Newer Upgrade' (Interstellar)"],
-            ["'Rank raise' (Accretion)", 'Missing', 'Missing']
+            ["'Повышение энергии' (микромир)", "'Сохранение массы' (микромир)", "'Улучшенное течение' (погружённый)"],
+            ["'Механическое распространение' (погружённый)", "'Океанический мир' (погружённый)", "'Галактический прилив' (межгалактический)"],
+            ['Несколько повышений максимального уровня', 'Несколько повышений максимального уровня', 'Несколько повышений максимального уровня', 'Несколько повышений максимального уровня', "'Странный рост' (межгалактический)", "'Автоматическое слияние' (межгалактический)"],
+            ['Максимальный уровень для авто сбросов повышен', "'Сохранение энергии' (микромир)", "'Нейтроний' (межзвёздный)", "'Задержка массы' (аккреция)", "'Улучшение поновее' (межзвёздный)"],
+            ["'Повышение ранга' (аккреция)", 'Missing', 'Missing']
         ], [
             [],
-            ["'Discharge improvement' (Non-refundable)", "'Improved conservation' (Milestone)", 'Missing'],
+            ["'Улучшение разряжения' (не пополняемое)", "'Улучшенное сохранение' (цель)", 'Missing'],
             ['Missing', 'Missing', 'Missing'],
-            ["'Indestructible matter' (Milestone)", 'Missing', 'Missing', 'Missing', 'Missing', 'Missing'],
+            ["'Неразрушимая материя' (цель)", 'Missing', 'Missing', 'Missing', 'Missing', 'Missing'],
             ['Missing', 'Missing', 'Missing', 'Missing', 'Missing'],
             ['Missing', 'Missing', 'Missing']
         ]],
@@ -1634,7 +1634,7 @@ player.toggles.normal[1] = true;
 export const playerStart = deepClone(player);
 
 export const updatePlayer = (load: playerType): string => {
-    if (load.inflation === undefined) { throw new ReferenceError('This save file is not from this game or too old'); }
+    if (load.inflation === undefined) { throw new ReferenceError('Это сохранение не из этой игры или слишком старое'); }
     prepareVacuum(load.inflation.vacuum); //Only to set starting buildings values
 
     const oldVersion = load.version;
@@ -1740,7 +1740,7 @@ export const updatePlayer = (load: playerType): string => {
         }
 
         if (load.version !== playerStart.version) {
-            throw new ReferenceError(`Couldn't update save file ${load.version} to the current game version`);
+            throw new ReferenceError(`Невозможно обновить сохранение ${load.version} на текущую версию игры`);
         }
     }
 
