@@ -1,6 +1,7 @@
 # Fundamental
 Попытка сделать перевод на игру\
 Оригинал можно сыграть на 'https://awwhy.github.io/Fundamental/' \
+А эту версию можно по этой ссылке: "https://caleneen.github.io/FundamentalRus/" \
 Если хотите сообщить об ошибке (тут или в discord), попытайтесь дать информацию как случилось и скриншот ошибки (Ошибки выглядят как стены красного текста, например: Uncaught TypeError: Cannot read properties of null (reading '0'))
 
 #### Должно поддерживаться:
