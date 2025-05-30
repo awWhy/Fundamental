@@ -893,60 +893,64 @@
                     <aside id="logoLinks" aria-label="Links">
                         <a href="https://discord.gg/DfpuhDTseN" target="_blank" rel="noopener noreferrer">
                             <img src="Used_art/SVG/Discord.svg" alt="" loading="lazy" draggable="false">
-                            Discord
+                            Discord (eng)
                         </a>
                         <button type="button" id="hotkeysButton" aria-haspopup="dialog">
                             <img src="Used_art/SVG/Keyboard.svg" alt="" loading="lazy">
-                            Hotkeys
+                            Хоткеи
                         </button>
                         <button type="button" id="versionButton" aria-haspopup="dialog">
                             <img src="Used_art/SVG/Files.svg" alt="" loading="lazy" draggable="false">
-                            Version
+                            Версия
                         </button>
+                        <a href="https://github.com/Caleneen/FundamentalRus" target="_blank" rel="noopener noreferrer">
+                            <img src="Used_art/SVG/GitHub.svg" alt="" loading="lazy" draggable="false">
+                            GitHub
+                        </a>
                     </aside>
                     <article id="saveButtonGroup" aria-label="Save file buttons">
-                        <h3 class="bigWord">Please export save file regularly</h3>
-                        <p id="exportReward" class="whiteText center">Current reward is <span id="exportQuarks" class="greenText">0</span> Strange quarks<span id="exportStrangeletsUnlocked">, <span id="exportStrangelets" class="greenText">0</span> Strangelets</span><span class="redText"> (Disabled)</span></p>
+                        <h3 class="bigWord">Пожалуйста, экспортируйте сохранение регулярно</h3>
+                        <p id="exportReward" class="whiteText center">Текущая награда <span id="exportQuarks" class="greenText">0</span> странных кварков<span id="exportStrangeletsUnlocked">, <span id="exportStrangelets" class="greenText">0</span> странгелетов</span><span class="redText"> (неактивно)</span></p>
                         <div>
                             <div>
-                                <button type="button" id="save">Save</button>
-                                <label id="load">Load<input type="file" id="file" class="reader" accept=".txt"></label>
+                                <button type="button" id="save">Сохран.</button>
+                                <label id="load">Загруз.<input type="file" id="file" class="reader" accept=".txt"></label>
                             </div>
-                            <button type="button" id="export">Export save file</button>
-                            <button type="button" id="saveConsole">Other save options</button>
+                            <button type="button" id="export">Экспорт сохран.</button>
+                            <button type="button" id="saveConsole">Настройки сохран.</button>
                         </div>
-                        <p class="whiteText">Last time saved: <span id="isSaved" class="mainText">Not in current session</span></p>
+                        <p class="whiteText">В последний раз сохранено: <span id="isSaved" class="mainText">Не в текущей сессии</span></p>
                     </article>
                     <section class="options">
-                        <h2 class="center">Options</h2>
+                        <h2 class="center">Настройки</h2>
                         <ul class="whiteText">
                             <li><input type="text" id="saveFileNameInput" aria-label="Save file name" minlength="4"> + '<span class="mainText">.txt</span>'<!--
                                 --><div class="settingsMenu">
-                                    <button type="button" id="saveFileHoverButton" class="hollowButton" aria-haspopup="dialog">Preview</button>
+                                    <button type="button" id="saveFileHoverButton" class="hollowButton" aria-haspopup="dialog">Превью</button>
                                     <div class="popUpMenu" role="dialog" aria-label="Save file name preview">
                                         <p id="saveFileNamePreview" class="mainText bigWord">Fundamental.txt</p>
-                                        <p class="whiteText center">Any of these can be added for extra information of a save file</p>
-                                        <p class="mainText">[version] - <span class="whiteText">for game version</span></p>
-                                        <p class="stageText">[stage] - <span class="whiteText">for current Stage</span></p>
-                                        <p id="saveFileNameStrange" class="greenText">[strange] - <span class="whiteText">for total Strange quarks</span></p>
-                                        <p id="saveFileNameCosmon" class="darkvioletText">[cosmon] - <span class="whiteText">for total Cosmon</span></p>
-                                        <p id="saveFileNameVacuum" class="orchidText">[vacuum] - <span class="whiteText">for current state of Vacuum</span></p>
-                                        <p id="saveFileNameGalaxy" class="grayText">[galaxy] - <span class="whiteText">for current Galaxies</span></p>
-                                        <p id="saveFileNameUniverse" class="darkvioletText">[universe] - <span class="whiteText">for current Universes</span></p>
-                                        <p class="cyanText">[date<span class="whiteText">Data</span>] - <span class="whiteText">for current date</span></p>
+                                        <p class="whiteText center">Любое из этого может быть добавлено для доп. информации сохранения</p>
+                                        <p class="mainText">[version] - <span class="whiteText">для игровой версии</span></p>
+                                        <p class="stageText">[stage] - <span class="whiteText">для этапа</span></p>
+                                        <p id="saveFileNameStrange" class="greenText">[strange] - <span class="whiteText">для кол-ва странных кварков</span></p>
+                                        <p id="saveFileNameCosmon" class="darkvioletText">[cosmon] - <span class="whiteText">для кол-ва космонов</span></p>
+                                        <p id="saveFileNameVacuum" class="orchidText">[vacuum] - <span class="whiteText">для текущего этапа вакуума</span></p>
+                                        <p id="saveFileNameGalaxy" class="grayText">[galaxy] - <span class="whiteText">для текущих галактик</span></p>
+                                        <p id="saveFileNameUniverse" class="darkvioletText">[universe] - <span class="whiteText">для текущих вселенных</span></p>
+                                        <p class="cyanText">[date<span class="whiteText">Data</span>] - <span class="whiteText">для текущей даты</span></p>
                                         <div class="dateGrid">
-                                            <p class="cyanText">Y - <span class="whiteText">Year</span></p>
-                                            <p class="cyanText">M - <span class="whiteText">Month</span></p>
-                                            <p class="cyanText">D - <span class="whiteText">Day</span></p>
+                                            <p class="cyanText">Y - <span class="whiteText">год</span></p>
+                                            <p class="cyanText">M - <span class="whiteText">месяц</span></p>
+                                            <p class="cyanText">D - <span class="whiteText">день</span></p>
                                         </div>
-                                        <p class="blueText">[time<span class="whiteText">Data</span>] - <span class="whiteText">for current time</span></p>
+                                        <p class="blueText">[time<span class="whiteText">Data</span>] - <span class="whiteText">для текущего времени</span></p>
                                         <div class="dateGrid">
-                                            <p class="blueText">H - <span class="whiteText">Hour</span></p>
-                                            <p class="blueText">M - <span class="whiteText">Minute</span></p>
-                                            <p class="blueText">S - <span class="whiteText">Second</span></p>
+                                            <p class="blueText">H - <span class="whiteText">час</span></p>
+                                            <p class="blueText">M - <span class="whiteText">минута</span></p>
+                                            <p class="blueText">S - <span class="whiteText">секунда</span></p>
                                         </div>
-                                        <p class="whiteText center">'Data' will be replaced accordingly, example<br aria-hidden="true"><span class="cyanText">[dateD.M.Y]</span> ⟶ <span class="cyanText">02.02.2000</span></p>
-                                        <p class="redText bigWord center">Case sensitive</p>
+                                        <p class="whiteText center">'Data' будет заменена на нужное, например <br aria-hidden="true"><span class="cyanText">[dateD.M.Y]</span> ⟶ <span class="cyanText">02.02.2000</span></p>
+                                        <p class="redText bigWord center">Зависит от капса</p>
                                     </div>
                                 </div>
                             </li>
