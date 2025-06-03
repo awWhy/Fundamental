@@ -23,7 +23,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
                 switchTab(oldTab, global.tabList[`${oldTab}Subtabs`][0]);
             }
         }
-        getId('subtabs').style.display = subtabAmount > 1 ? '' : 'none';
+        getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         if (globalSave.SRSettings[0]) {
             const text = `Current tab is '${oldTab}'${subtabAmount > 1 ? ` and subtab is '${global.subtab[`${oldTab}Current`]}'` : ''}`;
             if (getId('SRTab').textContent !== text) { getId('SRTab').textContent = text; } //Just in case to prevent unnessary calls?
@@ -50,7 +50,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
                 switchTab(tab, global.tabList[`${tab}Subtabs`][0]);
             }
         }
-        getId('subtabs').style.display = subtabAmount > 1 ? '' : 'none';
+        getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current tab is '${tab}'${subtabAmount > 1 ? ` and subtab is '${global.subtab[`${tab}Current`]}'` : ''}`; }
     } else {
         const oldSubtab = global.subtab[`${tab}Current`];

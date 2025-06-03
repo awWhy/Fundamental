@@ -1448,8 +1448,6 @@ export const global: globalType = {
             ], [
                 () => `Create a Galaxy${global.sessionToggles[0] ? ' (WIP)' : ''}`,
                 () => player.stage.true >= 7 ? `Force a Galaxic Merge ${global.sessionToggles[0] ? ' (WIP)' : ''}` : null
-                //() => player.stage.true >= 8 ? 'Create a Galaxy group (WIP)' : null
-                //() => player.stage.true >= 8 ? 'Create a Galaxy cluster (WIP)' : null
             ]
         ],
         rewardText: [[
