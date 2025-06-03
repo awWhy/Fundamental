@@ -1447,9 +1447,7 @@ export const global: globalType = {
                 () => `Unlock Intergalactic Stage${global.sessionToggles[0] ? ' (WIP)' : ''}`
             ], [
                 () => `Create a Galaxy${global.sessionToggles[0] ? ' (WIP)' : ''}`,
-                () => player.stage.true >= 7 ? `Force a Galaxic Merge ${global.sessionToggles[0] ? ' (WIP)' : ''}` : null
-                //() => player.stage.true >= 8 ? 'Create a Galaxy group (WIP)' : null
-                //() => player.stage.true >= 8 ? 'Create a Galaxy cluster (WIP)' : null
+                () => player.stage.true >= 7 ? `Force the Galactic Merge ${global.sessionToggles[0] ? ' (WIP)' : ''}` : null
             ]
         ],
         rewardText: [[
@@ -1476,7 +1474,7 @@ export const global: globalType = {
         effectText: () => {
             const completions = player.challenges.stability;
             return `<p class="orchidText">‒ Global speed is decreased by ${format(2 ** completions, { padding: 'exponent' })}\n‒ Milestones time limit is 0 seconds\n‒ Permanent Stages are removed from reset cycle</p>
-            <p class="greenText">‒ Strange quarks from Stage resets are decreased by ${format(2 ** Math.max((player.challenges.active === 1 ? player.stage.resets : 0) + completions - 8, 0), { padding: 'exponent' })}\n‒ Strange quarks from non-Interstellar Stage resets are further decreased by ${4 * (completions + 1)}\n‒ Stage resets above ${8 - completions} decrease Strange quarks from Stage resets by 2\n‒ Going above 10 minutes of the Stage time will force Stage reset</p>
+            <p class="greenText">‒ Strange quarks from Stage resets are decreased by ${format(2 ** Math.max((player.challenges.active === 1 ? player.stage.resets : 0) + completions - 7, 0), { padding: 'exponent' })}\n‒ Strange quarks from non-Interstellar Stage resets are further decreased by ${4 * (completions + 1)}\n‒ Stage resets above ${8 - completions} decrease Strange quarks from Stage resets by 2\n‒ Going above 10 minutes of the Stage time will force Stage reset</p>
             <p class="darkvioletText">‒ Galaxies scale in cost faster by +${format(0.01)}\n‒ Merge requirement is increased by +${completions}, which is equal to ${calculateEffects.mergeRequirement(true)}</p>`;
         },
         needText: ['1 Completion'],

@@ -103,7 +103,8 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('massProduction').style.display = '';
         getId('mainCapHardS5').style.display = '';
         getId('element0').style.display = '';
-        getId('strangePeakAllowed').style.display = '';
+        getId('strangePeak').style.display = '';
+        getId('stageTimeBestReset').style.display = '';
         getId('strange1Effect1Allowed').style.display = '';
         getId(`strangeness${globalSave.MDSettings[0] ? 'Page' : 'Section'}5`).style.display = '';
         getId('strange7Stage1').style.display = '';
@@ -119,7 +120,6 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         getId('collapseCapped').style.display = '';
         getId('mergeToggleReset').style.display = '';
 
-        getId('strangePeakDisabled').style.display = 'none';
         getId('strange1Effect1Disabled').style.display = 'none';
         getId('stageAutoElse').style.display = 'none';
     } else {

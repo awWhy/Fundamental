@@ -255,7 +255,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchCollapse4.png', 'stage6borderImage']
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
-            ['Missing.png', 'stage3borderImage'],
+            ['ResearchGalaxy2.png', 'brownBorderImage'],
             ['ResearchGalaxy3.png', 'stage3borderImage'],
             ['ResearchGalaxy4.png', 'brownBorderImage'],
             ['Missing.png', 'redBorderImage'],
@@ -995,7 +995,7 @@ const buildBigWindow = (subWindow: string): null | HTMLElement => {
         getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
         specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
             #bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
-            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; }`;
+            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; } `;
     }
 
     if (getId(subWindow, true) !== null) { return null; }
@@ -1065,7 +1065,7 @@ export const openVersionInfo = () => {
         mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += `#versionHTML h6 { font-size: 1.18em; }
             #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; }
-            #versionHTML p:last-of-type { margin-bottom: 0; }`;
+            #versionHTML p:last-of-type { margin-bottom: 0; } `;
     }
 
     specialHTML.bigWindow = 'version';
@@ -1114,7 +1114,7 @@ export const openHotkeys = () => {
         getId('hotkeysToggleLabel').append(toggle);
         specialHTML.styleSheet.textContent += `#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
             #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; }
-            #hotkeysHTML > div label { justify-self: center; width: max-content; }`;
+            #hotkeysHTML > div label { justify-self: center; width: max-content; } `;
 
         const changeHotkey = async(disableFirstUp = false): Promise<string[] | null> => {
             return await new Promise((resolve) => {
@@ -1210,7 +1210,7 @@ export const openLog = () => {
             #logMain { display: flex; flex-direction: column; text-align: start; border-top: 2px solid; border-bottom: 2px solid; height: 100%; padding: 0.2em 0.4em; margin-top: 0.4em; overflow-y: scroll; overscroll-behavior-y: none; }
             #logMain > li { list-style: inside "‒ "; }
             #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change the order */
-            #logMain.bottom > li:first-of-type { margin-bottom: auto; }`;
+            #logMain.bottom > li:first-of-type { margin-bottom: auto; } `;
         getId('logOrder').addEventListener('click', () => {
             const bottom = getId('logMain').classList.toggle('bottom');
             getId('logOrder').textContent = `Entries on ${bottom ? 'bottom' : 'top'} are newer`;

@@ -23,7 +23,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
                 switchTab(oldTab, global.tabList[`${oldTab}Subtabs`][0]);
             }
         }
-        getId('subtabs').style.display = subtabAmount > 1 ? '' : 'none';
+        getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         if (globalSave.SRSettings[0]) {
             const text = `Current tab is '${oldTab}'${subtabAmount > 1 ? ` and subtab is '${global.subtab[`${oldTab}Current`]}'` : ''}`;
             if (getId('SRTab').textContent !== text) { getId('SRTab').textContent = text; } //Just in case to prevent unnessary calls?
@@ -50,7 +50,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
                 switchTab(tab, global.tabList[`${tab}Subtabs`][0]);
             }
         }
-        getId('subtabs').style.display = subtabAmount > 1 ? '' : 'none';
+        getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current tab is '${tab}'${subtabAmount > 1 ? ` and subtab is '${global.subtab[`${tab}Current`]}'` : ''}`; }
     } else {
         const oldSubtab = global.subtab[`${tab}Current`];
@@ -416,9 +416,9 @@ export const numbersUpdate = () => {
             getId('strange0Cur').textContent = format(player.strange[0].current, { padding: true });
             getId('strange1Cur').textContent = format(player.strange[1].current, { padding: true });
             getId('stageTimeStrangeness').textContent = format(player.time.stage, { type: 'time' });
-            getId('stageTimeBestReset').textContent = format(player.history.stage.best[0], { type: 'time' });
+            getQuery('#stageTimeBestReset > span').textContent = format(player.history.stage.best[0], { type: 'time' });
             if (interstellar) {
-                getId('strangePeak').textContent = format(player.stage.peak, { type: 'income' });
+                getQuery('#strangePeak > span').textContent = format(player.stage.peak, { type: 'income' });
                 getId('strangePeakedAt').textContent = format(player.stage.peakedAt, { type: 'time' });
             }
             if (getId('strange1EffectsMain').dataset.open === 'true') {
@@ -1877,8 +1877,8 @@ export const stageUpdate = (changed = true, offline = false) => {
         getId('milestonesProgressArea').style.display = challenge === 0 && player.tree[0][4] >= 1 ? '' : 'none';
     } else {
         const interstellar = (active >= 6 ? current : active) >= 4;
-        getId('strangePeakAllowed').style.display = interstellar ? '' : 'none';
-        getId('strangePeakDisabled').style.display = !interstellar ? '' : 'none';
+        getId('strangePeak').style.display = interstellar ? '' : 'none';
+        getId('stageTimeBestReset').style.display = interstellar ? '' : 'none';
         getId('strange1Effect1Allowed').style.display = interstellar ? '' : 'none';
         getId('strange1Effect1Disabled').style.display = !interstellar ? '' : 'none';
         if (highest < 6) {

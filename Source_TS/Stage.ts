@@ -34,7 +34,7 @@ export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
     const activeAll = global.stageInfo.activeAll;
 
     const trueSeconds = tick / 1000;
-    player.merge.since += trueSeconds;
+    if (player.inflation.vacuum || activeAll.includes(4)) { player.merge.since += trueSeconds; }
     time.stage += trueSeconds;
     time.vacuum += trueSeconds;
     time.universe += trueSeconds;
@@ -1484,7 +1484,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             if (upgrade === 4) {
                 if (player.inflation.vacuum) {
                     const maxLevel = player.strangeness[3][4] < 1 ? 1 : player.strangeness[2][4] < 1 ? 2 : player.strangeness[4][4] < 1 ? 3 : player.strangeness[5][9] < 1 ? 4 : 5;
-                    if (player.clone.depth === 'stage' && player.clone.researchesAuto[2] < 1) { player.clone.researchesAuto[2] = maxLevel; }
+                    if (player.clone.depth === 'stage' && player.clone.researchesAuto[2] === 0) { player.clone.researchesAuto[2] = maxLevel; }
                     if (player.researchesAuto[2] < 1) { player.researchesAuto[2] = maxLevel; }
                 } else if (player.stage.current === 1 && player.researchesAuto[2] < 1) { player.researchesAuto[2] = 1; }
             } else if (upgrade === 5) {
@@ -1530,6 +1530,10 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
                 calculateMaxLevel(2, 0, 'researchesAuto', true);
                 global.debug.rankUpdated = null;
                 assignResetInformation.maxRank();
+                if (player.strangeness[5][9] >= 1) {
+                    if (player.clone.depth === 'stage' && player.clone.researchesAuto[2] === 4) { player.clone.researchesAuto[2] = 5; }
+                    if (player.researchesAuto[2] === 4) { player.researchesAuto[2] = 5; }
+                }
             }
         } else if (stageIndex === 4) {
             if (upgrade === 4) {

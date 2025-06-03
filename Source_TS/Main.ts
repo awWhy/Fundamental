@@ -277,11 +277,11 @@ const awardExport = () => {
 const saveConsole = async() => {
     let value = await Prompt("Available options:\n'Copy' ‒ copy save file to the clipboard\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it");
     if (value === null || value === '') { return; }
-    let lower = value.toLowerCase();
+    let lower = value.trim().toLowerCase();
     if (lower === 'global') {
         value = await Prompt("Available options:\n'Reset' ‒ reset global settings\n'Copy' ‒ copy global settings to the clipboard\nOr insert global settings text here to load it");
         if (value === null || value === '') { return; }
-        lower = `global_${value.toLowerCase()}`;
+        lower = `global_${value.trim().toLowerCase()}`;
     }
 
     if (lower === 'copy' || lower === 'global_copy') {
@@ -592,234 +592,234 @@ try { //Start everything
             Notify('Global settings failed to parse, default ones will be used instead');
             console.log(`(Full parse error) ${error}`);
         }
-        (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
-        (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
-        (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
-        (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
-        (getId('visualInterval') as HTMLInputElement).value = `${globalSave.intervals.visual}`;
-        (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
-        for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
-        if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
-        if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
-        if (globalSave.toggles[3]) {
-            getQuery('#footer > div:first-child').style.display = 'none';
-            const fake2 = document.createElement('div');
-            fake2.style.height = 'max(calc(6.08em + 32px), 7.92em)';
-            getId('body').prepend(getId('footer'), fake2);
-            getId('fakeFooter').after(getId('phoneHotkeys'));
-            const div = document.createElement('div');
-            div.append(getId('footerStats'), getQuery('#footerMain > nav'), getId('stageSelect'));
-            getId('footerMain').append(div, getId('subtabs'));
-            specialHTML.styleSheet.textContent += `.insideTab { margin-top: 0.6rem; }
-                #footer { top: 0; bottom: unset; }
-                #footerMain { flex-direction: row; padding: 0.6em 0; gap: 0.6em; }
-                #footerMain > div { display: flex; flex-direction: column; row-gap: 0.6em; margin: 0 0 0 auto; }
-                #footerMain > div > nav { display: flex; flex-flow: row nowrap; justify-content: center; column-gap: 0.4em; }
-                #footerStats { justify-content: center; column-gap: 0.6em; margin: 0; }
-                #stageSelect { position: unset; margin: 0; max-width: unset; }
-                #subtabs { flex-flow: column-reverse wrap; gap: 0.6em !important; align-self: end; margin: 0 auto 0 0 !important; max-height: 6.72em; }
-                #footerMain button, #phoneHotkeys button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
-                #subtabs button { width: 100%; min-width: 7em; }
-                #globalStats { bottom: 0.6em; right: calc(50vw - 6.325em); }
-                #phoneHotkeys { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
-                #fakeFooter { height: 3.04em; }`;
-        }
-        if (globalSave.toggles[2]) { document.body.classList.remove('noTextSelection'); }
-        if (globalSave.toggles[1]) {
-            const elementsArea = getId('upgradeSubtabElements');
-            elementsArea.id = 'ElementsTab';
-            getId('upgradeTab').after(elementsArea);
-            specialHTML.cache.idMap.delete('upgradeSubtabElements');
+    }
+    (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
+    (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
+    (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
+    (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
+    (getId('visualInterval') as HTMLInputElement).value = `${globalSave.intervals.visual}`;
+    (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
+    for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
+    if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
+    if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
+    if (globalSave.toggles[3]) {
+        getQuery('#footer > div:first-child').style.display = 'none';
+        const fake2 = document.createElement('div');
+        fake2.style.height = 'max(calc(6.08em + 32px), 7.92em)';
+        getId('body').prepend(getId('footer'), fake2);
+        getId('fakeFooter').after(getId('phoneHotkeys'));
+        const div = document.createElement('div');
+        div.append(getId('footerStats'), getQuery('#footerMain > nav'), getId('stageSelect'));
+        getId('footerMain').append(div, getId('subtabs'));
+        specialHTML.styleSheet.textContent += `.insideTab { margin-top: 0.6rem; }
+            #footer { top: 0; bottom: unset; }
+            #footerMain { flex-direction: row; padding: 0.6em 0; gap: 0.6em; }
+            #footerMain > div { display: flex; flex-direction: column; row-gap: 0.6em; margin: 0 0 0 auto; }
+            #footerMain > div > nav { display: flex; flex-flow: row nowrap; justify-content: center; column-gap: 0.4em; }
+            #footerStats { justify-content: center; column-gap: 0.6em; margin: 0; }
+            #stageSelect { position: unset; margin: 0; max-width: unset; }
+            #subtabs { flex-flow: column-reverse wrap; gap: 0.6em !important; align-self: end; margin: 0 auto 0 0 !important; max-height: 6.72em; width: 0; /* min-width: 7em; */ }
+            #footerMain button, #phoneHotkeys button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
+            #subtabs button { width: 100%; min-width: 7em; }
+            #globalStats { bottom: 0.6em; right: calc(50vw - 6.325em); }
+            #phoneHotkeys { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
+            #fakeFooter { height: 3.04em; } `;
+    }
+    if (globalSave.toggles[2]) { document.body.classList.remove('noTextSelection'); }
+    if (globalSave.toggles[1]) {
+        const elementsArea = getId('upgradeSubtabElements');
+        elementsArea.id = 'ElementsTab';
+        getId('upgradeTab').after(elementsArea);
+        specialHTML.cache.idMap.delete('upgradeSubtabElements');
 
-            const elementsButton = getId('upgradeSubtabBtnElements');
-            elementsButton.id = 'ElementsTabBtn';
-            elementsButton.classList.add('stage4Include');
-            getId('upgradeTabBtn').after(elementsButton);
-            specialHTML.cache.idMap.delete('upgradeSubtabBtnElements');
+        const elementsButton = getId('upgradeSubtabBtnElements');
+        elementsButton.id = 'ElementsTabBtn';
+        elementsButton.classList.add('stage4Include');
+        getId('upgradeTabBtn').after(elementsButton);
+        specialHTML.cache.idMap.delete('upgradeSubtabBtnElements');
 
-            const tabList = global.tabList;
-            tabList.ElementsSubtabs = [];
-            tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
-            tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
-        }
+        const tabList = global.tabList;
+        tabList.ElementsSubtabs = [];
+        tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
+        tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
+    }
 
-        if (globalSave.MDSettings[0]) {
-            toggleSpecial(0, 'mobile');
-            (document.getElementById('MDMessage1') as HTMLElement).remove();
-            specialHTML.styleSheet.textContent += `body.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p { -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
-                #themeArea > div > div { position: unset; display: flex; width: 15em; }
-                #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */
-                #globalStats { ${globalSave.toggles[3] ? 'bottom: 3.04em;' : 'bottom: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); right: calc(50vw - 6.325em);'} }`;
-            (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
-            global.debug.MDStrangePage = 1;
+    if (globalSave.MDSettings[0]) {
+        toggleSpecial(0, 'mobile');
+        (document.getElementById('MDMessage1') as HTMLElement).remove();
+        specialHTML.styleSheet.textContent += `body.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p { -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
+            #themeArea > div > div { position: unset; display: flex; width: 15em; }
+            #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */
+            #globalStats { ${globalSave.toggles[3] ? 'bottom: 3.04em;' : 'bottom: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); right: calc(50vw - 6.325em);'} } `;
+        (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
+        global.debug.MDStrangePage = 1;
 
-            const arrowStage = document.createElement('button');
-            arrowStage.innerHTML = '<span class="downArrow"></span>';
-            arrowStage.type = 'button';
-            const arrowReset1 = document.createElement('button');
-            arrowReset1.innerHTML = '<span class="downArrow"></span>';
-            arrowReset1.type = 'button';
-            getId('resetStage').append(arrowStage);
-            arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
-            arrowStage.addEventListener('blur', () => getId('resetStage').classList.remove('open'));
-            getId('reset1Main').append(arrowReset1);
-            arrowReset1.addEventListener('click', () => getId('reset1Main').classList.toggle('open'));
-            arrowReset1.addEventListener('blur', () => getId('reset1Main').classList.remove('open'));
-            specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
-                #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
-                #resets > section:not(.open) > p { display: none !important; }
-                #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em; margin-left: -2px; }
-                #resets .downArrow { width: 1.24em; height: 1.24em; }
-                #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; }`;
+        const arrowStage = document.createElement('button');
+        arrowStage.innerHTML = '<span class="downArrow"></span>';
+        arrowStage.type = 'button';
+        const arrowReset1 = document.createElement('button');
+        arrowReset1.innerHTML = '<span class="downArrow"></span>';
+        arrowReset1.type = 'button';
+        getId('resetStage').append(arrowStage);
+        arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
+        arrowStage.addEventListener('blur', () => getId('resetStage').classList.remove('open'));
+        getId('reset1Main').append(arrowReset1);
+        arrowReset1.addEventListener('click', () => getId('reset1Main').classList.toggle('open'));
+        arrowReset1.addEventListener('blur', () => getId('reset1Main').classList.remove('open'));
+        specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
+            #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
+            #resets > section:not(.open) > p { display: none !important; }
+            #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em; margin-left: -2px; }
+            #resets .downArrow { width: 1.24em; height: 1.24em; }
+            #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; } `;
 
-            const structuresButton = document.createElement('button');
-            structuresButton.textContent = 'Structures';
-            structuresButton.id = 'structuresFooter';
-            structuresButton.type = 'button';
-            const stageButton = document.createElement('button');
-            stageButton.textContent = 'Stage';
-            stageButton.id = 'stageFooter';
-            stageButton.type = 'button';
-            const reset1Button = document.createElement('button');
-            reset1Button.id = 'reset1Footer';
-            reset1Button.type = 'button';
-            const resetCollapse = document.createElement('button');
-            resetCollapse.textContent = 'Collapse';
-            resetCollapse.id = 'resetCollapseFooter';
-            resetCollapse.type = 'button';
-            resetCollapse.className = 'stage5Only';
-            const resetGalaxy = document.createElement('button');
-            resetGalaxy.textContent = 'Galaxy';
-            resetGalaxy.id = 'resetGalaxyFooter';
-            resetGalaxy.type = 'button';
-            resetGalaxy.className = 'stage4Only';
-            const resetMerge = document.createElement('button');
-            resetMerge.textContent = 'Merge';
-            resetMerge.id = 'resetMergeFooter';
-            resetMerge.type = 'button';
-            resetMerge.className = 'stage6Only';
-            const hotkeysMain = getId('phoneHotkeys');
-            hotkeysMain.prepend(resetGalaxy, reset1Button, resetMerge, resetCollapse, stageButton, structuresButton);
-            hotkeysMain.style.display = '';
+        const structuresButton = document.createElement('button');
+        structuresButton.textContent = 'Structures';
+        structuresButton.id = 'structuresFooter';
+        structuresButton.type = 'button';
+        const stageButton = document.createElement('button');
+        stageButton.textContent = 'Stage';
+        stageButton.id = 'stageFooter';
+        stageButton.type = 'button';
+        const reset1Button = document.createElement('button');
+        reset1Button.id = 'reset1Footer';
+        reset1Button.type = 'button';
+        const resetCollapse = document.createElement('button');
+        resetCollapse.textContent = 'Collapse';
+        resetCollapse.id = 'resetCollapseFooter';
+        resetCollapse.type = 'button';
+        resetCollapse.className = 'stage5Only';
+        const resetGalaxy = document.createElement('button');
+        resetGalaxy.textContent = 'Galaxy';
+        resetGalaxy.id = 'resetGalaxyFooter';
+        resetGalaxy.type = 'button';
+        resetGalaxy.className = 'stage4Only';
+        const resetMerge = document.createElement('button');
+        resetMerge.textContent = 'Merge';
+        resetMerge.id = 'resetMergeFooter';
+        resetMerge.type = 'button';
+        resetMerge.className = 'stage6Only';
+        const hotkeysMain = getId('phoneHotkeys');
+        hotkeysMain.prepend(resetGalaxy, reset1Button, resetMerge, resetCollapse, stageButton, structuresButton);
+        hotkeysMain.style.display = '';
 
-            const createUpgButton = document.createElement('button');
-            createUpgButton.className = 'hollowButton';
-            createUpgButton.textContent = 'Create';
-            createUpgButton.id = 'upgradeCreate';
-            createUpgButton.type = 'button';
-            getId('toggleHover0').after(createUpgButton);
+        const createUpgButton = document.createElement('button');
+        createUpgButton.className = 'hollowButton';
+        createUpgButton.textContent = 'Create';
+        createUpgButton.id = 'upgradeCreate';
+        createUpgButton.type = 'button';
+        getId('toggleHover0').after(createUpgButton);
 
-            const createInfButton = document.createElement('button');
-            createInfButton.className = 'hollowButton';
-            createInfButton.textContent = 'Activate';
-            createInfButton.id = 'inflationActivate';
-            createInfButton.type = 'button';
-            getId('inflationRefund').before(createInfButton);
+        const createInfButton = document.createElement('button');
+        createInfButton.className = 'hollowButton';
+        createInfButton.textContent = 'Activate';
+        createInfButton.id = 'inflationActivate';
+        createInfButton.type = 'button';
+        getId('inflationRefund').before(createInfButton);
 
-            const pages = document.createElement('div');
-            pages.id = 'strangenessPages';
-            pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessCreate" class="hollowButton">Create</button>';
-            specialHTML.styleSheet.textContent += `#strangenessPages { display: flex; justify-content: center; column-gap: 0.3em; }
-                #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }
-                #strangenessCreate { width: unset !important; padding: 0 0.4em; }`;
-            getId('strangenessResearch').append(pages);
+        const pages = document.createElement('div');
+        pages.id = 'strangenessPages';
+        pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessCreate" class="hollowButton">Create</button>';
+        specialHTML.styleSheet.textContent += `#strangenessPages { display: flex; justify-content: center; column-gap: 0.3em; }
+            #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }
+            #strangenessCreate { width: unset !important; padding: 0 0.4em; } `;
+        getId('strangenessResearch').append(pages);
 
-            const mainLi = getId('MDLi');
-            const MDToggle1 = document.createElement('li');
-            MDToggle1.innerHTML = '<label>Keep mouse events<button type="button" id="MDToggle1" class="specialToggle">OFF</button></label>';
-            const MDToggle2 = document.createElement('li');
-            MDToggle2.innerHTML = '<label>Allow zoom<button type="button" id="MDToggle2" class="specialToggle">OFF</button></label> (can break stuff)';
-            mainLi.after(MDToggle1, MDToggle2);
-            for (let i = 1; i < globalSaveStart.MDSettings.length; i++) {
-                getId(`MDToggle${i}`).addEventListener('click', () => {
-                    toggleSpecial(i, 'mobile', true, i === 1);
-                    if (i === 2) {
-                        (getId('viewportMeta') as HTMLMetaElement).content = `width=device-width${globalSave.MDSettings[2] ? '' : ', minimum-scale=1.0, maximum-scale=1.0'}, initial-scale=1.0`;
-                    }
-                });
-                toggleSpecial(i, 'mobile');
-            }
-            if (globalSave.MDSettings[2]) { (getId('viewportMeta') as HTMLMetaElement).content = 'width=device-width, initial-scale=1.0'; }
-
-            const refreshButton = document.createElement('button');
-            refreshButton.className = 'hollowButton';
-            refreshButton.textContent = 'Reload';
-            refreshButton.type = 'button';
-            mainLi.append(refreshButton);
-            refreshButton.addEventListener('click', async() => {
-                if (await Confirm('Reload the page?\n(Game will not autosave)')) { window.location.reload(); }
+        const mainLi = getId('MDLi');
+        const MDToggle1 = document.createElement('li');
+        MDToggle1.innerHTML = '<label>Keep mouse events<button type="button" id="MDToggle1" class="specialToggle">OFF</button></label>';
+        const MDToggle2 = document.createElement('li');
+        MDToggle2.innerHTML = '<label>Allow zoom<button type="button" id="MDToggle2" class="specialToggle">OFF</button></label>';
+        mainLi.after(MDToggle1, MDToggle2);
+        for (let i = 1; i < globalSaveStart.MDSettings.length; i++) {
+            getId(`MDToggle${i}`).addEventListener('click', () => {
+                toggleSpecial(i, 'mobile', true, i === 1);
+                if (i === 2) {
+                    (getId('viewportMeta') as HTMLMetaElement).content = `width=device-width${globalSave.MDSettings[2] ? '' : ', minimum-scale=1.0, maximum-scale=1.0'}, initial-scale=1.0`;
+                }
             });
+            toggleSpecial(i, 'mobile');
         }
-        if (globalSave.SRSettings[0]) {
-            toggleSpecial(0, 'reader');
-            const message = getId('SRMessage1');
-            message.textContent = 'Screen reader support is enabled, disable it if its not required';
-            message.className = 'greenText';
-            message.ariaHidden = 'true';
-            for (let i = 0; i <= 3; i++) {
-                const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
-                effectID.classList.remove('greenText');
-                effectID.before(' (');
-                effectID.after(')');
-            }
-            for (let i = 1; i <= 2; i++) {
-                const effectID = getQuery(`#merge${i}Effect > span.info`);
-                effectID.classList.remove('greenText');
-                effectID.before(' (');
-                effectID.after(')');
-            }
-            specialHTML.styleSheet.textContent += `#starEffects > p > span, #mergeEffects > p > span { display: unset !important; }
-                #starEffects, #mergeEffects { cursor: default; }`;
+        if (globalSave.MDSettings[2]) { (getId('viewportMeta') as HTMLMetaElement).content = 'width=device-width, initial-scale=1.0'; }
 
-            const SRMainDiv = document.createElement('article');
-            SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
-            SRMainDiv.className = 'reader';
-            getId('fakeFooter').before(SRMainDiv);
-
-            const SRToggle1 = document.createElement('li');
-            SRToggle1.innerHTML = '<label>Keep tab index on created Upgrades<button type="button" id="SRToggle1" class="specialToggle">OFF</button></label>';
-            const SRToggle2 = document.createElement('li');
-            SRToggle2.innerHTML = '<label>Keep tab index on primary buttons<button type="button" id="SRToggle2" class="specialToggle">OFF</button></label>';
-            getId('SRLi').after(SRToggle1, SRToggle2);
-
-            const primaryIndex = () => {
-                const newTab = globalSave.SRSettings[2] ? 0 : -1;
-                getId('stageReset').tabIndex = newTab;
-                getId('reset1Button').tabIndex = newTab;
-                for (let i = 1; i < specialHTML.longestBuilding; i++) {
-                    getId(`building${i}Btn`).tabIndex = newTab;
-                    getId(`toggleBuilding${i}`).tabIndex = newTab;
-                }
-                getId('toggleBuilding0').tabIndex = newTab;
-                for (const tabText of global.tabList.tabs) {
-                    getId(`${tabText}TabBtn`).tabIndex = newTab;
-                    for (const subtabText of global.tabList[`${tabText}Subtabs`]) {
-                        getId(`${tabText}SubtabBtn${subtabText}`).tabIndex = newTab;
-                    }
-                }
-                for (let i = 1; i < global.stageInfo.word.length; i++) {
-                    getId(`stageSwitch${i}`).tabIndex = newTab;
-                }
-            };
-            for (let i = 1; i < globalSaveStart.SRSettings.length; i++) {
-                getId(`SRToggle${i}`).addEventListener('click', () => {
-                    toggleSpecial(i, 'reader', true);
-                    if (i === 2) {
-                        primaryIndex();
-                    }
-                });
-                toggleSpecial(i, 'reader');
-            }
-            if (globalSave.SRSettings[2]) { primaryIndex(); }
-        } else {
-            const index = globalSave.toggles[0] ? 0 : 1;
-            const list = [globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index], globalSave.hotkeys.subtabDown[index], globalSave.hotkeys.subtabUp[index]];
-            for (let i = 0; i < list.length; i++) {
-                if (list[i] == null || list[i] === '') { list[i] = 'None'; }
-            }
-            getQuery('#SRMessage1 span').textContent = `${list[0]} and ${list[1]}`;
-            getQuery('#SRMessage1 span:last-of-type').textContent = `${list[2]} and ${list[3]}`;
+        const refreshButton = document.createElement('button');
+        refreshButton.className = 'hollowButton';
+        refreshButton.textContent = 'Reload';
+        refreshButton.type = 'button';
+        mainLi.append(refreshButton);
+        refreshButton.addEventListener('click', async() => {
+            if (await Confirm('Reload the page?\n(Game will not autosave)')) { window.location.reload(); }
+        });
+    }
+    if (globalSave.SRSettings[0]) {
+        toggleSpecial(0, 'reader');
+        const message = getId('SRMessage1');
+        message.textContent = 'Screen reader support is enabled, disable it if its not required';
+        message.className = 'greenText';
+        message.ariaHidden = 'true';
+        for (let i = 0; i <= 3; i++) {
+            const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
+            effectID.classList.remove('greenText');
+            effectID.before(' (');
+            effectID.after(')');
         }
+        for (let i = 1; i <= 2; i++) {
+            const effectID = getQuery(`#merge${i}Effect > span.info`);
+            effectID.classList.remove('greenText');
+            effectID.before(' (');
+            effectID.after(')');
+        }
+        specialHTML.styleSheet.textContent += `#starEffects > p > span, #mergeEffects > p > span { display: unset !important; }
+            #starEffects, #mergeEffects { cursor: default; } `;
+
+        const SRMainDiv = document.createElement('article');
+        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
+        SRMainDiv.className = 'reader';
+        getId('fakeFooter').before(SRMainDiv);
+
+        const SRToggle1 = document.createElement('li');
+        SRToggle1.innerHTML = '<label>Keep tab index on created Upgrades<button type="button" id="SRToggle1" class="specialToggle">OFF</button></label>';
+        const SRToggle2 = document.createElement('li');
+        SRToggle2.innerHTML = '<label>Keep tab index on primary buttons<button type="button" id="SRToggle2" class="specialToggle">OFF</button></label>';
+        getId('SRLi').after(SRToggle1, SRToggle2);
+
+        const primaryIndex = () => {
+            const newTab = globalSave.SRSettings[2] ? 0 : -1;
+            getId('stageReset').tabIndex = newTab;
+            getId('reset1Button').tabIndex = newTab;
+            for (let i = 1; i < specialHTML.longestBuilding; i++) {
+                getId(`building${i}Btn`).tabIndex = newTab;
+                getId(`toggleBuilding${i}`).tabIndex = newTab;
+            }
+            getId('toggleBuilding0').tabIndex = newTab;
+            for (const tabText of global.tabList.tabs) {
+                getId(`${tabText}TabBtn`).tabIndex = newTab;
+                for (const subtabText of global.tabList[`${tabText}Subtabs`]) {
+                    getId(`${tabText}SubtabBtn${subtabText}`).tabIndex = newTab;
+                }
+            }
+            for (let i = 1; i < global.stageInfo.word.length; i++) {
+                getId(`stageSwitch${i}`).tabIndex = newTab;
+            }
+        };
+        for (let i = 1; i < globalSaveStart.SRSettings.length; i++) {
+            getId(`SRToggle${i}`).addEventListener('click', () => {
+                toggleSpecial(i, 'reader', true);
+                if (i === 2) {
+                    primaryIndex();
+                }
+            });
+            toggleSpecial(i, 'reader');
+        }
+        if (globalSave.SRSettings[2]) { primaryIndex(); }
+    } else {
+        const index = globalSave.toggles[0] ? 0 : 1;
+        const list = [globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index], globalSave.hotkeys.subtabDown[index], globalSave.hotkeys.subtabUp[index]];
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] == null || list[i] === '') { list[i] = 'None'; }
+        }
+        getQuery('#SRMessage1 span').textContent = `${list[0]} and ${list[1]}`;
+        getQuery('#SRMessage1 span:last-of-type').textContent = `${list[2]} and ${list[3]}`;
     }
 
     let oldVersion = player.version;
@@ -1510,6 +1510,11 @@ try { //Start everything
     getId('pauseButton').addEventListener('click', pauseGameUser);
     getId('showLog').addEventListener('click', openLog);
     getId('reviewEvents').addEventListener('click', replayEvent);
+    getId('fullscreenButton').addEventListener('click', () => {
+        if (document.fullscreenElement === null) {
+            void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+        } else { void document.exitFullscreen(); }
+    });
     getId('customFontSize').addEventListener('change', () => changeFontSize());
 
     getId('stageHistorySave').addEventListener('change', () => {
