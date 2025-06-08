@@ -17,10 +17,8 @@
   "scripts": {
     "lint": "npx eslint Source_TS/*.ts",
     "fix": "npx eslint Source_TS/*.ts --fix",
-    "build": "npx esbuild Source_TS/Main.ts --bundle --minify --target=esnext --outfile=Code.js",
-    "watch": "npx esbuild Source_TS/Main.ts --bundle --minify --target=esnext --outfile=Code.js --watch",
-    "build:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=esnext --outfile=Code.js",
-    "watch:map": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=esnext --outfile=Code.js --watch"
+    "build": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=esnext --outfile=Code.js",
+    "watch": "npx esbuild Source_TS/Main.ts --sourcemap --bundle --minify --target=esnext --outfile=Code.js --watch"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.21.0",

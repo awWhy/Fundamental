@@ -26,7 +26,7 @@ jobs:
         run: |
           npm install
           npm run lint
-          npm run build:map
+          npm run build
 
       - name: Move into a folder
         run: | # Please, I don't know anymore

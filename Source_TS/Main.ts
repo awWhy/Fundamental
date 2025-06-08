@@ -1,8 +1,8 @@
 import { player, global, playerStart, updatePlayer, deepClone, cloneArray } from './Player';
-import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallengeReward, stageUpdate, getStrangenessDescription, visualUpdateResearches, visualUpdateUpgrades, addIntoLog } from './Update';
-import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
-import { Alert, hideFooter, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog } from './Special';
-import { assignHotkeys, detectHotkey, handleTouchHotkeys } from './Hotkeys';
+import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallenge0Reward, getChallenge1Reward, stageUpdate, getStrangenessDescription, addIntoLog } from './Update';
+import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, calculateEffects, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog, errorNotify } from './Special';
+import { assignHotkeys, detectHotkey, detectShift, handleTouchHotkeys } from './Hotkeys';
 import { prepareVacuum } from './Vacuum';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
@@ -19,11 +19,7 @@ export const getId = (id: string, noError = false): HTMLElement => {
     }
 
     if (noError) { return null as unknown as HTMLElement; }
-    if (global.debug.errorID) {
-        global.debug.errorID = false;
-        Notify(`Error encountered, ID ‒ '${id}' doesn't exist`);
-        setTimeout(() => { global.debug.errorID = true; }, 6e4);
-    }
+    errorNotify(`Error encountered, ID ‒ '${id}' doesn't exist`);
     throw new ReferenceError(`ID ‒ '${id}' doesn't exist`);
 };
 
@@ -36,8 +32,8 @@ export const getClass = (idCollection: string): HTMLCollectionOf<HTMLElement> =>
     return store;
 };
 
-/** Only for static HTML */
-export const getQuery = (query: string): HTMLElement => {
+/** Only for static HTML, by default (false) throws error if query isn't found is null */
+export const getQuery = (query: string, noError = false): HTMLElement => {
     const test = specialHTML.cache.queryMap.get(query);
     if (test !== undefined) { return test; }
 
@@ -47,12 +43,9 @@ export const getQuery = (query: string): HTMLElement => {
         return store;
     }
 
-    if (global.debug.errorQuery) {
-        global.debug.errorQuery = false;
-        Notify(`Error encountered, Query ‒ '${query}' failed to find anything`);
-        setTimeout(() => { global.debug.errorQuery = true; }, 6e4);
-    }
-    throw new ReferenceError(`Query ‒ '${query}' failed`);
+    if (noError) { return null as unknown as HTMLElement; }
+    errorNotify(`Error encountered, Query ‒ '${query}' failed to find anything`);
+    throw new ReferenceError(`Query ‒ '${query}' failed to find anything`);
 };
 
 /** Returns offline time in milliseconds */
@@ -60,7 +53,7 @@ const handleOfflineTime = (): number => {
     const timeNow = Date.now();
     const offlineTime = timeNow - player.time.updated;
     player.time.updated = timeNow;
-    player.time.export[0] += offlineTime;
+    player.time.export[0] += offlineTime * calculateEffects.T0Inflation5();
     return offlineTime;
 };
 export const simulateOffline = async(offline: number) => {
@@ -83,6 +76,7 @@ export const simulateOffline = async(offline: number) => {
     } else if (offline > 43200_000) { offline = 43200_000; }
     global.offline.stageUpdate = null;
     global.offline.speed = globalSave.intervals.offline;
+    global.offline.start = offline;
 
     const accelerate = getId('offlineAccelerate');
     accelerate.addEventListener('click', offlineAccelerate);
@@ -92,25 +86,28 @@ export const simulateOffline = async(offline: number) => {
     accelerate.focus();
     calculateOffline(offline);
 };
-const calculateOffline = (warpTime: number, start = warpTime) => {
+const calculateOffline = (warpTime: number) => {
     const rate = global.offline.speed;
     const time = rate <= 0 ? warpTime : Math.min(600 * rate, warpTime);
     warpTime -= time;
     try {
-        timeUpdate(Math.max(time / 600, rate), time);
+        timeUpdate(Math.max(time / 600, 20), time);
     } catch (error) {
         offlineEnd();
         const stack = (error as { stack: string }).stack;
         void Alert(`Offline calculation failed due to error:\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
         throw error;
     }
-    if (warpTime > 0) {
-        setTimeout(calculateOffline, 0, warpTime, start);
+    if (warpTime >= 20) {
+        setTimeout(calculateOffline, 0, warpTime);
         getId('offlineTick').textContent = format(rate);
         getId('offlineRemains').textContent = format(warpTime / 1000, { type: 'time' });
-        getId('offlinePercentage').textContent = format(100 - warpTime / start * 100, { padding: true });
-        if (globalSave.SRSettings[0]) { getQuery('#offlineMain > div').ariaValueText = `${format(100 - warpTime / start * 100)}% done`; }
-    } else { offlineEnd(); }
+        getId('offlinePercentage').textContent = format(100 - warpTime / global.offline.start * 100, { padding: true });
+        if (globalSave.SRSettings[0]) { getQuery('#offlineMain > div').ariaValueText = `${format(100 - warpTime / global.offline.start * 100)}% done`; }
+    } else {
+        player.time.offline += warpTime;
+        offlineEnd();
+    }
 };
 const offlineEnd = (early = false) => {
     if (global.offline.stageUpdate !== null) {
@@ -128,21 +125,20 @@ const offlineEnd = (early = false) => {
     document.body.removeEventListener('keydown', offlineKey);
 };
 const offlineKey = (event: KeyboardEvent) => {
-    if (event.metaKey || event.ctrlKey || event.altKey) { return; }
+    const shift = detectShift(event);
+    if (shift === null) { return; }
     const code = event.code;
     if (code === 'Escape') {
-        if (event.shiftKey) { return; }
-        event.preventDefault();
+        if (shift) { return; }
         offlineCancel();
     } else if (code === 'Enter' || code === 'Space') {
-        if (event.shiftKey || document.activeElement === getId('offlineCancel')) { return; }
-        event.preventDefault();
+        if (shift || document.activeElement === getId('offlineCancel')) { return; }
         offlineAccelerate();
     } else if (code === 'Tab') {
-        event.preventDefault();
         const cancel = getId('offlineCancel');
         (document.activeElement === cancel ? getId('offlineAccelerate') : cancel).focus();
-    }
+    } else { return; }
+    event.preventDefault();
 };
 const offlineCancel = () => (global.offline.speed = 0);
 const offlineAccelerate = () => (global.offline.speed *= 2);
@@ -260,14 +256,15 @@ const awardExport = () => {
     const exportReward = player.time.export;
     if (exportReward[0] <= 0) { return; }
     const { strange } = player;
+    const improved = player.tree[0][5] >= 1;
     const conversion = Math.min(exportReward[0] / 86400_000, 1);
-    const quarks = (exportReward[1] / 2.5 + 1) * conversion;
+    const quarks = (improved ? exportReward[1] : exportReward[1] / 2.5 + 1) * conversion;
 
     strange[0].current += quarks;
     strange[0].total += quarks;
     exportReward[1] = Math.max(exportReward[1] - quarks, 0);
     if (player.strangeness[5][8] >= 1) {
-        const strangelets = exportReward[2] / 2.5 * conversion;
+        const strangelets = (improved ? exportReward[2] : exportReward[2] / 2.5) * conversion;
         strange[1].current += strangelets;
         strange[1].total += strangelets;
         exportReward[2] -= strangelets;
@@ -280,11 +277,11 @@ const awardExport = () => {
 const saveConsole = async() => {
     let value = await Prompt("Available options:\n'Copy' ‒ copy save file to the clipboard\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it");
     if (value === null || value === '') { return; }
-    let lower = value.toLowerCase();
+    let lower = value.trim().toLowerCase();
     if (lower === 'global') {
         value = await Prompt("Available options:\n'Reset' ‒ reset global settings\n'Copy' ‒ copy global settings to the clipboard\nOr insert global settings text here to load it");
         if (value === null || value === '') { return; }
-        lower = `global_${value.toLowerCase()}`;
+        lower = `global_${value.trim().toLowerCase()}`;
     }
 
     if (lower === 'copy' || lower === 'global_copy') {
@@ -292,12 +289,13 @@ const saveConsole = async() => {
         if (save !== null) {
             try {
                 await navigator.clipboard.writeText(save);
+                Notify(`${lower === 'global_copy' ? 'Settings have' : 'Save has'} been copied to the clipboard`);
             } catch (error) {
-                console.warn(`Full error for being unable to write to clipboard:\n${error}`);
+                console.warn(`Full error for being unable to write to the clipboard:\n${error}`);
                 if (await Confirm("Could not copy text into clipboard, press 'Confrim' to save it as a file instead")) {
                     const a = document.createElement('a');
                     a.href = `data:text/plain,${save}`;
-                    a.download = `${lower === 'global_copy' ? 'Settings' : 'Save'} clipboard`;
+                    a.download = `Fundamental ${lower === 'global_copy' ? 'settings' : 'save'} clipboard`;
                     a.click();
                 }
             }
@@ -344,15 +342,13 @@ const saveConsole = async() => {
     }
 };
 
-const replaceSaveFileSpecials = (): string => {
-    let realName = player.fileName;
-
+const replaceSaveFileSpecials = (name = player.fileName): string => {
     const date = new Date();
-    const dateIndex = realName.indexOf('[date');
+    const dateIndex = name.indexOf('[date');
     if (dateIndex >= 0) {
-        const endIndex = realName.indexOf(']', dateIndex + 5);
+        const endIndex = name.indexOf(']', dateIndex + 5);
         if (endIndex >= 0) {
-            let replaced = realName.substring(dateIndex + 5, endIndex);
+            let replaced = name.substring(dateIndex + 5, endIndex);
             const special = [
                 'Y',
                 'M',
@@ -366,14 +362,14 @@ const replaceSaveFileSpecials = (): string => {
             for (let i = 0; i < special.length; i++) {
                 replaced = replaced.replace(special[i], replaceWith[i]);
             }
-            realName = realName.replace(realName.substring(dateIndex, endIndex + 1), replaced);
+            name = name.replace(name.substring(dateIndex, endIndex + 1), replaced);
         }
     }
-    const timeIndex = realName.indexOf('[time');
+    const timeIndex = name.indexOf('[time');
     if (timeIndex >= 0) {
-        const endIndex = realName.indexOf(']', timeIndex + 5);
+        const endIndex = name.indexOf(']', timeIndex + 5);
         if (endIndex >= 0) {
-            let replaced = realName.substring(timeIndex + 5, endIndex);
+            let replaced = name.substring(timeIndex + 5, endIndex);
             const special = [
                 'H',
                 'M',
@@ -387,7 +383,7 @@ const replaceSaveFileSpecials = (): string => {
             for (let i = 0; i < special.length; i++) {
                 replaced = replaced.replace(special[i], replaceWith[i]);
             }
-            realName = realName.replace(realName.substring(timeIndex, endIndex + 1), replaced);
+            name = name.replace(name.substring(timeIndex, endIndex + 1), replaced);
         }
     }
 
@@ -395,7 +391,7 @@ const replaceSaveFileSpecials = (): string => {
         '[version]',
         '[stage]',
         '[strange]',
-        '[cosmon]',
+        '[inflaton]',
         '[vacuum]',
         '[galaxy]',
         '[universe]'
@@ -403,16 +399,16 @@ const replaceSaveFileSpecials = (): string => {
     const replaceWith = [
         player.version,
         global.stageInfo.word[player.stage.current],
-        `${player.strange[0].total}`,
-        `${player.cosmon.total}`,
+        format(player.strange[0].total, { type: 'input', padding: true }),
+        format(player.cosmon[0].total, { type: 'input', padding: 'exponent' }),
         `${player.inflation.vacuum}`,
-        `${player.buildings[5][3].current}`,
-        `${player.buildings[6][1].current}`
+        format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' }),
+        format(player.buildings[6][1].current, { type: 'input', padding: 'exponent' })
     ];
     for (let i = 0; i < special.length; i++) {
-        realName = realName.replace(special[i], replaceWith[i]);
+        name = name.replace(special[i], replaceWith[i]);
     }
-    return `${realName}.txt`;
+    return `${name}.txt`;
 };
 
 /* Arguments are not done as '(...data: any) => any, ...data: any' because TS won't do type safety */
@@ -429,19 +425,17 @@ const cancelRepeat = () => {
     global.intervalsId.mouseRepeat = undefined;
 };
 
-const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'inflation') => {
-    if (type === 'inflation') {
-        global.lastInflation = index;
-    } else {
-        if (player.toggles.hover[0]) { buyUpgrades(index, player.stage.active, type); }
-        if (type === 'elements') {
-            global.lastElement = index;
-        } else { global.lastUpgrade[player.stage.active] = [index, type]; }
-    }
+const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
+    if (player.toggles.hover[0]) { buyUpgrades(index, player.stage.active, type); }
+    if (type === 'elements') {
+        global.lastElement = index;
+    } else { global.lastUpgrade[player.stage.active] = [index, type]; }
     getUpgradeDescription(index, type);
 };
-const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones') => {
-    if (type === 'strangeness') {
+const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflations') => {
+    if (type === 'inflations') {
+        global.lastInflation = [index, stageIndex];
+    } else if (type === 'strangeness') {
         global.lastStrangeness = [index, stageIndex];
     } else { global.lastMilestone = [index, stageIndex]; }
     getStrangenessDescription(index, stageIndex, type);
@@ -449,22 +443,30 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
 const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
     getChallengeDescription(index);
-    if (index === 0) { getChallengeReward(global.lastChallenge[1]); }
+    if (index === 0) {
+        getChallenge0Reward(global.lastChallenge[1]);
+    } else if (index === 1) {
+        getChallenge1Reward();
+    }
     visualUpdate();
 };
 export const changeRewardType = (state = !global.sessionToggles[0]) => {
     global.sessionToggles[0] = state;
     getId('rewardsType').textContent = `${state ? 'Supervoid' : 'Void'} rewards:`;
 };
-/** Handles requirement to switch Stage, returns true if can safely return early */
-const handleAutoSwitch = (index: number, type = 'researchesAuto'): boolean => {
+/** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */
+const handleAutoResearchCreation = (index: number) => {
+    if (player.researchesAuto[index] >= global.researchesAutoInfo.max[index]) { return; }
     const stageIndex = player.stage.active;
-    if (type === 'researchesAuto' && !checkUpgrade(index, stageIndex, type)) {
-        const autoStage = global.researchesAutoInfo.autoStage[index][player.researchesAuto[index]];
-        if (autoStage !== undefined && !(autoStage === stageIndex || (autoStage === 4 && stageIndex === 5))) { switchStage(autoStage, stageIndex); }
-        return true;
+    if (checkUpgrade(index, stageIndex, 'researchesAuto')) {
+        buyUpgrades(index, stageIndex, 'researchesAuto');
+        return;
     }
-    return false;
+
+    const autoStage = global.researchesAutoInfo.autoStage[index][player.researchesAuto[index]];
+    global.lastUpgrade[autoStage][0] = index;
+    global.lastUpgrade[autoStage][1] = 'researchesAuto';
+    switchStage(autoStage, stageIndex);
 };
 
 export const buyAll = () => {
@@ -488,12 +490,24 @@ export const updateCollapsePointsText = () => {
 
 export const loadoutsVisual = (loadout: number[]) => {
     if (getId('loadoutsMain').dataset.open !== 'true') { return; }
+    const appeared = {} as Record<number, number>;
+    const { startCost, scaling } = global.treeInfo[0];
+    const calculate = (index: number) => Math.floor(Math.round((startCost[index] + scaling[index] * appeared[index]) * 100) / 100);
+
+    let cost = 0;
     let string = '';
     for (let i = 0, dupes = 1; i < loadout.length; i += dupes, dupes = 1) {
         const current = loadout[i];
-        while (loadout[i + dupes] === current) { dupes++; }
+        appeared[current] = appeared[current] === undefined ? 0 : appeared[current] + 1;
+        cost += calculate(current);
+        while (loadout[i + dupes] === current) {
+            appeared[current]++;
+            cost += calculate(current);
+            dupes++;
+        }
         string += `${i > 0 ? ', ' : ''}${current + 1}${dupes > 1 ? `x${dupes}` : ''}`;
     }
+    getQuery('#loadoutsEditLabel > span').textContent = format(cost, { padding: 'exponent' });
     (getId('loadoutsEdit') as HTMLInputElement).value = string;
 };
 export const loadoutsRecreate = () => {
@@ -525,12 +539,20 @@ export const loadoutsRecreate = () => {
     }
     global.loadouts.buttons = newOld;
 };
+const loadoutsSave = () => {
+    const name = (getId('loadoutsName') as HTMLInputElement).value;
+    if (name.length < 1 || name.trim() !== name || name === 'Auto-generate') { return Notify(`Loadout name: '${name}' is not allowed`); }
+    player.inflation.loadouts[name] = global.loadouts.input;
+    loadoutsRecreate();
+    if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Saved the '${name}' loadout`; }
+};
 const loadoutsLoad = async(loadout = null as null | string) => {
     const quick = loadout !== null;
-    if (!await inflationRefund(quick || global.hotkeys.shift, true)) { return; }
+    if (global.offline.active || !await inflationRefund(quick || global.hotkeys.shift, true)) { return; }
 
     const array = quick ? player.inflation.loadouts[loadout] : global.loadouts.input;
     for (let i = 0; i < array.length; i++) {
+        if (!checkUpgrade(array[i], 0, 'inflations')) { continue; }
         buyStrangeness(array[i], 0, 'inflations', true);
     }
     if ((getId('loadoutsName') as HTMLInputElement).value === 'Auto-generate') { loadoutsLoadAuto(); }
@@ -540,8 +562,6 @@ const loadoutsLoad = async(loadout = null as null | string) => {
 
 export const globalSaveStart = deepClone(globalSave);
 try { //Start everything
-    const body = document.body;
-
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
     if (globalSettings !== null) {
         try {
@@ -572,220 +592,234 @@ try { //Start everything
             Notify('Global settings failed to parse, default ones will be used instead');
             console.log(`(Full parse error) ${error}`);
         }
-        (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
-        (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
-        (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
-        (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
-        (getId('visualInterval') as HTMLInputElement).value = `${globalSave.intervals.visual}`;
-        (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
-        for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
-        if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
-        if (globalSave.toggles[3]) {
-            getId('hideToggle').style.display = 'none';
-            getId('currentSwitch').style.display = 'none';
-            getQuery('#footer > div:first-child').style.display = 'none';
-            getId('body').prepend(getId('footer'));
-            getId('fakeFooter').after(getId('phoneHotkeys'));
-            getId('footerMain').append(getId('subtabs'), getId('stageSelect'));
-            specialHTML.styleSheet.textContent += `.insideTab { margin-top: 0.6rem; }
-                #footer { position: unset; }
-                #footerMain { padding: 0.6em; row-gap: 0.6em; }
-                #footerMain button, #phoneHotkeys button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
-                #footerMain > * { margin: 0 auto; gap: 0.4em; }
-                #footerStats { gap: 0.6em; }
-                #stageSelect { position: unset; justify-content: unset; pointer-events: unset; }
-                #stageSelect > div { position: unset; justify-content: unset; flex-wrap: unset; gap: 0.4em; margin: 0 auto; max-width: unset; }
-                #subtabs { flex-direction: row; }
-                #phoneHotkeys { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100%; bottom: 0.6em; margin: 0; }
-                #fakeFooter { height: 3.04em; }`;
-        }
-        if (globalSave.toggles[2]) { body.classList.remove('noTextSelection'); }
-        if (globalSave.toggles[1]) {
-            const elementsArea = getId('upgradeSubtabElements');
-            elementsArea.id = 'ElementsTab';
-            getId('upgradeTab').after(elementsArea);
-            specialHTML.cache.idMap.delete('upgradeSubtabElements');
+    }
+    (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
+    (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
+    (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
+    (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
+    (getId('visualInterval') as HTMLInputElement).value = `${globalSave.intervals.visual}`;
+    (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
+    for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
+    if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
+    if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
+    if (globalSave.toggles[3]) {
+        getQuery('#footer > div:first-child').style.display = 'none';
+        const fake2 = document.createElement('div');
+        fake2.style.height = 'max(calc(6.08em + 32px), 7.92em)';
+        getId('body').prepend(getId('footer'), fake2);
+        getId('fakeFooter').after(getId('phoneHotkeys'));
+        const div = document.createElement('div');
+        div.append(getId('footerStats'), getQuery('#footerMain > nav'), getId('stageSelect'));
+        getId('footerMain').append(div, getId('subtabs'));
+        specialHTML.styleSheet.textContent += `.insideTab { margin-top: 0.6rem; }
+            #footer { top: 0; bottom: unset; }
+            #footerMain { flex-direction: row; padding: 0.6em 0; gap: 0.6em; }
+            #footerMain > div { display: flex; flex-direction: column; row-gap: 0.6em; margin: 0 0 0 auto; }
+            #footerMain > div > nav { display: flex; flex-flow: row nowrap; justify-content: center; column-gap: 0.4em; }
+            #footerStats { justify-content: center; column-gap: 0.6em; margin: 0; }
+            #stageSelect { position: unset; margin: 0; max-width: unset; }
+            #subtabs { flex-flow: column-reverse wrap; gap: 0.6em !important; align-self: end; margin: 0 auto 0 0 !important; max-height: 6.72em; width: 0; /* min-width: 7em; */ }
+            #footerMain button, #phoneHotkeys button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
+            #subtabs button { width: 100%; min-width: 7em; }
+            #globalStats { bottom: 0.6em; right: calc(50vw - 6.325em); }
+            #phoneHotkeys { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
+            #fakeFooter { height: 3.04em; } `;
+    }
+    if (globalSave.toggles[2]) { document.body.classList.remove('noTextSelection'); }
+    if (globalSave.toggles[1]) {
+        const elementsArea = getId('upgradeSubtabElements');
+        elementsArea.id = 'ElementsTab';
+        getId('upgradeTab').after(elementsArea);
+        specialHTML.cache.idMap.delete('upgradeSubtabElements');
 
-            const elementsButton = getId('upgradeSubtabBtnElements');
-            elementsButton.id = 'ElementsTabBtn';
-            elementsButton.classList.add('stage4Include');
-            getId('upgradeTabBtn').after(elementsButton);
-            specialHTML.cache.idMap.delete('upgradeSubtabBtnElements');
+        const elementsButton = getId('upgradeSubtabBtnElements');
+        elementsButton.id = 'ElementsTabBtn';
+        elementsButton.classList.add('stage4Include');
+        getId('upgradeTabBtn').after(elementsButton);
+        specialHTML.cache.idMap.delete('upgradeSubtabBtnElements');
 
-            const tabList = global.tabList;
-            tabList.ElementsSubtabs = [];
-            tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
-            tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
-        }
+        const tabList = global.tabList;
+        tabList.ElementsSubtabs = [];
+        tabList.upgradeSubtabs.splice(tabList.upgradeSubtabs.indexOf('Elements'), 1);
+        tabList.tabs.splice(tabList.tabs.indexOf('upgrade') + 1, 0, 'Elements');
+    }
 
-        if (globalSave.MDSettings[0]) {
-            (document.getElementById('MDMessage1') as HTMLElement).remove();
-            specialHTML.styleSheet.textContent += `body.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #hideToggle { -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
-                #themeArea > div > div { position: unset; display: flex; width: 15em; }
-                #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */`;
-            (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
+    if (globalSave.MDSettings[0]) {
+        toggleSpecial(0, 'mobile');
+        (document.getElementById('MDMessage1') as HTMLElement).remove();
+        specialHTML.styleSheet.textContent += `body.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p { -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
+            #themeArea > div > div { position: unset; display: flex; width: 15em; }
+            #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */
+            #globalStats { ${globalSave.toggles[3] ? 'bottom: 3.04em;' : 'bottom: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); right: calc(50vw - 6.325em);'} } `;
+        (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
+        global.debug.MDStrangePage = 1;
 
-            const arrowStage = document.createElement('button');
-            arrowStage.innerHTML = '<span class="downArrow"></span>';
-            arrowStage.type = 'button';
-            const arrowReset1 = document.createElement('button');
-            arrowReset1.innerHTML = '<span class="downArrow"></span>';
-            arrowReset1.type = 'button';
-            getId('resetStage').append(arrowStage);
-            arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
-            arrowStage.addEventListener('blur', () => getId('resetStage').classList.remove('open'));
-            getId('reset1Main').append(arrowReset1);
-            arrowReset1.addEventListener('click', () => getId('reset1Main').classList.toggle('open'));
-            arrowReset1.addEventListener('blur', () => getId('reset1Main').classList.remove('open'));
-            specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
-                #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
-                #resets > section:not(.open) > p { display: none !important; }
-                #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em !important; margin-left: -2px; }
-                #resets .downArrow { width: 1.24em; height: 1.24em; }
-                #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 1; box-sizing: content-box; }`;
+        const arrowStage = document.createElement('button');
+        arrowStage.innerHTML = '<span class="downArrow"></span>';
+        arrowStage.type = 'button';
+        const arrowReset1 = document.createElement('button');
+        arrowReset1.innerHTML = '<span class="downArrow"></span>';
+        arrowReset1.type = 'button';
+        getId('resetStage').append(arrowStage);
+        arrowStage.addEventListener('click', () => getId('resetStage').classList.toggle('open'));
+        arrowStage.addEventListener('blur', () => getId('resetStage').classList.remove('open'));
+        getId('reset1Main').append(arrowReset1);
+        arrowReset1.addEventListener('click', () => getId('reset1Main').classList.toggle('open'));
+        arrowReset1.addEventListener('blur', () => getId('reset1Main').classList.remove('open'));
+        specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
+            #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
+            #resets > section:not(.open) > p { display: none !important; }
+            #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em; margin-left: -2px; }
+            #resets .downArrow { width: 1.24em; height: 1.24em; }
+            #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; } `;
 
-            const structuresButton = document.createElement('button');
-            structuresButton.textContent = 'Structures';
-            structuresButton.id = 'structuresFooter';
-            structuresButton.type = 'button';
-            const stageButton = document.createElement('button');
-            stageButton.textContent = 'Stage';
-            stageButton.id = 'stageFooter';
-            stageButton.type = 'button';
-            const reset1Button = document.createElement('button');
-            reset1Button.id = 'reset1Footer';
-            reset1Button.type = 'button';
-            const resetCollapse = document.createElement('button');
-            resetCollapse.textContent = 'Collapse';
-            resetCollapse.id = 'resetCollapseFooter';
-            resetCollapse.type = 'button';
-            resetCollapse.className = 'stage5Only';
-            const resetGalaxy = document.createElement('button');
-            resetGalaxy.textContent = 'Galaxy';
-            resetGalaxy.id = 'resetGalaxyFooter';
-            resetGalaxy.type = 'button';
-            resetGalaxy.className = 'stage4Only';
-            getId('phoneHotkeys').prepend(resetGalaxy, reset1Button, resetCollapse, stageButton, structuresButton);
+        const structuresButton = document.createElement('button');
+        structuresButton.textContent = 'Structures';
+        structuresButton.id = 'structuresFooter';
+        structuresButton.type = 'button';
+        const stageButton = document.createElement('button');
+        stageButton.textContent = 'Stage';
+        stageButton.id = 'stageFooter';
+        stageButton.type = 'button';
+        const reset1Button = document.createElement('button');
+        reset1Button.id = 'reset1Footer';
+        reset1Button.type = 'button';
+        const resetCollapse = document.createElement('button');
+        resetCollapse.textContent = 'Collapse';
+        resetCollapse.id = 'resetCollapseFooter';
+        resetCollapse.type = 'button';
+        resetCollapse.className = 'stage5Only';
+        const resetGalaxy = document.createElement('button');
+        resetGalaxy.textContent = 'Galaxy';
+        resetGalaxy.id = 'resetGalaxyFooter';
+        resetGalaxy.type = 'button';
+        resetGalaxy.className = 'stage4Only';
+        const resetMerge = document.createElement('button');
+        resetMerge.textContent = 'Merge';
+        resetMerge.id = 'resetMergeFooter';
+        resetMerge.type = 'button';
+        resetMerge.className = 'stage6Only';
+        const hotkeysMain = getId('phoneHotkeys');
+        hotkeysMain.prepend(resetGalaxy, reset1Button, resetMerge, resetCollapse, stageButton, structuresButton);
+        hotkeysMain.style.display = '';
 
-            const createUpgButton = document.createElement('button');
-            createUpgButton.className = 'hollowButton';
-            createUpgButton.textContent = 'Create';
-            createUpgButton.id = 'upgradeCreate';
-            createUpgButton.type = 'button';
-            getId('toggleHover0').after(createUpgButton);
+        const createUpgButton = document.createElement('button');
+        createUpgButton.className = 'hollowButton';
+        createUpgButton.textContent = 'Create';
+        createUpgButton.id = 'upgradeCreate';
+        createUpgButton.type = 'button';
+        getId('toggleHover0').after(createUpgButton);
 
-            const createInfButton = document.createElement('button');
-            createInfButton.className = 'hollowButton';
-            createInfButton.textContent = 'Activate';
-            createInfButton.id = 'inflationActivate';
-            createInfButton.type = 'button';
-            getId('inflationRefund').before(createInfButton);
+        const createInfButton = document.createElement('button');
+        createInfButton.className = 'hollowButton';
+        createInfButton.textContent = 'Activate';
+        createInfButton.id = 'inflationActivate';
+        createInfButton.type = 'button';
+        getId('inflationRefund').before(createInfButton);
 
-            const pages = document.createElement('div');
-            pages.id = 'strangenessPages';
-            pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessCreate" class="hollowButton">Create</button>';
-            specialHTML.styleSheet.textContent += `#strangenessPages { display: flex; justify-content: center; column-gap: 0.3em; }
-                #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }
-                #strangenessCreate { width: unset !important; padding: 0 0.4em; }`;
-            getId('strangenessResearch').append(pages);
+        const pages = document.createElement('div');
+        pages.id = 'strangenessPages';
+        pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessCreate" class="hollowButton">Create</button>';
+        specialHTML.styleSheet.textContent += `#strangenessPages { display: flex; justify-content: center; column-gap: 0.3em; }
+            #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }
+            #strangenessCreate { width: unset !important; padding: 0 0.4em; } `;
+        getId('strangenessResearch').append(pages);
 
-            const mainLi = getId('MDLi');
-            const MDToggle1 = document.createElement('li');
-            MDToggle1.innerHTML = '<label>Keep mouse events<button type="button" id="MDToggle1" class="specialToggle">OFF</button></label>';
-            mainLi.after(MDToggle1);
-            const refreshButton = document.createElement('button');
-            refreshButton.className = 'hollowButton';
-            refreshButton.textContent = 'Reload';
-            refreshButton.type = 'button';
-            mainLi.append(refreshButton);
-            refreshButton.addEventListener('click', async() => {
-                if (await Confirm('Reload the page?\n(Game will not autosave)')) { window.location.reload(); }
-            });
-
-            getId('MDToggle1').addEventListener('click', () => toggleSpecial(1, 'mobile', true, true));
-            for (let i = 0; i < globalSaveStart.MDSettings.length; i++) { toggleSpecial(i, 'mobile'); }
-            MDStrangenessPage(1);
-        }
-        if (globalSave.SRSettings[0]) {
-            const message = getId('SRMessage1');
-            message.textContent = 'Screen reader support is enabled, disable it if its not required';
-            message.className = 'greenText';
-            message.ariaHidden = 'true';
-            for (let i = 0; i <= 3; i++) {
-                const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
-                effectID.textContent = ` (${effectID.textContent})`;
-                effectID.classList.remove('greenText');
-            }
-            for (let i = 1; i <= 1; i++) {
-                const effectID = getQuery(`#merge${i}Effect > span.info`);
-                effectID.textContent = ` (${effectID.textContent})`;
-                effectID.classList.remove('greenText');
-            }
-            specialHTML.styleSheet.textContent += '#starEffects > p > span, #mergeEffects > p > span { display: unset !important; }';
-
-            const SRMainDiv = document.createElement('article');
-            SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
-            SRMainDiv.className = 'reader';
-            getId('fakeFooter').before(SRMainDiv);
-
-            const SRToggle1 = document.createElement('li');
-            SRToggle1.innerHTML = '<label>Keep tab index on created Upgrades<button type="button" id="SRToggle1" class="specialToggle">OFF</button></label>';
-            const SRToggle2 = document.createElement('li');
-            SRToggle2.innerHTML = '<label>Keep tab index on primary buttons<button type="button" id="SRToggle2" class="specialToggle">OFF</button></label>';
-            getId('SRLi').after(SRToggle1, SRToggle2);
-
-            getId('SRToggle1').addEventListener('click', () => {
-                toggleSpecial(1, 'reader', true);
-                const active = player.stage.active;
-                for (let i = 0; i < global.upgradesInfo[active].maxActive; i++) { visualUpdateUpgrades(i, active, 'upgrades'); }
-                for (let i = 0; i < global.researchesInfo[active].maxActive; i++) { visualUpdateResearches(i, active, 'researches'); }
-                for (let i = 0; i < global.researchesExtraInfo[active].maxActive; i++) { visualUpdateResearches(i, active, 'researchesExtra'); }
-                for (let i = 0; i < playerStart.researchesAuto.length; i++) { visualUpdateResearches(i, 0, 'researchesAuto'); }
-                visualUpdateResearches(0, active, 'ASR');
-                for (let i = 0; i < playerStart.elements.length; i++) { visualUpdateUpgrades(i, 4, 'elements'); }
-                for (let s = 1; s < playerStart.strangeness.length; s++) {
-                    for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) {
-                        visualUpdateResearches(i, s, 'strangeness');
-                    }
-                }
-                for (let i = 0; i < playerStart.inflation.tree.length; i++) {
-                    visualUpdateResearches(i, 0, 'inflations');
+        const mainLi = getId('MDLi');
+        const MDToggle1 = document.createElement('li');
+        MDToggle1.innerHTML = '<label>Keep mouse events<button type="button" id="MDToggle1" class="specialToggle">OFF</button></label>';
+        const MDToggle2 = document.createElement('li');
+        MDToggle2.innerHTML = '<label>Allow zoom<button type="button" id="MDToggle2" class="specialToggle">OFF</button></label>';
+        mainLi.after(MDToggle1, MDToggle2);
+        for (let i = 1; i < globalSaveStart.MDSettings.length; i++) {
+            getId(`MDToggle${i}`).addEventListener('click', () => {
+                toggleSpecial(i, 'mobile', true, i === 1);
+                if (i === 2) {
+                    (getId('viewportMeta') as HTMLMetaElement).content = `width=device-width${globalSave.MDSettings[2] ? '' : ', minimum-scale=1.0, maximum-scale=1.0'}, initial-scale=1.0`;
                 }
             });
-
-            const primaryIndex = (reload = false) => {
-                if (!reload) { toggleSpecial(2, 'reader', true); }
-                const newTab = globalSave.SRSettings[2] ? 0 : -1;
-                getId('stageReset').tabIndex = newTab;
-                getId('reset1Button').tabIndex = newTab;
-                for (let i = 1; i < specialHTML.longestBuilding; i++) {
-                    getId(`building${i}Btn`).tabIndex = newTab;
-                    getId(`toggleBuilding${i}`).tabIndex = newTab;
-                }
-                getId('toggleBuilding0').tabIndex = newTab;
-                for (const tabText of global.tabList.tabs) {
-                    getId(`${tabText}TabBtn`).tabIndex = newTab;
-                    for (const subtabText of global.tabList[`${tabText}Subtabs`]) {
-                        getId(`${tabText}SubtabBtn${subtabText}`).tabIndex = newTab;
-                    }
-                }
-                for (let i = 1; i < global.stageInfo.word.length; i++) {
-                    getId(`stageSwitch${i}`).tabIndex = newTab;
-                }
-            };
-            getId('SRToggle2').addEventListener('click', () => { primaryIndex(); });
-
-            if (globalSave.SRSettings[2]) { primaryIndex(true); }
-            for (let i = 0; i < globalSaveStart.SRSettings.length; i++) { toggleSpecial(i, 'reader'); }
-        } else {
-            const index = globalSave.toggles[0] ? 0 : 1;
-            const list = [globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index], globalSave.hotkeys.subtabDown[index], globalSave.hotkeys.subtabUp[index]];
-            for (let i = 0; i < list.length; i++) {
-                if (list[i] == null || list[i] === '') { list[i] = 'None'; }
-            }
-            getQuery('#SRMessage1 span').textContent = `${list[0]} and ${list[1]}`;
-            getQuery('#SRMessage1 span:last-of-type').textContent = `${list[2]} and ${list[3]}`;
+            toggleSpecial(i, 'mobile');
         }
+        if (globalSave.MDSettings[2]) { (getId('viewportMeta') as HTMLMetaElement).content = 'width=device-width, initial-scale=1.0'; }
+
+        const refreshButton = document.createElement('button');
+        refreshButton.className = 'hollowButton';
+        refreshButton.textContent = 'Reload';
+        refreshButton.type = 'button';
+        mainLi.append(refreshButton);
+        refreshButton.addEventListener('click', async() => {
+            if (await Confirm('Reload the page?\n(Game will not autosave)')) { window.location.reload(); }
+        });
+    }
+    if (globalSave.SRSettings[0]) {
+        toggleSpecial(0, 'reader');
+        const message = getId('SRMessage1');
+        message.textContent = 'Screen reader support is enabled, disable it if its not required';
+        message.className = 'greenText';
+        message.ariaHidden = 'true';
+        for (let i = 0; i <= 3; i++) {
+            const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
+            effectID.classList.remove('greenText');
+            effectID.before(' (');
+            effectID.after(')');
+        }
+        for (let i = 1; i <= 2; i++) {
+            const effectID = getQuery(`#merge${i}Effect > span.info`);
+            effectID.classList.remove('greenText');
+            effectID.before(' (');
+            effectID.after(')');
+        }
+        specialHTML.styleSheet.textContent += `#starEffects > p > span, #mergeEffects > p > span { display: unset !important; }
+            #starEffects, #mergeEffects { cursor: default; } `;
+
+        const SRMainDiv = document.createElement('article');
+        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
+        SRMainDiv.className = 'reader';
+        getId('fakeFooter').before(SRMainDiv);
+
+        const SRToggle1 = document.createElement('li');
+        SRToggle1.innerHTML = '<label>Keep tab index on created Upgrades<button type="button" id="SRToggle1" class="specialToggle">OFF</button></label>';
+        const SRToggle2 = document.createElement('li');
+        SRToggle2.innerHTML = '<label>Keep tab index on primary buttons<button type="button" id="SRToggle2" class="specialToggle">OFF</button></label>';
+        getId('SRLi').after(SRToggle1, SRToggle2);
+
+        const primaryIndex = () => {
+            const newTab = globalSave.SRSettings[2] ? 0 : -1;
+            getId('stageReset').tabIndex = newTab;
+            getId('reset1Button').tabIndex = newTab;
+            for (let i = 1; i < specialHTML.longestBuilding; i++) {
+                getId(`building${i}Btn`).tabIndex = newTab;
+                getId(`toggleBuilding${i}`).tabIndex = newTab;
+            }
+            getId('toggleBuilding0').tabIndex = newTab;
+            for (const tabText of global.tabList.tabs) {
+                getId(`${tabText}TabBtn`).tabIndex = newTab;
+                for (const subtabText of global.tabList[`${tabText}Subtabs`]) {
+                    getId(`${tabText}SubtabBtn${subtabText}`).tabIndex = newTab;
+                }
+            }
+            for (let i = 1; i < global.stageInfo.word.length; i++) {
+                getId(`stageSwitch${i}`).tabIndex = newTab;
+            }
+        };
+        for (let i = 1; i < globalSaveStart.SRSettings.length; i++) {
+            getId(`SRToggle${i}`).addEventListener('click', () => {
+                toggleSpecial(i, 'reader', true);
+                if (i === 2) {
+                    primaryIndex();
+                }
+            });
+            toggleSpecial(i, 'reader');
+        }
+        if (globalSave.SRSettings[2]) { primaryIndex(); }
+    } else {
+        const index = globalSave.toggles[0] ? 0 : 1;
+        const list = [globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index], globalSave.hotkeys.subtabDown[index], globalSave.hotkeys.subtabUp[index]];
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] == null || list[i] === '') { list[i] = 'None'; }
+        }
+        getQuery('#SRMessage1 span').textContent = `${list[0]} and ${list[1]}`;
+        getQuery('#SRMessage1 span:last-of-type').textContent = `${list[2]} and ${list[3]}`;
     }
 
     let oldVersion = player.version;
@@ -802,36 +836,47 @@ try { //Start everything
     const MD = globalSave.MDSettings[0];
     const SR = globalSave.SRSettings[0];
     const PC = !MD || globalSave.MDSettings[1];
+    const htmlHTML = document.documentElement;
     const releaseHotkey = (event: KeyboardEvent | MouseEvent) => {
-        if (global.hotkeys.shift && !event.shiftKey) { global.hotkeys.shift = false; }
-        if (global.hotkeys.ctrl && !event.ctrlKey) { global.hotkeys.ctrl = false; }
+        if (global.hotkeys.shift) { global.hotkeys.shift = event.shiftKey; }
+        if (global.hotkeys.ctrl) { global.hotkeys.ctrl = event.ctrlKey; }
         global.hotkeys.tab = false;
     };
-    body.addEventListener('contextmenu', (event) => {
+    htmlHTML.addEventListener('contextmenu', (event) => {
         const activeType = (document.activeElement as HTMLInputElement)?.type;
         if (activeType !== 'text' && activeType !== 'number' && !globalSave.developerMode) { event.preventDefault(); }
     });
-    body.addEventListener('keydown', (key) => detectHotkey(key));
-    body.addEventListener('keyup', releaseHotkey);
+    htmlHTML.addEventListener('keydown', (key) => detectHotkey(key));
+    htmlHTML.addEventListener('keyup', releaseHotkey);
     if (PC) {
-        body.addEventListener('mouseup', (event) => {
+        htmlHTML.addEventListener('mouseup', (event) => {
             cancelRepeat();
             releaseHotkey(event);
         });
-        body.addEventListener('mouseleave', cancelRepeat);
+        htmlHTML.addEventListener('mouseleave', cancelRepeat);
     }
     if (MD) {
-        body.addEventListener('touchstart', (event) => {
+        htmlHTML.addEventListener('touchstart', (event) => {
             specialHTML.mobileDevice.start = [event.touches[0].clientX, event.touches[0].clientY];
         }, { passive: true }); //Passive just in case to prevent issues with scrolling
-        body.addEventListener('touchend', (event) => {
+        htmlHTML.addEventListener('touchend', (event) => {
             cancelRepeat();
+            let target = event.target as HTMLElement;
+            const body = document.body;
+            const notAllowed = [getId('globalStats'), getId('footerMain')]; //[0] Shouldn't be changed
+            while (target != null && target !== body) {
+                if (notAllowed.includes(target)) {
+                    if (target !== notAllowed[0]) { notAllowed[0].style.opacity = '1'; }
+                    return;
+                }
+                target = target.parentElement as HTMLElement;
+            }
+            notAllowed[0].style.opacity = '1';
             handleTouchHotkeys(event);
         });
-        body.addEventListener('touchcancel', cancelRepeat);
+        htmlHTML.addEventListener('touchcancel', cancelRepeat);
     }
 
-    /* Toggles */
     for (let i = 0; i < globalSaveStart.toggles.length; i++) {
         getId(`globalToggle${i}`).addEventListener('click', () => {
             toggleSpecial(i, 'global', true, i === 1 || i === 3);
@@ -843,7 +888,13 @@ try { //Start everything
                     getQuery(`#${key}Hotkey > button`).textContent = hotkeyTest == null || hotkeyTest === '' ? 'None' : hotkeyTest;
                 }
             } else if (i === 2) {
-                body.classList[globalSave.toggles[2] ? 'remove' : 'add']('noTextSelection');
+                document.body.classList[globalSave.toggles[2] ? 'remove' : 'add']('noTextSelection');
+            } else if (i === 4) {
+                getId('globalStats').style.display = !globalSave.toggles[4] ? '' : 'none';
+                if (!globalSave.toggles[4]) {
+                    visualUpdate();
+                    numbersUpdate();
+                }
             }
         });
     }
@@ -923,6 +974,7 @@ try { //Start everything
             footerButton.addEventListener('touchstart', () => repeatFunction(clickHoldFunc));
             if (PC) { footerButton.addEventListener('mousedown', () => repeatFunction(clickHoldFunc)); }
             getId('resetCollapseFooter').addEventListener('click', collapseResetUser);
+            getId('resetMergeFooter').addEventListener('click', mergeResetUser);
 
             const clickGalaxy = () => buyBuilding(3, 5);
             const galaxyButton = getId('resetGalaxyFooter');
@@ -974,13 +1026,13 @@ try { //Start everything
     getId('challengeName').addEventListener('click', () => { toggleSupervoid(true); });
     getId('rewardsType').addEventListener('click', () => {
         changeRewardType();
-        getChallengeReward(global.lastChallenge[1]);
+        getChallenge0Reward(global.lastChallenge[1]);
     });
     for (let s = 1; s <= 5; s++) {
         const image = getId(`voidReward${s}`);
         const clickFunc = () => {
             global.lastChallenge[1] = s;
-            getChallengeReward(s);
+            getChallenge0Reward(s);
         };
         image.addEventListener('mouseover', clickFunc);
         if (PC || SR) {
@@ -1053,11 +1105,8 @@ try { //Start everything
         if (MD) {
             image.addEventListener('touchstart', () => repeatFunction(hoverFunc, true));
         } else {
-            const clickFunc = () => buyUpgrades(i, player.stage.active, 'researchesAuto');
-            image.addEventListener('click', () => {
-                if (handleAutoSwitch(i)) { return; }
-                clickFunc();
-            });
+            const clickFunc = () => handleAutoResearchCreation(i);
+            image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
         if (PC || SR) {
@@ -1091,7 +1140,7 @@ try { //Start everything
             const active = player.stage.active;
             const last = global.lastUpgrade[active];
             if (last[0] !== null) {
-                if (handleAutoSwitch(last[0], last[1])) { return; }
+                if (last[1] === 'researchesAuto') { return handleAutoResearchCreation(last[0]); }
                 buyUpgrades(last[0], active, last[1]);
             }
         };
@@ -1108,13 +1157,16 @@ try { //Start everything
         };
         if (SR) {
             getId('element1').addEventListener('keydown', (event) => {
-                if (event.code !== 'Tab' || !event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) { return; }
+                if (event.code !== 'Tab' || detectShift(event) !== true) { return; }
                 const element = getId('element0');
                 element.tabIndex = 0;
                 element.ariaHidden = 'false';
             });
             button.addEventListener('keydown', (event) => {
-                if (event.code === 'Enter' && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { dblclickFunc(); }
+                if (event.code === 'Enter' && detectShift(event) === false) {
+                    event.preventDefault();
+                    dblclickFunc();
+                }
             });
             button.addEventListener('blur', () => {
                 const element = getId('element0');
@@ -1231,24 +1283,33 @@ try { //Start everything
     }
 
     /* Inflation tab */
-    for (let i = 0; i < playerStart.inflation.tree.length; i++) {
-        const image = getId(`inflation${i + 1}Image`);
-        const hoverFunc = () => hoverUpgrades(i, 'inflation');
-        if (PC) { image.addEventListener('mouseover', hoverFunc); }
-        if (MD) {
-            image.addEventListener('touchstart', () => { /*repeatFunction(*/hoverFunc(); /*, true);*/ });
-        } else {
-            const clickFunc = () => buyStrangeness(i, 0, 'inflations');
-            image.addEventListener('click', clickFunc);
-            image.addEventListener('mousedown', () => repeatFunction(clickFunc));
-        }
-        if (PC || SR) {
-            image.addEventListener('focus', () => {
-                if (!global.hotkeys.tab) { return; }
-                hoverFunc();
-            });
+    for (let s = 0; s <= 1; s++) {
+        for (let i = 0; i < playerStart.tree[s].length; i++) {
+            const image = getId(`inflation${i + 1}Tree${s + 1}Image`);
+            const hoverFunc = () => hoverStrangeness(i, s, 'inflations');
+            if (PC) { image.addEventListener('mouseover', hoverFunc); }
+            if (MD) {
+                image.addEventListener('touchstart', () => { /*repeatFunction(*/hoverFunc(); /*, true);*/ });
+            } else {
+                const clickFunc = () => buyStrangeness(i, s, 'inflations');
+                image.addEventListener('click', clickFunc);
+                image.addEventListener('mousedown', () => repeatFunction(clickFunc));
+            }
+            if (PC || SR) {
+                image.addEventListener('focus', () => {
+                    if (!global.hotkeys.tab) { return; }
+                    hoverFunc();
+                });
+            }
         }
     }
+    getId('loadoutsName').addEventListener('keydown', (event) => {
+        if (event.repeat || detectShift(event) !== false) { return; }
+        if (event.code === 'Enter') {
+            event.preventDefault();
+            loadoutsSave();
+        }
+    });
     getId('inflationRefund').addEventListener('click', () => void inflationRefund(global.hotkeys.shift));
     getId('inflationLoadouts').addEventListener('click', () => {
         const windowHTML = getId('loadoutsMain');
@@ -1265,34 +1326,32 @@ try { //Start everything
     });
     getId('loadoutsEdit').addEventListener('change', () => {
         const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(',');
+        const appeared = {} as Record<number, number>;
+        const max = global.treeInfo[0].max;
         const final = [];
         for (let i = 0; i < first.length; i++) {
             const index = first[i].indexOf('x');
             let repeat = 1;
-            if (index >= 0) {
+            if (index !== -1) {
                 repeat = Number(first[i].slice(index + 1));
                 first[i] = first[i].slice(0, index);
             }
             const number = Math.trunc(Number(first[i]) - 1);
-            if (isNaN(number) || number < 0) { continue; }
-            if (isNaN(repeat)) { repeat = 1; }
-            if (repeat > 8) { repeat = 8; }
+            const inside = appeared[number] ?? 0;
+            const maxRepeats = max[number] - inside;
+            if (repeat > maxRepeats) { repeat = maxRepeats; }
+            if (isNaN(maxRepeats) || isNaN(repeat) || repeat < 1) { continue; }
+            appeared[number] = inside + repeat;
             for (let r = 0; r < repeat; r++) { final.push(number); }
         }
         global.loadouts.input = final;
         loadoutsVisual(final);
     });
     getId('loadoutsLoadAuto').addEventListener('click', () => {
-        (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate';
+        if (!global.hotkeys.shift) { (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate'; }
         loadoutsLoadAuto();
     });
-    getId('loadoutsSave').addEventListener('click', () => {
-        const name = (getId('loadoutsName') as HTMLInputElement).value;
-        const check = Number(name); //Lazy check for all types of only having spacebars
-        if ((!isNaN(check) && `${check}` !== name) || name === 'Auto-generate') { return Notify(`Loadout name: '${name}' is not allowed`); }
-        player.inflation.loadouts[name] = global.loadouts.input;
-        loadoutsRecreate();
-    });
+    getId('loadoutsSave').addEventListener('click', loadoutsSave);
     getId('loadoutsLoad').addEventListener('click', () => void loadoutsLoad());
     getId('loadoutsDelete').addEventListener('click', () => {
         const name = (getId('loadoutsName') as HTMLInputElement).value;
@@ -1303,7 +1362,7 @@ try { //Start everything
     if (MD) {
         const button = getId('inflationActivate');
         const clickFunc = () => {
-            if (global.lastInflation !== null) { buyStrangeness(global.lastInflation, 0, 'inflations'); }
+            if (global.lastInflation[0] !== null) { buyStrangeness(global.lastInflation[0], global.lastInflation[1], 'inflations'); }
         };
         button.addEventListener('click', clickFunc);
         button.addEventListener('touchstart', () => repeatFunction(clickFunc));
@@ -1399,22 +1458,23 @@ try { //Start everything
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     }
-    getId('saveFileNameInput').addEventListener('change', () => {
-        const input = getId('saveFileNameInput') as HTMLInputElement;
-        const testValue = input.value;
-        if (testValue.length < 1) { return void (input.value = playerStart.fileName); }
-        player.fileName = testValue;
-    });
     {
-        const button = getId('saveFileHoverButton');
-        const hoverFunc = () => (getId('saveFileNamePreview').textContent = replaceSaveFileSpecials());
-        button.addEventListener('mouseover', hoverFunc);
-        if (PC || SR) {
-            button.addEventListener('focus', () => {
-                if (!global.hotkeys.tab) { return; }
-                hoverFunc();
-            });
-        }
+        const input = getId('saveFileNameInput') as HTMLInputElement;
+        input.addEventListener('change', () => {
+            const input = getId('saveFileNameInput') as HTMLInputElement;
+            let testValue = input.value;
+            if (testValue.length < 1) {
+                testValue = playerStart.fileName;
+                input.value = testValue;
+            }
+            player.fileName = testValue;
+        });
+        const changePreview = () => {
+            const value = (getId('saveFileNameInput') as HTMLInputElement).value;
+            getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length < 1 ? playerStart.fileName : value);
+        };
+        input.addEventListener('input', changePreview);
+        input.addEventListener('focus', changePreview);
     }
     getId('offlineInterval').addEventListener('change', () => {
         const input = getId('offlineInterval') as HTMLInputElement;
@@ -1450,6 +1510,11 @@ try { //Start everything
     getId('pauseButton').addEventListener('click', pauseGameUser);
     getId('showLog').addEventListener('click', openLog);
     getId('reviewEvents').addEventListener('click', replayEvent);
+    getId('fullscreenButton').addEventListener('click', () => {
+        if (document.fullscreenElement === null) {
+            void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+        } else { void document.exitFullscreen(); }
+    });
     getId('customFontSize').addEventListener('change', () => changeFontSize());
 
     getId('stageHistorySave').addEventListener('change', () => {
@@ -1478,17 +1543,52 @@ try { //Start everything
     });
 
     /* Footer */
-    if (!globalSave.toggles[3]) {
-        const toggle = getId('hideToggle');
-        if (MD) {
-            const timeoutFunc = () => {
-                if (!global.footer) { return hideFooter(); }
-                if (global.intervalsId.mouseRepeat !== undefined) { return; }
-                global.intervalsId.mouseRepeat = setTimeout(hideFooter, 400);
+    {
+        const startEvent = (event: MouseEvent | TouchEvent) => {
+            const mouse = event instanceof MouseEvent;
+            const bodyMain = document.documentElement;
+            const screenWidth = bodyMain.clientWidth;
+            const screenHeight = bodyMain.clientHeight;
+
+            const html = getId('globalStats');
+            let lastX = mouse ? event.clientX : event.changedTouches[0].clientX;
+            let lastY = mouse ? event.clientY : event.changedTouches[0].clientY;
+            const move = (event: MouseEvent | TouchEvent) => {
+                const newX = mouse ? (event as MouseEvent).clientX : (event as TouchEvent).changedTouches[0].clientX;
+                const newY = mouse ? (event as MouseEvent).clientY : (event as TouchEvent).changedTouches[0].clientY;
+                const current = html.getBoundingClientRect();
+                html.style.right = `${(1 - Math.min(Math.max(current.right + newX - lastX, current.width), screenWidth) / screenWidth) * 100}%`;
+                html.style.bottom = `${(1 - Math.min(Math.max(current.bottom + newY - lastY, current.height), screenHeight) / screenHeight) * 100}%`;
+                lastX = newX;
+                lastY = newY;
+
+                if (!mouse) { html.style.opacity = '1'; }
             };
-            toggle.addEventListener('touchstart', timeoutFunc);
-            if (PC) { toggle.addEventListener('mousedown', timeoutFunc); }
-        } else { toggle.addEventListener('click', hideFooter); }
+            const removeEvents = mouse ? () => {
+                bodyMain.removeEventListener('mousemove', move);
+                bodyMain.removeEventListener('mouseup', removeEvents);
+                bodyMain.removeEventListener('mouseleave', removeEvents);
+                html.style.opacity = '';
+            } : () => {
+                bodyMain.removeEventListener('touchmove', move);
+                bodyMain.removeEventListener('touchend', removeEvents);
+                bodyMain.removeEventListener('touchcancel', removeEvents);
+            };
+            if (mouse) {
+                bodyMain.addEventListener('mousemove', move);
+                bodyMain.addEventListener('mouseup', removeEvents);
+                bodyMain.addEventListener('mouseleave', removeEvents);
+                html.style.opacity = '1';
+            } else {
+                event.preventDefault(); //To prevent scrolling, doesn't work on edges
+                bodyMain.addEventListener('touchmove', move);
+                bodyMain.addEventListener('touchend', removeEvents);
+                bodyMain.addEventListener('touchcancel', removeEvents);
+                html.style.opacity = '0.2';
+            }
+        };
+        if (PC) { getId('globalStats').addEventListener('mousedown', startEvent); }
+        if (MD) { getId('globalStats').addEventListener('touchstart', startEvent, { capture: true }); }
     }
     for (const tabText of global.tabList.tabs) {
         getId(`${tabText}TabBtn`).addEventListener('click', () => switchTab(tabText));

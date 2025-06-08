@@ -20,8 +20,10 @@ export default class Overlimit extends Array<number> {
 
     /** Creates new Overlimit */
     clone(): Overlimit { return new Overlimit(this); }
-    setValue(newValue: allowedTypes) { return this.#privateSet(technical.convert(newValue)); }
-    #privateSet(newValue: [number, number] | Overlimit) {
+    setValue(newValue: allowedTypes) { return this.privateSet(technical.convert(newValue)); }
+
+    /** Not for use, sets formatted value to Overlimit */
+    privateSet(newValue: [number, number] | Overlimit) {
         this[0] = newValue[0];
         this[1] = newValue[1];
         return this;
@@ -34,7 +36,7 @@ export default class Overlimit extends Array<number> {
             result = technical.add(result, technical.convert(numbers[i]));
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
     /** Can take any amount of arquments */
     minus(...numbers: allowedTypes[]) {
@@ -43,7 +45,7 @@ export default class Overlimit extends Array<number> {
             result = technical.sub(result, technical.convert(numbers[i]));
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
     /** Can take any amount of arquments */
     multiply(...numbers: allowedTypes[]) {
@@ -52,7 +54,7 @@ export default class Overlimit extends Array<number> {
             result = technical.mult(result, technical.convert(numbers[i]));
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
     /** Can take any amount of arquments */
     divide(...numbers: allowedTypes[]) {
@@ -61,29 +63,29 @@ export default class Overlimit extends Array<number> {
             result = technical.div(result, technical.convert(numbers[i]));
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
     /** Power must be a number */
-    power(power: number) { return this.#privateSet(technical.pow(this, power)); }
+    power(power: number) { return this.privateSet(technical.pow(this, power)); }
     /** Root must be a number, default value is 2 */
-    root(root = 2) { return this.#privateSet(technical.pow(this, 1 / root)); }
-    /** Base must be a number, default value is Math.E */
-    log(base = 2.718281828459045) { return this.#privateSet(technical.log(this, base)); }
+    root(root = 2) { return this.privateSet(technical.pow(this, 1 / root)); }
+    /** Default value is Math.E */
+    log(base?: allowedTypes) { return this.privateSet(technical.log(this, base === undefined ? [2.718281828459045, 0] : technical.convert(base))); }
 
     abs() {
         this[0] = Math.abs(this[0]);
         return this;
     }
 
-    trunc() { return this.#privateSet(technical.trunc(this)); }
-    floor() { return this.#privateSet(technical.floor(this)); }
-    ceil() { return this.#privateSet(technical.ceil(this)); }
-    round() { return this.#privateSet(technical.round(this)); }
+    trunc() { return this.privateSet(technical.trunc(this)); }
+    floor() { return this.privateSet(technical.floor(this)); }
+    ceil() { return this.privateSet(technical.ceil(this)); }
+    round() { return this.privateSet(technical.round(this)); }
 
     /** Doesn't check exponent, since exponent being NaN while mantissa isn't would be a bug */
     isNaN(): boolean { return isNaN(this[0])/* || isNaN(this[1])*/; }
-    /** Will set new value to provided, but only if current one is NaN */
-    replaceNaN(replaceWith: allowedTypes): Overlimit { return isNaN(this[0]) ? this.#privateSet(technical.convert(replaceWith)) : this; }
+    /** Will set new value to the provided one, but only if current one is NaN */
+    replaceNaN(replaceWith: allowedTypes): Overlimit { return isNaN(this[0]) ? this.privateSet(technical.convert(replaceWith)) : this; }
     /** Doesn't check exponent, since exponent being Infinity while mantissa isn't would be a bug */
     isFinite(): boolean { return isFinite(this[0])/* && isFinite(this[1])*/; }
 
@@ -104,29 +106,29 @@ export default class Overlimit extends Array<number> {
         return true;
     }
 
-    /** Set original number to biggest of provided arguments */
+    /** Set original number to the biggest of provided arguments */
     max(...compare: allowedTypes[]) {
         let result: [number, number] | Overlimit = this;
         for (let i = 0; i < compare.length; i++) {
             const after = technical.convert(compare[i]);
-            if (isNaN(after[0])) { return this.#privateSet([NaN, NaN]); }
+            if (isNaN(after[0])) { return this.privateSet([NaN, NaN]); }
 
             if (technical.less(result, after)) { result = after; }
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
-    /** Set original number to smallest of provided arguments */
+    /** Set original number to the smallest of provided arguments */
     min(...compare: allowedTypes[]) {
         let result: [number, number] | Overlimit = this;
         for (let i = 0; i < compare.length; i++) {
             const after = technical.convert(compare[i]);
-            if (isNaN(after[0])) { return this.#privateSet([NaN, NaN]); }
+            if (isNaN(after[0])) { return this.privateSet([NaN, NaN]); }
 
             if (technical.more(result, after)) { result = after; }
         }
 
-        return this.#privateSet(result);
+        return this.privateSet(result);
     }
 
     /** Returns formatted string, takes object as arqument
@@ -318,20 +320,20 @@ const technical = {
         if (negative === 1) { left[0] *= -1; }
         return left;
     },
-    log: (left: [number, number] | Overlimit, base: number): [number, number] | Overlimit => {
-        if (Math.abs(base) === 1 || (left[0] === -1 && left[1] === 0)) { return [NaN, NaN]; }
-        if (left[0] === 1 && left[1] === 0) { return [0, 0]; }
-        if (base === 0) { return [NaN, NaN]; } //Order matters (0 ** 0 === 1)
-        if (left[0] === 0) { return isNaN(base) ? [NaN, NaN] : [Math.abs(base) > 1 ? -Infinity : Infinity, Infinity]; }
-        if (!isFinite(base)) { return [NaN, NaN]; } //Order matters (Infinity ** 0 === 1 || Infinity ** -Infinity === 0)
+    /* Base is readonly */
+    log: (left: [number, number] | Overlimit, base: [number, number] | Overlimit): [number, number] | Overlimit => {
+        if (base[0] === 0 || (base[1] === 0 && Math.abs(base[0]) === 1)) { return [NaN, NaN]; }
+        if (left[1] === 0 && Math.abs(left[0]) === 1) { return left[0] === 1 ? [0, 0] : [NaN, NaN]; }
+        if (left[0] === 0) { return isNaN(base[0]) ? [NaN, NaN] : [Math.abs(base[0]) > 1 ? -Infinity : Infinity, Infinity]; }
+        if (!isFinite(base[0])) { return [NaN, NaN]; } //Order matters (Infinity ** 0 === 1 || Infinity ** -Infinity === 0)
         if (!isFinite(left[0])) {
             if (isNaN(left[0]) || left[0] === -Infinity) { return [NaN, NaN]; }
-            return [Math.abs(base) < 1 ? -Infinity : Infinity, Infinity];
+            return [Math.abs(base[0]) < 1 ? -Infinity : Infinity, Infinity];
         }
 
         const negative = left[0] < 0;
         if (negative) { //Complex numbers are not supported
-            if (base > 0) { return [NaN, NaN]; }
+            if (base[0] > 0) { return [NaN, NaN]; }
             left[0] *= -1;
         }
 
@@ -342,8 +344,8 @@ const technical = {
         left[1] = target;
 
         if (tooSmall) { left[0] *= -1; } //Already can be negative
-        if (base !== 10) {
-            left[0] /= Math.log10(Math.abs(base));
+        if (base[1] !== 1 || base[0] !== 1) {
+            left[0] /= Math.log10(Math.abs(base[0])) + base[1];
 
             const after = Math.abs(left[0]);
             if (after < 1 || after >= 10) {
@@ -353,11 +355,11 @@ const technical = {
             }
         }
 
-        if (base < 0 || negative) { //Special test for negative numbers
+        if (base[0] < 0 || negative) { //Special test for negative numbers
             if (left[1] < 0) { return [NaN, NaN]; }
             //Due to floats (1.1 * 100 !== 110), test is done in this way (also we assume that big numbers are never uneven)
             const test = left[1] < 16 ? Math.abs(Math.round(left[0] * 1e14) / 10 ** (14 - left[1])) % 2 : 0;
-            if (base < 0 && !negative) {
+            if (base[0] < 0 && !negative) {
                 if (test !== 0) { return [NaN, NaN]; } //Result must be even
             } else { //base < 0 && negative
                 if (test !== 1) { return [NaN, NaN]; } //Result must be uneven

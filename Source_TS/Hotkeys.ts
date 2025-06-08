@@ -40,27 +40,27 @@ const hotkeyFunction = {
     exitChallenge: () => enterExitChallengeUser(null),
     tabRight: (event) => {
         if (event.repeat) { return; }
-        changeTab('Right');
+        changeTab('right');
     },
     tabLeft: (event) => {
         if (event.repeat) { return; }
-        changeTab('Left');
+        changeTab('left');
     },
     subtabUp: (event) => {
         if (event.repeat) { return; }
-        changeSubtab('Up');
+        changeSubtab('up');
     },
     subtabDown: (event) => {
         if (event.repeat) { return; }
-        changeSubtab('Down');
+        changeSubtab('down');
     },
     stageRight: (event) => {
         if (event.repeat) { return; }
-        changeStage('Right');
+        changeStage('right');
     },
     stageLeft: (event) => {
         if (event.repeat) { return; }
-        changeStage('Left');
+        changeStage('left');
     }
 } as Record<hotkeysList, (event: KeyboardEvent) => void>;
 
@@ -86,11 +86,19 @@ export const removeHotkey = (remove: string): string | null => {
     return test;
 };
 
+/** Returns true if only Shift is holded, false if nothing is holded, null if any of Ctrl/Alt/Meta is holded */
+export const detectShift = (check: KeyboardEvent): boolean | null => {
+    if (check.metaKey || check.ctrlKey || check.altKey) { return null; }
+    return check.shiftKey;
+};
+
 export const detectHotkey = (check: KeyboardEvent) => {
     let { shiftKey } = check;
     const { key, code } = check;
+    if (shiftKey) { global.hotkeys.shift = true; }
+    if (check.ctrlKey) { global.hotkeys.ctrl = true; }
     if (code === 'Tab' || code === 'Enter' || code === 'Space') {
-        if (check.metaKey || check.ctrlKey || check.altKey) { return; }
+        if (detectShift(check) === null) { return; }
         if (code === 'Tab') { global.hotkeys.tab = true; }
         document.body.classList.remove('noFocusOutline');
         return;
@@ -100,12 +108,9 @@ export const detectHotkey = (check: KeyboardEvent) => {
         document.body.classList.add('noFocusOutline');
     }
     if (global.hotkeys.disabled) { return; }
-    if (shiftKey) { global.hotkeys.shift = true; }
-    if (check.ctrlKey) { global.hotkeys.ctrl = true; }
 
     if (code === 'Escape') {
-        if (check.metaKey || check.ctrlKey || shiftKey || check.altKey ||
-            specialHTML.alert[0] !== null || specialHTML.bigWindow !== null) { return; }
+        if (detectShift(check) !== false || specialHTML.alert[0] !== null || specialHTML.bigWindow !== null) { return; }
         const notification = specialHTML.notifications[0];
         if (notification !== undefined) { notification[1](true); }
         return;
@@ -113,13 +118,9 @@ export const detectHotkey = (check: KeyboardEvent) => {
 
     const numberKey = Number(code.replace('Digit', '').replace('Numpad', ''));
     if (!isNaN(numberKey) && code !== '') {
-        if (check.metaKey || check.ctrlKey || check.altKey) { return; }
-        if (isNaN(Number(key))) {
-            if (!shiftKey) { //Numpad
-                shiftKey = true;
-                check.preventDefault();
-            }
-        }
+        if (detectShift(check) === null) { return; }
+        if (isNaN(Number(key)) && !shiftKey) { shiftKey = true; } //Numpad
+        check.preventDefault();
 
         if (shiftKey) {
             if (check.repeat) { return; }
@@ -143,80 +144,78 @@ export const detectHotkey = (check: KeyboardEvent) => {
     }
 };
 
-const changeTab = (direction: 'Left' | 'Right') => {
+const changeTab = (direction: 'left' | 'right') => {
     const tabs = global.tabList.tabs;
     let index = tabs.indexOf(global.tab);
 
-    if (direction === 'Left') {
+    if (direction === 'left') {
         do {
             if (index <= 0) {
                 index = tabs.length - 1;
             } else { index--; }
         } while (!checkTab(tabs[index]));
-        switchTab(tabs[index]);
     } else {
         do {
             if (index >= tabs.length - 1) {
                 index = 0;
             } else { index++; }
         } while (!checkTab(tabs[index]));
-        switchTab(tabs[index]);
     }
+    switchTab(tabs[index]);
 };
 
-const changeSubtab = (direction: 'Down' | 'Up') => {
+/** Through a hotkey */
+export const changeSubtab = (direction: 'down' | 'up') => {
     const tab = global.tab;
     const subtabs = global.tabList[`${tab}Subtabs`] as string[];
     if (subtabs.length < 2) { return; } //To remove never[]
     let index = subtabs.indexOf(global.subtab[`${tab}Current`]);
 
-    if (direction === 'Down') {
+    if (direction === 'down') {
         do {
             if (index <= 0) {
                 index = subtabs.length - 1;
             } else { index--; }
         } while (!checkTab(tab, subtabs[index]));
-        switchTab(tab, subtabs[index]);
     } else {
         do {
             if (index >= subtabs.length - 1) {
                 index = 0;
             } else { index++; }
         } while (!checkTab(tab, subtabs[index]));
-        switchTab(tab, subtabs[index]);
     }
+    switchTab(tab, subtabs[index]);
 };
 
-const changeStage = (direction: 'Left' | 'Right') => {
+const changeStage = (direction: 'left' | 'right') => {
     const activeAll = global.stageInfo.activeAll;
     if (activeAll.length === 1) { return; }
     let index = activeAll.indexOf(player.stage.active);
 
-    if (direction === 'Left') {
+    if (direction === 'left') {
         if (index <= 0) {
             index = activeAll.length - 1;
         } else { index--; }
-        switchStage(activeAll[index]);
     } else {
         if (index >= activeAll.length - 1) {
             index = 0;
         } else { index++; }
-        switchStage(activeAll[index]);
     }
+    switchStage(activeAll[index]);
 };
 
 /* preventDefault should not be used here */
 export const handleTouchHotkeys = (event: TouchEvent) => {
-    const touches = event.changedTouches;
-    if (touches.length > 1) { return; }
-    const mainHTML = document.documentElement;
-    const horizontal = (touches[0].clientX - specialHTML.mobileDevice.start[0]) / mainHTML.clientWidth;
-    const vertical = (touches[0].clientY - specialHTML.mobileDevice.start[1]) / mainHTML.clientHeight;
+    const horizontal = event.changedTouches[0].clientX - specialHTML.mobileDevice.start[0];
+    const vertical = event.changedTouches[0].clientY - specialHTML.mobileDevice.start[1];
 
-    if (Math.abs(vertical) > 0.2) {
-        if (Math.abs(vertical) < 0.8 || Math.abs(horizontal) > 0.2) { return; }
-        changeSubtab(vertical > 0 ? 'Up' : 'Down');
-        return;
-    } else if (Math.abs(horizontal) < 0.6) { return; }
-    changeTab(horizontal > 0 ? 'Left' : 'Right');
+    const horizontalAbs = Math.abs(horizontal);
+    if (horizontalAbs < 100) { return; }
+    if (Math.abs(vertical) >= 100) {
+        changeSubtab(vertical > 0 ? 'up' : 'down');
+    } else if (horizontalAbs >= 250) {
+        changeStage(horizontal > 0 ? 'left' : 'right');
+    } else {
+        changeTab(horizontal > 0 ? 'left' : 'right');
+    }
 };

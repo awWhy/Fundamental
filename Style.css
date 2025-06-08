@@ -48,6 +48,7 @@ html {
     --orchid-text: #e14bdb;
     --darkorchid-text: #bd24ef;
     --darkviolet-text: #8b3cec;
+    --brown-text: #9b7346;
     --red-text: #eb0000;
     --green-text: #00e900;
     --yellow-text: #fafa00;
@@ -62,8 +63,8 @@ html {
 
     color: var(--main-text);
     background-color: var(--background-color);
-    min-width: 100vw;
-    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
     font-size: 16px;
 }
 
@@ -84,6 +85,7 @@ body {
 .orchidText { color: var(--orchid-text) !important; }
 .darkorchidText { color: var(--darkorchid-text) !important; }
 .darkvioletText { color: var(--darkviolet-text) !important; }
+.brownText { color: var(--brown-text) !important; }
 .redText { color: var(--red-text) !important; }
 .greenText { color: var(--green-text) !important; }
 .yellowText { color: var(--yellow-text) !important; }
@@ -166,13 +168,6 @@ img {
     font-size: 0.66rem;
 }
 
-#footerStats img,
-.researchesDiv .interactiveImage {
-    border-radius: 3px;
-    z-index: 2;
-    transition-property: background-color;
-}
-
 p > img {
     float: left;
     margin: 0.5em 0.5em 0 0.2em;
@@ -192,19 +187,16 @@ p > img {
     position: absolute;
     clip-path: circle(0);
     pointer-events: none;
+    height: 0;
+    width: 0;
 }
 
 .bigWord { font-size: 1.1em !important; }
 .biggerWord { font-size: 1.2em !important; }
 
 a { color: red; }
+h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 .center { text-align: center; }
-.fullWidth { width: 100%; }
-
-h1, h2, h3, h4, h5, h6 {
-    font-weight: normal;
-    cursor: default;
-}
 
 .downArrow {
     display: inline-block;
@@ -219,8 +211,8 @@ h1, h2, h3, h4, h5, h6 {
 
 #loading, #alertMain, #offlineMain, #bigWindow {
     position: fixed;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     top: 0;
     display: flex;
     flex-direction: column;
@@ -397,7 +389,8 @@ input[type = "number"] { appearance: textfield; }
 input[type = "number"]::-webkit-inner-spin-button, input[type = "number"]::-webkit-outer-spin-button { appearance: none; }
 
 input[type = "number"],
-input[type = "text"] {
+input[type = "text"],
+#loadoutsEditLabel > span {
     text-align: center;
     border: 2px solid var(--input-border);
     border-radius: 2px;
@@ -407,6 +400,10 @@ input[type = "text"] {
     height: 1.7em;
     font-size: 0.84em;
     padding: 0.1em 0.2em;
+}
+
+input[type = "number"],
+input[type = "text"] {
     font-family: Inter, serif;
     font-variant-numeric: normal;
 }
@@ -434,9 +431,8 @@ input:-webkit-autofill { /* Chrome related pain */
 .insideTab {
     margin-top: min(2vh, 1rem);
     display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    align-items: start;
+    flex-flow: column wrap;
+    align-items: center;
     gap: 1.6em;
 }
 
@@ -445,7 +441,6 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-wrap: wrap;
     justify-content: center;
     height: min-content;
-    width: 100%;
     gap: 1.2em;
 }
 
@@ -588,11 +583,6 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #toggleBuilding0 { margin-left: 0.3em; }
 
-#stageInfo {
-    text-align: center;
-    width: 100%;
-}
-
 #stageInfo > div {
     display: flex;
     flex-direction: column;
@@ -601,6 +591,7 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #starEffects, #mergeEffects {
     width: max-content;
+    max-width: 90vw;
     align-self: center;
     cursor: help;
 }
@@ -610,12 +601,26 @@ input:-webkit-autofill { /* Chrome related pain */
 #mergeEffects:not(:hover) > p > span.info,
 #starEffects:not(:hover) > p > span.info { display: none; }
 
+#mergeScore {
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    grid-auto-rows: max-content;
+    border-left: 2px solid;
+    width: max-content;
+    column-gap: 0.3em;
+    padding-left: 0.4em;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#mergeScore p { display: contents; }
+#mergeScore p > span:nth-of-type(2) { text-align: center; }
+
 #timeInfo {
     display: flex;
     flex-direction: column;
     text-align: center;
     row-gap: 0.1em;
-    width: 100%;
 }
 
 #challengesMain {
@@ -631,8 +636,6 @@ input:-webkit-autofill { /* Chrome related pain */
     border-radius: 0;
 }
 
-#challenge2 { cursor: help; }
-
 #challengesMain > section {
     display: flex;
     gap: 0.44em;
@@ -645,15 +648,22 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #challengeMultiline p { white-space: pre-line; }
-#challengeMultiline > div { margin-top: 1.2em; }
+#challengeMultiline > section { margin-top: 1.2em; }
 
-#challengeMultiline > div > div {
+#challengeMultiline > section > div {
     display: flex;
     flex-direction: column;
     row-gap: 1em;
 }
 
-#voidRewards > div:not(:last-of-type) {
+#voidRewards,
+#stabilityRewards {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#voidRewards > div:first-of-type {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -661,30 +671,31 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-top: 0.3em;
 }
 
-#voidRewards > div:not(:last-of-type) button {
+#voidRewards > div button {
     height: 1.9em;
     padding: 0 0.4em;
     border-radius: 4px;
 }
 
-#voidRewards > div:last-of-type {
+.challengeRewards {
     display: flex;
     flex-direction: column;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 7px;
     padding: 0.5em 0.6em 0.6em;
-    margin-top: 0.6em;
+    margin-top: 0.2em;
     text-align: left;
     row-gap: 0.2em;
 }
+
+#voidRewards > .challengeRewards { margin-top: 0.6em; }
 
 .togglesDiv {
     display: flex;
     flex-direction: column;
     text-align: center;
     row-gap: 0.3em;
-    width: 100%;
 }
 
 .togglesDiv > label {
@@ -696,7 +707,6 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
     row-gap: 0.5em;
     margin-bottom: -0.4em;
 }
@@ -739,9 +749,17 @@ input:-webkit-autofill { /* Chrome related pain */
     transition-property: background-color;
 }
 
+.researchesDiv img,
+.researchesDiv .interactiveImage {
+    border-radius: 3px;
+    z-index: 2;
+    transition-property: background-color;
+}
+
 .researchesDiv p {
     display: flex;
     align-items: center;
+    justify-content: center;
     border: 2px solid;
     border-color: inherit;
     border-left: none;
@@ -758,7 +776,6 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     align-items: center;
     row-gap: 0.6em;
-    width: 100%;
 }
 
 .descriptionText {
@@ -766,13 +783,10 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 100%;
+    max-width: 80vw;
     row-gap: 0.3em;
     white-space: pre-line;
 }
-
-.descriptionText > h3,
-.descriptionText > p { max-width: 80%; }
 
 .descriptionTextMain > div:first-of-type {
     display: flex;
@@ -819,7 +833,6 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #element0:hover { opacity: 1; }
 
-/* Easier to do this through CSS (extra background value to prevent flashing) */
 .elementType1.awaiting { background: #780000 linear-gradient(45deg, #780000 50%, var(--background-color) 50%); }
 .elementType2.awaiting { background: #a55900 linear-gradient(45deg, #a55900 50%, var(--background-color) 50%); }
 .elementType3.awaiting { background: #0000c1 linear-gradient(45deg, #0000c1 50%, var(--background-color) 50%); }
@@ -882,8 +895,6 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #strangenessResearch {
-    display: flex;
-    flex-direction: column;
     border: 2px solid darkgreen;
     border-radius: 6px;
     background-color: var(--window-color);
@@ -976,6 +987,11 @@ input:-webkit-autofill { /* Chrome related pain */
     padding-top: 0.5em;
 }
 
+#inflationLoadouts {
+    display: flex;
+    align-items: center;
+}
+
 #loadoutsMain {
     display: flex;
     flex-direction: column;
@@ -985,17 +1001,21 @@ input:-webkit-autofill { /* Chrome related pain */
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 7px;
-    width: 24em;
+    min-width: min-content;
+    max-width: 28em;
 }
 
 #loadoutsMain > div {
     display: flex;
     column-gap: 0.3em;
     align-items: center;
+    justify-content: center;
+    align-self: end;
+    flex-wrap: wrap;
 }
 
 #loadoutsName {
-    width: 7.8em;
+    width: 8em;
     height: 1.8em;
 }
 
@@ -1004,9 +1024,26 @@ input:-webkit-autofill { /* Chrome related pain */
     min-height: 1.31em;
 }
 
+#loadoutsEditLabel {
+    display: flex;
+    width: 100%;
+}
+
+#loadoutsEditLabel > span {
+    display: flex; /* Only to vertical-align */
+    align-items: center;
+    justify-content: center;
+    width: 4.4em;
+    height: 1.8em;
+    border-radius: 2px 0 0 2px;
+    border-right: none;
+    flex-shrink: 0;
+}
+
 #loadoutsEdit {
     width: 100%;
     height: 1.8em;
+    border-radius: 0 2px 2px 0;
 }
 
 #inflationMilestones {
@@ -1015,19 +1052,25 @@ input:-webkit-autofill { /* Chrome related pain */
     row-gap: 0.6em;
 }
 
-#inflationMilestones > div {
-    background-color: #4d0000;
-    color: var(--red-text);
-    border: 2px solid darkred;
+#inflationMilestones > section {
+    background-color: #004200;
+    color: var(--green-text);
+    border: 2px solid darkgreen;
     border-radius: 6px;
     padding: 0.3em 0.6em;
     text-align: center;
 }
 
-#inflationMilestones > div.completed {
-    background-color: #004200;
-    color: var(--green-text);
-    border-color: darkgreen;
+#inflationMilestones > section.uncompleted {
+    background-color: #4d0000;
+    color: var(--red-text);
+    border-color: darkred;
+}
+
+#settingsSubtabSettings {
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
 }
 
 #resetToggles > div {
@@ -1076,7 +1119,8 @@ input:-webkit-autofill { /* Chrome related pain */
     align-self: end;
 }
 
-#logoLinks > * {
+#logoLinks > a,
+#logoLinks > button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1109,7 +1153,7 @@ input:-webkit-autofill { /* Chrome related pain */
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: 100vw; /* Too lazy to rework settings subtab */
     row-gap: 0.3em;
 }
 
@@ -1195,7 +1239,7 @@ li .hollowButton {
 .settingsMenu:focus-within > div { display: flex; }
 
 #saveFileNameInput {
-    width: 17.2em;
+    width: 19.2em;
     height: 1.82em;
     font-size: 0.88em;
     text-align: left;
@@ -1310,7 +1354,7 @@ li .hollowButton {
 .statsWindows p { margin-bottom: 0.08em; }
 
 #strangeAllStats > section { border-color: darkgreen; }
-#cosmonStat > section { border-color: #7100ff; }
+#inflatonStat > section { border-color: #7100ff; }
 
 #energyGainStats > div {
     display: flex;
@@ -1341,14 +1385,47 @@ li .hollowButton {
     justify-content: center;
 }
 
+#globalStats {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: calc(32px + min(3.9vh, 2.4em) + 2.02em + 0.4vw);
+    right: 3vw;
+    background-color: var(--window-color);
+    border: 2px solid var(--window-border);
+    border-radius: 8px;
+    padding: 0.4em;
+    row-gap: 0.4em;
+    cursor: move;
+    z-index: 7;
+}
+
+#globalStats:hover { opacity: 0.2; }
+#globalStats img { background-color: black; }
+
+#globalStats p {
+    text-align: center;
+    border-radius: 0 4px 4px 0;
+    background-color: black;
+    padding-left: calc(3px + 0.5em);
+    padding-right: 0.5em;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#globalStats span {
+    margin-left: auto;
+    width: 4.4em;
+}
+
 #fakeFooter {
     visibility: hidden;
-    height: calc(32px + min(3.9vh, 2.4em) + 3.9336em + 0.8vw);
+    height: calc(32px + min(3.9vh, 2.4em) + 5.8472em + 1.2vw);
 }
 
 #footer {
     position: fixed;
-    width: 100%;
+    width: 100vw;
     bottom: 0;
     z-index: 6;
 }
@@ -1363,7 +1440,8 @@ li .hollowButton {
     overscroll-behavior-x: none;
 }
 
-#footerMain > * {
+#footerStats,
+#footerMain > nav {
     display: flex;
     column-gap: 1em;
     margin: 0 auto;
@@ -1392,11 +1470,9 @@ li .hollowButton {
     padding-left: calc(3px + 0.5em);
     padding-right: 0.5em;
     z-index: 1; /* Text color issue */
-    transition-property: background-color;
 }
 
 #footerStats span:last-of-type {
-    display: inline-block;
     white-space: nowrap;
     width: 4.4em;
 }
@@ -1404,18 +1480,33 @@ li .hollowButton {
 #footer > div:first-child {
     display: flex;
     align-items: end;
-    /* justify-content: space-between; */
-    height: 0; /* To click behind it (annoying to make pointer-events work here, but possible) */
+    justify-content: center;
+    pointer-events: none;
 }
+
+#footer > div:first-child button { pointer-events: auto; }
 
 #subtabs {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap-reverse;
+    max-width: 25vw;
     margin-left: 3vw;
+    margin-bottom: 0.4vw;
+    margin-right: auto;
+    gap: 0.4vw;
+}
+
+#phoneHotkeys {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: end;
+    max-width: 25vw;
+    margin-right: 3vw;
     margin-bottom: 0.4vw;
     gap: 0.4vw;
 }
 
+#phoneHotkeys button,
 #subtabs button {
     min-width: 5.5em;
     background-color: var(--background-color);
@@ -1425,12 +1516,12 @@ li .hollowButton {
 
 #stageSelect {
     display: flex;
-    align-items: end;
+    position: absolute;
+    flex-wrap: wrap-reverse;
     justify-content: center;
     margin-bottom: 0.4vw;
-    pointer-events: none;
-    position: absolute;
-    width: 100%;
+    max-width: 50vw;
+    gap: 0.4vw;
 }
 
 #stageSelect button {
@@ -1438,66 +1529,13 @@ li .hollowButton {
     border-radius: 10px;
     padding: 0 0.45em;
     font-size: 0.92em;
-    pointer-events: auto;
-}
-
-#stageSelect > div {
-    display: none;
-    position: absolute;
-    flex-direction: row;
-    flex-wrap: wrap-reverse;
-    justify-content: center;
-    gap: 0.4vw;
-    max-width: 40vw;
-    z-index: 1;
 }
 
 #footer button:hover { background-color: var(--footerButton-hover); }
-#stageSelect.active > #currentSwitch { clip-path: circle(0); }
-#stageSelect.active > div { display: flex; }
-
-#phoneHotkeys {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4vw;
-    margin-right: 2vw;
-    margin-left: auto; /* Can be replaced, if display none changed into visibility hidden for subtabs */
-}
-
-#phoneHotkeys button {
-    width: 100%;
-    background-color: var(--background-color);
-    border-radius: 2px;
-    padding: 0 0.6em;
-}
-
-#hideToggle {
-    height: min-content;
-    width: min-content;
-    display: flex;
-    align-items: center;
-    column-gap: 0.25em;
-    background-color: var(--footer-color);
-    padding: 0.2em 0.5em 0;
-    border-radius: 10px 10px 0 0;
-    user-select: none;
-    cursor: pointer;
-}
 
 @keyframes hideX {
     from { transform: translateX(0); }
     to { transform: translateX(100%); }
-}
-
-@keyframes hideY {
-    from { transform: translateY(0); }
-    to { transform: translateY(100%); }
-}
-
-@keyframes rotate {
-    from { transform: rotate(0); }
-    to { transform: rotate(180deg); }
 }
 
 /* Firefox related pain */
@@ -1510,8 +1548,7 @@ li .hollowButton {
     #footerMain { overflow-x: auto; } /* scrollbar-gutter, doesn't work for horizontal scrolls... */
 }
 @supports not selector(::-webkit-scrollbar) {
-    /* There is no way to make themed color with main (html) scrollbar, custom variables are ignored */
-    html { scrollbar-color: gray black; }
+    html { scrollbar-color: gray black; } /* Custom variables are ignored here */
     body { scrollbar-color: var(--input-border) black; }
 }
 
@@ -1530,9 +1567,6 @@ li .hollowButton {
     #notifications > p { width: 95vw; }
 
     .insideTab {
-        flex-direction: column;
-        justify-content: start;
-        align-items: center;
         gap: 1.2em;
         margin-top: 1vh;
     }
@@ -1546,7 +1580,7 @@ li .hollowButton {
 
     .buyBuilding, #specials > div { column-gap: 0.15em; }
     .buyBuilding > div:first-of-type, #specials p { flex-direction: column; }
-    .buyBuilding > div:first-of-type { width: 100%; } /* max-width: 19.2em; */
+    .buyBuilding > div:first-of-type { width: 100%; }
     .buyBuilding button:first-of-type,
     .buyBuilding > div > p:first-of-type { width: unset; }
     .buyBuilding > div > p:first-of-type > span { white-space: nowrap; }
@@ -1571,7 +1605,7 @@ li .hollowButton {
     .buyBuilding > div > div > div { display: none; }
     .availableBuilding > div > div > p { border-color: var(--building-afford); }
 
-    .descriptionText > p { max-width: 90vw; }
+    .descriptionText { max-width: 90vw; }
 
     #challengesMain > div {
         flex-direction: column;
@@ -1594,26 +1628,48 @@ li .hollowButton {
         margin-bottom: -0.3em;
     }
 
+    #settingsSubtabSettings {
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+    }
+
     #logoLinks { align-self: unset; }
     #themeArea > div > div { width: 80vw !important; }
 
-    #fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); }
-    #footerMain > * { column-gap: 0.8em; }
-    #stageSelect { margin-bottom: 0.8vw; }
-
-    #stageSelect > div {
-        gap: 0.8vw;
-        max-width: 60vw;
+    #globalStats {
+        bottom: calc(32px + min(3.9vh, 2.4em) + 2.02em + 0.8vw);
+        right: 1vw;
     }
 
-    #subtabs {
-        flex-direction: column-reverse;
+    #fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); }
+    #footerStats,
+    #footerMain > nav { column-gap: 0.8em; }
+
+    #stageSelect {
+        max-width: 60vw;
         margin-bottom: 0.8vw;
         gap: 0.8vw;
     }
 
+    #subtabs {
+        flex-direction: column-reverse;
+        max-width: unset;
+        margin-left: 2vw;
+        margin-bottom: 0.8vw;
+        gap: 0.8vw;
+    }
+
+    #phoneHotkeys {
+        flex-direction: column;
+        max-width: unset;
+        margin-right: 2vw;
+        margin-bottom: 0.8vw;
+        gap: 0.8vw;
+    }
+
+    #phoneHotkeys button,
     #subtabs button { width: 100%; }
-    #phoneHotkeys { gap: 0.8vw; }
 }
 @media screen and (max-width: 394px) {
     .buyBuilding { margin-left: calc(-32px - 0.348em); }
@@ -1628,5 +1684,8 @@ li .hollowButton {
         height: 32px;
         object-fit: scale-down;
     }
+
+    #subtabs { margin-left: 1vw; }
+    #phoneHotkeys { margin-right: 1vw; }
 }
 /* No rules are allowed past this point */

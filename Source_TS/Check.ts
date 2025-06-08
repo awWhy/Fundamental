@@ -14,7 +14,7 @@ export const checkTab = (tab: gameTab, subtab = null as null | string): boolean 
             return subtab === 'Upgrades' || subtab === null;
         case 'strangeness':
             if (player.stage.true < 7 && player.strange[0].total <= 0 && (!player.inflation.vacuum || player.stage.current < 5)) { return false; }
-            if (subtab === 'Milestones') { return player.cosmon.total >= global.inflationTreeInfo.startCost[4] || !player.inflation.vacuum; }
+            if (subtab === 'Milestones') { return player.stage.true >= 8 || (player.stage.true === 7 && player.event) || !player.inflation.vacuum; }
             return subtab === 'Matter' || subtab === null;
         case 'inflation':
             if (player.stage.true < 7) { return false; }
@@ -189,19 +189,33 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                     if (upgrade === 10) { return player.challenges.void[2] >= 3; }
                     if ([0, 1, 5, 7].includes(upgrade)) { return player.strangeness[5][3] >= 1; }
                 }
-                return true;
-            }
-            if (((stageIndex === 1 || stageIndex === 2) && upgrade < 6) || ((stageIndex === 3 || stageIndex === 4) && upgrade < 7)) { return true; }
-            if (player.milestones[4][0] < 8) { return false; }
-            if (stageIndex === 5) {
-                if (upgrade === 2) { return player.milestones[5][0] >= 8; }
-                if (upgrade === 4) { return player.milestones[4][1] >= 8; }
-                if ([0, 1, 3, 5].includes(upgrade)) { return player.milestones[2][0] >= 7 || player.milestones[3][0] >= 7; }
+            } else {
+                if (player.challenges.active === 1) {
+                    if (stageIndex === 1) {
+                        if (player.milestones[1][1] >= 6) { return false; }
+                    } else if (stageIndex === 2) {
+                        if (player.milestones[2][1] >= 7) { return false; }
+                    } else if (stageIndex === 3) {
+                        if (player.milestones[3][1] >= 7) { return false; }
+                    }
+                }
+                if (((stageIndex === 1 || stageIndex === 2) && upgrade < 6) || ((stageIndex === 3 || stageIndex === 4) && upgrade < 7)) { return true; }
+                if (player.milestones[4][0] < 8) { return false; }
+                if (stageIndex === 5) {
+                    if (upgrade === 2) { return player.milestones[5][0] >= 8; }
+                    if (upgrade === 4) { return player.milestones[4][1] >= 8; }
+                    if ([0, 1, 3, 5].includes(upgrade)) { return player.milestones[2][0] >= 7 || player.milestones[3][0] >= 7; }
+                }
             }
             return true;
         case 'inflations':
-            if (upgrade === 0) { return player.stage.true >= 7; }
-            if (upgrade === 5) { return player.challenges.supervoid[1] >= 1; }
+            if (stageIndex === 0) {
+                if (upgrade === 0) { return player.stage.true >= 7; }
+                if (upgrade === 3 || upgrade === 4) { return player.stage.true >= 8 || player.event; }
+                if (upgrade === 5) { return player.challenges.supervoid[3] >= 3; }
+            } else {
+                if (upgrade === 0) { return player.challenges.supervoid[1] >= 1; }
+            }
             return true;
     }
 
@@ -258,17 +272,17 @@ export const milestoneGetValue = (index: number, stageIndex: number): number | O
         }
         if (index === 1) { return player.buildings[5][3].true; }
     }
-    throw new TypeError(`Milestone s${stageIndex}-i${index} doesn't exist`);
+    return 0;
 };
 export const milestoneCheck = (index: number, stageIndex: number): boolean => {
     const pointer = global.milestonesInfo[stageIndex];
     if (player.inflation.vacuum) {
-        if (player.challenges.active !== 0 || player.inflation.tree[4] < 1 ||
-            pointer.time[index] < player.time[player.challenges.super ? 'vacuum' : 'stage']) { return false; }
-    } else if (pointer.max[index] <= player.milestones[stageIndex][index] ||
+        if (player.challenges.active !== 0 || player.tree[0][4] < 1 ||
+            global.challengesInfo[0].time < player.time[player.challenges.super ? 'vacuum' : 'stage']) { return false; }
+    } else if (pointer.scaling[index].length <= player.milestones[stageIndex][index] ||
         (player.stage.true < 7 && player.stage.resets < 4) ||
         (stageIndex === 5 && player.milestones[4][index] < 8) ||
-        (player.inflation.tree[4] < 1 && pointer.time[index] < player.time.stage)
+        (player.tree[0][4] < 1 && pointer.reward[index] < player.time.stage)
     ) { return false; }
     return pointer.need[index].lessOrEqual(milestoneGetValue(index, stageIndex));
 };

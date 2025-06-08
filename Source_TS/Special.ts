@@ -1,9 +1,9 @@
-import { assignHotkeys, removeHotkey } from './Hotkeys';
+import { assignHotkeys, detectShift, removeHotkey } from './Hotkeys';
 import { getId, getQuery, globalSaveStart, pauseGame } from './Main';
 import { deepClone, global, player } from './Player';
 import { assignResetInformation } from './Stage';
 import type { globalSaveType, hotkeysList } from './Types';
-import { format, numbersUpdate, stageUpdate, visualTrueStageUnlocks, visualUpdate } from './Update';
+import { format, stageUpdate, switchTab, visualTrueStageUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
@@ -32,11 +32,11 @@ export const globalSave: globalSaveType = {
         stageRight: ['Shift Arrow Right', 'Shift Arrow Right'],
         stageLeft: ['Shift Arrow Left', 'Shift Arrow Left']
     },
-    toggles: [false, false, false, false],
+    toggles: [false, false, false, false, false],
     format: ['.', ''],
     theme: null,
     fontSize: 16,
-    MDSettings: [false, false],
+    MDSettings: [false, false, false],
     SRSettings: [false, false, false],
     developerMode: false
 };
@@ -211,7 +211,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchG1.png', 'stage1borderImage'],
             ['ResearchG2.png', 'stage6borderImage'],
             ['ResearchG3.png', 'stage6borderImage'],
-            ['ResearchG4.png', 'stage4borderImage']
+            ['ResearchG4.png', 'stage4borderImage'],
+            ['Missing.png', 'redBorderImage']
         ], []
     ],
     longestResearchExtra: 6,
@@ -254,9 +255,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchCollapse4.png', 'stage6borderImage']
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
-            ['Missing.png', 'stage3borderImage'],
+            ['ResearchGalaxy2.png', 'brownBorderImage'],
             ['ResearchGalaxy3.png', 'stage3borderImage'],
-            ['ResearchGalaxy4.png', 'brownBorderImage']
+            ['ResearchGalaxy4.png', 'brownBorderImage'],
+            ['Missing.png', 'redBorderImage'],
+            ['Missing.png', 'redBorderImage']
         ], []
     ],
     longestFooterStats: 3,
@@ -280,7 +283,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Stars.png', 'redBorderImage redText', 'Stars']
         ], [
             ['Dark%20matter.png', 'stage3borderImage grayText', 'Matter'],
-            ['Cosmon.png', 'stage6borderImage darkvioletText', 'Cosmon']
+            ['Inflaton.png', 'stage6borderImage darkvioletText', 'Inflatons']
         ]
     ],
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
@@ -301,6 +304,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
         queryMap: new Map<string, HTMLElement>()
     },
+    errorCooldowns: [] as string[],
     /** [text, true ? incrementFunc : closeFunc] */
     notifications: [] as Array<[string, (instantClose?: boolean) => void]>,
     /** [priority, closeFunc] */
@@ -390,10 +394,10 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
         '--orchid-text': '#e14bdb',
         '--darkorchid-text': '#bd24ef',
         '--darkviolet-text': '#8b3cec',
+        //'--brown-text': '#9b7346',
         '--red-text': '#eb0000',
         '--green-text': '#00e900',
         '--yellow-text': '#fafa00'
-        //'--brown-text': '#9b7346'
     };
 
     /* Many of these colors will need to be changed in other places (find them with quick search, there are too many of them) */
@@ -578,16 +582,16 @@ export const Alert = async(text: string, priority = 0): Promise<void> => {
         confirm.focus();
 
         const key = async(event: KeyboardEvent) => {
-            if (event.metaKey || event.ctrlKey || event.altKey) { return; }
+            const shift = detectShift(event);
+            if (shift === null) { return; }
             const code = event.code;
             if (code === 'Escape' || code === 'Enter' || code === 'Space') {
-                if (event.shiftKey) { return; }
-                event.preventDefault();
+                if (shift) { return; }
                 close();
             } else if (code === 'Tab') {
-                event.preventDefault();
                 confirm.focus();
-            }
+            } else { return; }
+            event.preventDefault();
         };
         const close = () => {
             if (!globalSave.toggles[2]) { body.classList.add('noTextSelection'); }
@@ -634,20 +638,19 @@ export const Confirm = async(text: string, priority = 0): Promise<boolean> => {
             close();
         };
         const key = (event: KeyboardEvent) => {
-            if (event.metaKey || event.ctrlKey || event.altKey) { return; }
+            const shift = detectShift(event);
+            if (shift === null) { return; }
             const code = event.code;
             if (code === 'Escape') {
-                if (event.shiftKey) { return; }
-                event.preventDefault();
+                if (shift) { return; }
                 close();
             } else if (code === 'Enter' || code === 'Space') {
-                if (event.shiftKey || document.activeElement === cancel) { return; }
-                event.preventDefault();
+                if (shift || document.activeElement === cancel) { return; }
                 yes();
             } else if (code === 'Tab') {
-                event.preventDefault();
                 (document.activeElement === cancel ? confirm : cancel).focus();
-            }
+            } else { return; }
+            event.preventDefault();
         };
         const close = () => {
             if (!globalSave.toggles[2]) { body.classList.add('noTextSelection'); }
@@ -701,26 +704,24 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
             close();
         };
         const key = (event: KeyboardEvent) => {
-            if (event.metaKey || event.ctrlKey || event.altKey) { return; }
+            const shift = detectShift(event);
+            if (shift === null) { return; }
             const code = event.code;
             if (code === 'Escape') {
-                if (event.shiftKey) { return; }
-                event.preventDefault();
+                if (shift) { return; }
                 close();
             } else if (code === 'Enter' || code === 'Space') {
                 const active = document.activeElement;
-                if (event.shiftKey || (code === 'Space' && active === input) || active === cancel) { return; }
-                event.preventDefault();
+                if (shift || (code === 'Space' && active === input) || active === cancel) { return; }
                 yes();
             } else if (code === 'Tab') {
-                if (event.shiftKey && document.activeElement === input) {
-                    event.preventDefault();
+                if (shift && document.activeElement === input) {
                     cancel.focus();
-                } else if (!event.shiftKey && document.activeElement === cancel) {
-                    event.preventDefault();
+                } else if (!shift && document.activeElement === cancel) {
                     input.focus();
-                }
-            }
+                } else { return; }
+            } else { return; }
+            event.preventDefault();
         };
         const close = () => {
             if (!globalSave.toggles[2]) { body.classList.add('noTextSelection'); }
@@ -775,7 +776,8 @@ export const Notify = (text: string, start = 1) => {
             timeout = setTimeout(remove, 7200);
         }]) - 1];
         const remove = () => {
-            notifications.splice(notifications.indexOf(pointer), 1);
+            const index = notifications.indexOf(pointer);
+            if (index !== -1) { notifications.splice(index, 1); }
             html.removeEventListener('click', remove);
             html.style.animation = 'hideX 800ms ease-in-out forwards';
             html.style.pointerEvents = 'none';
@@ -791,48 +793,32 @@ export const Notify = (text: string, start = 1) => {
     } else { notifications[index][1](); }
 };
 
-export const hideFooter = () => {
-    const toggleData = getId('hideToggle').dataset;
-    if (toggleData.disabled === 'true') { return; }
-    const footer = getId('footer');
-    const footerArea = getId('footerMain');
-    const arrow = getId('hideArrow');
+/** Notify about error in the code with a cooldown of 20 seconds */
+export const errorNotify = (text: string) => {
+    const { errorCooldowns } = specialHTML;
+    if (errorCooldowns.includes(text)) { return; }
 
-    const animationReset = () => {
-        footer.style.animation = '';
-        arrow.style.animation = '';
-        toggleData.disabled = '';
-    };
-
-    global.footer = !global.footer;
-    toggleData.disabled = 'true';
-    if (global.footer) {
-        footerArea.style.display = '';
-        arrow.style.transform = '';
-        footer.style.animation = 'hideY 800ms reverse';
-        arrow.style.animation = 'rotate 800ms reverse';
-        getQuery('#hideToggle > p').textContent = 'Hide';
-        getId('stageSelect').classList.add('active');
-        setTimeout(animationReset, 800);
-
-        visualUpdate();
-        numbersUpdate();
-    } else {
-        footer.style.animation = 'hideY 800ms backwards';
-        arrow.style.animation = 'rotate 800ms backwards';
-        getQuery('#hideToggle > p').textContent = 'Show';
-        getId('stageSelect').classList.remove('active');
-        setTimeout(() => {
-            footerArea.style.display = 'none';
-            arrow.style.transform = 'rotate(180deg)';
-            animationReset();
-        }, 800);
-    }
+    Notify(text);
+    errorCooldowns.push(text);
+    setTimeout(() => {
+        const index = errorCooldowns.indexOf(text);
+        if (index !== -1) { errorCooldowns.splice(index, 1); }
+    }, 2e4);
 };
 
 export const resetMinSizes = (full = true) => {
     for (let i = 1; i <= 3; i++) {
         const element = getQuery(`#special${i} > p`);
+        specialHTML.cache.innerHTML.set(element, '');
+        element.style.minWidth = '';
+    }
+    for (let i = 0; i < global.researchesInfo[player.stage.active].maxActive; i++) {
+        const element = getQuery(`#research${i + 1} > p`);
+        specialHTML.cache.innerHTML.set(element, '');
+        element.style.minWidth = '';
+    }
+    for (let i = 0; i < global.researchesExtraInfo[player.stage.active].maxActive; i++) {
+        const element = getQuery(`#researchExtra${i + 1} > p`);
         specialHTML.cache.innerHTML.set(element, '');
         element.style.minWidth = '';
     }
@@ -925,14 +911,17 @@ export const SRHotkeysInfo = (short = false) => {
 };
 
 export const MDStrangenessPage = (stageIndex: number) => {
-    for (let s = 1; s <= 5; s++) { getId(`strangenessSection${s}`).style.display = 'none'; }
+    getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
     getId(`strangenessSection${stageIndex}`).style.display = '';
+    global.debug.MDStrangePage = stageIndex;
 };
 
 export const replayEvent = async() => {
     let last;
-    if (player.stage.true >= 7) {
-        last = 9;
+    if (player.stage.true >= 8) {
+        last = 11;
+    } else if (player.stage.true >= 7) {
+        last = player.buildings[6][1].true >= 6 ? 11 : player.event ? 10 : 9;
     } else if (player.stage.true === 6) {
         last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
     } else {
@@ -949,9 +938,12 @@ export const replayEvent = async() => {
     if (last >= 7) { text += '\nEvent 7: Void unlocked'; }
     if (last >= 8) { text += '\nEvent 8: First Merge'; }
     if (last >= 9) { text += '\nEvent 9: Inflation'; }
+    if (last >= 10) { text += '\nEvent 10: Supervoid'; }
+    if (last >= 11) { text += '\nEvent 11: Stability'; }
 
     const event = Number(await Prompt(text, `${last}`));
-    if (event > last) { return void Alert("Not unlocked or doesn't exist"); }
+    if (event <= 0 || !isFinite(event)) { return; }
+    if (event > last) { return void Alert('That event is not unlocked'); }
     playEvent(event);
 };
 
@@ -964,7 +956,7 @@ export const playEvent = (event: number, replay = true) => {
     if (event === 1) {
         text = 'A new reset tier has been unlocked. It will allow the creation of higher tier Structures, but for the price of everything else';
     } else if (event === 2) {
-        text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to softcap`;
+        text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to the softcap`;
     } else if (event === 3) {
         if (!replay) {
             assignResetInformation.maxRank();
@@ -982,9 +974,17 @@ export const playEvent = (event: number, replay = true) => {
         text = "With Vacuum decaying, the remaining matter had rearranged itself, which had lead to the formation of the 'Void'. Check it out in the 'Advanced' subtab";
     } else if (event === 8) {
         if (!replay) { stageUpdate(false); }
-        text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. You will need to Merge 40 Galaxies at once into a Galaxy group to finish that first Universe inside the Abyss Stage.\n(Merge reset can only be done a limited amount of times per Stage reset)";
+        text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
-        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the 'Inflation' tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements based on self-made Universes)";
+        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements based on self-made Universes)";
+    } else if (event === 10) {
+        if (!replay) {
+            visualTrueStageUnlocks();
+            switchTab();
+        }
+        text = "Now that there was even more matter to rearrange ‒ the 'Supervoid' was formed. Check it out by clicking on the Void name in the 'Advanced' subtab.\n(Also unlocked 2 new Inflations, Supervoid unlocks are kept through Universe reset)";
+    } else if (event === 11) {
+        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, which had unlocked a new Challenge ‒ 'Vacuum stability'";
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
     return void Alert(text);
@@ -995,7 +995,7 @@ const buildBigWindow = (subWindow: string): null | HTMLElement => {
         getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
         specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
             #bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
-            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; }`;
+            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; } `;
     }
 
     if (getId(subWindow, true) !== null) { return null; }
@@ -1010,7 +1010,7 @@ const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTML
     const windowHMTL = getId('bigWindow');
     if (firstTargetHTML === null) { firstTargetHTML = closeButton; }
     const key = (event: KeyboardEvent) => {
-        if (specialHTML.alert[0] !== null || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+        if (specialHTML.alert[0] !== null || detectShift(event) !== false) { return; }
         const code = event.code;
         if (firstTargetHTML === closeButton ? (code === 'Escape' || code === 'Enter' || code === 'Space') :
             ((!global.hotkeys.disabled && code === 'Escape') || ((code === 'Enter' || code === 'Space') && document.activeElement === closeButton))) {
@@ -1036,35 +1036,36 @@ export const openVersionInfo = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
-        <h6>v0.2.3</h6><p>- Small amount of new content\n- Supervoid rework\n- Abyss small rebalance</p>
+        mainHTML.innerHTML = `<h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones\n<a href="https://docs.google.com/document/d/1O8Zz1f7Ez2HsfTVAxG_V2t9-yC77-mJuEru15HeDy0U/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>
+        <h6>v0.2.3</h6><p>- Supervoid rework\n- Abyss small rebalance</p>
         <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Better Offline calculation and more options related to it\n- Entering Void now saves the game to load it after exiting</p>
         <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
         <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
         <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Warp and Offline time usage reworked</p>
-        <h6>v0.1.8</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Added copy to clipboard, load from string save file options</p>
+        <h6>v0.1.8</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Copy to the clipboard, load from string save file options</p>
         <h6>v0.1.7</h6><p>- New content (Void)\n- Further balance changes</p>
         <h6>v0.1.6</h6><p>- Massive rebalance and reworks for all Stages</p>
         <h6>v0.1.5</h6><p>- True Vacuum minor balance\n- Images no longer unload\n- Screen reader support reworked</p>
         <h6>v0.1.4</h6><p>- Custom scrolls\n- Notifications</p>
         <h6>v0.1.3</h6><p>- True Vacuum balance changes\n- Submerged Stage minor balance\n- Replay event button\n\n- History for Stage resets</p>
-        <h6>v0.1.2</h6><p>- New content (Vacuum)\n- Offline time reworked\n- Added version window (removed change log on game load)\n- Permanently removed text movement</p>
+        <h6>v0.1.2</h6><p>- New content (Vacuum)\n- Offline time reworked\n- Version window\n- Permanently removed text movement</p>
         <h6>v0.1.1</h6><p>- More balance changes for late game</p>
         <h6>v0.1.0</h6><p>- New content (Intergalactic)\n- Balance changes for late game</p>
         <h6>v0.0.9</h6><p>- New content (Milestones)\n- More Interstellar and late game balance</p>
         <h6>v0.0.8</h6><p>- Minor speed up to all Stages past Microworld</p>
-        <h6>v0.0.7</h6><p>- New content (Strangeness)\n- Microworld Stage rework\n\n- Added stats for Save file name</p>
-        <h6>v0.0.6</h6><p>- Added hotkeys list\n\n- Option to remove text movement\n- Ability to rename save file</p>
+        <h6>v0.0.7</h6><p>- New content (Strangeness)\n- Microworld Stage rework\n\n- Stats for the Save file name</p>
+        <h6>v0.0.6</h6><p>- Added hotkeys list\n\n- Option to remove text movement\n- Ability to rename the save file</p>
         <h6>v0.0.5</h6><p>- New content (Interstellar)\n- Basic loading screen\n\n- Added hotkeys</p>
-        <h6>v0.0.4</h6><p>- Speed up to all Stages\n- Added events\n\n- Added numbers format</p>
+        <h6>v0.0.4</h6><p>- Speed up to all Stages\n- Basic events\n\n- Added numbers format</p>
         <h6>v0.0.3</h6><p>- New content (Accretion)\n- Submerged Stage extended\n- Offline time calculated better</p>
         <h6>v0.0.2</h6><p>- Stats subtab</p>
-        <h6>v0.0.1</h6><p>- Submerged Stage rework\n- Added change log on game load\n\n- Mobile device support</p>
+        <h6>v0.0.1</h6><p>- Submerged Stage rework\n\n- Mobile device support</p>
         <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
         mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += `#versionHTML h6 { font-size: 1.18em; }
             #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; }
-            #versionHTML p:last-of-type { margin-bottom: 0; }`;
+            #versionHTML p:last-of-type { margin-bottom: 0; } `;
     }
 
     specialHTML.bigWindow = 'version';
@@ -1076,8 +1077,9 @@ export const openHotkeys = () => {
     const mainHTML = buildBigWindow('hotkeysHTML');
     if (mainHTML !== null) {
         mainHTML.innerHTML = `<h3 id="hotkeysMessage" class="bigWord" aria-live="assertive">Some hotkeys can be changed by clicking on them</h3>
-        ${globalSave.MDSettings[0] ? `<p>Swipe Left or Right ‒ <span class="whiteText">change current tab</span></p>
-        <p>Swipe Down or Up ‒ <span class="whiteText">change current subtab</span></p>` : ''}
+        ${globalSave.MDSettings[0] ? `<p>Left or Right swipe ‒ <span class="whiteText">change current tab</span></p>
+        <p>Diagonal Down or Up swipe ‒ <span class="whiteText">change current subtab</span></p>
+        <p id="stageSwipe">Long Left or Right swipe ‒ <span class="whiteText">change current active Stage</span></p>` : ''}
         <label id="tabRightHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change tab to the next one</span></label>
         <label id="tabLeftHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change tab to the previous one</span></label>
         <label id="subtabUpHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change subtab to the next one</span></label>
@@ -1112,7 +1114,7 @@ export const openHotkeys = () => {
         getId('hotkeysToggleLabel').append(toggle);
         specialHTML.styleSheet.textContent += `#hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
             #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; }
-            #hotkeysHTML > div label { justify-self: center; width: max-content; }`;
+            #hotkeysHTML > div label { justify-self: center; width: max-content; } `;
 
         const changeHotkey = async(disableFirstUp = false): Promise<string[] | null> => {
             return await new Promise((resolve) => {
@@ -1207,8 +1209,8 @@ export const openLog = () => {
         specialHTML.styleSheet.textContent += `#logHTML { display: flex; flex-direction: column; }
             #logMain { display: flex; flex-direction: column; text-align: start; border-top: 2px solid; border-bottom: 2px solid; height: 100%; padding: 0.2em 0.4em; margin-top: 0.4em; overflow-y: scroll; overscroll-behavior-y: none; }
             #logMain > li { list-style: inside "‒ "; }
-            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change order */
-            #logMain.bottom > li:first-of-type { margin-bottom: auto; }`;
+            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change the order */
+            #logMain.bottom > li:first-of-type { margin-bottom: auto; } `;
         getId('logOrder').addEventListener('click', () => {
             const bottom = getId('logMain').classList.toggle('bottom');
             getId('logOrder').textContent = `Entries on ${bottom ? 'bottom' : 'top'} are newer`;
