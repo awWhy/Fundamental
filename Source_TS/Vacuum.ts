@@ -13,6 +13,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
     const milestone1S1 = getQuery('#milestone1Stage1Div > img') as HTMLImageElement;
     const milestone1S2 = getQuery('#milestone1Stage2Div > img') as HTMLImageElement;
     const milestone2S2 = getQuery('#milestone2Stage2Div > img') as HTMLImageElement;
+    const milestone1S3 = getQuery('#milestone1Stage3Div > img') as HTMLImageElement;
     const milestone1S4 = getQuery('#milestone1Stage4Div > img') as HTMLImageElement;
     let upgrades1Cost, researches1Cost, researches1Scaling, strangeness1Cost, strangeness1Scaling, strangeness2Cost, strangeness2Scaling, strangeness3Cost, strangeness3Scaling, strangeness4Cost, strangeness4Scaling, strangeness5Cost, strangeness5Scaling;
 
@@ -84,16 +85,16 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangenessInfo[5].maxActive = 11;
 
         getId('milestonesExtra').innerHTML = 'Requires <span class="darkvioletText">\'Void Milestones\'</span> Inflation to be active to enable effects';
-        milestone1S1.src = milestone1S1.src.replace('Quarks.png', 'Preon.png');
+        milestone1S1.src = 'Used_art/Preon.png';
         global.milestonesInfo[2].name[0] = 'Distant Clouds';
         getQuery('#milestone1Stage2Main > span').textContent = 'Distant Clouds';
-        milestone1S2.src = milestone1S2.src.replace('Drop.png', 'Clouds.png');
+        milestone1S2.src = 'Used_art/Clouds.png';
         milestone1S2.alt = 'Distant Clouds';
-        milestone2S2.src = milestone2S2.src.replace('Puddle.png', 'Drop.png');
-        (getQuery('#milestone1Stage3Div > img') as HTMLImageElement).alt = 'Center of gravity';
+        milestone2S2.src = 'Used_art/Drop.png';
+        milestone1S3.alt = 'Center of gravity';
         global.milestonesInfo[3].name[0] = 'Center of gravity';
         getQuery('#milestone1Stage3Main > span').textContent = 'Center of gravity';
-        milestone1S4.src = milestone1S4.src.replace('Main_sequence%20mass.png', 'Black%20hole.png');
+        milestone1S4.src = 'Used_art/Black%20hole.png';
         getId('mergeResetText').innerHTML = '<span class="darkvioletText">Merge</span> does a <span class="grayText">Galaxy</span> reset, while also converting all self-made <span class="grayText">Galaxies</span> into bonus ones.';
         getQuery('#stageAutoInterstellar span').textContent = 'Stage';
         getQuery('#stageHistory > h3').textContent = 'Stage resets:';
@@ -192,16 +193,16 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangenessInfo[5].maxActive = 10;
 
         getId('milestonesExtra').innerHTML = 'Completing any tier will award 1 <span class="greenText">Strange quark</span>';
-        milestone1S1.src = milestone1S1.src.replace('Preon.png', 'Quarks.png');
+        milestone1S1.src = 'Used_art/Quarks.png';
         global.milestonesInfo[2].name[0] = 'A Nebula of Drops';
         getQuery('#milestone1Stage2Main > span').textContent = 'A Nebula of Drops';
-        milestone1S2.src = milestone1S2.src.replace('Clouds.png', 'Drop.png');
+        milestone1S2.src = 'Used_art/Drop.png';
         milestone1S2.alt = 'A Nebula of Drops';
-        milestone2S2.src = milestone2S2.src.replace('Drop.png', 'Puddle.png');
-        (getQuery('#milestone1Stage3Div > img') as HTMLImageElement).alt = 'Cluster of Mass';
+        milestone2S2.src = 'Used_art/Puddle.png';
+        milestone1S3.alt = 'Cluster of Mass';
         global.milestonesInfo[3].name[0] = 'Cluster of Mass';
         getQuery('#milestone1Stage3Main > span').textContent = 'Cluster of Mass';
-        milestone1S4.src = milestone1S4.src.replace('Black%20hole.png', 'Main_sequence%20mass.png');
+        milestone1S4.src = 'Used_art/Main_sequence%20mass.png';
         getId('mergeResetText').innerHTML = 'Attempt to <span class="darkvioletText">Merge</span> <span class="grayText">Galaxies</span> together, which will result in <span class="orchidText">Vacuum</span> decaying into its true state.';
         getQuery('#stageAutoInterstellar span').textContent = 'Interstellar Stage';
         getQuery('#stageHistory > h3').textContent = 'Interstellar Stage resets:';

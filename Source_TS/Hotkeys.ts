@@ -6,7 +6,7 @@ import { buyAll, pauseGameUser } from './Main';
 import { SRHotkeysInfo, globalSave, specialHTML } from './Special';
 import type { hotkeysList } from './Types';
 
-export const hotkeys = {} as Record<string, hotkeysList>;
+const hotkeys = {} as Record<string, hotkeysList>;
 const hotkeyFunction = {
     makeAll: () => buyAll(),
     stage: (event) => {
@@ -70,9 +70,9 @@ export const assignHotkeys = () => {
     const index = globalSave.toggles[0] ? 0 : 1;
     for (const key in globalSave.hotkeys) {
         const hotkey = globalSave.hotkeys[key as hotkeysList][index];
-        if (hotkey === '' || hotkey == null) { continue; }
+        if (hotkey === 'None') { continue; }
         if (hotkeys[hotkey] !== undefined) {
-            globalSave.hotkeys[key as hotkeysList] = [];
+            globalSave.hotkeys[key as hotkeysList] = ['None', 'None'];
         } else { hotkeys[hotkey] = key as hotkeysList; }
     }
     if (globalSave.SRSettings[0]) { SRHotkeysInfo(); }
@@ -82,7 +82,7 @@ export const assignHotkeys = () => {
 export const removeHotkey = (remove: string): string | null => {
     const test = hotkeys[remove];
     if (test === undefined) { return null; }
-    globalSave.hotkeys[test] = [];
+    globalSave.hotkeys[test] = ['None', 'None'];
     return test;
 };
 
@@ -134,8 +134,8 @@ export const detectHotkey = (check: KeyboardEvent) => {
         if (shiftKey) { name += 'Shift '; }
         if (check.altKey) { name += 'Alt '; }
         name += globalSave.toggles[0] ?
-            (key.length === 1 ? key.toUpperCase() : key.replace('Arrow', 'Arrow ')) :
-            (key.length === 1 ? code.replace('Key', '') : code.replace('Arrow', 'Arrow '));
+            (key.length === 1 ? key.toUpperCase() : key.replaceAll(/([A-Z]+)/g, ' $1').trimStart()) :
+            (key.length === 1 ? code.replace('Key', '') : code.replaceAll(/([A-Z]+)/g, ' $1').trimStart());
         const functionTest = hotkeyFunction[hotkeys[name]];
         if (functionTest !== undefined) {
             functionTest(check);

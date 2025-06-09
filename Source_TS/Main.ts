@@ -480,10 +480,10 @@ export const buyAll = () => {
 };
 
 export const updateCollapsePointsText = () => {
-    const array = [];
     const points = player.collapse.points;
+    const array = new Array(points.length);
     for (let i = 0; i < points.length; i++) {
-        array.push(format(points[i], { type: 'input' }));
+        array[i] = format(points[i], { type: 'input' });
     }
     getId('collapsePoints').textContent = array.length > 0 ? `${array.join(', ')} or ` : '';
 };
@@ -568,7 +568,7 @@ try { //Start everything
             Object.assign(globalSave, JSON.parse(atob(globalSettings)));
             const decoder = new TextDecoder();
             for (const key in globalSave.hotkeys) { //Restore decoded data
-                const array = globalSave.hotkeys[key as hotkeysList] as string[];
+                const array = globalSave.hotkeys[key as hotkeysList];
                 for (let i = 0; i < array.length; i++) {
                     array[i] = decoder.decode(Uint8Array.from(array[i], (c) => c.codePointAt(0) as number));
                 }
@@ -814,12 +814,8 @@ try { //Start everything
         if (globalSave.SRSettings[2]) { primaryIndex(); }
     } else {
         const index = globalSave.toggles[0] ? 0 : 1;
-        const list = [globalSave.hotkeys.tabLeft[index], globalSave.hotkeys.tabRight[index], globalSave.hotkeys.subtabDown[index], globalSave.hotkeys.subtabUp[index]];
-        for (let i = 0; i < list.length; i++) {
-            if (list[i] == null || list[i] === '') { list[i] = 'None'; }
-        }
-        getQuery('#SRMessage1 span').textContent = `${list[0]} and ${list[1]}`;
-        getQuery('#SRMessage1 span:last-of-type').textContent = `${list[2]} and ${list[3]}`;
+        getQuery('#SRMessage1 span').textContent = `${globalSave.hotkeys.tabLeft[index]} and ${globalSave.hotkeys.tabRight[index]}`;
+        getQuery('#SRMessage1 span:last-of-type').textContent = `${globalSave.hotkeys.subtabDown[index]} and ${globalSave.hotkeys.subtabUp[index]}`;
     }
 
     let oldVersion = player.version;
@@ -883,10 +879,7 @@ try { //Start everything
             if (i === 0) {
                 assignHotkeys();
                 const index = globalSave.toggles[0] ? 0 : 1;
-                for (const key in globalSaveStart.hotkeys) {
-                    const hotkeyTest = globalSave.hotkeys[key as hotkeysList][index];
-                    getQuery(`#${key}Hotkey > button`).textContent = hotkeyTest == null || hotkeyTest === '' ? 'None' : hotkeyTest;
-                }
+                for (const key in globalSaveStart.hotkeys) { getQuery(`#${key}Hotkey > button`).textContent = globalSave.hotkeys[key as hotkeysList][index]; }
             } else if (i === 2) {
                 document.body.classList[globalSave.toggles[2] ? 'remove' : 'add']('noTextSelection');
             } else if (i === 4) {

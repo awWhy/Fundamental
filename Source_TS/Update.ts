@@ -613,15 +613,16 @@ export const visualUpdate = () => {
         updateLog();
     } else if (specialHTML.bigWindow === 'hotkeys') {
         if (highest < 7) {
-            if (highest < 2) {
-                getId('stageHotkey').style.display = player.upgrades[1][9] === 1 ? '' : 'none';
-                getId('dischargeHotkey').style.display = player.upgrades[1][5] === 1 ? '' : 'none';
-            }
-            if (highest < 3) { getId('vaporizationHotkey').style.display = player.upgrades[2][2] === 1 ? '' : 'none'; }
-            if (highest < 5) { getId('collapseHotkey').style.display = player.upgrades[4][0] === 1 ? '' : 'none'; }
-            if (highest < 6) { getId('galaxyHotkey').style.display = player.milestones[4][1] >= 8 ? '' : 'none'; }
-            getId('exitChallengeHotkey').style.display = highest >= 6 && player.stage.resets >= 1 ? '' : 'none';
-            getId('mergeHotkey').style.display = player.upgrades[5][3] === 1 ? '' : 'none';
+            const showAll = player.stage.resets >= (vacuum ? 1 : 4);
+            getId('dischargeHotkey').style.display = showAll || player.upgrades[1][5] === 1 ? '' : 'none';
+            getId('vaporizationHotkey').style.display = showAll || player.upgrades[2][2] === 1 ? '' : 'none';
+            getId('rankHotkey').style.display = showAll || global.stageInfo.activeAll.includes(3) ? '' : 'none';
+            getId('collapseHotkey').style.display = showAll || player.upgrades[4][0] === 1 ? '' : 'none';
+            getId('galaxyHotkey').style.display = (vacuum ? player.strangeness[5][3] >= 1 : player.milestones[4][1] >= 8) ? '' : 'none';
+            getId('mergeHotkey').style.display = highest === 6 && (player.event || player.upgrades[5][3] === 1) ? '' : 'none';
+            getId('universeHotkey').style.display = highest === 6 && player.event ? '' : 'none';
+            getId('stageHotkey').style.display = player.stage.resets >= 1 || (vacuum ? player.elements[26] >= 1 : player.upgrades[1][9] === 1) ? '' : 'none';
+            getId('exitChallengeHotkey').style.display = highest === 6 && player.stage.resets >= 1 ? '' : 'none';
         }
     }
     if (globalSave.MDSettings[0]) {
@@ -1032,17 +1033,17 @@ export const visualUpdate = () => {
             getId('toggleAuto9').style.display = showAuto5 ? '' : 'none';
             getId(vacuum ? 'toggleAuto9Main' : 'mergeToggleReset').style.display = showAuto5 ? '' : 'none';
             if (highest < 7) {
-                if (highest < 2) { getId('resetToggles').style.display = player.upgrades[1][5] === 1 ? '' : 'none'; }
-                if (highest < 3) { getId('vaporizationToggleReset').style.display = player.upgrades[2][2] === 1 ? '' : 'none'; }
-                if (highest < 5) {
-                    getId('collapseToggleReset').style.display = player.upgrades[4][0] === 1 ? '' : 'none';
-                    getId('elementsAsTab').style.display = player.upgrades[4][1] === 1 ? '' : 'none';
-                }
+                if (highest < 5) { getId('elementsAsTab').style.display = player.upgrades[4][1] === 1 ? '' : 'none'; }
                 if (highest < 6) { getId('saveFileNameGalaxy').style.display = player.milestones[4][1] >= 8 ? '' : 'none'; }
+                const showAll = player.stage.resets >= (vacuum ? 1 : 4);
+                getId('resetToggles').style.display = showAll || player.upgrades[1][5] === 1 ? '' : 'none';
+                getId('vaporizationToggleReset').style.display = showAll || player.upgrades[2][2] === 1 ? '' : 'none';
+                getId('rankToggleReset').style.display = showAll || global.stageInfo.activeAll.includes(3) ? '' : 'none';
+                getId('collapseToggleReset').style.display = showAll || player.upgrades[4][0] === 1 ? '' : 'none';
+                getId('mergeToggleReset').style.display = highest === 6 && (player.event || player.upgrades[5][3] === 1) ? '' : 'none';
                 getId('stageToggleReset').style.display = player.stage.resets >= 1 || (vacuum ? player.elements[26] >= 1 : player.upgrades[1][9] === 1) ? '' : 'none';
                 getId('vaporizationExtra').style.display = player.challenges.void[4] >= 1 ? '' : 'none';
                 getId('exportReward').style.display = player.strange[0].total > 0 ? '' : 'none';
-                getId('mergeToggleReset').style.display = vacuum && player.upgrades[5][3] === 1 ? '' : 'none';
             }
         } else if (subtab.settingsCurrent === 'History') {
             updateStageHistory();
@@ -1146,7 +1147,6 @@ export const visualTrueStageUnlocks = () => {
     getId('vacuumHistory').style.display = highest >= 7 ? '' : 'none';
     if (highest >= 2) {
         getId('toggleBuilding0').style.display = '';
-        getId('resetToggles').style.display = '';
         getId('maxEnergyStat').style.display = '';
         getId('upgradeTabBtn').style.display = '';
     }
@@ -1154,7 +1154,6 @@ export const visualTrueStageUnlocks = () => {
         getId('elementsAsTab').style.display = '';
     }
     if (highest >= 6) {
-        getId('dischargeToggleReset').style.display = '';
         getId('saveFileNameGalaxy').style.display = '';
         for (let s = 2; s <= 4; s++) {
             getId(`strangeness${globalSave.MDSettings[0] ? 'Page' : 'Section'}${s}`).style.display = '';
@@ -1169,10 +1168,11 @@ export const visualTrueStageUnlocks = () => {
         getId('challenge1').style.display = '';
         getId('researches').style.display = '';
         getId('vaporizationExtra').style.display = '';
-        getId('stageToggleReset').style.display = '';
+        getId('resetToggles').style.display = '';
         getId('vaporizationToggleReset').style.display = '';
         getId('rankToggleReset').style.display = '';
         getId('collapseToggleReset').style.display = '';
+        getId('stageToggleReset').style.display = '';
         getId('strangenessTabBtn').style.display = '';
         getId('stageResets').style.display = '';
         getId('exportReward').style.display = '';
@@ -1188,8 +1188,17 @@ export const visualTrueStageUnlocks = () => {
         getId('stageRightHotkey').style.display = highest >= 5 ? '' : 'none';
         getId('stageLeftHotkey').style.display = highest >= 5 ? '' : 'none';
         if (globalSave.MDSettings[0]) { getId('stageSwipe').style.display = highest >= 5 ? '' : 'none'; }
-        if (highest >= 2) { getId('stageHotkey').style.display = ''; }
-        if (highest >= 7) { getId('exitChallengeHotkey').style.display = ''; }
+        if (highest >= 7) {
+            getId('stageHotkey').style.display = '';
+            getId('dischargeHotkey').style.display = '';
+            getId('vaporizationHotkey').style.display = '';
+            getId('rankHotkey').style.display = '';
+            getId('collapseHotkey').style.display = '';
+            getId('galaxyHotkey').style.display = '';
+            getId('mergeHotkey').style.display = '';
+            getId('universeHotkey').style.display = '';
+            getId('exitChallengeHotkey').style.display = '';
+        }
     }
 };
 
@@ -1356,7 +1365,7 @@ export const getStrangenessDescription = (index: number | null, stageIndex: numb
             if (player.inflation.vacuum) {
                 const isActive = player.challenges.active === 0 && player.tree[0][4] >= 1;
                 text = `<p class="orchidText">Requirement: <span class="greenText">${pointer.needText[index]()}</span></p>
-                <p class="blueText">Time limit: <span class="greenText">${format(global.challengesInfo[0].time - (isActive ? player.time[player.challenges.super ? 'vacuum' : 'stage'] : 0), { type: 'time' })} ${isActive ? 'remains ' : ''}to increase this tier within ${player.challenges.super ? 'Supervoid' : 'Void'}.</span></p>
+                <p class="blueText">Time limit: <span class="greenText">${format(global.challengesInfo[0].time - (isActive ? player.time[player.challenges.super ? 'vacuum' : 'stage'] : 0), { type: 'time' })} ${isActive ? 'remains ' : ''}to increase this tier within Void.</span></p>
                 <p class="darkvioletText">Effect: <span class="greenText">${pointer.rewardText[index]()}</span>${player.tree[0][4] < 1 ? ' <span class="redText">(Disabled)</span>' : ''}</p>`;
             } else if (level < pointer.scaling[index].length) {
                 const isActive = global.stageInfo.activeAll.includes(Math.min(stageIndex, 4));
@@ -1679,12 +1688,12 @@ const updateLog = () => {
         children[0].remove();
     }
 
-    const prepend = [];
+    const prepend = new Array(add.length);
     const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: 'medium' }).format;
     for (let i = add.length - 1; i >= 0; i--) {
         const li = document.createElement('li');
         li.innerHTML = `<span class="whiteText">${timeFormat(new Date(add[i][2]))}</span> ‒ <span class="whiteText">${add[i][0]}</span>${add[i][1] > 1 ? ` | x${add[i][1]}` : ''}`;
-        prepend.push(li);
+        prepend[i] = li;
     }
     const last = add[add.length - 1];
     lastHTML[0] = last[0];
@@ -1858,11 +1867,6 @@ export const stageUpdate = (changed = true, offline = false) => {
 
     if (highest < 7) {
         getId('stageSelect').style.display = activeAll.length > 1 ? '' : 'none';
-        const showAll = vacuum && player.stage.resets >= 1;
-        if (highest < 6) { getId('dischargeToggleReset').style.display = activeAll.includes(1) ? '' : 'none'; }
-        getId('vaporizationToggleReset').style.display = showAll || activeAll.includes(2) ? '' : 'none';
-        getId('rankToggleReset').style.display = showAll || activeAll.includes(3) ? '' : 'none';
-        getId('collapseToggleReset').style.display = showAll || activeAll.includes(4) ? '' : 'none';
         getId('strangenessTabBtn').style.display = player.strange[0].total > 0 || (vacuum && current >= 5) ? '' : 'none';
         getId('inflationTabBtn').style.display = 'none';
         if (changed) {

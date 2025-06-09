@@ -1545,6 +1545,7 @@ export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
 { //Final preparations for global and player
     /** Does not clone given value */
     const createArray = <startValue extends number | string | boolean | null | undefined>(length: number, value: startValue) => {
+        //Doing 'new Array(length)' is faster, but will force out array to be holey type (and using .fill will make it slower)
         const array = [];
         for (let i = 0; i < length; i++) { array.push(value); }
         return array as startValue[];
@@ -1922,8 +1923,8 @@ export const updatePlayer = (load: playerType): string => {
     (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate';
     loadoutsLoadAuto();
 
-    switchTab();
     visualTrueStageUnlocks();
+    switchTab(); //Order matters
     (getId('saveFileNameInput') as HTMLInputElement).value = player.fileName;
     (getId('stageInput') as HTMLInputElement).value = format(player.stage.input[0], { type: 'input' });
     (getId('stageInputTime') as HTMLInputElement).value = format(player.stage.input[1], { type: 'input' });

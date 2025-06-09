@@ -31,7 +31,7 @@ jobs:
       - name: Move into a folder
         run: | # Please, I don't know anymore
           mkdir -p please
-          mv index.html Style.css Used_art Fonts Code.js Code.js.map LICENSE please/
+          mv index.html Style.css Style_Phone.css Style_PhoneMini.css Used_art Fonts Code.js Code.js.map LICENSE please/
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4

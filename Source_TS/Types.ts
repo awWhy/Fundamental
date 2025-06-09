@@ -444,7 +444,7 @@ export interface globalSaveType {
         autoSave: number
     }
     /** hotkeyFunction: [key, code] */
-    hotkeys: Record<hotkeysList, Array<string | undefined>>
+    hotkeys: Record<hotkeysList, string[]>
     /** Hotkeys type[0], Elements as tab[1], Allow text selection[2], Footer on top[3], Hide global stats[4] */
     toggles: boolean[]
     /** Point[0], Separator[1] */

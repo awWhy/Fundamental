@@ -416,10 +416,10 @@ export const cloneBeforeReset = (depth: 'stage' | 'vacuum') => {
     if (depth !== 'stage') {
         clone.strange = [];
         for (let i = 0; i < player.strange.length; i++) {
-            clone.strange[i] = {
+            clone.strange.push({
                 current: player.strange[i].current,
                 total: player.strange[i].total
-            };
+            });
         }
         clone.history = {
             stage: {
