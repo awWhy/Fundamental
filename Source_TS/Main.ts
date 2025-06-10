@@ -1,6 +1,6 @@
 import { player, global, playerStart, updatePlayer, deepClone, cloneArray } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallenge0Reward, getChallenge1Reward, stageUpdate, getStrangenessDescription, addIntoLog } from './Update';
-import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, calculateEffects, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
+import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, calculateEffects, collapseResetUser, dischargeResetUser, enterExitChallengeUser, inflationRefund, loadoutsLoadAuto, mergeResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleConfirm, toggleSupervoid, toggleSwap, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog, errorNotify } from './Special';
 import { assignHotkeys, detectHotkey, detectShift, handleTouchHotkeys } from './Hotkeys';
 import { prepareVacuum } from './Vacuum';
@@ -72,9 +72,12 @@ export const simulateOffline = async(offline: number) => {
     if (decline || offline < 20) {
         if (offline < 0) { player.time.offline = offline - 20; }
         timeUpdate(20, 20); //Just in case
-        return offlineEnd(true);
+        pauseGame(false);
+        visualUpdate();
+        numbersUpdate();
+        return;
     } else if (offline > 43200_000) { offline = 43200_000; }
-    global.offline.stageUpdate = null;
+    global.offline.stage = [null, null, null];
     global.offline.speed = globalSave.intervals.offline;
     global.offline.start = offline;
 
@@ -109,17 +112,20 @@ const calculateOffline = (warpTime: number) => {
         offlineEnd();
     }
 };
-const offlineEnd = (early = false) => {
-    if (global.offline.stageUpdate !== null) {
-        stageUpdate(global.offline.stageUpdate);
+const offlineEnd = () => {
+    pauseGame(false);
+    const offline = global.offline;
+    if (offline.stage[0] !== null) {
+        if (offline.stage[1] !== null) { player.stage.active = offline.stage[1]; }
+        setActiveStage(offline.stage[0]);
+    }
+    if (offline.stage[2] !== null) {
+        stageUpdate(offline.stage[2]);
     } else {
         visualUpdate();
         numbersUpdate();
     }
-    pauseGame(false);
-    if (early) { return; } //Just in case?
     getId('offlineMain').style.display = 'none';
-
     getId('offlineAccelerate').removeEventListener('click', offlineAccelerate);
     getId('offlineCancel').removeEventListener('click', offlineCancel);
     document.body.removeEventListener('keydown', offlineKey);
@@ -228,7 +234,7 @@ const loadGame = (save: string) => {
 
         global.lastSave = handleOfflineTime();
         Notify(`This save is ${format(global.lastSave / 1000, { type: 'time', padding: false })} old${versionCheck !== player.version ? `\nSave file version is ${versionCheck}` : ''}`);
-        stageUpdate();
+        stageUpdate(true, true);
 
         void simulateOffline(global.lastSave);
     } catch (error) {
@@ -1003,12 +1009,12 @@ try { //Start everything
         numbersUpdate();
     });
     getId('autoWaitInput').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('autoWaitInput') as HTMLInputElement;
-        let value = Math.max(Number(input.value), 1);
-        if (isNaN(value)) { value = 2; }
-        player.toggles.shop.wait[player.stage.active] = value;
-        input.value = format(value, { type: 'input' });
+        if (!global.offline.active) {
+            const value = Math.max(Number(input.value), 1);
+            player.toggles.shop.wait[player.stage.active] = isNaN(value) ? value : 2;
+        }
+        input.value = format(player.toggles.shop.wait[player.stage.active], { type: 'input' });
     });
 
     for (let i = 0; i < global.challengesInfo.length; i++) {
@@ -1364,76 +1370,66 @@ try { //Start everything
 
     /* Settings tab */
     getId('vaporizationInput').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('vaporizationInput') as HTMLInputElement;
-        player.vaporization.input[0] = Math.max(Number(input.value), 0);
+        if (!global.offline.active) { player.vaporization.input[0] = Math.max(Number(input.value), 0); }
         input.value = format(player.vaporization.input[0], { type: 'input' });
     });
     getId('vaporizationInputMax').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('vaporizationInputMax') as HTMLInputElement;
-        player.vaporization.input[1] = Math.max(Number(input.value), 0);
+        if (!global.offline.active) { player.vaporization.input[1] = Math.max(Number(input.value), 0); }
         input.value = format(player.vaporization.input[1], { type: 'input' });
     });
     getId('collapseInput').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('collapseInput') as HTMLInputElement;
-        player.collapse.input[0] = Math.max(Number(input.value), 1);
+        if (!global.offline.active) { player.collapse.input[0] = Math.max(Number(input.value), 1); }
         input.value = format(player.collapse.input[0], { type: 'input' });
     });
     getId('collapseInputWait').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('collapseInputWait') as HTMLInputElement;
-        player.collapse.input[1] = Number(input.value);
+        if (!global.offline.active) { player.collapse.input[1] = Number(input.value); }
         input.value = format(player.collapse.input[1], { type: 'input' });
     });
     getId('collapseAddNewPoint').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('collapseAddNewPoint') as HTMLInputElement;
         const value = Number(input.value);
-        const points = player.collapse.points;
+        input.value = '';
+        if (global.offline.active) { return; }
         if (isFinite(value)) {
             if (value === 0) {
-                points.length = 0;
-            } else if (value > 0) {
-                if (!points.includes(value)) {
+                player.collapse.points = [];
+            } else {
+                const points = player.collapse.points;
+                const index = points.indexOf(Math.abs(value));
+                if (value > 0 && index === -1) {
                     points.push(value);
                     points.sort((a, b) => a - b);
-                }
-            } else {
-                const index = points.indexOf(Math.abs(value));
-                if (index >= 0) {
+                } else if (value < 0 && index !== -1) {
                     points.splice(index, 1);
                     points.sort((a, b) => a - b);
                 }
             }
         }
-        input.value = '';
         global.collapseInfo.pointsLoop = 0;
         updateCollapsePointsText();
     });
     getId('mergeInput').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('mergeInput') as HTMLInputElement;
-        player.merge.input[0] = Math.max(Math.trunc(Number(input.value)), 0);
+        if (!global.offline.active) { player.merge.input[0] = Math.max(Math.trunc(Number(input.value)), 0); }
         input.value = format(player.merge.input[0], { type: 'input' });
     });
     getId('mergeInputSince').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('mergeInputSince') as HTMLInputElement;
-        player.merge.input[1] = Number(input.value);
+        if (!global.offline.active) { player.merge.input[1] = Number(input.value); }
         input.value = format(player.merge.input[1], { type: 'input' });
     });
     getId('stageInput').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('stageInput') as HTMLInputElement;
-        player.stage.input[0] = Math.max(Number(input.value), 0);
+        if (!global.offline.active) { player.stage.input[0] = Math.max(Number(input.value), 0); }
         input.value = format(player.stage.input[0], { type: 'input' });
     });
     getId('stageInputTime').addEventListener('change', () => {
-        if (global.offline.active) { return; }
         const input = getId('stageInputTime') as HTMLInputElement;
-        player.stage.input[1] = Math.max(Number(input.value), 0);
+        if (!global.offline.active) { player.stage.input[1] = Math.max(Number(input.value), 0); }
         input.value = format(player.stage.input[1], { type: 'input' });
     });
     getId('versionButton').addEventListener('click', openVersionInfo);
@@ -1595,7 +1591,7 @@ try { //Start everything
 
     /* Post */
     document.head.append(specialHTML.styleSheet);
-    stageUpdate();
+    stageUpdate(true, true);
     if (globalSave.theme !== null) {
         getId('currentTheme').textContent = global.stageInfo.word[globalSave.theme];
         getId(`switchTheme${globalSave.theme}`).style.textDecoration = 'underline';

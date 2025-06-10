@@ -1339,7 +1339,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                             }
                         }
                     }
-                    stageUpdate(update, true);
+                    stageUpdate(update);
                     awardVoidReward(1);
                 }
             } else if (stageIndex === 2) {
@@ -1434,7 +1434,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                         global.trueActive = 5;
                     }
                 }
-                stageUpdate(update, true);
+                stageUpdate(update);
                 assignBuildingsProduction.strange0();
                 awardVoidReward(4);
             } else if (upgrade === 35) {
@@ -1559,7 +1559,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             }
         } else if (stageIndex === 5) {
             if (upgrade === 3) {
-                if (player.inflation.vacuum) { stageUpdate(false, true); }
+                if (player.inflation.vacuum) { stageUpdate(false); }
             } else if (upgrade === 4) {
                 if (player.strangeness[5][5] >= 1) {
                     if (player.clone.depth === 'stage') { player.clone.ASR[5] = global.ASRInfo.max[5]; }
@@ -2201,7 +2201,7 @@ const stageResetReward = (stageIndex: number) => {
                 history.best = [realTime, quarks, strangelets];
             }
         }
-        addIntoLog(`${player.inflation.vacuum ? '' : `${global.stageInfo.word[stageIndex === 5 ? 4 : stageIndex]} `}Stage reset, new Strange quarks are ${format(strange[0].current, { padding: true })}`);
+        addIntoLog(`${player.inflation.vacuum ? '' : `${global.stageInfo.word[stageIndex === 5 ? 4 : stageIndex]} `}Stage reset, new Strange quarks are ${format(strange[0].current, { padding: true })}${stageIndex === 5 ? `\nPeak was ${format(player.stage.peak, { type: 'income' })}, reached at ${format(player.stage.peakedAt, { type: 'time' })}` : ''}`);
     } else { addIntoLog(`${global.stageInfo.word[stageIndex]} Stage ended`); }
 
     stage.resets++;
@@ -2270,9 +2270,15 @@ export const switchStage = (stage: number, active = stage) => {
 
 /** Doesn't check for Stage being unlocked, requires stageUpdate() call afterwards */
 export const setActiveStage = (stage: number, active = stage) => {
-    getId(`stageSwitch${player.stage.active}`).style.textDecoration = '';
+    if (global.offline.active) {
+        if (global.offline.stage[1] === null) { global.offline.stage[1] = player.stage.active; }
+    } else { getId(`stageSwitch${player.stage.active}`).style.textDecoration = ''; }
     player.stage.active = stage;
     global.trueActive = active;
+    if (global.offline.active) {
+        global.offline.stage[0] = stage;
+        return;
+    }
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
 
     if (global.tab === 'inflation') {
@@ -2449,7 +2455,7 @@ const rankReset = () => {
                 global.trueActive = 4;
             }
         }
-        stageUpdate(update, true);
+        stageUpdate(update);
     }
     awardVoidReward(3);
     //global.accretionInfo.effective = calculateEffects.effectiveRank();
@@ -2657,7 +2663,7 @@ const mergeReset = () => {
     calculateMaxLevel(5, 4, 'researches');
     if (player.stage.current < 6) {
         player.stage.current = 6;
-        stageUpdate(false, true);
+        stageUpdate(false);
     }
 };
 
@@ -2728,33 +2734,30 @@ export const assignMilestoneInformation = (index: number, stageIndex: number) =>
     }
 };
 
-const awardMilestone = (index: number, stageIndex: number, count = 0) => {
-    if (!milestoneCheck(index, stageIndex)) {
-        if (count > 0) {
-            const info = global.milestonesInfo[stageIndex];
-            const maxed = !player.inflation.vacuum && player.milestones[stageIndex][index] >= info.scaling[index].length;
-            addIntoLog(`Milestone "${info.name[index]}" new tier completed${maxed ? ', maxed' : ''}`, count);
-            Notify(`Milestone '${info.name[index]}' new tier completed${maxed ? ', maxed' : ''}`, count);
-            if (!player.inflation.vacuum) {
-                player.strange[0].current += count;
-                player.strange[0].total += count;
-                assignBuildingsProduction.strange0();
-                if (stageIndex === 4) {
-                    if (index === 0 && maxed) { calculateMaxLevel(6, 4, 'strangeness', true); }
-                } else if (stageIndex === 5) {
-                    if (index === 0 && maxed) { calculateMaxLevel(6, 5, 'strangeness', true); }
-                }
-            } else if (stageIndex === 3 && index === 1) {
-                global.accretionInfo.effective = calculateEffects.effectiveRank();
-                calculateMaxLevel(0, 3, 'researchesExtra', true);
-            }
-        }
-        return;
-    }
+const awardMilestone = (index: number, stageIndex: number) => {
+    if (!milestoneCheck(index, stageIndex)) { return; }
 
     player.milestones[stageIndex][index]++;
     assignMilestoneInformation(index, stageIndex);
-    awardMilestone(index, stageIndex, count + 1);
+
+    const name = global.milestonesInfo[stageIndex].name[index];
+    const maxed = !player.inflation.vacuum && player.milestones[stageIndex][index] >= global.milestonesInfo[stageIndex].scaling[index].length;
+    addIntoLog(`Milestone "${name}" new tier completed${maxed ? ', Maxed' : ''}`);
+    Notify(`Milestone '${name}' new tier completed${maxed ? ', Maxed' : ''}`);
+    if (!player.inflation.vacuum) {
+        player.strange[0].current++;
+        player.strange[0].total++;
+        assignBuildingsProduction.strange0();
+        if (stageIndex === 4) {
+            if (index === 0 && maxed) { calculateMaxLevel(6, 4, 'strangeness', true); }
+        } else if (stageIndex === 5) {
+            if (index === 0 && maxed) { calculateMaxLevel(6, 5, 'strangeness', true); }
+        }
+    } else if (stageIndex === 3 && index === 1) {
+        global.accretionInfo.effective = calculateEffects.effectiveRank();
+        calculateMaxLevel(0, 3, 'researchesExtra', true);
+    }
+    awardMilestone(index, stageIndex);
 };
 
 /** Also updates related information */

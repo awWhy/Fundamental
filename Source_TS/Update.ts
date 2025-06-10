@@ -1662,18 +1662,18 @@ const updateVacuumHistory = () => {
     global.debug.historyVacuum = player.inflation.resets;
 };
 
-export const addIntoLog = (text: string, count = 1) => {
+export const addIntoLog = (text: string) => {
     const add = global.log.add;
     if (add.length < 1) {
         const lastHTML = global.log.lastHTML;
         if (lastHTML[0] === text) {
-            lastHTML[1] += count;
+            lastHTML[1]++;
             lastHTML[3] = true;
-        } else { add.push([text, count, player.time.updated]); }
+        } else { add.push([text, 1, player.time.stage]); }
     } else if (add[add.length - 1][0] === text) {
-        add[add.length - 1][1] += count;
+        add[add.length - 1][1]++;
     } else {
-        add.push([text, count, player.time.updated]);
+        add.push([text, 1, player.time.stage]);
         if (add.length >= 1000) { add.shift(); }
     }
 };
@@ -1688,19 +1688,21 @@ const updateLog = () => {
         children[0].remove();
     }
 
-    const prepend = new Array(add.length);
-    const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: 'medium' }).format;
-    for (let i = add.length - 1; i >= 0; i--) {
+    const length = add.length;
+    const prepend = new Array(length);
+    for (let i = 0; i < length; i++) {
         const li = document.createElement('li');
-        li.innerHTML = `<span class="whiteText">${timeFormat(new Date(add[i][2]))}</span> ‒ <span class="whiteText">${add[i][0]}</span>${add[i][1] > 1 ? ` | x${add[i][1]}` : ''}`;
-        prepend[i] = li;
+        const hours = Math.min(Math.trunc(add[i][2] / 3600), 99);
+        const minutes = Math.min(Math.trunc(add[i][2] / 60 - hours * 60), 99);
+        li.innerHTML = `<span class="whiteText">${hours !== 0 ? `${`${hours}`.padStart(2, '0')}h` : ''} ${`${minutes}`.padStart(2, '0')}m ${hours === 0 ? `${`${Math.trunc(add[i][2] - hours * 3600 - minutes * 60)}`.padStart(2, '0')}s` : ''}</span> ‒ <span class="whiteText">${add[i][0]}</span>${add[i][1] > 1 ? ` | x${add[i][1]}` : ''}`;
+        prepend[length - 1 - i] = li;
     }
-    const last = add[add.length - 1];
+    const last = add[length - 1];
     lastHTML[0] = last[0];
     lastHTML[1] = last[1];
     lastHTML[2] = last[2];
     lastHTML[3] = false;
-    add.length = 0;
+    global.log.add = [];
     mainHTML.prepend(...prepend);
 
     for (let i = children.length - 1; i >= 1000; i--) { children[i].remove(); }
@@ -1817,8 +1819,7 @@ export const format = (input: number | Overlimit, settings = {} as { type?: 'num
     return extra !== undefined ? `${formated} ${extra}` : formated;
 };
 
-/** @param offline used to return early if game is paused due to calculating offline, requires another call after calculations are done */
-export const stageUpdate = (changed = true, offline = false) => {
+export const stageUpdate = (changed = true, ignoreOffline = false) => {
     const { stageInfo, buildingsInfo } = global;
     const { active, current, true: highest } = player.stage;
     const activeAll = stageInfo.activeAll;
@@ -1840,8 +1841,8 @@ export const stageUpdate = (changed = true, offline = false) => {
         if (current >= 5) { activeAll.push(5); } //player.elements[26] >= 1
     }
     if (highest >= 7 || (player.event && highest === 6)) { activeAll.push(6); }
-    if (offline && global.offline.active) {
-        if (!global.offline.stageUpdate) { global.offline.stageUpdate = changed; }
+    if (global.offline.active && !ignoreOffline) {
+        if (!global.offline.stage[2]) { global.offline.stage[2] = changed; }
         return;
     }
 

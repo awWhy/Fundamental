@@ -195,8 +195,9 @@ export interface globalType {
         active: boolean
         speed: number
         start: number
+        /** [Change into, Stage at the start, Stage update type] */
+        stage: [number | null, number | null, boolean | null]
         cacheUpdate: boolean
-        stageUpdate: null | boolean
     }
     paused: boolean
     log: {

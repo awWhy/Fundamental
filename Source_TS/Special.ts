@@ -743,7 +743,7 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
 };
 
 /** Start will make it behave as if X duplicates have been detected */
-export const Notify = (text: string, start = 1) => {
+export const Notify = (text: string) => {
     const { notifications } = specialHTML;
 
     let index;
@@ -755,7 +755,7 @@ export const Notify = (text: string, start = 1) => {
     }
 
     if (index === undefined) {
-        let count = start;
+        let count = 1;
         let timeout: number;
 
         const html = document.createElement('p');
@@ -1181,9 +1181,8 @@ export const openLog = () => {
         mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += `#logHTML { display: flex; flex-direction: column; }
             #logMain { display: flex; flex-direction: column; text-align: start; border-top: 2px solid; border-bottom: 2px solid; height: 100%; padding: 0.2em 0.4em; margin-top: 0.4em; overflow-y: scroll; overscroll-behavior-y: none; }
-            #logMain > li { list-style: inside "‒ "; }
-            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change the order */
-            #logMain.bottom > li:first-of-type { margin-bottom: auto; } `;
+            #logMain > li { list-style: inside "‒ "; white-space: pre-line; }
+            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change the order */`;
         getId('logOrder').addEventListener('click', () => {
             const bottom = getId('logMain').classList.toggle('bottom');
             getId('logOrder').textContent = `Entries on ${bottom ? 'bottom' : 'top'} are newer`;

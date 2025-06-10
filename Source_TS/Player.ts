@@ -317,8 +317,8 @@ export const global: globalType = {
         active: true,
         speed: 0.2,
         start: 0,
-        cacheUpdate: true,
-        stageUpdate: null
+        stage: [null, 1, null],
+        cacheUpdate: true
     },
     paused: false,
     trueActive: 1,
@@ -1545,7 +1545,7 @@ export const deepClone = <CloneType>(toClone: CloneType): CloneType => {
 { //Final preparations for global and player
     /** Does not clone given value */
     const createArray = <startValue extends number | string | boolean | null | undefined>(length: number, value: startValue) => {
-        //Doing 'new Array(length)' is faster, but will force out array to be holey type (and using .fill will make it slower)
+        //Doing 'new Array(length)' is faster, but will force array to be holey type (and using .fill will make it slower)
         const array = [];
         for (let i = 0; i < length; i++) { array.push(value); }
         return array as startValue[];
@@ -1911,8 +1911,8 @@ export const updatePlayer = (load: playerType): string => {
         global.log.lastHTML[1] = 1;
         global.log.lastHTML[3] = true;
     }
-    global.log.lastHTML[2] = Date.now();
-    global.log.add.length = 0;
+    global.log.lastHTML[2] = player.time.stage;
+    global.log.add = [];
 
     assignBuildingsProduction.strange1();
     assignBuildingsProduction.strange0();
