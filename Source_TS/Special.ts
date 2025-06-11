@@ -840,13 +840,8 @@ export const changeFontSize = (initial = false) => {
 
     document.documentElement.style.fontSize = size === 16 ? '' : `${size}px`;
     input.value = `${size}`;
-    adjustCSSRules();
-};
-/* Only decent work around media not allowing var() and rem units being bugged */
-const adjustCSSRules = () => {
-    const fontRatio = globalSave.fontSize / 16;
-    (getId('phoneStyle') as HTMLLinkElement).media = `screen and (max-width: ${893 * fontRatio + 32}px)`;
-    (getId('miniPhoneStyle') as HTMLLinkElement).media = `screen and (max-width: ${362 * fontRatio + 32}px)`;
+    (getId('phoneStyle') as HTMLLinkElement).media = `screen and (max-width: ${893 * size / 16 + 32}px)`;
+    (getId('miniPhoneStyle') as HTMLLinkElement).media = `screen and (max-width: ${362 * size / 16 + 32}px)`;
 };
 
 export const changeFormat = (point: boolean) => {

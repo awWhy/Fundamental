@@ -860,7 +860,7 @@ try { //Start everything
     if (MD) {
         htmlHTML.addEventListener('touchstart', (event) => {
             specialHTML.mobileDevice.start = [event.touches[0].clientX, event.touches[0].clientY];
-        }, { passive: true }); //Passive just in case to prevent issues with scrolling
+        });
         htmlHTML.addEventListener('touchend', (event) => {
             cancelRepeat();
             let target = event.target as HTMLElement;
@@ -1012,7 +1012,7 @@ try { //Start everything
         const input = getId('autoWaitInput') as HTMLInputElement;
         if (!global.offline.active) {
             const value = Math.max(Number(input.value), 1);
-            player.toggles.shop.wait[player.stage.active] = isNaN(value) ? value : 2;
+            player.toggles.shop.wait[player.stage.active] = isNaN(value) ? 2 : value;
         }
         input.value = format(player.toggles.shop.wait[player.stage.active], { type: 'input' });
     });
@@ -1451,7 +1451,7 @@ try { //Start everything
         const input = getId('saveFileNameInput') as HTMLInputElement;
         input.addEventListener('change', () => {
             const input = getId('saveFileNameInput') as HTMLInputElement;
-            let testValue = input.value;
+            let testValue = input.value.trim();
             if (testValue.length < 1) {
                 testValue = playerStart.fileName;
                 input.value = testValue;
@@ -1459,7 +1459,7 @@ try { //Start everything
             player.fileName = testValue;
         });
         const changePreview = () => {
-            const value = (getId('saveFileNameInput') as HTMLInputElement).value;
+            const value = (getId('saveFileNameInput') as HTMLInputElement).value.trim();
             getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length < 1 ? playerStart.fileName : value);
         };
         input.addEventListener('input', changePreview);
