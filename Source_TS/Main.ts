@@ -804,6 +804,7 @@ try { //Start everything
         createStrButton.id = 'strangenessCreate';
         createStrButton.type = 'button';
         getId('createAllStrangeness').before(createStrButton);
+        getId('strangenessToggles').style.display = '';
 
         const MDToggle1 = document.createElement('li');
         MDToggle1.innerHTML = '<label>Keep mouse events<button type="button" id="MDToggle1" class="specialToggle">OFF</button></label>';
@@ -869,7 +870,6 @@ try { //Start everything
     } else {
         prepareVacuum(false); //Set buildings values
         updatePlayer(deepClone(playerStart));
-        player.buildings[3][0].current.setValue(5.9722e27);
     }
 
     /* Global */
@@ -1477,10 +1477,10 @@ try { //Start everything
         const clickFunc = () => {
             if (globalSave.MDSettings[0]) {
                 const s = global.debug.MDStrangePage;
-                for (let i = 1; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
+                for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
             } else {
                 for (let s = 1; s < global.strangenessInfo.length; s++) {
-                    for (let i = 1; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
+                    for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
                 }
             }
         };

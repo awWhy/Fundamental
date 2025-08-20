@@ -275,6 +275,12 @@ export const allowedToBeReset = (check: number, stageIndex: number, type: 'struc
     return true;
 };
 
+export const allowedToEnter = (challenge: number): boolean => {
+    if (challenge === 0) { return (player.inflation.vacuum || player.challenges.super) && (player.stage.true >= 7 || player.stage.resets >= 1); }
+    if (challenge === 1) { return player.stage.true >= 8 || player.verses[0].true >= 6; }
+    return false;
+};
+
 export const milestoneGetValue = (index: number, stageIndex: number): number | Overlimit => {
     if (stageIndex === 1) {
         if (index === 0) { return player.buildings[1][player.inflation.vacuum ? 1 : 0].total; }

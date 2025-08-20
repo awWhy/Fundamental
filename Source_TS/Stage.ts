@@ -1,4 +1,4 @@
-import { checkBuilding, checkUpgrade, checkVerse, milestoneCheck } from './Check';
+import { allowedToEnter, checkBuilding, checkUpgrade, checkVerse, milestoneCheck } from './Check';
 import Overlimit, { compareFunc } from './Limit';
 import { changeRewardType, getId, loadoutsVisual, playerStart, simulateOffline } from './Main';
 import { effectsCache, global, player, prepareVacuum } from './Player';
@@ -1674,7 +1674,10 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             }
         } else if (stageIndex === 5) {
             if (upgrade === 3) {
-                if (player.inflation.vacuum) { stageUpdate(false); }
+                if (player.inflation.vacuum) {
+                    stageUpdate(false);
+                    if (player.elements[26] >= 1) { awardVoidReward(4); }
+                }
             } else if (upgrade === 4) {
                 if (strangeness[5] >= 1) {
                     if (player.clone.depth === 'stage') { player.clone.ASR[5] = global.ASRInfo.max[5]; }
@@ -3056,11 +3059,7 @@ export const enterExitChallengeUser = (index: number | null) => {
         addIntoLog(`Exited the ${global.challengesInfo[old].name}`);
         Notify(`Exited the ${global.challengesInfo[old].name}`);
     } else {
-        if (index === 0) {
-            if (!player.challenges.super && !player.inflation.vacuum) { return; }
-        } else if (index === 1) {
-            if (player.stage.true < 8 && player.verses[0].true < 6) { return; }
-        } else { return; }
+        if (!allowedToEnter(index)) { return; }
 
         challengeReset(index);
         addIntoLog(`Entered the ${global.challengesInfo[index].name}`);

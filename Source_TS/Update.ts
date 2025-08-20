@@ -1275,7 +1275,11 @@ export const visualTrueStageUnlocks = () => {
     (getId('rewardsType') as HTMLButtonElement).disabled = !superUnlocked;
     getId('strange1GlobalSpeedInfo').style.display = highest >= 7 ? '' : 'none';
     getId('strangenessVisibility').style.display = highest >= 7 ? '' : 'none';
-    getId('strangenessToggles').style.display = superUnlocked ? '' : 'none';
+    if (globalSave.MDSettings[0]) {
+        getId('toggleHover1').style.display = superUnlocked ? '' : 'none';
+        getId('toggleMax1').style.display = superUnlocked ? '' : 'none';
+        getId('createAllStrangeness').style.display = superUnlocked ? '' : 'none';
+    } else { getId('strangenessToggles').style.display = superUnlocked ? '' : 'none'; }
     getId('cosmon1').style.display = highest >= 8 ? '' : 'none';
     getId('inflation4Tree1').style.display = superUnlocked ? '' : 'none';
     getId('inflation5Tree1').style.display = superUnlocked ? '' : 'none';
