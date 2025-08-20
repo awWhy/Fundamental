@@ -45,11 +45,10 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
     height: 1.78em;
 }
 
-.buyBuilding .toggleBuilding { margin-left: auto; }
+.buyBuilding .specialToggle { margin-left: auto; }
 .buyBuilding > div > div > div { display: none; }
 .availableBuilding > div > div > p { border-color: var(--building-afford); }
 
-.descriptionText { max-width: 90vw; }
 
 #challengesMain > div {
     flex-direction: column;
@@ -60,6 +59,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 #element2 { grid-column: var(--elements-columns-phone); }
 #element5, #element13 { grid-column: calc(var(--elements-columns-phone) - 5); }
 
+#abyssResources,
 #strangeStructures {
     margin-top: -0.4em;
     margin-bottom: 0;
@@ -68,7 +68,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 #inflations,
 #elementsGrid,
 #strangenessResearch {
-    margin-top: -0.5em;
+    margin-top: -0.6em;
     margin-bottom: -0.3em;
 }
 
@@ -82,7 +82,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 #themeArea > div > div { width: 80vw !important; }
 
 #globalStats {
-    bottom: calc(32px + min(3.9vh, 2.4em) + 2.02em + 0.8vw);
+    bottom: calc(32px + min(3.9vh, 2.4em) + 7.2616em + 3.2vw);
     right: 1vw;
 }
 
@@ -104,7 +104,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
     gap: 0.8vw;
 }
 
-#phoneHotkeys {
+#shortcuts {
     flex-direction: column;
     max-width: unset;
     margin-right: 2vw;
@@ -112,5 +112,5 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
     gap: 0.8vw;
 }
 
-#phoneHotkeys button,
+#shortcuts button,
 #subtabs button { width: 100%; }
