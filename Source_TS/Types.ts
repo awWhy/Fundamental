@@ -140,9 +140,9 @@ export interface playerType {
         /** Researches[0], Strangeness[1], Inflations[2] */
         max: boolean[]
         /** Stage[0], Discharge[1], Vaporization[2], Rank[3], Collapse[4],
-           Upgrades[5], Researches[6], ResearchesExtra[7], Elements[8], Merge[9], Nucleation[10, no ID yet] */
+           Upgrades[5], Researches[6], ResearchesExtra[7], Elements[8], Merge[9], Nucleation[10] */
         auto: boolean[]
-        /** [0] is toggle all */
+        /** [0] is not used */
         buildings: boolean[][]
         verses: boolean[]
         shop: {
@@ -490,7 +490,12 @@ export interface globalSaveType {
     developerMode: boolean
 }
 
-export type hotkeysList = 'makeAll' | 'createAll' | 'stage' | 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy' | 'nucleation' | 'warp' | 'pause' | 'toggleAll' | 'merge' | 'universe' | 'end' | 'supervoid' | 'exitChallenge' | 'tabRight' | 'tabLeft' | 'subtabUp' | 'subtabDown' | 'stageRight' | 'stageLeft';
+export type hotkeysList = 'makeAll' | 'toggleAll' | 'createAll' | 'toggleUpgrades' |
+    'discharge' | 'vaporization' | 'rank' | 'collapse' | 'nucleation' | 'merge' | 'stage' | 'end' |
+    'toggleDischarge' | 'toggleVaporization' | 'toggleRank' | 'toggleCollapse' | 'toggleMerge' | 'toggleNucleation' | 'toggleStage' |
+    'galaxy' | 'universe' | 'exitChallenge' | 'supervoid' | 'warp' | 'pause' |
+    'tabRight' | 'tabLeft' | 'subtabUp' | 'subtabDown' | 'stageRight' | 'stageLeft';
+
 export type numbersList = 'makeStructure' | 'toggleStructure' | 'enterChallenge';
 
 export interface calculateEffectsType {

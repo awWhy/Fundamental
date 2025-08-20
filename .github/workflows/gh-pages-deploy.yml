@@ -28,8 +28,11 @@ jobs:
           npm run lint
           npm run build
 
+      #- name: Update file version
+      #  run: echo "$(date +'%y_%m_%d_%H_%M_%S')" > last_build.txt
+
       - name: Move into a folder
-        run: | # Please, I don't know anymore
+        run: |
           mkdir -p please
           mv index.html Style.css Style_Phone.css Style_PhoneMini.css Used_art Fonts Code.js Code.js.map LICENSE please/
 
@@ -39,4 +42,3 @@ jobs:
           folder: please
           clean: true
           clean-exclude: README.md
-          # Default settings should be fine (I think)

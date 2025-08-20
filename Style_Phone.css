@@ -18,7 +18,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 #buildings {
     row-gap: 0.2em;
     width: 100vw;
-    min-width: min-content; /* clamp() breaks with that value */
+    min-width: min-content;
     max-width: calc(32px + 31.598em);
 }
 

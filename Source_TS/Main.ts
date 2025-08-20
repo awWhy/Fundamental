@@ -2,7 +2,7 @@ import { player, global, updatePlayer, prepareVacuum } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallenge0Reward, getChallenge1Reward, stageUpdate, getStrangenessDescription, addIntoLog, updateCollapsePoints } from './Update';
 import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleSupervoid, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog, errorNotify } from './Special';
-import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp } from './Hotkeys';
+import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, toggleAll } from './Hotkeys';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
 import Overlimit from './Limit';
@@ -362,41 +362,15 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
 
     if (change) {
         if (global.offline.active) { return; }
-        if (type === 'buildings') {
-            const maxLength = playerStart.buildings[player.stage.active].length;
-            if (number === 0) {
-                toggles[0] = !toggles[0];
-                for (let i = 1; i < maxLength; i++) {
-                    toggles[i] = toggles[0];
-                    toggleSwap(i, 'buildings');
-                }
-            } else {
-                if (number >= maxLength) { return; }
-
-                let anyOn = false;
-                toggles[number] = !toggles[number];
-                for (let i = 1; i <= player.ASR[player.stage.active]; i++) {
-                    if (toggles[i]) {
-                        anyOn = true;
-                        break;
-                    }
-                }
-                if (toggles[0] !== anyOn) {
-                    toggles[0] = anyOn;
-                    toggleSwap(0, 'buildings');
-                }
-            }
-        } else { toggles[number] = !toggles[number]; }
+        toggles[number] = !toggles[number];
     }
 
     let extraText;
     let toggleHTML;
-    if (type === 'buildings') {
-        toggleHTML = getId(`toggleBuilding${number}`);
-        extraText = number === 0 ? 'All ' : 'Auto ';
-    } else if (type === 'verses') {
-        toggleHTML = getId(`toggleVerse${number}`);
+    if (type === 'buildings' || type === 'verses') {
+        toggleHTML = getId(`toggle${type === 'buildings' ? 'Building' : 'Verse'}${number}`);
         extraText = 'Auto ';
+        if (change) { visualUpdate(); }
     } else if (type === 'hover') {
         toggleHTML = getId(`toggleHover${number}`);
         extraText = 'Hover to create ';
@@ -412,12 +386,12 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
     }
 
     if (!toggles[number]) {
-        toggleHTML.style.color = 'var(--red-text)';
-        toggleHTML.style.borderColor = 'crimson';
-        toggleHTML.textContent = `${extraText}OFF`;
-    } else {
         toggleHTML.style.color = '';
         toggleHTML.style.borderColor = '';
+        toggleHTML.textContent = `${extraText}OFF`;
+    } else {
+        toggleHTML.style.color = 'var(--green-text)';
+        toggleHTML.style.borderColor = 'forestgreen';
         toggleHTML.textContent = `${extraText}ON`;
     }
 };
@@ -429,11 +403,11 @@ export const toggleConfirm = (number: number, change = false) => {
     const toggleHTML = getId(`toggleConfirm${number}`);
     toggleHTML.textContent = toggles[number];
     if (toggles[number] === 'Safe') {
+        toggleHTML.style.color = 'var(--green-text)';
+        toggleHTML.style.borderColor = 'forestgreen';
+    } else {
         toggleHTML.style.color = '';
         toggleHTML.style.borderColor = '';
-    } else {
-        toggleHTML.style.color = 'var(--red-text)';
-        toggleHTML.style.borderColor = 'crimson';
     }
 };
 
@@ -504,36 +478,34 @@ const handleAutoResearchCreation = (index: number) => {
     switchStage(autoStage, stageIndex);
 };
 
-/** Sets selected loadout to provided, if number is provided instead then adds it into */
-export const loadoutsFinal = (load: number[] | number) => {
+/** Sets selected loadout to provided */
+export const loadoutsFinal = (load: number[]) => {
     if (!global.loadouts.open) { return; }
     const appeared = {} as Record<number, number>;
     const { firstCost, scaling, max } = global.treeInfo[0];
 
     let cost = 0;
     let string = '';
-    const loadout = typeof load === 'number' ? global.loadouts.input : load;
-    if (typeof load === 'number') { loadout.push(load); }
-    for (let i = 0, dupes = 0; i < loadout.length; i += dupes, dupes = 0) {
-        const current = loadout[i];
+    for (let i = 0, dupes = 0; i < load.length; i += dupes, dupes = 0) {
+        const current = load[i];
         appeared[current] ??= 0;
         do {
             if (appeared[current] >= max[current]) {
-                loadout.splice(i + dupes, 1);
+                load.splice(i + dupes, 1);
                 continue;
             }
             cost += Math.floor(Math.round((firstCost[current] + scaling[current] * appeared[current]) * 100) / 100);
             appeared[current] += 1;
             dupes++;
-        } while (loadout[i + dupes] === current);
+        } while (load[i + dupes] === current);
         if (dupes < 1) { continue; }
         string += `${i > 0 ? ', ' : ''}${current + 1}${dupes !== 1 ? `x${dupes}` : ''}`;
     }
-    global.loadouts.input = loadout;
+    global.loadouts.input = load;
     getQuery('#loadoutsEditLabel > span').textContent = format(cost, { padding: 'exponent' });
     (getId('loadoutsEdit') as HTMLInputElement).value = string;
 };
-export const loadoutsRecreate = () => {
+const loadoutsRecreate = () => {
     const old = global.loadouts.buttons;
     for (let i = 0; i < old.length; i++) { old[i][0].removeEventListener('click', old[i][1]); }
     const newOld: typeof old = [];
@@ -582,7 +554,7 @@ const loadoutsLoad = async(loadout = null as null | number[]) => {
     numbersUpdate();
     if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Loaded loadout'; }
 };
-export const loadoutsLoadAuto = () => {
+const loadoutsLoadAuto = () => {
     const array = [];
     for (let i = 0; i < player.tree[0].length; i++) {
         for (let r = player.tree[0][i]; r > 0; r--) { array.push(i); }
@@ -688,7 +660,11 @@ try { //Start everything
                     array[i] = decoder.decode(Uint8Array.from(array[i], (c) => c.codePointAt(0) as number));
                 }
             }
-            if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
+            //if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
+            if (globalSave.intervals.offline !== 20) {
+                globalSave.intervals.offline = 20;
+                Notify('Starting offline tick value has been set to 20ms\n(this forced check will soon be removed)');
+            }
             for (let i = globalSave.toggles.length; i < globalSaveStart.toggles.length; i++) {
                 globalSave.toggles[i] = false;
             }
@@ -756,9 +732,10 @@ try { //Start everything
         global.tabs.upgrade.list.splice(global.tabs.upgrade.list.indexOf('Elements'), 1);
         global.tabs.list.splice(global.tabs.list.indexOf('upgrade') + 1, 0, 'Elements');
     }
+    toggleSpecial(0, 'mobile');
+    toggleSpecial(0, 'reader');
 
     if (globalSave.MDSettings[0]) {
-        toggleSpecial(0, 'mobile');
         (document.getElementById('MDMessage1') as HTMLElement).remove();
         specialHTML.styleSheet.textContent += `html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
             #themeArea > div > div { position: unset; display: flex; width: 15em; }
@@ -826,7 +803,6 @@ try { //Start everything
         if (globalSave.MDSettings[2]) { (getId('viewportMeta') as HTMLMetaElement).content = 'width=device-width, initial-scale=1.0'; }
     }
     if (globalSave.SRSettings[0]) {
-        toggleSpecial(0, 'reader');
         const message = getId('SRMessage1');
         message.textContent = 'Screen reader support is enabled, disable it if its not required';
         message.className = 'greenText';
@@ -948,7 +924,7 @@ try { //Start everything
             }
         });
     }
-    for (let i = 0; i < specialHTML.longestBuilding; i++) {
+    for (let i = 1; i < specialHTML.longestBuilding; i++) {
         getId(`toggleBuilding${i}`).addEventListener('click', () => toggleSwap(i, 'buildings', true));
     }
     for (let i = 0; i < playerStart.toggles.verses.length; i++) {
@@ -1100,6 +1076,7 @@ try { //Start everything
             });
         }
     }
+    getId('toggleAll').addEventListener('click', toggleAll);
     getId('buyAnyInput').addEventListener('focus', () => {
         const window = getQuery('#buyAnyMain > label');
         showAndFix(window);
@@ -1548,6 +1525,7 @@ try { //Start everything
             getId('loadoutsMain').style.display = '';
             (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate';
             loadoutsLoadAuto();
+            loadoutsRecreate();
         } else { getId('loadoutsMain').style.display = 'none'; }
         if (globalSave.SRSettings[0]) { getId('inflationLoadouts').ariaExpanded = `${global.loadouts.open}`; }
     });
@@ -1983,9 +1961,7 @@ try { //Start everything
             `\nGame loaded after ${format((Date.now() - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
         `);
         void simulateOffline(global.lastSave);
-    } else {
-        pauseGame(false);
-    }
+    } else { pauseGame(false); }
     getId('body').style.display = '';
     getId('loading').style.display = 'none';
     document.title = `Fundamental ${playerStart.version}`;

@@ -820,11 +820,12 @@ export const assignBuildingsProduction = {
         let globalMult = (vacuum ? 1.4 : 1.6) ** player.strangeness[5][0];
         if (vacuum && player.tree[0][4] >= 1) { globalMult *= global.milestonesInfo[5].reward[0]; }
 
-        let multiplier2 = 2 * (2 ** player.researches[5][1]) * globalMult;
+        const min = 2 ** player.researches[5][1];
+        let multiplier2 = 2 * min * globalMult;
         if (player.upgrades[5][1] === 1) { multiplier2 *= calculateEffects.S5Upgrade1(); }
         if (player.upgrades[5][5] === 1) { multiplier2 *= 1000 * moreStars; }
         if (vacuum && player.upgrades[3][13] === 1) { multiplier2 *= (calculateEffects.S3Research6() / 2e5) ** 0.5 + 1; }
-        global.buildingsInfo.producing[5][2].setValue(multiplier2).allMultiply(player.buildings[5][2].current, production, calculateEffects.S5Research3() ** player.buildings[5][2].true).max(2 ** player.researches[5][1]);
+        global.buildingsInfo.producing[5][2].setValue(multiplier2).allMultiply(player.buildings[5][2].current, production, calculateEffects.S5Research3() ** player.buildings[5][2].true).max(min);
 
         let multiplier1 = 6 * (2 ** player.researches[5][0]) * globalMult;
         if (player.upgrades[5][0] === 1) { multiplier1 *= calculateEffects.S5Upgrade0(); }
@@ -1421,12 +1422,6 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
             } else if (stageIndex === 6) {
                 if (upgrade === 4) {
                     assignResetInformation.trueEnergy();
-                    if (player.stage.true < 8 && level[4] >= 4) {
-                        player.stage.true = 8;
-                        player.event = false;
-                        visualTrueStageUnlocks();
-                        playEvent(12);
-                    }
                 }
             }
         } else if (type === 'researchesExtra') {
@@ -1717,15 +1712,17 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         const currency = player.cosmon[stageIndex];
 
         if (tree[upgrade] >= pointer.max[upgrade] || currency.current < pointer.cost[upgrade]) { return false; }
+        const addToLoadout = !auto && stageIndex === 0 && global.loadouts.open;
         const max = !auto && (player.toggles.max[2] !== global.hotkeys.shift);
         do {
             tree[upgrade]++;
             currency.current -= pointer.cost[upgrade];
             calculateResearchCost(upgrade, stageIndex, 'inflations');
+            if (addToLoadout) { global.loadouts.input.push(upgrade); }
         } while (max && currency.current >= pointer.cost[upgrade] && tree[upgrade] < pointer.max[upgrade]);
 
         /* Special cases */
-        if (!auto && stageIndex === 0) { loadoutsFinal(upgrade); }
+        if (addToLoadout) { loadoutsFinal(global.loadouts.input); }
         if (stageIndex === 0) {
             if (upgrade === 0) {
                 if (player.tree[1][2] < 1) {
@@ -2802,6 +2799,12 @@ export const endResetUser = async() => {
 };
 
 const endReset = () => {
+    if (player.stage.true < 8) {
+        player.stage.true = 8;
+        player.event = false;
+        visualTrueStageUnlocks();
+        playEvent(12);
+    }
     if (player.stage.active < 6) { setActiveStage(1); }
     const resets = player.inflation.ends;
     const realTime = player.time.end;

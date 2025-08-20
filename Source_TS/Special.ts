@@ -13,23 +13,31 @@ export const globalSave: globalSaveType = {
         autoSave: 20000
     },
     hotkeys: {
-        stage: ['S', 'S'],
-        discharge: ['D', 'D'],
-        vaporization: ['V', 'V'],
-        rank: ['R', 'R'],
-        collapse: ['C', 'C'],
-        galaxy: ['G', 'G'],
-        nucleation: ['N', 'N'],
-        warp: ['Shift W', 'Shift W'],
-        pause: ['P', 'P'],
         makeAll: ['M', 'M'],
         toggleAll: ['Shift A', 'Shift A'],
         createAll: ['U', 'U'],
+        toggleUpgrades: ['None', 'None'],
+        discharge: ['D', 'D'],
+        toggleDischarge: ['None', 'None'],
+        vaporization: ['V', 'V'],
+        toggleVaporization: ['None', 'None'],
+        rank: ['R', 'R'],
+        toggleRank: ['None', 'None'],
+        collapse: ['C', 'C'],
+        toggleCollapse: ['None', 'None'],
+        galaxy: ['G', 'G'],
         merge: ['Shift M', 'Shift M'],
+        toggleMerge: ['None', 'None'],
+        nucleation: ['N', 'N'],
+        toggleNucleation: ['None', 'None'],
+        stage: ['S', 'S'],
+        toggleStage: ['None', 'None'],
         universe: ['Shift U', 'Shift U'],
         end: ['Shift B', 'Shift B'],
-        supervoid: ['Shift S', 'Shift S'],
         exitChallenge: ['Shift E', 'Shift E'],
+        supervoid: ['Shift S', 'Shift S'],
+        warp: ['Shift W', 'Shift W'],
+        pause: ['P', 'P'],
         tabRight: ['Arrow Right', 'Arrow Right'],
         tabLeft: ['Arrow Left', 'Arrow Left'],
         subtabUp: ['Arrow Up', 'Arrow Up'],
@@ -103,12 +111,12 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
     }
 
     if (!toggles[number]) {
-        toggleHTML.style.color = '';
-        toggleHTML.style.borderColor = '';
+        toggleHTML.style.color = 'var(--green-text)';
+        toggleHTML.style.borderColor = 'forestgreen';
         toggleHTML.textContent = 'OFF';
     } else {
-        toggleHTML.style.color = 'var(--red-text)';
-        toggleHTML.style.borderColor = 'crimson';
+        toggleHTML.style.color = '';
+        toggleHTML.style.borderColor = '';
         toggleHTML.textContent = 'ON';
     }
 };
@@ -967,7 +975,7 @@ export const playEvent = (event: number, replay = true) => {
     } else if (event === 11) {
         text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, which had unlocked a new Challenge ‒ 'Vacuum stability'";
     } else if (event === 12) {
-        text = "Unlocked ability to End everything:\nBy converting Dark energy into the Phantom energy, you can now trigger the scenario known as 'Big Rip', meaning that everything up to this point is going to be converted into Cosmons.\n(Also reduce time required for a max Export reward by 4)";
+        text = "By converting Dark energy into the Phantom energy, you have triggered the scenario known as 'Big Rip', meaning that everything up to this point had been converted into Cosmons.\n(Also time required for a max Export reward is now reduced by 4)";
     } else if (event === 13) {
         text = 'Void Universes are weaker version of self-made Universes. They do not count as self-made, but do award Inflatons and unlock new Elements. They can be created only under the Void time limit.';
     }
@@ -978,7 +986,7 @@ export const playEvent = (event: number, replay = true) => {
 const buildBigWindow = (subWindow: string): null | HTMLElement => {
     if (getId('closeBigWindow', true) === null) {
         getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
-        specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: clamp(20vw, 38em, 80vw); height: clamp(18vh, 36em, 90vh); background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
+        specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: 38rem; max-width: 80vw; height: 42rem; max-height: 90vh; background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
             #bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
             #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; } `;
     }
@@ -1022,7 +1030,7 @@ export const openVersionInfo = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h6>v0.2.6</h6><p>- New content (Big Rip)\n- Mobile shorcuts are now available outside of related support\n- Create all Upgrades button and hotkey\n- Number hotkeys can now be changed\n- Improved hover text\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        mainHTML.innerHTML = `<h6>v0.2.6</h6><p>- New content (Big Rip)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones</p>
         <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>
         <h6>v0.2.3</h6><p>- Supervoid rework\n- Abyss small rebalance</p>
@@ -1075,8 +1083,6 @@ export const openHotkeys = () => {
         <label id="stageLeftHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">change active Stage to the previous one</span></label>
         <label id="makeStructureHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make a Structure</span></label>
         <p id="makeAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">make all Structures</span></label></p>
-        <label id="toggleStructureHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle auto Structure</span></label>
-        <p id="toggleAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label></p>
         <label id="enterChallengeHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">enter the Challenge</span></label>
         <p id="exitChallengeHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">exit out of the current Challenge</span></label></p>
         <div>
@@ -1098,6 +1104,19 @@ export const openHotkeys = () => {
         <p>Enter <span class="whiteText">or</span> Space ‒ <span class="whiteText">click selected HTML Element or confirm Alert</span></p>
         <p>Escape ‒ <span class="whiteText">cancel changing the hotkey, close Alert or Notification</span></p>
         <p>Tab <span class="whiteText">and</span> Shift Tab ‒ <span class="whiteText">select another HTML Element</span></p>
+        <p id="autoTogglesHeader" class="bigWord">Auto toggles</p>
+        <label id="toggleStructureHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle auto Structure</span></label>
+        <p id="toggleAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label></p>
+        <div>
+            <label id="toggleUpgradesHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Upgrades</span></label>
+            <label id="toggleDischargeHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
+            <label id="toggleVaporizationHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
+            <label id="toggleRankHotkey" class="darkorchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>
+            <label id="toggleCollapseHotkey" class="orchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Collapse</span></label>
+            <label id="toggleMergeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Merge</span></label>
+            <label id="toggleNucleationHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Nucleation</span></label>
+            <label id="toggleStageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage</span></label>
+        </div>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
         <p>Numlock being ON can break Numpad hotkeys</p>
         <p>Shift clicking the hotkey will remove it</p>
@@ -1129,22 +1148,27 @@ export const openHotkeys = () => {
                     let prefix = event.ctrlKey ? 'Ctrl ' : '';
                     if (event.shiftKey) { prefix += 'Shift '; }
                     if (event.altKey) { prefix += 'Alt '; }
-                    if (!isNaN(Number(code.replace('Digit', '').replace('Numpad', ''))) && code !== '') {
-                        if (!number) {
-                            getId('hotkeysMessage').textContent = "Numbers can't used here";
+                    if (number) {
+                        if (code.includes('Digit') || code.includes('Numpad')) {
+                            result = prefix + (code.includes('Numpad') ? 'Numpad' : 'Numbers');
+                        } else {
+                            getId('hotkeysMessage').textContent = 'Only numbers can be used here';
                             return;
                         }
-                        result = `${prefix}${code.includes('Numpad') ? 'Numpad' : 'Numbers'}`;
-                        if (result === '') { result = 'None'; }
                     } else {
-                        if (number) {
-                            if (key !== 'NumLock') { getId('hotkeysMessage').textContent = 'Only numbers can be used here'; }
-                            return;
+                        if (code.includes('Digit') || code.includes('Numpad')) {
+                            const converted = prefix + code.replace('Digit', '').replace('Numpad', 'Num ');
+                            result = [converted, converted];
+                        } else {
+                            result = [key.length === 1 ? key.toUpperCase() : key.replaceAll(/([A-Z]+)/g, ' $1').trimStart(),
+                                key.length === 1 ? code.replace('Key', '') : code.replaceAll(/([A-Z]+)/g, ' $1').trimStart()];
+                            if (result[0] !== '') {
+                                result[0] = prefix + result[0];
+                            } else { result[0] = 'None'; }
+                            if (result[1] !== '') {
+                                result[1] = prefix + result[1];
+                            } else { result[1] = 'None'; }
                         }
-                        result = [`${prefix}${key.length === 1 ? key.toUpperCase() : key.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`,
-                            `${prefix}${key.length === 1 ? code.replace('Key', '') : code.replaceAll(/([A-Z]+)/g, ' $1').trimStart()}`];
-                        if (result[0] === '') { result[0] = 'None'; }
-                        if (result[1] === '') { result[1] = 'None'; }
                     }
                     finish();
                 };
