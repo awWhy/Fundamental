@@ -172,7 +172,7 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
             timeUpdate(Math.max(time / 600, 20), time);
         } catch (error) {
             end();
-            const stack = (error as { stack: string }).stack;
+            const stack = (error as { stack?: string }).stack;
             void Alert(`Offline calculation failed due to error:\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
             throw error;
         }
@@ -261,7 +261,7 @@ const saveGame = (noSaving = false): string | null => {
         }
         return save;
     } catch (error) {
-        const stack = (error as { stack: string }).stack;
+        const stack = (error as { stack?: string }).stack;
         void Alert(`Failed to save the game\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
         throw error;
     }
@@ -1918,16 +1918,13 @@ try { //Start everything
             const screenHeight = body.clientHeight;
 
             const html = event.currentTarget as HTMLElement;
-            let lastX = mouse ? event.clientX : event.changedTouches[0].clientX;
-            let lastY = mouse ? event.clientY : event.changedTouches[0].clientY;
+            const current = html.getBoundingClientRect();
+            const offsetX = current.right - (mouse ? event.clientX : event.changedTouches[0].clientX);
+            const offsetY = current.bottom - (mouse ? event.clientY : event.changedTouches[0].clientY);
             const move = (event: MouseEvent | TouchEvent) => {
-                const newX = mouse ? (event as MouseEvent).clientX : (event as TouchEvent).changedTouches[0].clientX;
-                const newY = mouse ? (event as MouseEvent).clientY : (event as TouchEvent).changedTouches[0].clientY;
                 const current = html.getBoundingClientRect();
-                html.style.right = `${(1 - Math.min(Math.max(current.right + newX - lastX, current.width), screenWidth) / screenWidth) * 100}%`;
-                html.style.bottom = `${(1 - Math.min(Math.max(current.bottom + newY - lastY, current.height), screenHeight) / screenHeight) * 100}%`;
-                lastX = newX;
-                lastY = newY;
+                html.style.right = `${Math.max(1 - Math.max((mouse ? (event as MouseEvent).clientX : (event as TouchEvent).changedTouches[0].clientX) + offsetX, current.width) / screenWidth, 0) * 100}%`;
+                html.style.bottom = `${Math.max(1 - Math.max((mouse ? (event as MouseEvent).clientY : (event as TouchEvent).changedTouches[0].clientY) + offsetY, current.height) / screenHeight, 0) * 100}%`;
 
                 if (!mouse) { html.style.opacity = '1'; }
             };
@@ -1996,7 +1993,7 @@ try { //Start everything
     specialHTML.cache.queryMap.clear();
     specialHTML.cache.classMap.clear();
 } catch (error) {
-    const stack = (error as { stack: string }).stack;
+    const stack = (error as { stack?: string }).stack;
     void Alert(`Game failed to load\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 2);
     const buttonDiv = document.createElement('div');
     buttonDiv.innerHTML = '<button type="button" id="exportError" style="width: 7em;">Export save</button><button type="button" id="deleteError" style="width: 7em;">Delete save</button>';
