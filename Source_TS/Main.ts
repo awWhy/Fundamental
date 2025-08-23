@@ -504,29 +504,32 @@ const handleAutoResearchCreation = (index: number) => {
     switchStage(autoStage, stageIndex);
 };
 
-export const loadoutsVisual = (load: number[] | number) => {
+/** Sets selected loadout to provided, if number is provided instead then adds it into */
+export const loadoutsFinal = (load: number[] | number) => {
     if (!global.loadouts.open) { return; }
-    if (typeof load === 'number') {
-        global.loadouts.input.push(load);
-    } else { global.loadouts.input = load; }
     const appeared = {} as Record<number, number>;
-    const { firstCost, scaling } = global.treeInfo[0];
-    const calculate = (index: number) => Math.floor(Math.round((firstCost[index] + scaling[index] * appeared[index]) * 100) / 100);
+    const { firstCost, scaling, max } = global.treeInfo[0];
 
     let cost = 0;
     let string = '';
-    const loadout = global.loadouts.input;
-    for (let i = 0, dupes = 1; i < loadout.length; i += dupes, dupes = 1) {
+    const loadout = typeof load === 'number' ? global.loadouts.input : load;
+    if (typeof load === 'number') { loadout.push(load); }
+    for (let i = 0, dupes = 0; i < loadout.length; i += dupes, dupes = 0) {
         const current = loadout[i];
-        appeared[current] = appeared[current] === undefined ? 0 : appeared[current] + 1;
-        cost += calculate(current);
-        while (loadout[i + dupes] === current) {
-            appeared[current]++;
-            cost += calculate(current);
+        appeared[current] ??= 0;
+        do {
+            if (appeared[current] >= max[current]) {
+                loadout.splice(i + dupes, 1);
+                continue;
+            }
+            cost += Math.floor(Math.round((firstCost[current] + scaling[current] * appeared[current]) * 100) / 100);
+            appeared[current] += 1;
             dupes++;
-        }
-        string += `${i > 0 ? ', ' : ''}${current + 1}${dupes > 1 ? `x${dupes}` : ''}`;
+        } while (loadout[i + dupes] === current);
+        if (dupes < 1) { continue; }
+        string += `${i > 0 ? ', ' : ''}${current + 1}${dupes !== 1 ? `x${dupes}` : ''}`;
     }
+    global.loadouts.input = loadout;
     getQuery('#loadoutsEditLabel > span').textContent = format(cost, { padding: 'exponent' });
     (getId('loadoutsEdit') as HTMLInputElement).value = string;
 };
@@ -544,7 +547,7 @@ export const loadoutsRecreate = () => {
         const event = () => {
             const loadout = player.inflation.loadouts[i];
             (getId('loadoutsName') as HTMLInputElement).value = loadout[0];
-            loadoutsVisual(cloneArray(loadout[1]));
+            loadoutsFinal(cloneArray(loadout[1]));
             if (global.hotkeys.shift) { void loadoutsLoad(loadout[1]); }
         };
         newOld[i] = [button, event];
@@ -584,7 +587,7 @@ export const loadoutsLoadAuto = () => {
     for (let i = 0; i < player.tree[0].length; i++) {
         for (let r = player.tree[0][i]; r > 0; r--) { array.push(i); }
     }
-    loadoutsVisual(array);
+    loadoutsFinal(array);
 };
 
 { //Final preparations
@@ -828,20 +831,6 @@ try { //Start everything
         message.textContent = 'Screen reader support is enabled, disable it if its not required';
         message.className = 'greenText';
         message.ariaHidden = 'true';
-        for (let i = 0; i <= 3; i++) {
-            const effectID = getQuery(`#${i === 0 ? 'solarMass' : `star${i}`}Effect > span.info`);
-            effectID.classList.remove('greenText');
-            effectID.before(' (');
-            effectID.after(')');
-        }
-        for (let i = 1; i <= 2; i++) {
-            const effectID = getQuery(`#merge${i}Effect > span.info`);
-            effectID.classList.remove('greenText');
-            effectID.before(' (');
-            effectID.after(')');
-        }
-        specialHTML.styleSheet.textContent += `#starEffects > p > span, #mergeEffects > p > span { display: unset !important; }
-            #starEffects, #mergeEffects { cursor: default; } `;
         for (let i = 0; i < playerStart.strange.length; i++) { getId(`strange${i}`).tabIndex = 0; }
 
         const SRMainDiv = document.createElement('article');
@@ -1564,8 +1553,6 @@ try { //Start everything
     });
     getId('loadoutsEdit').addEventListener('change', () => {
         const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(',');
-        const appeared = {} as Record<number, number>;
-        const max = global.treeInfo[0].max;
         const final = [];
         for (let i = 0; i < first.length; i++) {
             const index = first[i].indexOf('x');
@@ -1575,14 +1562,11 @@ try { //Start everything
                 first[i] = first[i].slice(0, index);
             }
             const number = Math.trunc(Number(first[i]) - 1);
-            const inside = appeared[number] ?? 0;
-            const maxRepeats = max[number] - inside;
-            if (repeat > maxRepeats) { repeat = maxRepeats; }
-            if (isNaN(maxRepeats) || isNaN(repeat) || repeat < 1) { continue; }
-            appeared[number] = inside + repeat;
+            if (!checkUpgrade(number, 0, 'inflations') || isNaN(repeat)) { continue; }
+            if (repeat > 99) { repeat = 99; }
             for (let r = 0; r < repeat; r++) { final.push(number); }
         }
-        loadoutsVisual(final);
+        loadoutsFinal(final);
     });
     getId('loadoutsLoadAuto').addEventListener('click', loadoutsLoadAuto);
     getId('loadoutsSave').addEventListener('click', loadoutsSave);

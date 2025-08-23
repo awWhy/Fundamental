@@ -607,15 +607,8 @@ input:-webkit-autofill { /* Chrome related pain */
 
 #starEffects, #mergeEffects {
     width: max-content;
-    max-width: 90vw;
     align-self: center;
-    cursor: help;
 }
-
-#mergeEffects:hover > p > span:not(.info),
-#starEffects:hover > p > span:not(.info) { display: none; }
-#mergeEffects:not(:hover) > p > span.info,
-#starEffects:not(:hover) > p > span.info { display: none; }
 
 #mergeScore {
     display: grid;

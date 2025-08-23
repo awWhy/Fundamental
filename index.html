@@ -206,8 +206,8 @@
                         </div>
                         <div class="stage2Only">
                             <p id="molesProduction" class="blueText">Tritium production of Moles: <span class="cyanText">0</span></p>
-                            <p id="vaporizationBoostTotal" class="grayText">Total boost after Vaporization: <span class="blueText">1</span></p>
                             <p id="cloudEffect" class="grayText">Boost to Puddles from Clouds: <span class="blueText">1</span></p>
+                            <p id="vaporizationBoostTotal" class="grayText">Total boost after Vaporization: <span class="blueText">1</span></p>
                         </div>
                         <div class="stage3Only">
                             <p id="massProduction" class="grayText">Preons production of Mass: <span class="cyanText">0</span></p>
@@ -220,21 +220,21 @@
                             <p id="collapseBoostTotal" class="orchidText">Total boost after Collapse: <span class="cyanText">1</span></p>
                             <section id="starEffects">
                                 <h3 class="orangeText bigWord">Current effects</h3>
-                                <p id="solarMassEffect" class="cyanText">Solar mass: <span class="greenText">0</span><span class="info greenText">Boost to all Stars</span></p>
-                                <p id="star1Effect" class="redText">Red giants: <span class="greenText">0</span><span class="info greenText">Boost to Main-sequence</span></p>
-                                <p id="star2Effect" class="darkvioletText">Neutron stars: <span class="greenText">0</span><span class="info greenText">Boost to all Stars</span></p>
-                                <p id="star3Effect" class="grayText">Black holes: <span class="greenText">0</span><span class="info greenText">Boost to the Solar mass gain</span></p>
+                                <p id="solarMassEffect" class="cyanText hasTitle" data-title="Boost to all Stars">Solar mass: <span class="greenText">0</span></p>
+                                <p id="star1Effect" class="redText hasTitle" data-title="Boost to Main-sequence">Red giants: <span class="greenText">0</span></p>
+                                <p id="star2Effect" class="darkvioletText hasTitle" data-title="Boost to all Stars">Neutron stars: <span class="greenText">0</span></p>
+                                <p id="star3Effect" class="grayText hasTitle" data-title="Boost to the Solar mass gain">Black holes: <span class="greenText">0</span></p>
                             </section>
                         </div>
                         <div class="stage5Only">
-                            <p id="mainCapS5" class="cyanText">Solar mass after Collapse: <span class="orangeText">0</span><span id="mainCapHardS5"> | Hardcap: <span class="orangeText">0</span></span><span id="mainCapPostS5"> | Post: <span class="orangeText">0</span></span><span id="timeSinceGalaxy" class="grayText"><br>(Time since last Galaxy: <span class="orangeText">0 seconds</span>)</span></p>
+                            <p id="mainCapS5" class="cyanText">Solar mass after Collapse: <span class="orangeText">0</span><span id="mainCapHardS5"> | Hardcap: <span class="orangeText">0</span></span><span id="mainCapPostS5" class="hasTitle" data-title="Solar mass if had pending Black holes"> | Post: <span class="orangeText">0</span></span><span id="timeSinceGalaxy" class="grayText"><br>(Time since last Galaxy: <span class="orangeText">0 seconds</span>)</span></p>
                             <p id="elementsProductionS5" class="redText">Total production of Stardust: <span class="orangeText">0</span></p>
                             <p id="collapseBoostTotalS5" class="orchidText">Total boost after Collapse: <span class="orangeText">1</span></p>
                             <p id="mergeBoostTotal" class="darkvioletText">Total boost after Merge: <span class="grayText">1</span> ^2</p>
                             <section id="mergeEffects">
                                 <h3 class="cyanText bigWord">Current effects | Requirements</h3>
-                                <p id="merge1Effect" class="grayText">Groups: <span class="greenText">1</span><span class="info greenText">Boost to Galaxies</span><span> | <span class="greenText">0</span> out of <span class="greenText">50</span> Galaxies</span></p>
-                                <p id="merge2Effect" class="grayText">Clusters: <span class="greenText">1</span><span class="info greenText">Max boost from bonus levels of 'Central dominant Galaxy'</span><span> | <span class="greenText">0</span> out of <span class="greenText">100</span> Galaxies</span></p>
+                                <p id="merge1Effect" class="grayText hasTitle" data-title="Boost to Galaxies">Groups: <span class="greenText">1</span> | <span class="greenText">0</span> out of <span class="greenText">50</span> Galaxies</p>
+                                <p id="merge2Effect" class="grayText hasTitle" data-title="Max boost from bonus levels of 'Central dominant Galaxy'">Clusters: <span class="greenText">1</span> | <span class="greenText">0</span> out of <span class="greenText">100</span> Galaxies</p>
                             </section>
                         </div>
                         <div class="stage6Only">
@@ -246,7 +246,7 @@
                                 <p id="mergeScore0" class="grayText"><span>Galaxies:</span> <span id="mergeScore0Cur" class="greenText">0</span> <span>(<span class="greenText">1</span> per)</span></p>
                                 <p id="mergeScore1" class="grayText"><span>Groups:</span> <span id="mergeScore1Cur" class="greenText">0</span> <span>(<span class="greenText">2</span> per)</span></p>
                                 <p id="mergeScore2" class="grayText"><span>Clusters:</span> <span id="mergeScore2Cur" class="greenText">0</span> <span>(<span class="greenText">4</span> per)</span></p>
-                                <p class="darkvioletText"><span>Score total:</span> <span id="mergeScoreTotal" class="greenText">0</span> <span>(<span id="mergeScoreAfter" class="greenText">0</span> post)</span></p>
+                                <p class="darkvioletText"><span>Score total:</span> <span id="mergeScoreTotal" class="greenText">0</span> <span class="hasTitle" data-title="Merge score if to use all available resets">(<span id="mergeScoreAfter" class="greenText">0</span> post)</span></p>
                             </section>
                             <p id="universeTime" class="grayText">Universe age: <span class="orangeText">0 seconds</span> (Real: <span class="orangeText">0 seconds</span>)</p>
                         </div>

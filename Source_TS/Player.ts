@@ -437,10 +437,7 @@ export const global: globalType = {
                 () => "Fuse with Protium instead of Deuterium. Unlock 5 first Elements. ('Elements' subtab)",
                 () => 'Unlock the CNO cycle, which is a better source of Helium and Energy. Unlock 5 more Elements.',
                 () => 'Through Triple-alpha and then Alpha process unlock 2 more Elements.',
-                () => { //[4]
-                    const max = Math.max(player.verses[0].true + player.inflation.voidVerses, player.inflation.ends[2]);
-                    return `Create new Atomic nuclei with Neutron capture (s-process and p-process).\nUnlock ${Math.min(max, player.verses[0].current) + 1} more Element${player.stage.true >= 7 ? `s (+1 for every Universe${player.stage.true >= 8 ? ` until ${max}` : ''})` : ''}.`;
-                }
+                () => `Create new Atomic nuclei with Neutron capture (s-process and p-process).\nUnlock ${player.verses[0].true + player.inflation.voidVerses + 1} more Element${player.stage.true >= 7 ? `s (+1 for every self-made${player.stage.true >= 8 ? ' and Void' : ''} Universe)` : ''}.`
             ],
             cost: [100, 1000, 1e9, 1e48, 1e128],
             maxActive: 4
@@ -787,7 +784,7 @@ export const global: globalType = {
                 },
                 () => { //[2]
                     const delay = calculateEffects.darkHardcap(true);
-                    return `Buff Universes by Dark matter softcap ^(${format(0.03125)} * level) by changing the ratio of kinetic and potential Dark energy.\n(Current effect: ${format(delay ** (player.researchesExtra[6][2] / 32), { padding: true })} ⟶ ${format(delay ** ((player.researchesExtra[6][2] + 1) / 32), { padding: true })})`;
+                    return `Buff Universes with Dark matter softcap delays ^(${format(0.03125)} * level) by improving the ratio of kinetic and potential Dark energy.\n(Current effect: ${format(delay ** (player.researchesExtra[6][2] / 32), { padding: true })} ⟶ ${format(delay ** ((player.researchesExtra[6][2] + 1) / 32), { padding: true })})`;
                 },
                 () => `Increase Dark fluid gain by +^${format(0.05)} and weaken Dark matter softcap by +^${format(0.04)}.`
             ],
@@ -859,7 +856,7 @@ export const global: globalType = {
                     unlocked = index === 1 && (player.upgrades[6][0] === 1 || player.researches[6][0] >= 8);
                 }
             }
-            return `Automatically make ${unlocked ? global.buildingsInfo.name[stageIndex][index] : '(Not unlocked)'} (counts as self-made).\n(Auto ${stageIndex === 5 && index === 3 ? "for this Structure doesn't wait and ignores related settings" : `will wait until ${format(player.toggles.shop.wait[stageIndex])} times of the Structure cost`})`;
+            return `Automatically make ${unlocked ? global.buildingsInfo.name[stageIndex][index] : '(Unknown)'} (counts as self-made).\n(Auto ${stageIndex === 5 && index === 3 ? "for this Structure doesn't wait and ignores related settings" : `will wait until ${format(player.toggles.shop.wait[stageIndex])} times of the Structure cost`})`;
         },
         costRange: [
             [],
@@ -1256,7 +1253,7 @@ export const global: globalType = {
         ],
         cost: [],
         firstCost: [1, 1, 2, 2, 0, 1, 1, 2, 2],
-        scaling: [1, 1, 2, 2, 1, 1.4, 2.5, 2.5, 1.4],
+        scaling: [1, 1, 2, 2, 1, 1.4, 2.5, 2.5, 2.4],
         max: [9, 9, 3, 4, 4, 4, 4, 4, 4]
     }],
     milestonesInfo: [
@@ -1614,7 +1611,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         buildingsInfo.maxActive[4] = 5;
         buildingsInfo.maxActive[6] = 1;
         global.buildingsInfo.producing[4][5].setValue(0);
-        getQuery('#star3Effect > span.info').textContent = 'Boost to the Solar mass gain';
+        getId('star3Effect').dataset.title = 'Boost to the Solar mass gain';
 
         upgrades1Cost = [0, 0, 12, 36, 120, 240, 480, 1600, 3200, 20800];
         (upgradesInfo[2].cost[0] as Overlimit).setValue(1e4);
@@ -1897,6 +1894,17 @@ export const updatePlayer = (load: playerType): string => {
         if (load.version !== playerStart.version) {
             throw new ReferenceError(`Save file version ${load.version} is not allowed`);
         }
+    }
+    if (load.tree[0].length === 6) {
+        if (load.inflation.ends[1] < 5) {
+            load.verses[0].current -= 5 - load.inflation.ends[1];
+            load.inflation.ends[1] = 5;
+        }
+        if (load.tree[1][8] >= 2) {
+            load.cosmon[1].current += load.tree[1][8] >= 4 ? 13 : load.tree[1][8] >= 3 ? 7 : 3;
+            load.tree[1][8] = 1;
+        }
+        load.tree[0].push(0);
     }
     if (load.vaporization.clouds === null) { //Remove
         load.vaporization.clouds = 0;

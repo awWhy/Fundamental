@@ -1,6 +1,6 @@
 import { allowedToEnter, checkBuilding, checkUpgrade, checkVerse, milestoneCheck } from './Check';
 import Overlimit, { compareFunc } from './Limit';
-import { changeRewardType, getId, loadoutsVisual, playerStart, simulateOffline } from './Main';
+import { changeRewardType, getId, loadoutsFinal, playerStart, simulateOffline } from './Main';
 import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, errorNotify, globalSave, playEvent, specialHTML } from './Special';
@@ -1725,7 +1725,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         } while (max && currency.current >= pointer.cost[upgrade] && tree[upgrade] < pointer.max[upgrade]);
 
         /* Special cases */
-        if (!auto && stageIndex === 0) { loadoutsVisual(upgrade); }
+        if (!auto && stageIndex === 0) { loadoutsFinal(upgrade); }
         if (stageIndex === 0) {
             if (upgrade === 0) {
                 if (player.tree[1][2] < 1) {
@@ -1802,6 +1802,7 @@ export const inflationRefund = async(noConfirmation = false, loadout = false): P
     }
     if (!loadout) {
         numbersUpdate();
+        loadoutsFinal([]);
         if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Inflations have been refunded'; }
     }
     return true;

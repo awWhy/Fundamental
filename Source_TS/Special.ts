@@ -228,11 +228,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchG4.png', 'stage4borderImage'],
             ['Missing.png', 'redBorderImage']
         ], [
-            ['Missing.png', 'redBorderImage'],
-            ['Missing.png', 'redBorderImage'],
+            ['ResearchD1.png', 'stage3borderImage'],
+            ['ResearchD2.png', 'stage3borderImage'],
             ['ResearchD3.png', 'stage2borderImage'],
             ['ResearchD4.png', 'stage3borderImage'],
-            ['Missing.png', 'redBorderImage']
+            ['ResearchD5.png', 'stage3borderImage']
         ]
     ],
     longestResearchExtra: 6,
@@ -957,7 +957,7 @@ export const playEvent = (event: number, replay = true) => {
         if (!replay) { stageUpdate(false); }
         text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
-        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements for every Universe and exports now fully claims their storage)";
+        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements for every self-made Universe and exports will now fully claim their storage)";
     } else if (event === 10) {
         if (!replay) {
             visualTrueStageUnlocks();

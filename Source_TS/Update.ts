@@ -329,10 +329,10 @@ export const numbersUpdate = (ignoreOffline = false) => {
                         getQuery('#mergeBoostTotal > span').textContent = format((buildings[3].true / (mergeInfo.galaxies + 1) + 1) * (calculateEffects.reward[0](true) / mergeEffects[0]) * (calculateEffects.reward[1](true) / mergeEffects[1]), { padding: true });
 
                         const groupsTotal = player.researchesExtra[5][1] >= 2;
-                        getQuery('#merge1Effect > span > span:last-of-type').textContent = `${groupsCost}`;
-                        getQuery('#merge1Effect > span > span').textContent = `${(groupsTotal ? mergeInfo.galaxies : player.buildings[5][3].true) - (mergeInfo.checkReward[0] + (groupsTotal ? merge.rewards[0] : 0)) * groupsCost}`;
+                        getQuery('#merge1Effect > span:last-of-type').textContent = `${groupsCost}`;
+                        getQuery('#merge1Effect > span:nth-of-type(2)').textContent = `${(groupsTotal ? mergeInfo.galaxies : player.buildings[5][3].true) - (mergeInfo.checkReward[0] + (groupsTotal ? merge.rewards[0] : 0)) * groupsCost}`;
                         const clustersTotal = player.researchesExtra[5][5] >= 2;
-                        getQuery('#merge2Effect > span > span').textContent = `${(clustersTotal ? mergeInfo.galaxies : player.buildings[5][3].true) - (mergeInfo.checkReward[1] + (clustersTotal ? merge.rewards[1] : 0)) * 100}`;
+                        getQuery('#merge2Effect > span:nth-of-type(2)').textContent = `${(clustersTotal ? mergeInfo.galaxies : player.buildings[5][3].true) - (mergeInfo.checkReward[1] + (clustersTotal ? merge.rewards[1] : 0)) * 100}`;
                     }
                     if (player.strangeness[4][4] < 2) { getQuery('#mainCapPostS5 > span').textContent = format(collapseInfo[vacuum ? 'solarCap' : 'newMass'] * (calculateStar[2](true) / starEffect[2]), { padding: true }); }
                     getQuery('#elementsProductionS5 > span').textContent = format(new Overlimit(starProd[1]).allPlus(starProd[2], starProd[3], starProd[4], starProd[5]).multiply(speed), { padding: true });
@@ -512,7 +512,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
         if (subtab === 'Settings') {
             const exportReward = player.time.export;
             const divide = player.stage.true >= 7 ? 1 : 2.5;
-            const conversion = Math.min(exportReward[0] / (player.stage.true >= 8 ? 14400_000 : 86400_000), 1);
+            const conversion = Math.min(exportReward[0] / (player.stage.true >= 8 ? 21600_000 : 86400_000), 1);
             getId('exportQuarks').textContent = format((exportReward[1] / divide + 1) * conversion, { padding: true });
             getId('exportStrangelets').textContent = format(exportReward[2] / divide * conversion, { padding: true });
             getId('warpButton').textContent = `${Math.floor(player.time.offline / (player.tree[0][5] >= 1 && player.challenges.active !== null ? 360_000 : 720_000))} Warps`;
@@ -530,7 +530,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
             const divide = player.stage.true >= 7 ? 1 : 2.5;
             getId('exportQuarksMax').textContent = format(exportReward[1] / divide + 1, { padding: true });
             getId('exportStrangeletsMax').textContent = format(exportReward[2] / divide, { padding: true });
-            getId('exportTimeToMax').textContent = format((player.stage.true >= 8 ? 14400 : 86400) - exportReward[0] / 1000, { type: 'time' });
+            getId('exportTimeToMax').textContent = format((player.stage.true >= 8 ? 21600 : 86400) - exportReward[0] / 1000, { type: 'time' });
             if (player.stage.true < 7) {
                 getQuery('#exportQuarksStorage > span').textContent = format(exportReward[1], { padding: true });
                 getQuery('#exportStrangeletsStorage > span').textContent = format(exportReward[2], { padding: true });
@@ -737,7 +737,7 @@ export const visualUpdate = (ignoreOffline = false) => {
             const buildingsToggle = player.toggles.buildings[active];
             const ASR = player.ASR[active];
 
-            getId('exportMaxed').style.display = player.time.export[0] >= 86400_000 && (highest >= 7 || player.strange[0].total > 0) ? '' : 'none';
+            getId('exportMaxed').style.display = player.time.export[0] >= (highest >= 8 ? 21600_000 : 86400_000) && (highest >= 7 || player.strange[0].total > 0) ? '' : 'none';
             getId('gameDisabled').style.display = player.time.excess < 0 ? '' : 'none';
             if (highest < 7) {
                 if (highest < 2) { getId('toggleBuilding0').style.display = ASR >= 1 ? '' : 'none'; }
@@ -1013,7 +1013,7 @@ export const visualUpdate = (ignoreOffline = false) => {
             const upgrades = player.upgrades[4];
             const neutron = player.upgrades[4][2] === 1 && (player.collapse.stars[1] > 0 || player.researchesExtra[5][0] >= 1);
 
-            const universes = Math.min(Math.max(player.verses[0].true + player.inflation.voidVerses, player.inflation.ends[2]), player.verses[0].current);
+            const universes = player.verses[0].true + player.inflation.voidVerses;
             let columns = 18 - (upgrades[3] === 1 ? 0 : 2) - (upgrades[4] === 1 ? (universes >= 1 ? 0 : 1) : 2);
             getId('elementsGrid').style.display = upgrades[2] === 1 ? '' : 'flex';
             for (let i = 6; i <= 10; i++) { getId(`element${i}`).style.display = upgrades[2] === 1 ? '' : 'none'; }
@@ -1515,7 +1515,7 @@ export const getStrangenessDescription = (index: number | null, stageIndex: numb
                     newLevel++;
                 }
             }
-            getId('inflationCost').textContent = `${cost === 0 ? 'None' : `${format(cost)} ${stageIndex === 0 ? 'Inflatons' : player.stage.true >= 8 ? 'Cosmons' : '(Not unlocked)'}`}.${newLevel - level > 1 ? ` [x${newLevel - level}]` : ''}`;
+            getId('inflationCost').textContent = `${cost === 0 ? 'None' : `${format(cost)} ${stageIndex === 0 ? 'Inflatons' : player.stage.true >= 8 ? 'Cosmons' : '(Unknown)'}`}.${newLevel - level > 1 ? ` [x${newLevel - level}]` : ''}`;
         }
         return;
     }
@@ -1824,10 +1824,10 @@ const setRemnants = () => {
             img2.alt = quarkStar ? 'Quark stars (Neutron stars)' : 'Neutron stars';
             getId('special2').dataset.title = img2.alt;
             getId('special2Cur').style.color = 'var(--darkviolet-text)';
-            getQuery('#star2Effect > span.info').textContent = `Boost${quarkStar ? ' and cost decrease' : ''} to all Stars`;
+            getId('star2Effect').dataset.title = `Boost${quarkStar ? ' and cost decrease' : ''} to all Stars`;
         }
 
-        if (player.inflation.vacuum) { getQuery('#star3Effect > span.info').textContent = `Boost to the Solar mass gain${player.elements[33] >= 1 ? ', Quasi-stars strength' : ''} and delay to the Preons hardcap`; }
+        if (player.inflation.vacuum) { getId('star3Effect').dataset.title = `Boost to the Solar mass gain${player.elements[33] >= 1 ? ', Quasi-stars strength' : ''} and delay to the Preons hardcap`; }
         if (globalSave.SRSettings[0]) { getId('specials').ariaLabel = 'Stars remnants'; }
     } else if (player.stage.active === 5) {
         const img1 = getQuery('#special1 > img') as HTMLImageElement;
