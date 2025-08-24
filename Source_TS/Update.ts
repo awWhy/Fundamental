@@ -1515,7 +1515,7 @@ export const getStrangenessDescription = (index: number | null, stageIndex: numb
                     newLevel++;
                 }
             }
-            getId('inflationCost').textContent = `${cost === 0 ? 'None' : `${format(cost)} ${stageIndex === 0 ? 'Inflatons' : player.stage.true >= 8 ? 'Cosmons' : '(Unknown)'}`}.${newLevel - level > 1 ? ` [x${newLevel - level}]` : ''}`;
+            getId('inflationCost').textContent = `${cost === 0 ? 'None' : `${format(cost)} ${stageIndex === 0 ? 'Inflatons' : player.stage.true >= 8 ? 'Cosmons' : '(Unknown)'}`}${stageIndex !== 0 ? ', non-refundable' : ''}.${newLevel - level > 1 ? ` [x${newLevel - level}]` : ''}`;
         }
         return;
     }

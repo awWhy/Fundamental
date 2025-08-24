@@ -1778,7 +1778,7 @@ export const inflationRefund = async(noConfirmation = false, loadout = false): P
     if (inflaton.current === inflaton.total && player.tree[0][0] < 1) { return true; }
     const challenge = player.challenges.active;
     if (!noConfirmation && !await Confirm(loadout ? 'Refund basic Inflations before loading this loadout?' :
-        `This will force a Stage reset${challenge !== null ? ' and restart current Challenge' : ''}, continue?`)) { return loadout; }
+        `This will force a Stage reset${challenge !== null ? ' and restart current Challenge' : ''} to refund basic Inflations, continue?`)) { return loadout; }
 
     if (challenge !== null) { challengeReset(); }
     stageFullReset();
@@ -2266,7 +2266,7 @@ const stageResetReward = (stageIndex: number) => {
             assignBuildingsProduction.strange1();
             exportReward[2] = Math.max(exportReward[2], strangelets) + strangelets * conversion;
         }
-        assignBuildingsProduction.strange0(false);
+        assignBuildingsProduction.strange0(stageIndex >= 4 ? false : undefined);
         exportReward[1] = Math.max(exportReward[1], quarks) + quarks * conversion;
         if (stageIndex >= 4) {
             const history = player.history.stage;
