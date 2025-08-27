@@ -229,8 +229,10 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 #alertMain > div {
     display: flex;
     flex-direction: column;
-    width: clamp(18vw, 24rem, 80vw);
-    height: clamp(16vh, 20rem, 90vh);
+    width: 24rem;
+    max-width: 80vw;
+    height: 20rem;
+    max-height: 90vh;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 10px;
@@ -311,7 +313,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     padding: 0.2em 0.4em;
     text-align: center;
     white-space: pre-line;
-    width: clamp(25vw, 29rem, 95vw);
+    width: clamp(20vw, 29rem, 95vw);
     overflow-wrap: break-word;
     pointer-events: auto;
     cursor: pointer !important;
@@ -334,8 +336,8 @@ button, input { appearance: none; }
 }
 
 .toggleNormal, .toggleConfirm, .toggleHover, .toggleMax, .toggleAuto, .specialToggle {
-    color: var(--green-text);
-    border-color: forestgreen;
+    color: var(--red-text);
+    border-color: crimson;
     background-color: var(--background-color);
 }
 
@@ -597,7 +599,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #buildingToggles div { position: relative; }
-#toggleBuilding0 { margin-left: 0.3em; }
+#toggleAll { margin-left: 0.3em; }
 
 #stageInfo > div {
     display: flex;
