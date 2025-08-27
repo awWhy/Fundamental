@@ -1,7 +1,7 @@
 import { allowedToBeReset } from './Check';
 import { cloneArray, playerStart } from './Main';
 import { global, player } from './Player';
-import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, autoElementsSet, assignMilestoneInformation, assignBuildingsProduction, assignResetInformation } from './Stage';
+import { autoResearchesSet, autoUpgradesSet, calculateMaxLevel, calculateResearchCost, autoElementsSet, assignMilestoneInformation, assignBuildingsProduction, assignResetInformation, assignChallengeInformation } from './Stage';
 import { stageUpdate, switchTab } from './Update';
 
 export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' | 'galaxy', stageIndex: number[]) => {
@@ -199,7 +199,7 @@ export const resetStage = (stageIndex: number[], update = true as null | boolean
         player.researchesAuto[1] = strangeness[4][6];
         player.researchesAuto[2] = player.inflation.vacuum ? (strangeness[1][4] < 1 ? 0 : strangeness[3][4] < 1 ? 1 : strangeness[2][4] < 1 ? 2 : strangeness[4][4] < 1 ? 3 : strangeness[5][9] < 1 ? 4 : 5) :
             (strangeness[Math.min(player.stage.current, 4)][4] >= 1 ? 1 : 0);
-    } else { assignBuildingsProduction.globalCache(); }
+    }
     if (player.inflation.vacuum || stageIndex.includes(1)) { assignResetInformation.trueEnergy(true); }
 
     for (const s of stageIndex) { //Less errors if do it separatly
@@ -237,11 +237,13 @@ export const resetVacuum = (level = 0) => {
         player.cosmon[0].total = total;
         player.inflation.resets = 0;
         player.time.end = 0;
+
+        for (let i = 0; i < global.challengesInfo.length; i++) { assignChallengeInformation(i); }
     }
     if (level >= 1) {
         player.inflation.age = 0;
         player.time.universe = 0;
-        if (player.challenges.stability < 4) {
+        if (player.challenges.stability < 3) {
             player.challenges.supervoidMax = cloneArray(playerStart.challenges.supervoidMax);
             global.inflationInfo.totalSuper = 0;
         }

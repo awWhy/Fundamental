@@ -431,7 +431,7 @@ const technical = {
                 left[0] = NaN;
                 left[1] = NaN;
             } else {
-                left[0] = Math.abs(base[0]) > 1 ? -Infinity : Infinity;
+                left[0] = base[1] < 0 ? Infinity : -Infinity;
                 left[1] = Infinity;
             }
             return left;

@@ -50,7 +50,7 @@ export const globalSave: globalSaveType = {
         toggleStructure: 'Numpad',
         enterChallenge: 'Shift Numbers'
     },
-    toggles: [false, false, false, false, false],
+    toggles: [false, false, false, false, false, false, true],
     format: ['.', ''],
     theme: null,
     fontSize: 16,
@@ -565,7 +565,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
             }
             properties['--background-color'] = 'black';
             properties['--window-color'] = '#01003c';
-            properties['--window-border'] = '#7100ff';
+            properties['--window-border'] = '#6500e0';
             properties['--footer-color'] = '#00007a';
             properties['--button-color'] = '#2b0095';
             properties['--button-border'] = '#6c1ad1';
@@ -977,7 +977,7 @@ export const playEvent = (event: number, replay = true) => {
     } else if (event === 12) {
         text = "By converting Dark energy into the Phantom energy, you have triggered the scenario known as 'Big Rip', meaning that everything up to this point had been converted into Cosmons.\n(Also time required for a max Export reward is now reduced by 4)";
     } else if (event === 13) {
-        text = 'Void Universes are weaker version of self-made Universes. They do not count as self-made, but do award Inflatons and unlock new Elements. They can be created only under the Void time limit.';
+        text = 'Void Universes are weaker version of self-made Universes. They unlock and award mostly the same stuff, but do not count as self-made. They can be created only under the Void time limit.';
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
     return void Alert(text);

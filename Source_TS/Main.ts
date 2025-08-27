@@ -1,4 +1,4 @@
-import { player, global, updatePlayer, prepareVacuum } from './Player';
+import { player, global, updatePlayer, prepareVacuum, fillMissingValues } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallenge0Reward, getChallenge1Reward, stageUpdate, getStrangenessDescription, addIntoLog, updateCollapsePoints } from './Update';
 import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleSupervoid, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog, errorNotify } from './Special';
@@ -95,8 +95,8 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
     if (decline || offline < 20) {
         if (decline) { player.time.offline = Math.min(player.time.offline + offline * (player.tree[0][5] / 4), 43200_000); }
         if (offline < 0) { player.time.excess = offline - 20; }
-        timeUpdate(20, 20); //Just in case
         pauseGame(false);
+        timeUpdate(20, 20); //Just in case
         visualUpdate();
         numbersUpdate();
         return;
@@ -348,8 +348,8 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
         format(player.cosmon[0].total, { type: 'input', padding: 'exponent' }),
         format(player.cosmon[1].total, { type: 'input', padding: 'exponent' }),
         `${player.inflation.vacuum}`,
-        format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' }),
-        format(player.verses[0].current, { type: 'input', padding: 'exponent' })
+        `${format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' })} [${player.buildings[5][3].true}]`,
+        `${format(player.verses[0].current, { type: 'input', padding: 'exponent' })}${player.stage.true >= 8 ? ` [${player.verses[0].true} + ${player.inflation.voidVerses}]` : ''}`
     ];
     for (let i = 0; i < special.length; i++) {
         name = name.replace(special[i], replaceWith[i]);
@@ -660,20 +660,10 @@ try { //Start everything
                     array[i] = decoder.decode(Uint8Array.from(array[i], (c) => c.codePointAt(0) as number));
                 }
             }
-            //if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
-            if (globalSave.intervals.offline !== 20) {
-                globalSave.intervals.offline = 20;
-                Notify('Starting offline tick value has been set to 20ms\n(this forced check will soon be removed)');
-            }
-            for (let i = globalSave.toggles.length; i < globalSaveStart.toggles.length; i++) {
-                globalSave.toggles[i] = false;
-            }
-            for (let i = globalSave.MDSettings.length; i < globalSaveStart.MDSettings.length; i++) {
-                globalSave.MDSettings[i] = false;
-            }
-            for (let i = globalSave.SRSettings.length; i < globalSaveStart.SRSettings.length; i++) {
-                globalSave.SRSettings[i] = false;
-            }
+            if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
+            fillMissingValues(globalSave.toggles, globalSaveStart.toggles);
+            fillMissingValues(globalSave.MDSettings, globalSaveStart.MDSettings);
+            fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings);
             for (const key in globalSaveStart.hotkeys) {
                 globalSave.hotkeys[key as hotkeysList] ??= ['None', 'None'];
             }
@@ -690,6 +680,7 @@ try { //Start everything
     (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
     for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
     if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
+    if (globalSave.toggles[5]) { specialHTML.styleSheet.textContent += 'body::-webkit-scrollbar { display: none; } '; }
     if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
     if (globalSave.toggles[3]) {
         getQuery('#footer > div:first-child').style.display = 'none';
@@ -896,7 +887,7 @@ try { //Start everything
             window.textContent = element.dataset.title as string;
             window.style.display = '';
             const position = (event: MouseEvent) => {
-                window.style.left = `${Math.min(event.clientX, document.documentElement.clientWidth - window.getBoundingClientRect().width)}px`;
+                window.style.left = `${Math.min(event.clientX, document.documentElement.clientWidth - window.getBoundingClientRect().width - globalSave.fontSize / 2)}px`;
                 window.style.top = `${event.clientY}px`;
             };
             position(event);
@@ -910,7 +901,7 @@ try { //Start everything
     }
     for (let i = 0; i < globalSaveStart.toggles.length; i++) {
         getId(`globalToggle${i}`).addEventListener('click', () => {
-            toggleSpecial(i, 'global', true, i === 1 || i === 3);
+            toggleSpecial(i, 'global', true, i === 1 || i === 3 || i === 5);
             if (i === 0) {
                 assignHotkeys();
                 const index = globalSave.toggles[0] ? 0 : 1;
@@ -1511,7 +1502,10 @@ try { //Start everything
     }
     {
         const button = getId('loadoutsName');
-        button.addEventListener('change', () => { (getId('loadoutsName') as HTMLInputElement).value = (getId('loadoutsName') as HTMLInputElement).value.trim(); });
+        button.addEventListener('change', () => {
+            const input = getId('loadoutsName') as HTMLInputElement;
+            input.value = input.value.trim();
+        });
         button.addEventListener('keydown', (event) => {
             if (detectShift(event) === false && event.code === 'Enter') {
                 event.preventDefault();

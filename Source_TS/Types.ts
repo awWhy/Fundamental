@@ -477,7 +477,7 @@ export interface globalSaveType {
     /** hotkeyFunction: [key, code] */
     hotkeys: Record<hotkeysList, string[]>
     numbers: Record<numbersList, string>
-    /** Hotkeys type[0], Elements as tab[1], Allow text selection[2], Footer on top[3], Hide global stats[4] */
+    /** Hotkeys type[0], Elements as tab[1], Allow text selection[2], Footer on top[3], Hide global stats[4], Hide main scrollbar[5], Milestone notifications[6] */
     toggles: boolean[]
     /** Point[0], Separator[1] */
     format: [string, string]
@@ -569,9 +569,7 @@ export interface calculateEffectsType {
     darkFluid: (post?: boolean) => number
     S6Upgrade0: () => number
     S2Strange9: () => number
-    S5Strange9_stage1: () => number
     S5Strange9_stage2: () => number
-    S5Strange9_stage3: () => number
     T0Inflation0: () => number
     T0Inflation1: () => number
     T0Inflation3: () => number
