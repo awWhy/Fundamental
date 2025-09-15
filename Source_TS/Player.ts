@@ -181,6 +181,7 @@ export const global: globalType = {
     paused: false,
     trueActive: 1,
     lastSave: 0,
+    lastUpdate: null,
     log: {
         add: [],
         lastHTML: ['Start of the log', 1, 0, true]

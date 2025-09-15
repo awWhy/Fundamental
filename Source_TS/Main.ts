@@ -1962,6 +1962,17 @@ try { //Start everything
     specialHTML.cache.idMap.clear();
     specialHTML.cache.queryMap.clear();
     specialHTML.cache.classMap.clear();
+
+    void (async() => {
+        const result = await fetch('./last_build.txt');
+        if (!result.ok) { return; }
+        global.lastUpdate = Number((await result.text()).replace('\n', ''));
+        if (global.lastUpdate === 0 || isNaN(global.lastUpdate)) {
+            global.lastUpdate = null;
+            return;
+        }
+        Notify(`Last game update happened ${format((Date.now() - global.lastUpdate) / 1000, { type: 'time', padding: false })} ago`);
+    })();
 } catch (error) {
     const stack = (error as { stack?: string }).stack;
     void Alert(`Game failed to load\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 2);
