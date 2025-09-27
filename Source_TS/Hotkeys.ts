@@ -334,7 +334,7 @@ export const toggleAll = () => {
 };
 
 export const offlineWarp = () => {
-    const required = player.tree[0][5] >= 1 && player.challenges.active !== null ? 360_000 : 720_000;
+    const required = player.challenges.active !== null ? 480_000 : 720_000;
     if (global.offline.active || player.time.offline < required) { return; }
     player.time.offline -= required;
     void simulateOffline(300_000, true);

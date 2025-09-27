@@ -41,6 +41,8 @@ export interface playerType {
     }
     merge: {
         rewards: [number, number, number, number]
+        /** Prevents auto Merge level 2 from breaking */
+        claimed: [number, number]
         resets: number
         /** [Min Galaxies, time since last Galaxy] */
         input: [number, number]
@@ -78,26 +80,27 @@ export interface playerType {
         vacuum: number
         stage: number
     }
-    /** .true is how many are self-made \
-     * .current is how many are right now \
-     * .total is how many was produced this reset \
-     * .trueTotal is how many was produced this Stage
-     */
     buildings: Array<[
         {
             current: Overlimit
+            /** This pre-Stage reset */
             total: Overlimit
+            /** This Stage */
             trueTotal: Overlimit
         }, ...Array<{
+            /** Self-made */
             true: number
             current: Overlimit
+            /** This pre-Stage reset */
             total: Overlimit
+            /** This Stage */
             trueTotal: Overlimit
         }>
     ]>
     verses: Array<{
         true: number
         current: number
+        total: number
     }>
     strange: Array<{
         current: number
@@ -151,16 +154,16 @@ export interface playerType {
         }
     }
     history: {
-        /** [time, quarks, strangelets] */
         stage: {
-            best: [number, number, number]
-            list: Array<[number, number, number]>
+            best: [number, number, number, number, number]
+            /** [time, quarks, strangelets, peak, peakedAt] */
+            list: Array<playerType['history']['stage']['best']>
             input: [number, number]
         }
-        /** [time, state, inflatons] */
         end: {
             best: [number, number]
-            list: Array<[number, number]>
+            /** [time, inflatons] */
+            list: Array<playerType['history']['end']['best']>
             input: [number, number]
         }
     }
@@ -278,6 +281,7 @@ export interface globalType {
         rankColor: string[]
         rankName: string[]
         rankImage: string[]
+        nextRank: Overlimit
         maxRank: number
         effective: number
         disableAuto: boolean
@@ -336,7 +340,7 @@ export interface globalType {
             Array<number | Overlimit>,
             Overlimit[],
             number[],
-            number[],
+            [Overlimit, Overlimit, ...number[]],
             Overlimit[],
             Overlimit[],
             number[]
@@ -345,8 +349,6 @@ export interface globalType {
     versesInfo: {
         firstCost: number[]
         increase: number[]
-        /** Visual only */
-        producing: number[]
     }
     strangeInfo: {
         name: string[]
@@ -458,8 +460,8 @@ export interface globalType {
         color: string
     }]
     historyStorage: {
-        stage: Array<[number, number, number]>
-        end: Array<[number, number]>
+        stage: playerType['history']['stage']['list']
+        end: playerType['history']['end']['list']
     }
     loadouts: {
         input: number[]
@@ -506,7 +508,6 @@ export interface calculateEffectsType {
     dischargeScaling: (S1Research3?: number, S1Strange2?: number) => number
     dischargeCost: (scaling?: number) => number
     dischargeBase: (S1research4?: number) => number
-    /** Result need to be divided by 100 */
     S1Upgrade6: () => number
     S1Upgrade7: (preons?: boolean) => number
     S1Upgrade9: () => number
@@ -515,8 +516,8 @@ export interface calculateEffectsType {
     S1Extra1: (level?: number) => number
     S1Extra3: (level?: number) => number
     S1Extra4: (S1Research5?: number) => number
-    /** laterPreons are calculateEffects.effectiveEnergy() ** calculateEffects.S1Extra3() */
-    preonsHardcap: (laterPreons: number) => number
+    /** laterPreons are effectiveEnergy ** S1Extra3 */
+    preonsHardcap: (laterPreons?: number) => Overlimit
     clouds: (post?: boolean) => number
     cloudsGain: () => number
     S2Upgrade1: () => number
@@ -552,6 +553,7 @@ export interface calculateEffectsType {
     mergeRequirement: (stability?: boolean) => number
     mergeMaxResets: () => number
     reward: Array<(post?: boolean) => number>
+    groupsCost: () => number
     mergeScore: () => number
     S5Upgrade0: () => number
     S5Upgrade1: () => number

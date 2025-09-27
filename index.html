@@ -47,11 +47,11 @@
                 <section id="stageSubtabStructures" class="insideTab" aria-label="Current tab">
                     <article id="resets" aria-label="Resets">
                         <section id="reset2Main" aria-label="End reset">
-                            <p class="whiteText"><span class="redText">End</span> reset forces an <span class="darkvioletText">Universe</span> reset, refunds Inflations, resets <span class="darkvioletText">Inflatons</span> and an entire Abyss Stage.</p>
+                            <p class="whiteText"><span class="redText">End</span> reset forces an <span class="darkvioletText">Universe</span> reset, refunds Inflations, resets <span class="darkvioletText">Inflatons</span> and an entire <span class="darkvioletText">Abyss</span> Stage.</p>
                             <button type="button" id="reset2Button">Missing</button>
                         </section>
                         <section id="reset1Main" aria-label="Stage reset">
-                            <p class="whiteText">Current Stage is <span id="stageWord" class="bigWord">Microworld</span>.<br>Resets everything Stage related to <span id="stageRewardNew">gain <span id="stageReward">0</span> Strange quarks</span><span id="stageRewardOld">enter higher Stage</span>.</p>
+                            <p class="whiteText">Current Stage is <span id="stageWord" class="bigWord">Microworld</span>.<br>Resets everything Stage related to <span id="stageRewardNew">gain <span id="stageReward">0</span> <span class="greenText">Strange quarks</span></span><span id="stageRewardOld">enter higher Stage</span>.</p>
                             <button type="button" id="reset1Button">Missing</button>
                         </section>
                         <section id="reset0Main" aria-label="Basic reset">
@@ -59,8 +59,8 @@
                             <p class="whiteText stage2Only"><span class="blueText">Vaporization</span> resets Structures and Upgrades for <span class="grayText">Clouds</span>. Their gain is based on current amount of <span class="blueText">Drops</span>.</p>
                             <p class="whiteText stage3Only"><img src="Used_art/Missing.png" alt="" loading="lazy" draggable="false" id="rankImage">Current <span class="darkorchidText">Rank</span> is <span id="rankName">Missing</span>.<br>Resets Structures, Upgrades and Stage Researches.</p>
                             <p class="whiteText stage4Only"><span class="orchidText">Collapse</span> resets Structures, Upgrades and all Researches for <span class="cyanText">Solar mass</span> and <span class="darkorchidText">Star remnants</span>.</p>
-                            <p class="whiteText stage5Only" id="mergeResetText">Missing</p>
-                            <p class="whiteText stage6Only"><span class="orangeText">Nucleation</span> resets Dark Structures, Upgrades and non-Dark Researches for <span class="grayText">Dark rewards</span></p>
+                            <p class="whiteText stage5Only" id="mergeResetText">Missing.</p>
+                            <p class="whiteText stage6Only"><span class="orangeText">Nucleation</span> resets <span class="grayText">Dark energy</span>, Dark Structures, <span class="darkvioletText">Abyss</span> Upgrades and Researches for <span class="darkvioletText">Dark fluid</span>.</p>
                             <button type="button" id="reset0Button">Missing</button>
                         </section>
                     </article>
@@ -870,8 +870,8 @@
                                 <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="More Strange quarks" draggable="false" aria-controls="inflationCost inflationEffect">
                                 <span><span id="inflation2Tree2Level">0</span>/<span id="inflation2Tree2Max" class="greenText">1</span></span>
                             </label>
-                            <label id="inflation3Tree2" class="whiteText redBorderImage">
-                                <input type="image" src="Used_art/Missing.png" alt="Stability" draggable="false" aria-controls="inflationCost inflationEffect">
+                            <label id="inflation3Tree2" class="whiteText stage5borderImage">
+                                <input type="image" src="Used_art/Stability.png" alt="Stability" draggable="false" aria-controls="inflationCost inflationEffect">
                                 <span><span id="inflation3Tree2Level">0</span>/<span id="inflation3Tree2Max" class="greenText">1</span></span>
                             </label>
                             <label id="inflation4Tree2" class="whiteText greenBorderImage">
@@ -897,6 +897,10 @@
                             <label id="inflation9Tree2" class="whiteText stage2borderImage">
                                 <input type="image" src="Used_art/Drops%20recycle.png" alt="Conservation of resources" draggable="false" aria-controls="inflationCost inflationEffect">
                                 <span><span id="inflation9Tree2Level">0</span>/<span id="inflation9Tree2Max" class="greenText">1</span></span>
+                            </label>
+                            <label id="inflation10Tree2" class="whiteText redBorderImage">
+                                <input type="image" src="Used_art/Missing.png" alt="Primordial fluctuations" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <span><span id="inflation10Tree2Level">0</span>/<span id="inflation10Tree2Max" class="greenText">1</span></span>
                             </label>
                         </section>
                     </article>
@@ -928,11 +932,14 @@
                 </section>
                 <section id="inflationSubtabMilestones" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div id="inflationMilestones">
-                        <section id="endMilestone1"><h4>Unlocked after 1 End:</h4>Start End resets with extra Universes equal to 1 + highest - lowest self-made Universe from which End was caused<br>Due to recent balance changes lowest self-made Universe can only decrease by 1 at a time, until next update</section>
+                        <section id="endMilestone1"><h4>Unlocked after 1 End:</h4>Start End resets with extra Universes equal to 1 + highest - lowest self-made Universe from which End was caused<br>Highest and lowest self-made Universes on End reset can only change by 1 at a time</section>
                         <section id="inflationSupervoid"><h4>Supervoid unlocks:</h4>
                             <p id="inflationSupervoid1">Improved conservation ‒ Remove Stage requirement from 'Conservation of Mass'<span> and 'Conservation of Energy'</span> Strangeness</p>
                             <p id="inflationSupervoid2">Indestructible matter ‒ Make self-made Preons and related Energy immune to pre-Stage resets</p>
                             <p id="inflationSupervoid3">Latest Preons ‒ Improve effect scaling of 'Later Preons' Energy Research by 20%</p>
+                            <p id="inflationSupervoid4">Main Stars ‒ Improve 'Main giants' Strangeness and increased its max level by +3, true Vacuum only</p>
+                            <p id="inflationSupervoid5">Limitless Mass ‒ Remove hardcap for Preons from 'Deuterium' Microworld Upgrade</p>
+                            <p id="inflationSupervoid6">Strange Ocean ‒ Improve formula of 'Ocean world' Strangeness: log10(x) / 80 + 1 ⟶ x ^0.01</p>
                             <p>(To toggle into the Supervoid will need to change the Void type by clicking the '<span style="text-decoration: underline;">Void</span>' button in Advanced subtab)</p>
                         </section>
                         <section id="inflationMilestone1"><h4>Unlocked at 1 Universes:</h4>Start Vacuum resets with Strange quarks equal to self-made Universes ^<span>1.5</span> rounded up, ^2 if in the true Vacuum<br>True Vacuum will also start with 'Conservation of Mass' Strangeness maxed</section>
@@ -943,7 +950,6 @@
                         <section id="inflationMilestone6"><h4>Unlocked at 6 Universes:</h4>Start Vacuum resets with 'Automatic Merge' Strangeness at level 1, includes false Vacuum</section>
                         <section id="inflationMilestone7"><h4>Unlocked at 7 Universes:</h4>Unlock Quasi-stars for the Void, but they won't produce anything and will scale in cost like Satellites</section>
                         <section id="inflationMilestone8"><h4>Unlocked at 8 Universes:</h4>Start Vacuum resets with Strangelets equal to 2 ^Void Universes - 1, Strangelets will also produce themselves</section>
-                        <section id="inflationMilestone9"><h4>Unlocked at 9 Universes:</h4>Unlock auto Universes</section>
                     </div>
                 </section>
             </div>
@@ -953,7 +959,7 @@
                         <h2 class="center">Reset confirmations<span> and automatization toggles</span></h2>
                         <div>
                             <section id="endToggleReset" aria-label="End">
-                                <img src="Used_art/Missing.png" alt="End" class="hasTitle" data-title="End" loading="lazy" draggable="false">
+                                <img src="Used_art/End%20toggle.png" alt="End" class="hasTitle" data-title="End" loading="lazy" draggable="false">
                                 <div>
                                     <button type="button" id="toggleConfirm6" class="toggleConfirm">Safe</button>
                                 </div>
@@ -1137,7 +1143,7 @@
                     <div class="stats">
                         <p>Started playing: <span class="whiteText"><span id="firstPlay">00.00.0000, 00:00:00</span> (<span id="firstPlayAgo">0 seconds</span> ago)</span> | Online time: <span id="onlineTotal" class="whiteText">0 seconds</span><span id="offlineStorage"> | Offline storage <span class="whiteText">0 seconds</span></span></p>
                         <p id="exportStats" class="hasTitle" data-title="Storage can be increased by gaining more than the current value in a single Stage reset">Max export: <span id="exportQuarksMax" class="whiteText">1</span><span id="exportQuarksStorage"> (<span class="whiteText">1</span> in the storage)</span> <span class="whiteText">Strange quarks</span><span id="exportStatsStrangeletsUnlocked">, <span id="exportStrangeletsMax" class="whiteText">0</span><span id="exportStrangeletsStorage"> (<span class="whiteText">0</span>)</span> <span class="whiteText">Strangelets</span></span> in <span id="exportTimeToMax" class="whiteText">24 hours</span></p>
-                        <p id="endResets">End resets: <span class="whiteText">0</span> | Min self-made Universes on reset: <span id="minEndReset" class="whiteText">0</span> | Max: <span id="maxEndReset" class="whiteText">0</span></p>
+                        <p id="endResets">End resets: <span class="whiteText">0</span> | Lowest self-made Universes on reset: <span id="minEndReset" class="whiteText">0</span> | Highest: <span id="maxEndReset" class="whiteText">0</span></p>
                         <p id="stageResets">Stage resets: <span class="whiteText">0</span></p>
                         <article class="statsWindows" aria-label="Structures">
                             <section id="building0Stats">
@@ -1235,6 +1241,13 @@
                             </section>
                         </article>
                         <article id="inflatonStat" class="statsWindows" aria-label="Space Structures">
+                            <section id="verse0Stat">
+                                <h4 class="darkvioletText bigWord">Universes</h4>
+                                <div>
+                                    <p>Total:</p>
+                                    <span id="verse0StatTotal" class="whiteText">0</span>
+                                </div>
+                            </section>
                             <section>
                                 <h4 class="darkvioletText bigWord">Inflatons</h4>
                                 <div>

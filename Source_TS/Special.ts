@@ -180,7 +180,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeS2.png',
             'UpgradeS3.png',
             'UpgradeS4.png',
-            'UpgradeS5.png'
+            'UpgradeS5.png',
+            'Missing.png'
         ], [
             'UpgradeG1.png',
             'UpgradeG2.png',
@@ -280,7 +281,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchCollapse1.png', 'stage6borderImage'],
             ['ResearchCollapse2.png', 'redBorderImage'],
             ['ResearchCollapse3.png', 'stage1borderImage'],
-            ['ResearchCollapse4.png', 'stage6borderImage']
+            ['ResearchCollapse4.png', 'stage6borderImage'],
+            ['Missing.png', 'redBorderImage']
         ], [
             ['ResearchGalaxy1.png', 'stage3borderImage'],
             ['ResearchGalaxy2.png', 'brownBorderImage'],
@@ -904,17 +906,11 @@ export const MDStrangenessPage = (stageIndex: number) => {
 };
 
 export const replayEvent = async() => {
-    let last;
-    if (player.stage.true >= 8) {
-        last = player.event ? 13 : 12;
-    } else if (player.stage.true >= 7) {
-        last = player.verses[0].true >= 6 ? 11 : player.event ? 10 : 9;
-    } else if (player.stage.true === 6) {
-        last = player.event ? 8 : player.stage.resets >= 1 ? 7 : 6;
-    } else {
-        last = player.stage.true - (player.event ? 0 : 1);
-        if (last < 1) { return void Alert('There are no unlocked events'); }
-    }
+    const last = player.stage.true >= 8 ? (player.event ? 12 : 11) :
+        player.stage.true === 7 ? (player.event ? 10 : 9) :
+        player.stage.true === 6 ? (player.event ? 8 : player.stage.resets >= 1 ? 7 : 6) :
+        player.stage.true - (player.event ? 0 : 1);
+    if (last < 1) { return void Alert('There are no unlocked events'); }
 
     let text = 'Which event do you want to see again?\nEvent 1: Stage reset';
     if (last >= 2) { text += '\nEvent 2: Clouds softcap'; }
@@ -926,9 +922,8 @@ export const replayEvent = async() => {
     if (last >= 8) { text += '\nEvent 8: First Merge'; }
     if (last >= 9) { text += '\nEvent 9: Inflation'; }
     if (last >= 10) { text += '\nEvent 10: Supervoid'; }
-    if (last >= 11) { text += '\nEvent 11: Stability'; }
-    if (last >= 12) { text += '\nEvent 12: Big rip'; }
-    if (last >= 13) { text += '\nEvent 13: Void Universes'; }
+    if (last >= 11) { text += '\nEvent 11: Big rip'; }
+    if (last >= 12) { text += '\nEvent 12: Void Universes'; }
 
     const event = Number(await Prompt(text, `${last}`));
     if (event <= 0 || !isFinite(event)) { return; }
@@ -948,7 +943,7 @@ export const playEvent = (event: number, replay = true) => {
         text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to the softcap`;
     } else if (event === 3) {
         if (!replay) {
-            assignResetInformation.maxRank();
+            assignResetInformation.rankInformation();
             global.debug.rankUpdated = null;
         }
         text = 'Cannot gain any more Mass with the current Rank. A new one has been unlocked, but reaching it will softcap the Mass production';
@@ -973,10 +968,8 @@ export const playEvent = (event: number, replay = true) => {
         }
         text = "Now that there was even more matter to rearrange ‒ the 'Supervoid' was formed. Check it out by clicking on the Void name in the 'Advanced' subtab.\n(Also unlocked 2 new Inflations, Supervoid unlocks are kept through Universe reset)";
     } else if (event === 11) {
-        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, which had unlocked a new Challenge ‒ 'Vacuum stability'";
+        text = "You had triggered the scenario known as 'Big Crunch' by modifying ratio of Dark energy to make it way more attractive, which converted everything up to this point into Cosmons.\n(Unlocked new Inflation Milestones, new Challenge and time required for a max Export reward is now reduced by 4)";
     } else if (event === 12) {
-        text = "By converting Dark energy into the Phantom energy, you have triggered the scenario known as 'Big Rip', meaning that everything up to this point had been converted into Cosmons.\n(Also time required for a max Export reward is now reduced by 4)";
-    } else if (event === 13) {
         text = 'Void Universes are weaker version of self-made Universes. They unlock and award mostly the same stuff, but do not count as self-made. They can be created only under the Void time limit.';
     }
     if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
@@ -1031,6 +1024,7 @@ export const openVersionInfo = () => {
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
         mainHTML.innerHTML = `${global.lastUpdate !== null ? `<h5><span class="bigWord">Last update:</span> <span class="whiteText">${new Date(global.lastUpdate).toLocaleString()}</span></h5><br>` : ''}
+        <h6>v0.2.7</h6><p>- Small speed up to Universes\n- Stage resets now save peak Strange quarks</p>
         <h6>v0.2.6</h6><p>- New content (Big Rip)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones</p>
         <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>

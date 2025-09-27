@@ -1052,19 +1052,16 @@ try { //Start everything
     } {
         const button = getId('makeAllStructures');
         const footer = getId('makeAllFooter');
+        const clickFooterFunc = global.hotkeys.shift ? createAll : buyAll;
         button.addEventListener('click', buyAll);
-        footer.addEventListener('click', () => { (global.hotkeys.shift ? createAll : buyAll)(); });
+        footer.addEventListener('click', clickFooterFunc);
         if (PC) {
             button.addEventListener('mousedown', () => repeatFunction(buyAll));
-            footer.addEventListener('mousedown', () => {
-                if (!global.hotkeys.shift) { repeatFunction(buyAll); }
-            });
+            footer.addEventListener('mousedown', () => repeatFunction(clickFooterFunc));
         }
         if (MD) {
             button.addEventListener('touchstart', () => repeatFunction(buyAll));
-            footer.addEventListener('touchstart', () => {
-                if (!global.hotkeys.shift) { repeatFunction(buyAll); }
-            });
+            footer.addEventListener('touchstart', () => repeatFunction(clickFooterFunc));
         }
     }
     getId('toggleAll').addEventListener('click', toggleAll);
@@ -1524,7 +1521,7 @@ try { //Start everything
         if (globalSave.SRSettings[0]) { getId('inflationLoadouts').ariaExpanded = `${global.loadouts.open}`; }
     });
     getId('loadoutsEdit').addEventListener('change', () => {
-        const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(',');
+        const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(/[,\\/_ |]+/);
         const final = [];
         for (let i = 0; i < first.length; i++) {
             const index = first[i].indexOf('x');
@@ -1971,6 +1968,7 @@ try { //Start everything
             global.lastUpdate = null;
             return;
         }
+        if (global.lastUpdate > 86400_000) { return; }
         Notify(`Last game update happened ${format((Date.now() - global.lastUpdate) / 1000, { type: 'time', padding: false })} ago`);
     })();
 } catch (error) {
