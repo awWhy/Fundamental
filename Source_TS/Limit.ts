@@ -1,8 +1,28 @@
 import { globalSave } from './Special';
 
+/* Overlimit - awWhy's version of break infinity (or Decimal):
+    Uses 2 numbers ([mantissa, exponent]) to allow for numbers that are bigger than 1.8e308 (up to like ~9e1.8e308)
+    Exponent above maxSafeInteger (~9e15) will start losing some precision (functions like multiply by 10 won't work and etc)
+
+    Altered JS math rules:
+    '1 ** Infinity', '1 ** NaN' now returns 1 instead of NaN
+    '0 ** 0', 'NaN ** 0' now retuns NaN instead of 1
+    '0 * Infinity', '0 * NaN' now returns 0 instead of NaN
+    'Infinity / 0', '-x ** Infinity' now returns NaN instead of Infinity
+
+    Logic behind is to help against bugs (0 ** 0 is a good example)
+    In these calculation I assume that Infinity is number Much bigger than its possible to represent
+    And NaN being any number and simutanionsly non-number as long as no complex Math is required
+*/
+
 type allowedTypes = string | number | bigint | [number, number] | Overlimit;
-/** To test number for being Overlimit can use: typeof number === 'object'; Array.isArray(number); number instanceof Overlimit
- * @param number allowed types are string, number, bigint, Overlimit and [number, number]; If Array is used, then must not contain any mistakes (example and proper way: [11, 0] > [1.1, 1]; [1, NaN] > [NaN, NaN]; [1, 1.4] > [1, 1])
+/** To test number for being Overlimit can use: typeof number === 'object'; Array.isArray(number); number instanceof Overlimit;\
+ * Allowed types are string, number, bigint, Overlimit and [number, number];\
+ * Provided value exponent must be floored, can call .floorExponent() to floor it: `-2e${Math.log10(0.2)}` === -0.3;\
+ * Providing an array will force extra restrictions:\
+ * Number must be provided in scientific format ([123, 0] > [1.23, 2]);\
+ * If mantissa is 0, then exponent must be 0, same if exponent is -Infinity;\
+ * if any part is NaN or Infinity, then both must be NaN or Infinity
  */
 export default class Overlimit extends Array<number> { //This is version is sligthly modified
     constructor(number: allowedTypes) {
@@ -23,6 +43,8 @@ export default class Overlimit extends Array<number> { //This is version is slig
         this[1] = after[1];
         return this;
     }
+    /** Fixes exponent not being floored, old mantissa will be added into new one */
+    floorExponent(): this { return technical.fixExpo(this) as this; }
 
     plus(number: allowedTypes): this { return technical.add(this, technical.convert(number)) as this; }
     minus(number: allowedTypes): this {
@@ -36,7 +58,9 @@ export default class Overlimit extends Array<number> { //This is version is slig
     /** Root must be a number, default value is 2 */
     root(root = 2): this { return technical.pow(this, 1 / root) as this; }
     /** Default value is Math.E */
-    log(base?: allowedTypes): this { return technical.log(this, base === undefined ? [2.718281828459045, 0] : technical.convert(base)) as this; }
+    log(base?: allowedTypes): this { return technical.log(this, base === undefined ? [Math.E, 0] : technical.convert(base)) as this; }
+    /** Experemental version of .log that allows negative numbers as long as complex numbers are not required */
+    logExp(base?: allowedTypes): this { return technical.log2(this, base === undefined ? [Math.E, 0] : technical.convert(base)) as this; }
 
     abs(): this {
         this[0] = Math.abs(this[0]);
@@ -226,6 +250,21 @@ const technical = {
 
         return result;
     },
+    fixExpo: (number: Overlimit): Overlimit => {
+        const target = Math.floor(number[1]);
+        if (target !== number[1]) {
+            const negative = number[0] < 0;
+            number[0] = Math.round((10 ** (number[1] - target) - 1 + Math.abs(number[0])) * 1e14) / 1e14;
+            number[1] = target;
+
+            if (number[0] >= 10) {
+                number[0] /= 10;
+                number[1]++;
+            }
+            if (negative) { number[0] *= -1; }
+        }
+        return number;
+    },
     /* Number is readonly */
     turnString: (number: Overlimit): string => number[1] === 0 || !isFinite(number[0]) ? `${number[0]}` : `${number[0]}e${number[1]}`,
     /* Right is readonly */
@@ -317,7 +356,7 @@ const technical = {
             left[0] = NaN;
             left[1] = NaN;
             return left;
-        } else if (left[0] === 0) { return left; }
+        }
 
         left[1] -= right[1];
         left[0] /= right[0];
@@ -345,24 +384,21 @@ const technical = {
         return left;
     },
     pow: (left: Overlimit, power: number): Overlimit => {
-        if (power === 0) {
-            if (left[0] === 0 || isNaN(left[0])) {
+        if (left[0] === 0) {
+            if (power <= 0 || isNaN(power)) {
                 left[0] = NaN;
                 left[1] = NaN;
-            } else {
+            }
+            return left;
+        } else if (power === 0) { //left !== 0
+            if (!isNaN(left[0])) {
                 left[0] = 1;
                 left[1] = 0;
             }
             return left;
-        } else if (left[0] === 0) {
-            if (power < 0) {
-                left[0] = NaN;
-                left[1] = NaN;
-            }
-            return left;
         } else if (!isFinite(power)) {
             if (left[1] === 0 && left[0] === 1) { return left; }
-            if (left[0] < 0 || isNaN(power) || isNaN(left[0])) {
+            if (left[0] < 0 || isNaN(left[0]) || isNaN(power)) {
                 left[0] = NaN;
                 left[1] = NaN;
             } else if ((power === -Infinity && left[1] >= 0) || (power === Infinity && left[1] < 0)) {
@@ -387,11 +423,10 @@ const technical = {
 
         const base10 = power * (Math.log10(left[0]) + left[1]);
         if (!isFinite(base10)) {
+            if (isNaN(left[0])) { return left; }
             if (base10 === -Infinity) {
                 left[0] = 0;
                 left[1] = 0;
-            } else if (isNaN(left[0])) {
-                left[1] = NaN;
             } else {
                 left[0] = negative === 1 ? -Infinity : Infinity;
                 left[1] = Infinity;
@@ -400,10 +435,9 @@ const technical = {
         }
 
         const target = Math.floor(base10);
-        left[0] = 10 ** (base10 - target);
+        left[0] = Math.round(10 ** (base10 - target) * 1e14) / 1e14;
         left[1] = target;
 
-        left[0] = Math.round(left[0] * 1e14) / 1e14;
         if (left[0] === 10) {
             left[0] = 1;
             left[1]++;
@@ -414,50 +448,34 @@ const technical = {
     },
     /* Base is readonly */
     log: (left: Overlimit, base: [number, number] | Overlimit): Overlimit => {
-        if (base[0] === 0 || (base[1] === 0 && Math.abs(base[0]) === 1)) {
+        if (base[0] <= 0 || (base[1] === 0 && base[0] === 1)) {
             left[0] = NaN;
             left[1] = NaN;
             return left;
-        } else if (left[1] === 0 && Math.abs(left[0]) === 1) {
-            if (left[0] === 1) {
-                left[0] = 0;
-            } else {
-                left[0] = NaN;
-                left[1] = NaN;
-            }
-            return left;
-        } else if (left[0] === 0) {
+        } else if (left[1] === 0 && left[0] === 1) { //base !== 0
             if (isNaN(base[0])) {
                 left[0] = NaN;
                 left[1] = NaN;
-            } else {
+            } else { left[0] = 0; }
+            return left;
+        } else if (left[0] <= 0) { //base !== 0
+            if (isNaN(base[0]) || left[0] !== 0) {
+                left[0] = NaN;
+                left[1] = NaN;
+            } else { //Base being Infinity only allowed for consistency
                 left[0] = base[1] < 0 ? Infinity : -Infinity;
                 left[1] = Infinity;
             }
             return left;
-        } else if (!isFinite(base[0])) { //Order matters (Infinity ** 0 === 1 || Infinity ** -Infinity === 0)
-            left[0] = NaN;
-            left[1] = NaN;
-            return left;
-        } else if (!isFinite(left[0])) {
-            if (isNaN(left[0]) || left[0] === -Infinity) {
+        } else if (!isFinite(left[0]) || !isFinite(base[0])) {
+            if (left[0] !== Infinity || isNaN(base[0])) { //base === -Infinity
                 left[0] = NaN;
                 left[1] = NaN;
-            } else {
-                left[0] = Math.abs(base[0]) < 1 ? -Infinity : Infinity;
+            } else { //Base being Infinity only allowed for consistency
+                left[0] = base[1] < 0 ? -Infinity : Infinity;
                 left[1] = Infinity;
             }
             return left;
-        }
-
-        const negative = left[0] < 0;
-        if (negative) { //Complex numbers are not supported
-            if (base[0] > 0) {
-                left[0] = NaN;
-                left[1] = NaN;
-                return left;
-            }
-            left[0] *= -1;
         }
 
         const tooSmall = left[1] < 0; //Minor issue with negative power
@@ -468,7 +486,7 @@ const technical = {
 
         if (tooSmall) { left[0] *= -1; } //Already can be negative
         if (base[1] !== 1 || base[0] !== 1) {
-            left[0] /= Math.log10(Math.abs(base[0])) + base[1];
+            left[0] /= Math.log10(base[0]) + base[1];
 
             const after = Math.abs(left[0]);
             if (after < 1 || after >= 10) {
@@ -478,25 +496,39 @@ const technical = {
             }
         }
 
-        if (base[0] < 0 || negative) { //Special test for negative numbers
-            if (left[1] < 0) {
-                left[0] = NaN;
-                left[1] = NaN;
-                return left;
-            }
-            //Due to floats (1.1 * 100 !== 110), test is done in this way (also we assume that big numbers are never uneven)
-            const test = left[1] < 16 ? Math.abs(Math.round(left[0] * 1e14) / 10 ** (14 - left[1])) % 2 : 0;
-            if (base[0] < 0 && (negative ? test !== 1 : test !== 0)) { //Result must be uneven : even
-                left[0] = NaN;
-                left[1] = NaN;
-                return left;
-            }
-        }
-
         left[0] = Math.round(left[0] * 1e14) / 1e14;
         if (Math.abs(left[0]) === 10) {
             left[0] /= 10;
             left[1]++;
+        }
+        return left;
+    },
+    /* Base is readonly */
+    log2: (left: Overlimit, base: [number, number] | Overlimit): Overlimit => {
+        const baseNeg = base[0] < 0;
+        if (baseNeg) {
+            if (base[0] === -Infinity && left[0] !== 0 && (left[0] !== 1 || left[1] !== 0)) {
+                left[0] = NaN;
+                left[1] = NaN;
+                return left;
+            }
+            base = [-base[0], base[1]];
+        }
+        const leftNeg = left[0] < 0;
+        if (leftNeg) {
+            if (!baseNeg || left[0] === -Infinity || (left[0] === -1 && left[1] === 0)) {
+                left[0] = NaN;
+                left[1] = NaN;
+                return left;
+            }
+            left[0] *= -1;
+        }
+        if (!isFinite(technical.log(left, base)[0])) { return left; }
+
+        if ((baseNeg || leftNeg) && (left[1] < 0 || //Result below must be (leftNeg ? odd : even), big numbers are always even
+            (left[1] < 16 ? Math.abs(Math.round(left[0] * 1e14) / 10 ** (14 - left[1])) % 2 : 0) !== (leftNeg ? 1 : 0))) {
+            left[0] = NaN;
+            left[1] = NaN;
         }
         return left;
     },
@@ -591,7 +623,7 @@ const technical = {
         }
         return left;
     },
-    /* Left is readonly */
+    /* Left is readonly. String.replace can be replaced with .slice for 4x speed up if required, but I am just going to hope that it will be optimized by browsers eventually */
     format: (left: [number, number] | Overlimit, settings: { type?: 'number' | 'input', padding?: boolean | 'exponent' }): string => {
         const [base, power] = left;
         if (!isFinite(base)) { return `${base}`; }
@@ -651,14 +683,17 @@ const technical = {
         } else if (padding && powerCheck !== power) { digits = powerCheck < 1 ? 5 : (5 - powerCheck); }
 
         let formated = padding ? mantissa.toFixed(digits) : `${mantissa}`;
-        if (type === 'input') { return formated; }
-        let ending = ''; //Being lazy
-        const index = formated.indexOf('.');
-        if (index !== -1) { //For some reason this replaces dot 2 times faster (?), also fixes spaces after dot (not required)
-            ending = `${globalSave.format[0]}${formated.slice(index + 1)}`;
-            formated = formated.slice(0, index);
+        if (type !== 'input') {
+            let index = formated.indexOf('.');
+            if (index !== -1) {
+                formated = `${formated.slice(0, index)}${globalSave.format[0]}${formated.slice(index + 1)}`;
+            } else { index = formated.length; }
+            if (index > 3) {
+                index -= 3;
+                formated = `${formated.slice(0, index)}${globalSave.format[1]}${formated.slice(index)}`;
+            }
         }
-        return `${mantissa >= 1e3 ? formated.replace(/\B(?=(\d{3})+(?!\d))/, globalSave.format[1]) : formated}${ending}`;
+        return formated;
     }
 };
 

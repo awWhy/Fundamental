@@ -1,13 +1,12 @@
 import { assignHotkeys, detectShift, removeHotkey } from './Hotkeys';
-import { deepClone, getId, getQuery, globalSaveStart, pauseGame } from './Main';
-import { global, player } from './Player';
-import { assignResetInformation } from './Stage';
+import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playerStart } from './Main';
+import { global, player, prepareVacuum, updatePlayer } from './Player';
+import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
 import type { globalSaveType, hotkeysList, numbersList } from './Types';
-import { format, stageUpdate, switchTab, visualTrueStageUnlocks, visualUpdate } from './Update';
+import { format, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
-        offline: 20,
         numbers: 80,
         visual: 800,
         autoSave: 20000
@@ -32,7 +31,7 @@ export const globalSave: globalSaveType = {
         toggleNucleation: ['None', 'None'],
         stage: ['S', 'S'],
         toggleStage: ['None', 'None'],
-        universe: ['Shift U', 'Shift U'],
+        verses: ['Shift V', 'Shift V'],
         end: ['Shift B', 'Shift B'],
         exitChallenge: ['Shift E', 'Shift E'],
         supervoid: ['Shift S', 'Shift S'],
@@ -50,7 +49,7 @@ export const globalSave: globalSaveType = {
         toggleStructure: 'Numpad',
         enterChallenge: 'Shift Numbers'
     },
-    toggles: [false, false, false, false, false, false, true],
+    toggles: [false, false, false, false, false, false, true, true, false],
     format: ['.', ''],
     theme: null,
     fontSize: 16,
@@ -191,7 +190,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG6.png',
             'UpgradeG7.png'
         ], [
-            'Missing.png',
+            'UpgradeD1.png',
             'Missing.png'
         ]
     ],
@@ -238,10 +237,9 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Missing.png', 'redBorderImage']
         ], [
             ['ResearchD1.png', 'stage3borderImage'],
-            ['ResearchD2.png', 'stage3borderImage'],
-            ['ResearchD3.png', 'stage2borderImage'],
-            ['ResearchD4.png', 'stage3borderImage'],
-            ['ResearchD5.png', 'stage3borderImage']
+            ['ResearchD2.png', 'stage2borderImage'],
+            ['ResearchD3.png', 'stage3borderImage'],
+            ['ResearchD4.png', 'stage3borderImage']
         ]
     ],
     longestResearchExtra: 6,
@@ -253,7 +251,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Rank%20Researches.png', 'stage6borderImage', 'Rank'],
         ['Collapse%20Researches.png', 'stage6borderImage', 'Collapse'],
         ['Galaxy%20Researches.png', 'stage3borderImage', 'Galaxy'],
-        ['Missing.png', 'stage3borderImage', 'Dark']
+        ['Dark%20energy%20Researches.png', 'stage3borderImage', 'Dark energy']
     ],
     /** [src, className] */
     researchExtraHTML: [
@@ -291,10 +289,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Missing.png', 'redBorderImage'],
             ['Missing.png', 'redBorderImage']
         ], [
-            ['ResearchDark1.png', 'stage6borderImage'],
-            ['ResearchDark2.png', 'stage3borderImage'],
-            ['Missing.png', 'redBorderImage'],
-            ['Missing.png', 'redBorderImage']
+            ['ResearchDark1.png', 'stage3borderImage'],
+            ['ResearchDark2.png', 'stage6borderImage'],
+            ['ResearchDark3.png', 'stage3borderImage'],
+            ['ResearchDark4.png', 'stage3borderImage'],
+            ['ResearchDark5.png', 'stage6borderImage']
         ]
     ],
     longestFooterStats: 3,
@@ -328,7 +327,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     },
     localStorage: {
         /** Index for game's primary save slot */
-        main: 'save',
+        main: 'fundamentalSave',
         /** Index for global game settings */
         settings: 'fundamentalSettings'
     },
@@ -345,7 +344,9 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
     notifications: [] as Array<[string, (instantClose?: boolean) => void]>,
     /** [priority, closeFunc] */
     alert: [null, null] as [number | null, (() => void) | null],
-    bigWindow: null as 'version' | 'hotkeys' | 'log' | null,
+    /** Function to update current hover text */
+    hoverText: null as null | (() => void),
+    bigWindow: null as 'version' | 'hotkeys' | null,
     styleSheet: document.createElement('style') //Secondary
 };
 
@@ -393,16 +394,12 @@ export const preventImageUnload = () => {
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
 export const setTheme = (theme = 'current' as 'current' | number | null) => {
     if (theme !== 'current') {
-        if (theme !== null) {
-            if (player.stage.true < theme) { theme = null; }
-            if (theme === 6 && player.stage.true < 7) { theme = null; }
-        }
-        getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
+        if (globalSave.theme === null || globalSave.theme > 0) { getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = ''; }
 
         globalSave.theme = theme;
         saveGlobalSettings();
-        getId('currentTheme').textContent = theme === null ? 'Default' : global.stageInfo.word[theme];
-        getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
+        getId('currentTheme').textContent = theme === null ? 'Default' : theme === -1 ? 'Quantum' : global.stageInfo.word[theme];
+        if (theme === null || theme > 0) { getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline'; }
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];
@@ -426,14 +423,14 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
         '--button-text': '#e3e3e3',
         '--main-text': 'var(--cyan-text)',
         '--white-text': 'white',
-        //'--cyan-text': '#03d3d3',
+        //'--cyan-text': '#00d6d6',
         '--blue-text': 'dodgerblue',
         '--orange-text': 'darkorange',
         '--gray-text': '#8f8f8f',
         '--orchid-text': '#e14bdb',
         '--darkorchid-text': '#bd24ef',
         '--darkviolet-text': '#8b3cec',
-        //'--brown-text': '#9b7346',
+        '--brown-text': '#9b7346',
         '--red-text': '#eb0000',
         '--green-text': '#00e900',
         '--yellow-text': '#fafa00'
@@ -470,7 +467,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
             properties['--main-text'] = 'var(--blue-text)';
             properties['--gray-text'] = '#9b9b9b';
             properties['--darkorchid-text'] = '#c71bff';
-            properties['--darkviolet-text'] = '#8766ff';
+            properties['--darkviolet-text'] = '#9061ff';
             properties['--green-text'] = '#82cb3b';
             properties['--red-text'] = '#f70000';
             break;
@@ -581,21 +578,49 @@ export const setTheme = (theme = 'current' as 'current' | number | null) => {
             properties['--button-text'] = '#bfbdff';
             properties['--main-text'] = 'var(--darkviolet-text)';
             properties['--white-text'] = '#aba8ff';
-            properties['--gray-text'] = '#9b9b9b';
+            properties['--gray-text'] = '#95979d';
             properties['--darkviolet-text'] = '#8157ff';
             properties['--red-text'] = 'red';
             properties['--yellow-text'] = 'var(--green-text)';
+            break;
+        case -1:
+            for (const text of upgradeTypes) {
+                getId(`${text}Text`).style.color = 'var(--cyan-text)';
+                getId(`${text}Effect`).style.color = 'var(--blue-text)';
+                getId(`${text}Cost`).style.color = 'var(--brown-text)';
+            }
+            properties['--background-color'] = '#041004';
+            properties['--window-color'] = '#063003';
+            properties['--window-border'] = '#008500';
+            properties['--footer-color'] = '#055205';
+            properties['--button-color'] = '#094e04';
+            properties['--button-border'] = '#00a300';
+            properties['--button-hover'] = '#5c401f';
+            properties['--building-afford'] = 'var(--tab-active)';
+            properties['--tab-active'] = '#8c2eff';
+            properties['--tab-strangeness'] = '#0093ad';
+            properties['--tab-inflation'] = 'var(--tab-active)';
+            properties['--hollow-hover'] = '#0e5309';
+            properties['--footerButton-hover'] = '#251f18';
+            properties['--input-border'] = '#008ba3';
+            properties['--input-text'] = '#05c7c7';
+            properties['--button-text'] = '#ccffff';
+            properties['--main-text'] = 'var(--green-text)';
+            properties['--white-text'] = '#f5ffff';
+            properties['--blue-text'] = '#3399ff';
+            properties['--gray-text'] = '#999999';
+            properties['--darkorchid-text'] = '#c33df0';
+            properties['--darkviolet-text'] = '#a052ff';
+            properties['--brown-text'] = '#a97e4c';
+            properties['--green-text'] = '#00e000';
+            properties['--yellow-text'] = 'var(--cyan-text)';
     }
 
     const bodyStyle = document.documentElement.style;
     bodyStyle.setProperty('--transition-all', '500ms');
-    bodyStyle.setProperty('--transition-buttons', '500ms');
-    for (const property in properties) { bodyStyle.setProperty(property, properties[property as '--main-text']); }
+    for (const property in properties) { bodyStyle.setProperty(property, properties[property as keyof typeof properties]); }
 
-    setTimeout(() => {
-        bodyStyle.setProperty('--transition-all', '0ms');
-        bodyStyle.setProperty('--transition-buttons', '100ms');
-    }, 500);
+    setTimeout(() => { bodyStyle.setProperty('--transition-all', '0ms'); }, 500);
 };
 
 export const Alert = async(text: string, priority = 0): Promise<void> => {
@@ -669,7 +694,7 @@ export const Confirm = async(text: string, priority = 0): Promise<boolean> => {
         cancel.style.display = '';
         body.classList.remove('noTextSelection');
         const oldFocus = document.activeElement as HTMLElement | null;
-        confirm.focus();
+        (globalSave.toggles[8] ? cancel : confirm).focus();
 
         let result = false;
         const yes = () => {
@@ -754,9 +779,10 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
                 if (shift || (code === 'Space' && active === input) || active === cancel) { return; }
                 yes();
             } else if (code === 'Tab') {
+                const last = globalSave.toggles[8] ? confirm : cancel;
                 if (shift && document.activeElement === input) {
-                    cancel.focus();
-                } else if (!shift && document.activeElement === cancel) {
+                    last.focus();
+                } else if (!shift && document.activeElement === last) {
                     input.focus();
                 } else { return; }
             } else { return; }
@@ -781,9 +807,8 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
     });
 };
 
-/** Start will make it behave as if X duplicates have been detected */
 export const Notify = (text: string) => {
-    const { notifications } = specialHTML;
+    const notifications = specialHTML.notifications;
 
     let index;
     for (let i = 0; i < notifications.length; i++) {
@@ -798,7 +823,7 @@ export const Notify = (text: string) => {
         let timeout: number;
 
         const html = document.createElement('p');
-        html.textContent = `${text}${count > 1 ? ` | x${count}` : ''}`;
+        html.textContent = text;
         html.style.animation = 'hideX 800ms ease-in-out reverse';
         html.style.pointerEvents = 'none';
         if (globalSave.SRSettings[0]) { html.role = 'alert'; }
@@ -809,7 +834,8 @@ export const Notify = (text: string) => {
                 if (html.style.animation === '') { remove(); }
                 return;
             }
-            html.textContent = `${text} | x${++count}`;
+            count++;
+            html.textContent = `${text} | x${count}`;
             if (timeout === undefined) { return; }
             clearTimeout(timeout);
             timeout = setTimeout(remove, 7200);
@@ -817,24 +843,28 @@ export const Notify = (text: string) => {
         const remove = () => {
             const index = notifications.indexOf(pointer);
             if (index !== -1) { notifications.splice(index, 1); }
-            html.removeEventListener('click', remove);
+            html.removeEventListener('click', clickEvent);
             html.style.animation = 'hideX 800ms ease-in-out forwards';
             html.style.pointerEvents = 'none';
             setTimeout(() => html.remove(), 800);
             clearTimeout(timeout);
         };
+        const clickEvent = () => {
+            if (global.hotkeys.shift) { return remove(); }
+            for (let i = notifications.length - 1; i >= 0; i--) { notifications[i][1](true); }
+        };
         setTimeout(() => {
             html.style.animation = '';
             html.style.pointerEvents = '';
             timeout = setTimeout(remove, 7200);
-            html.addEventListener('click', remove);
+            html.addEventListener('click', clickEvent);
         }, 800);
     } else { notifications[index][1](); }
 };
 
 /** Notify about error in the code with a cooldown of 20 seconds */
 export const errorNotify = (text: string) => {
-    const { errorCooldowns } = specialHTML;
+    const errorCooldowns = specialHTML.errorCooldowns;
     if (errorCooldowns.includes(text)) { return; }
 
     Notify(text);
@@ -899,17 +929,257 @@ export const changeFormat = (point: boolean) => {
     saveGlobalSettings();
 };
 
+export const enableApril = () => {
+    global.april = !global.april;
+    const names1U = global.upgradesInfo[1].name;
+    names1U[2] = global.april ? 'Positrons' : 'Electrons';
+    for (let i = 3; i < 9; i++) {
+        if (i === 5) { continue; }
+        names1U[i] = global.april ? `Anti${names1U[i][0].toLowerCase()}${names1U[i].slice(1)}` :
+            `${names1U[i][4].toUpperCase()}${names1U[i].slice(5)}`;
+    }
+    specialHTML.upgradeHTML[1][2] = `UpgradeQ3${global.april ? '_A' : ''}.png`;
+    specialHTML.upgradeHTML[1][3] = `UpgradeQ4${global.april ? '_A' : ''}.png`;
+    for (const ID of getClass('newAntiName')) {
+        const current = ID.textContent as string;
+        ID.textContent = global.april ? `Anti${current[0].toLowerCase()}${current.slice(1)}` :
+            `${current[4].toUpperCase()}${current.slice(5)}`;
+    }
+    const names4U = global.upgradesInfo[4].name;
+    names4U[1] = `${global.april ? 'Antiproton-Antiproton' : 'Proton-Proton'} chain`;
+    names4U[2] = `${global.april ? 'Anticarbon-Antinitrogen-Antioxygen' : 'Carbon-Nitrogen-Oxygen'} cycle`;
+    names4U[3] = `${global.april ? 'Antihelium' : 'Helium'} fusion`;
+    names4U[5] = `${global.april ? 'Antiproton' : 'Proton'} capture`;
+    global.researchesInfo[1].name[0] = `Stronger ${names1U[6]}`;
+    global.researchesInfo[1].name[1] = `Better ${names1U[7]}`;
+    global.researchesInfo[1].name[2] = `Improved ${names1U[8]}`;
+    const namesE = global.elementsInfo.name;
+    for (let i = 0; i < namesE.length; i++) {
+        const index = namesE[i].indexOf(' ') + 1;
+        namesE[i] = global.april ? `${namesE[i].slice(0, index)}Anti${namesE[i][index].toLowerCase()}${namesE[i].slice(index + 1)}` :
+            `${namesE[i].slice(0, index)}${namesE[i][index + 4].toUpperCase()}${namesE[i].slice(index + 5)}`;
+        (getId(`element${i}`) as HTMLInputElement).alt = namesE[i];
+    }
+    global.strangenessInfo[4].name[8] = global.april ? 'Antineutronium' : 'Neutronium';
+    global.challengesInfo[0].rewardText[0][4][2] = `'${global.strangenessInfo[4].name[8]}' (Interstellar)`;
+    (getQuery('#strange9Stage4 > input') as HTMLInputElement).alt = global.strangenessInfo[4].name[8];
+
+    if (!global.april) {
+        if (global.ultravoid === false) { toggleChallengeType(0, true); }
+        if (global.sessionToggles[2]) { toggleChallengeType(1, true); }
+    }
+    global.offline.cacheUpdate = false;
+    preventImageUnload();
+};
+export const enterUltravoid = () => {
+    global.ultravoid = true;
+    const lastSave = global.lastSave;
+    const currentSave = deepClone(player);
+
+    prepareVacuum(false); //Set buildings values
+    updatePlayer(deepClone(playerStart));
+    stageUpdate(true, true);
+    setTimeout(() => {
+        if (specialHTML.alert[0] !== null) { (specialHTML.alert[1] as () => undefined)(); }
+        global.lastSave = lastSave;
+        enableApril();
+        updatePlayer(currentSave);
+        stageUpdate(true, true);
+        Notify('Must have been a bad dream');
+    }, 30_000);
+};
+export const enterQuantum = () => {
+    pauseGame();
+    const html = document.documentElement;
+    html.style.backgroundColor = 'black';
+    getId('body').style.display = 'none';
+    getId('notifications').style.display = 'none';
+    setTimeout(() => {
+        const cache: Record<string, Array<[string, () => any]>> = {};
+        const query = (which: string): HTMLElement => {
+            cache[which] ??= [];
+            return getQuery(which);
+        };
+        const addEvent = (which: string, eventType: string, event: (...any: any) => any) => {
+            const addTo = query(which);
+            cache[which].push([eventType, event]);
+            addTo.addEventListener(eventType, event);
+        };
+        const styleSheet = document.createElement('style');
+
+        const oldTheme = globalSave.theme;
+        let timeoutID: undefined | number;
+        const main = document.createElement('div');
+        main.id = 'quantum';
+        main.innerHTML = '<input type="image" src="Used_art/False%20vacuum.png" alt="Exit" draggable="false" id="leaveQuantum" class="interactiveImage" style="opacity: 0;">';
+        main.className = 'insideTab';
+        styleSheet.textContent = '#leaveQuantum { width: 48px; height: 48px; transition: opacity 30s; cursor: help; }';
+        document.body.append(main);
+        document.head.append(styleSheet);
+        query('#leaveQuantum').addEventListener('click', () => {
+            clearTimeout(timeoutID);
+            for (const remove in cache) {
+                const pointer = cache[remove];
+                if (pointer.length > 0) {
+                    const element = getQuery(remove);
+                    for (let i = 0; i < pointer.length; i++) {
+                        element.removeEventListener(pointer[i][0], pointer[i][1]);
+                    }
+                }
+                specialHTML.cache.queryMap.delete(remove);
+            }
+            main.remove();
+            styleSheet.remove();
+            html.style.backgroundColor = '';
+            getId('body').style.display = '';
+            getId('notifications').style.display = '';
+            global.hotkeys.disabled = false;
+            globalSave.theme = oldTheme;
+            setTheme();
+            pauseGame(false);
+        }, { once: true });
+        timeoutID = setTimeout(() => {
+            query('#leaveQuantum').style.opacity = '';
+            timeoutID = setTimeout(() => {
+                styleSheet.textContent += 'html { transition-duration: 100s; }';
+                html.style.background = '#041004';
+                timeoutID = setTimeout(() => {
+                    globalSave.theme = -1;
+                    setTheme();
+
+                    const button = document.createElement('button');
+                    button.textContent = 'Quantize';
+                    button.type = 'button';
+                    button.id = 'quantize';
+                    button.style.opacity = '0';
+                    main.append(button);
+                    styleSheet.textContent += '#quantize { width: 8em; transition: opacity 30s; }';
+                    setTimeout(() => (button.style.opacity = ''), 0);
+                    addEvent('#quantize', 'click', () => {
+                        getId('notifications').style.display = '';
+                        Notify('Work in progress, return later');
+                    });
+                }, 100_000);
+            }, 20_000);
+        }, 4_000);
+    }, 6_000);
+};
+
 export const MDStrangenessPage = (stageIndex: number) => {
     getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
     getId(`strangenessSection${stageIndex}`).style.display = '';
     global.debug.MDStrangePage = stageIndex;
 };
 
+export const checkProgress = () => {
+    progressMain();
+
+    const universes = player.inflation.vacuum ? player.verses[0].true : player.verses[0].other[2];
+    if (universes > player.progress.universe) { player.progress.universe = universes; }
+    const index = player.inflation.vacuum ? 1 : 0;
+    for (let i = player.progress.element[index] + 1; i < global.elementsInfo.maxActive; i++) {
+        if (player.elements[i] === 0) { break; }
+        player.progress.element[index] = i;
+    }
+    for (let i = player.progress.results; i < 1; i++) {
+        if (player.merge.rewards[i] < 1) { break; }
+        player.progress.results = i + 1;
+    }
+};
+const progressMain = () => {
+    const progress = player.progress.main;
+    if (progress >= 24 || global.offline.active) { return; }
+    if (player.inflation.ends[1] >= 1) { return progressUp(24); }
+    if (progress >= 23) { return; }
+    if (player.darkness.energy >= 1000) { return progressUp(23, 12); }
+    if (progress >= 22) { return; }
+    if (player.verses[0].true >= 5) { return progressUp(22, 11); }
+    if (progress >= 21) { return; }
+    if (player.inflation.ends[0] >= 1) { return progressUp(21); }
+    if (progress >= 20) { return; }
+    if (player.inflation.vacuum) {
+        if (player.verses[0].total >= 1) { return progressUp(20, 10); }
+        if (progress >= 18) { return; }
+        if (player.merge.resets >= 1) { return progressUp(18, 8); }
+        if (progress >= 17) { return; }
+        if (player.stage.resets >= 1) { return progressUp(17, 7); }
+        if (progress >= 16) { return; }
+        if (player.stage.current >= 5) { return progressUp(16); }
+        if (progress >= 15) { return; }
+        progressUp(15, 6);
+    } else if (progress < 19) {
+        if (player.verses[0].total >= 1) { return progressUp(19, 9); }
+        if (progress >= 14) { return; }
+        if (player.stage.resets >= 7) { return progressUp(14); }
+        if (progress >= 13) { return; }
+        if (player.stage.resets >= 6) { return progressUp(13); }
+        if (progress >= 12) { return; }
+        if (player.stage.resets >= 5) { return progressUp(12); }
+        if (progress >= 11) { return; }
+        if (player.stage.resets >= 4) { return progressUp(11); }
+        if (progress >= 10) { return; }
+        if (player.stage.active >= 5) { return progressUp(10, 5); }
+        if (progress >= 9) { return; }
+        if (player.stage.current >= 5) { return progressUp(9); }
+        if (progress >= 8) { return; }
+        if (player.collapse.stars[1] >= 1) { return progressUp(8, 4); }
+        if (progress >= 7) { return; }
+        if (player.stage.current >= 4) { return progressUp(7); }
+        if (progress >= 6) { return; }
+        if (player.buildings[3][0].current.moreOrEqual(5e29)) { return progressUp(6, 3); }
+        if (progress >= 5) { return; }
+        if (player.stage.current >= 3) { return progressUp(5); }
+        if (progress >= 4) { return; }
+        if (assignResetInformation.newClouds() + player.vaporization.clouds > 1e4) { return progressUp(4, 2); }
+        if (progress >= 3) { return; }
+        if (player.stage.current >= 2) { return progressUp(3); }
+        if (progress >= 2) { return; }
+        if (player.upgrades[1][9] === 1) { return progressUp(2, 1); }
+        if (progress >= 1) { return; }
+        if (player.buildings[1][1].true >= 12) { progressUp(1); }
+    }
+};
+const progressUp = (newValue: number, event = null as null | number) => {
+    const old = player.progress.main;
+    player.progress.main = newValue;
+    if (event !== null) { playEvent(event, false); }
+    if (old < 6 && newValue >= 6) {
+        assignResetInformation.maxRank();
+        global.debug.rankUpdated = null;
+    }
+    visualProgressUnlocks();
+    if (global.tabs.current === 'stage') {
+        if (old < 15 && newValue >= 15) { switchTab(); }
+    } else if (global.tabs.current === 'strangeness') {
+        if (old < 20 && newValue >= 20) { switchTab(); }
+    } else if (global.tabs.current === 'settings') {
+        if (old < 17 && (newValue >= 17 || (old < 11 && newValue >= 11))) { switchTab(); }
+    }
+    if (old < 25 && (newValue >= 25 || (old < 17 && (newValue >= 18 || (old < 10 && (newValue >= 10 || old < 1)))))) {
+        stageUpdate(old < 1);
+    } else if (old === 17) {
+        setTimeout(() => {
+            setActiveStage(6, player.stage.active);
+            stageUpdate();
+        });
+    }
+    if (globalSave.developerMode) { Notify(`Game progress had increased to ${newValue}`); }
+};
+
 export const replayEvent = async() => {
-    const last = player.stage.true >= 8 ? (player.event ? 12 : 11) :
-        player.stage.true === 7 ? (player.event ? 10 : 9) :
-        player.stage.true === 6 ? (player.event ? 8 : player.stage.resets >= 1 ? 7 : 6) :
-        player.stage.true - (player.event ? 0 : 1);
+    const progress = player.progress.main;
+    const last = progress >= 23 ? 12 :
+        progress >= 22 ? 11 :
+        progress >= 20 ? 10 :
+        progress >= 19 ? 9 :
+        progress >= 18 ? 8 :
+        progress >= 17 ? 7 :
+        progress >= 15 ? 6 :
+        progress >= 10 ? 5 :
+        progress >= 8 ? 4 :
+        progress >= 6 ? 3 :
+        progress >= 4 ? 2 :
+        progress >= 2 ? 1 : 0;
     if (last < 1) { return void Alert('There are no unlocked events'); }
 
     let text = 'Which event do you want to see again?\nEvent 1: Stage reset';
@@ -921,9 +1191,9 @@ export const replayEvent = async() => {
     if (last >= 7) { text += '\nEvent 7: Void unlocked'; }
     if (last >= 8) { text += '\nEvent 8: First Merge'; }
     if (last >= 9) { text += '\nEvent 9: Inflation'; }
-    if (last >= 10) { text += '\nEvent 10: Supervoid'; }
-    if (last >= 11) { text += '\nEvent 11: Big rip'; }
-    if (last >= 12) { text += '\nEvent 12: Void Universes'; }
+    if (last >= 10) { text += '\nEvent 10: Universal End'; }
+    if (last >= 11) { text += '\nEvent 11: Stability unlocked'; }
+    if (last >= 12) { text += '\nEvent 12: Better End'; }
 
     const event = Number(await Prompt(text, `${last}`));
     if (event <= 0 || !isFinite(event)) { return; }
@@ -932,63 +1202,52 @@ export const replayEvent = async() => {
 };
 
 /** Sets player.event to true if replay is false */
-export const playEvent = (event: number, replay = true) => {
-    if (global.offline.active || specialHTML.alert[0] !== null) { return; }
-    if (!replay) { player.event = true; }
-
-    let text = 'No such event';
+const playEvent = (event: number, replay = true) => {
+    let text = 'No such event.';
     if (event === 1) {
-        text = 'A new reset tier has been unlocked. It will allow the creation of higher tier Structures, but for the price of everything else';
+        text = 'A new reset tier has been unlocked. It will allow the creation of higher tier Structures, but for the price of everything else.';
     } else if (event === 2) {
-        text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to the softcap`;
+        text = `Cloud density is too high... Any new Clouds past ${format(1e4)} will be weaker due to the softcap.`;
     } else if (event === 3) {
-        if (!replay) {
-            assignResetInformation.rankInformation();
-            global.debug.rankUpdated = null;
-        }
-        text = 'Cannot gain any more Mass with the current Rank. A new one has been unlocked, but reaching it will softcap the Mass production';
+        text = 'Cannot gain any more Mass with the current Rank. A new one has been unlocked, but reaching it will softcap the Mass production.';
     } else if (event === 4) {
-        text = 'That last explosion not only created the first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis';
+        text = 'That last explosion not only created the first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis.';
     } else if (event === 5) {
-        if (!replay) { stageUpdate(false); }
-        text = "There are no Structures in Intergalactic yet, but knowledge for their creation can be found within the previous Stages. Stage resets and exports will now award Strange quarks, '[26] Iron' Element will use new effect to improve Stage reset reward.\n(Stars in Intergalactic are just Stars from Interstellar)";
+        text = `There are no Structures in Intergalactic yet, but knowledge for their creation can be found within the previous Stages. Stage resets and exports will now award Strange quarks, and '${global.elementsInfo.name[26]}' will improve Stage reset reward based on total produced Stardust.\n(Intergalactic Stars are combined Interstellar Stars. Export rewards are based on highest reset value, that stored value will decrease by claimed amount)`;
     } else if (event === 6) {
-        text = 'As Galaxies began to Merge, their combined Gravity pushed Vacuum out of its local minimum into a more stable global minimum. New forces and Structures are expected within this new and true Vacuum state';
+        text = 'As Galaxies began to Merge, their combined Gravity pushed Vacuum out of its local minimum into a more stable global minimum. New forces and Structures are expected within this new and true Vacuum state.';
     } else if (event === 7) {
-        text = "With Vacuum decaying, the remaining matter had rearranged itself, which had lead to the formation of the 'Void'. Check it out in the 'Advanced' subtab";
+        text = "With Vacuum decaying, the remaining matter had rearranged itself, which had lead to the formation of the very first Challenge ‒ 'Void'. Check it out in the 'Advanced' subtab.\n(There is no reason to stay inside Challenges past time limit)";
     } else if (event === 8) {
-        if (!replay) { stageUpdate(false); }
-        text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure - the 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
+        text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure ‒ 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
-        text = "Now that the first Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab, new Upgrades and more Void rewards to complete\n(Also improve 'Nucleosynthesis' effect to unlock more Elements for every self-made Universe and exports will now fully claim their storage)";
+        text = "Now that current Universe is finished, it's time to Inflate a new one and so to unlock the 'Inflation' tab.\n(Universes only use specialized hotkeys. Also 'Nucleosynthesis' unlocks more Elements based on self-made Universes)";
     } else if (event === 10) {
-        if (!replay) {
-            visualTrueStageUnlocks();
-            switchTab();
-        }
-        text = "Now that there was even more matter to rearrange ‒ the 'Supervoid' was formed. Check it out by clicking on the Void name in the 'Advanced' subtab.\n(Also unlocked 2 new Inflations, Supervoid unlocks are kept through Universe reset)";
+        text = "Unlocked ability to End current Universes through basic End reset ‒ 'Big Crunch', also unlocked harder version of Void ‒ 'Supervoid' which is immune to End resets.\n(Will need to click the 'Void' button to toggle into Supervoid. End reset reward base will be increased by +1 if inside true Vacuum)";
     } else if (event === 11) {
-        text = "You had triggered the scenario known as 'Big Crunch' by modifying ratio of Dark energy to make it way more attractive, which converted everything up to this point into Cosmons.\n(Unlocked new Inflation Milestones, new Challenge and time required for a max Export reward is now reduced by 4)";
+        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.";
     } else if (event === 12) {
-        text = 'Void Universes are weaker version of self-made Universes. They unlock and award mostly the same stuff, but do not count as self-made. They can be created only under the Void time limit.';
+        text = `${format(1000)} Dark energy allows to do a more advanced End reset ‒ 'Big Rip', this one just adds non-self-made Universes into Cosmons gain base.\n(Doing it for the first time will also unlock new Inflation and ability to create new types of self-made Universes)`;
     }
-    if (!replay) { text += "\n\n(Can be viewed again with 'Events' button in Settings tab)"; }
+    if (!replay) {
+        text += "\n\n(Can be viewed again with 'Events' button in Settings tab)";
+        if (specialHTML.alert[0] !== null) { return Notify(`Wasn't able to show event ${event}, event text:\n${text}`); }
+    }
     return void Alert(text);
 };
 
 const buildBigWindow = (subWindow: string): null | HTMLElement => {
     if (getId('closeBigWindow', true) === null) {
-        getId('bigWindow').innerHTML = '<div role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></div>';
-        specialHTML.styleSheet.textContent += `#bigWindow > div { display: flex; flex-direction: column; align-items: center; width: 38rem; max-width: 80vw; height: 42rem; max-height: 90vh; background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
-            #bigWindow > div > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
-            #bigWindow > div > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; } `;
+        getId('bigWindow').innerHTML = '<article role="dialog" aria-modal="false"><button type="button" id="closeBigWindow">Close</button></article>';
+        specialHTML.styleSheet.textContent += `#bigWindow > article { display: flex; flex-direction: column; align-items: center; width: 38rem; max-width: 80vw; height: 42rem; max-height: 90vh; background-color: var(--window-color); border: 3px solid var(--window-border); border-radius: 12px; padding: 1em 1em 0.8em; row-gap: 1em; }
+            #bigWindow > article > button { flex-shrink: 0; border-radius: 4px; width: 6em; font-size: 0.92em; }
+            #bigWindow > article > div { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior-y: none; } `;
     }
 
     if (getId(subWindow, true) !== null) { return null; }
     const mainHTML = document.createElement('div');
-    getQuery('#bigWindow > div').prepend(mainHTML);
+    getQuery('#bigWindow > article').prepend(mainHTML);
     mainHTML.id = subWindow;
-    mainHTML.role = 'dialog';
     return mainHTML;
 };
 const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTMLElement | null) => {
@@ -1024,8 +1283,9 @@ export const openVersionInfo = () => {
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
         mainHTML.innerHTML = `${global.lastUpdate !== null ? `<h5><span class="bigWord">Last update:</span> <span class="whiteText">${new Date(global.lastUpdate).toLocaleString()}</span></h5><br>` : ''}
+        <h6>v0.2.8</h6><p>- Abyss full rebalance and End reset rework\n- Auto Stage now has different modes\n- Max export rewards is now 12 hours\n- Removed log\n<a href="https://docs.google.com/document/d/1HsAhoa31UsRFGK3BULeXMKHN9exUIIQ_UveKwj2EuMY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.7</h6><p>- Small speed up to Universes\n- Stage resets now save peak Strange quarks</p>
-        <h6>v0.2.6</h6><p>- New content (Big Rip)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.6</h6><p>- New content (End)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos</p>
         <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones</p>
         <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>
         <h6>v0.2.3</h6><p>- Supervoid rework\n- Abyss small rebalance</p>
@@ -1052,7 +1312,6 @@ export const openVersionInfo = () => {
         <h6>v0.0.2</h6><p>- Stats subtab</p>
         <h6>v0.0.1</h6><p>- Submerged Stage rework\n\n- Mobile device support</p>
         <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
-        mainHTML.ariaLabel = 'Versions menu';
         specialHTML.styleSheet.textContent += `#versionHTML h6 { font-size: 1.18em; }
             #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; }
             #versionHTML p:last-of-type { margin-bottom: 0; } `;
@@ -1060,6 +1319,7 @@ export const openVersionInfo = () => {
 
     specialHTML.bigWindow = 'version';
     addCloseEvents(getId('versionHTML'));
+    getQuery('#bigWindow > article').ariaLabel = 'Versions menu';
 };
 
 export const openHotkeys = () => {
@@ -1090,9 +1350,8 @@ export const openHotkeys = () => {
             <label id="mergeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Merge</span></label>
             <label id="nucleationHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Nucleation</span></label>
             <label id="stageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage</span></label>
-            <label id="universeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Universe</span></label>
+            <label id="versesHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Verses</span></label>
             <label id="endHotkey" class="redText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">End</span></label>
-            <label id="supervoidHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Supervoid</span></label>
             <label id="warpHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Warp</span></label>
             <label id="pauseHotkey" class="grayText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">pause</span></label>
         </div>
@@ -1111,13 +1370,13 @@ export const openHotkeys = () => {
             <label id="toggleMergeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Merge</span></label>
             <label id="toggleNucleationHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Nucleation</span></label>
             <label id="toggleStageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage</span></label>
+            <label id="supervoidHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Void type</span></label>
         </div>
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
+        <p>Shift clicking the hotkey will set it to the default value or remove it</p>
         <p>Numlock being ON can break Numpad hotkeys</p>
-        <p>Shift clicking the hotkey will remove it</p>
         <label id="hotkeysToggleLabel" title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
         <button type="button" id="restoreHotkeys" class="selectBtn">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
-        mainHTML.ariaLabel = 'Hotkeys menu';
         const toggle = getId('globalToggle0');
         getId('hotkeysToggleLabel').append(toggle);
         toggle.style.display = '';
@@ -1189,29 +1448,29 @@ export const openHotkeys = () => {
             const button = getQuery(`#${key}Hotkey button`);
             button.textContent = globalSave.hotkeys[key as hotkeysList][index];
             button.addEventListener('click', async(event) => {
+                const index = globalSave.toggles[0] ? 0 : 1;
+                let newHotkey: string[] | null;
                 if (event.shiftKey) {
-                    if (removeHotkey(globalSave.hotkeys[key as hotkeysList][globalSave.toggles[0] ? 0 : 1]) !== null) {
-                        button.textContent = 'None';
-                        assignHotkeys();
-                        saveGlobalSettings();
-                    }
-                    return;
+                    newHotkey = removeHotkey(globalSave.hotkeys[key as hotkeysList][index]) === null ?
+                        cloneArray(globalSaveStart.hotkeys[key as hotkeysList]) :
+                        newHotkey = globalSave.hotkeys[key as hotkeysList];
+                } else {
+                    button.style.borderBottomStyle = 'dashed';
+                    newHotkey = await changeHotkey(false) as string[];
+                    button.style.borderBottomStyle = '';
+                    getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
+                    if (newHotkey === null) { return; }
                 }
-                button.style.borderBottomStyle = 'dashed';
-                const newHotkey = await changeHotkey(false) as string[];
-                if (newHotkey !== null) {
-                    const index = globalSave.toggles[0] ? 0 : 1;
-                    const removed = removeHotkey(newHotkey[index]);
-                    if (removed !== null) { getQuery(`#${removed}Hotkey button`).textContent = 'None'; }
-                    button.textContent = newHotkey[index];
-                    globalSave.hotkeys[key as hotkeysList] = newHotkey;
-                    assignHotkeys();
-                    saveGlobalSettings();
-                }
-                button.style.borderBottomStyle = '';
-                getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
+                const removed = removeHotkey(newHotkey[index]) as hotkeysList;
+                if (globalSaveStart.hotkeys[removed] !== undefined) { getQuery(`#${removed}Hotkey button`).textContent = 'None'; }
+                button.textContent = newHotkey[index];
+                globalSave.hotkeys[key as hotkeysList] = newHotkey;
+                button.textContent = newHotkey[index];
+                assignHotkeys();
+                saveGlobalSettings();
             });
         }
+        /** Actual type is Record<numbersList, string> */
         const extraHotkeyName: Record<string, string> = {
             makeStructure: 'makeAll',
             toggleStructure: 'toggleAll',
@@ -1222,30 +1481,28 @@ export const openHotkeys = () => {
             button.textContent = globalSave.numbers[key as numbersList];
             getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = globalSave.numbers[key as numbersList].replace('Numbers', '0').replace('Numpad', 'Num 0');
             button.addEventListener('click', async(event) => {
+                let newHotkey: string | null;
                 if (event.shiftKey) {
-                    if (removeHotkey(globalSave.numbers[key as numbersList], true) !== null) {
-                        button.textContent = 'None';
-                        assignHotkeys();
-                        saveGlobalSettings();
-                    }
-                    return;
+                    newHotkey = removeHotkey(globalSave.numbers[key as numbersList], true) === null ?
+                        globalSaveStart.numbers[key as numbersList] :
+                        globalSave.numbers[key as numbersList];
+                } else {
+                    button.style.borderBottomStyle = 'dashed';
+                    newHotkey = await changeHotkey(true) as string;
+                    button.style.borderBottomStyle = '';
+                    getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
+                    if (newHotkey === null) { return; }
                 }
-                button.style.borderBottomStyle = 'dashed';
-                const newHotkey = await changeHotkey(true) as string;
-                if (newHotkey !== null) {
-                    const removed = removeHotkey(newHotkey, true);
-                    if (removed !== null) {
-                        getQuery(`#${removed}Hotkey button`).textContent = 'None';
-                        getQuery(`#${extraHotkeyName[removed]}Hotkey span`).textContent = 'None';
-                    }
-                    button.textContent = newHotkey;
-                    getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = newHotkey.replace('Numbers', '0').replace('Numpad', 'Num 0');
-                    globalSave.numbers[key as numbersList] = newHotkey;
-                    assignHotkeys();
-                    saveGlobalSettings();
+                const removed = removeHotkey(newHotkey, true) as numbersList;
+                if (extraHotkeyName[removed] !== undefined) {
+                    getQuery(`#${removed}Hotkey button`).textContent = 'None';
+                    getQuery(`#${extraHotkeyName[removed]}Hotkey span`).textContent = 'None';
                 }
-                button.style.borderBottomStyle = '';
-                getId('hotkeysMessage').textContent = 'Highlighted hotkeys can be modified';
+                button.textContent = newHotkey;
+                getQuery(`#${extraHotkeyName[key]}Hotkey span`).textContent = newHotkey.replace('Numbers', '0').replace('Numpad', 'Num 0');
+                globalSave.numbers[key as numbersList] = newHotkey;
+                assignHotkeys();
+                saveGlobalSettings();
             });
         }
         getId('restoreHotkeys').addEventListener('click', () => {
@@ -1265,28 +1522,7 @@ export const openHotkeys = () => {
 
     specialHTML.bigWindow = 'hotkeys';
     addCloseEvents(getId('hotkeysHTML'), getQuery('#tabRightHotkey button'));
-    visualTrueStageUnlocks();
-    visualUpdate();
-};
-
-export const openLog = () => {
-    if (specialHTML.bigWindow !== null) { return; }
-    const mainHTML = buildBigWindow('logHTML');
-    if (mainHTML !== null) {
-        mainHTML.innerHTML = `<h2 class="whiteText"><span class="biggerWord mainText">Log</span> | <button type="button" id="logOrder" class="selectBtn mainText">Entries on top are newer</button></h2>
-        <ul id="logMain"><li></li></ul>`; //Empty <li> is required
-        mainHTML.ariaLabel = 'Versions menu';
-        specialHTML.styleSheet.textContent += `#logHTML { display: flex; flex-direction: column; }
-            #logMain { display: flex; flex-direction: column; text-align: start; border-top: 2px solid; border-bottom: 2px solid; height: 100%; padding: 0.2em 0.4em; margin-top: 0.4em; overflow-y: scroll; overscroll-behavior-y: none; }
-            #logMain > li { list-style: inside "‒ "; white-space: pre-line; }
-            #logMain.bottom { flex-direction: column-reverse; } /* Cheap way to change the order */`;
-        getId('logOrder').addEventListener('click', () => {
-            const bottom = getId('logMain').classList.toggle('bottom');
-            getId('logOrder').textContent = `Entries on ${bottom ? 'bottom' : 'top'} are newer`;
-        });
-    }
-
-    specialHTML.bigWindow = 'log';
-    addCloseEvents(getId('logHTML'));
+    getQuery('#bigWindow > article').ariaLabel = 'Hotkeys menu';
+    visualProgressUnlocks();
     visualUpdate();
 };

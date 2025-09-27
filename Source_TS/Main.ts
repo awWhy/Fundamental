@@ -1,7 +1,7 @@
-import { player, global, updatePlayer, prepareVacuum, fillMissingValues } from './Player';
-import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, getChallenge0Reward, getChallenge1Reward, stageUpdate, getStrangenessDescription, addIntoLog, updateCollapsePoints } from './Update';
-import { assignBuildingsProduction, autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyStrangeness, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleSupervoid, vaporizationResetUser } from './Stage';
-import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, openLog, errorNotify } from './Special';
+import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
+import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, toggleAll } from './Hotkeys';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
@@ -69,6 +69,14 @@ export const getClass = (idCollection: string): HTMLCollectionOf<HTMLElement> =>
     return store;
 };
 
+/** Assigns and then caches value, returns true if change is detected. Calls getQuery if ID is a string */
+export const assignInnerHTML = (id: HTMLElement | string, text: string): boolean => {
+    if (specialHTML.cache.innerHTML.get(id) === text) { return false; }
+    specialHTML.cache.innerHTML.set(id, text);
+    (typeof id === 'string' ? getQuery(id) : id).innerHTML = text;
+    return true;
+};
+
 /** Returns offline time in milliseconds */
 const handleOfflineTime = (): number => {
     const timeNow = Date.now();
@@ -85,23 +93,27 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
 
     let decline = false;
     if (offline >= 20 && !autoConfirm) {
-        decline = !await Confirm(`Consume ${format(Math.min(offline / 1000, 43200), { type: 'time', padding: false })} worth of offline time?\n(Includes time spent to click any of the buttons)`, 2) &&
-            (globalSave.developerMode || player.tree[0][5] >= 1 || !await Confirm("Press 'Cancel' again to confirm losing offline time, 'Confirm' to consume it"));
+        decline = !await Confirm(`Accept and use ${format(Math.min(offline / 1000, 43200), { type: 'time', padding: false })} worth of Offline time?${player.challenges.supervoid[3] >= 4 ? ' Or reject it to store it instead.' : ''}\n(Includes time spent to click any of the buttons)`, 2) &&
+            (globalSave.developerMode || player.challenges.supervoid[3] >= 4 || !await Confirm("Press 'Cancel' again to confirm losing Offline time, 'Confirm' to use it instead"));
         const extra = handleOfflineTime();
         global.lastSave += extra;
         offline += extra;
     }
     if (offline > 43200_000) { offline = 43200_000; }
     if (decline || offline < 20) {
-        if (decline) { player.time.offline = Math.min(player.time.offline + offline * (player.tree[0][5] / 4), 43200_000); }
+        if (decline) { player.time.offline = Math.min(player.time.offline + offline, 43200_000); }
         if (offline < 0) { player.time.excess = offline - 20; }
         pauseGame(false);
         timeUpdate(20, 20); //Just in case
         visualUpdate();
         numbersUpdate();
+        if (info.autosave) {
+            info.autosave = false;
+            saveGame(false, true);
+        }
         return;
     }
-    let tick = globalSave.intervals.offline;
+    let tick = 20;
     const startValue = offline;
     const startStage = player.stage.active;
     info.stage[0] = null;
@@ -119,20 +131,13 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
     const finish = () => { tick = 0; };
     const key = (event: KeyboardEvent) => {
         const shift = detectShift(event);
-        if (shift === null) { return; }
-        const code = event.code;
-        if (code === 'Escape') {
-            if (shift) { return; }
-            finish();
-            event.preventDefault();
-        } else if (code === 'Tab') {
-            if (shift && document.activeElement === accelBtn) {
-                cancelBtn.focus();
-            } else if (!shift && document.activeElement === cancelBtn) {
-                accelBtn.focus();
-            } else { return; }
-            event.preventDefault();
-        }
+        if (shift === null || event.code !== 'Tab') { return; }
+        if (shift && document.activeElement === accelBtn) {
+            cancelBtn.focus();
+        } else if (!shift && document.activeElement === cancelBtn) {
+            accelBtn.focus();
+        } else { return; }
+        event.preventDefault();
     };
     const end = () => {
         pauseGame(false);
@@ -153,6 +158,11 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
         body.removeEventListener('keydown', key);
         oldFocus?.focus();
         if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Offline calculation ended'; }
+
+        if (info.autosave) {
+            info.autosave = false;
+            saveGame(false, true);
+        }
     };
     accelBtn.addEventListener('click', accelerate);
     deaccelBtn.addEventListener('click', deaccelerate);
@@ -164,7 +174,7 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
 
     const tickHTML = getId('offlineTick');
     const remainsHTML = getId('offlineRemains');
-    const percentageHTML = getQuery('#offlinePercentage > span');
+    const percentageHTML = getId('offlinePercentage');
     const calculate = () => {
         const time = tick <= 0 ? offline : Math.min(600 * tick, offline);
         offline -= time;
@@ -180,7 +190,7 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
             setTimeout(calculate);
             tickHTML.textContent = format(tick);
             remainsHTML.textContent = format(offline / 1000, { type: 'time' });
-            percentageHTML.textContent = format(100 - offline / startValue * 100, { padding: true });
+            percentageHTML.textContent = `${format(100 - offline / startValue * 100, { padding: true })}% done`;
         } else {
             player.time.excess += offline;
             end();
@@ -191,17 +201,14 @@ export const simulateOffline = async(offline: number, autoConfirm = player.toggl
 
 const changeIntervals = () => {
     const intervalsId = global.intervalsId;
-    const intervals = globalSave.intervals;
     const paused = global.offline.active || global.paused;
 
     clearInterval(intervalsId.main);
     clearInterval(intervalsId.numbers);
     clearInterval(intervalsId.visual);
-    clearInterval(intervalsId.autoSave);
     intervalsId.main = paused ? undefined : setInterval(timeUpdate, 20, 20);
-    intervalsId.numbers = paused ? undefined : setInterval(numbersUpdate, intervals.numbers);
-    intervalsId.visual = paused ? undefined : setInterval(visualUpdate, intervals.visual);
-    intervalsId.autoSave = paused ? undefined : setInterval(saveGame, intervals.autoSave);
+    intervalsId.numbers = paused ? undefined : setInterval(numbersUpdate, globalSave.intervals.numbers);
+    intervalsId.visual = paused ? undefined : setInterval(visualUpdate, globalSave.intervals.visual);
 };
 /** Pauses and unpauses game based on 'pause' value */
 export const pauseGame = (pause = true) => {
@@ -212,6 +219,8 @@ export const pauseGame = (pause = true) => {
         getId('gamePaused').style.display = 'none';
         global.paused = false;
         if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Game unpaused'; }
+
+        global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
     }
     global.hotkeys.disabled = pause;
     global.offline.active = pause;
@@ -231,6 +240,7 @@ export const pauseGameUser = () => {
         getId('gamePaused').style.display = '';
         global.paused = true;
         changeIntervals();
+        clearInterval(global.intervalsId.autoSave);
         if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Game paused'; }
         return;
     }
@@ -239,8 +249,16 @@ export const pauseGameUser = () => {
     void simulateOffline(offline);
 };
 
-const saveGame = (noSaving = false): string | null => {
-    if (global.offline.active) { return null; }
+const saveGame = (noSaving = false, manual = false): string | null => {
+    if (global.offline.active) {
+        global.offline.autosave = true;
+        clearInterval(global.intervalsId.autoSave);
+        return null;
+    } else if (global.ultravoid === true) {
+        getId('isSaved').textContent = 'Saved';
+        global.lastSave = 0;
+        return null;
+    }
     try {
         player.history.stage.list = global.historyStorage.stage.slice(0, player.history.stage.input[0]);
         player.history.end.list = global.historyStorage.end.slice(0, player.history.end.input[0]);
@@ -254,10 +272,12 @@ const saveGame = (noSaving = false): string | null => {
         const save = btoa(JSON.stringify(clone));
         if (!noSaving) {
             localStorage.setItem(specialHTML.localStorage.main, save);
-            clearInterval(global.intervalsId.autoSave);
-            if (!global.paused) { global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave); }
             getId('isSaved').textContent = 'Saved';
             global.lastSave = 0;
+            if (manual && !global.paused) {
+                clearInterval(global.intervalsId.autoSave);
+                global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+            }
         }
         return save;
     } catch (error) {
@@ -267,7 +287,7 @@ const saveGame = (noSaving = false): string | null => {
     }
 };
 const loadGame = (save: string) => {
-    if (global.offline.active) { return; }
+    if (global.offline.active || global.ultravoid === true) { return; }
     pauseGame();
     try {
         const versionCheck = updatePlayer(JSON.parse(atob(save)));
@@ -278,7 +298,7 @@ const loadGame = (save: string) => {
 
         void simulateOffline(global.lastSave);
     } catch (error) {
-        prepareVacuum(Boolean(player.inflation.vacuum)); //Fix vacuum state
+        updatePlayer(player); //Fixes bugs
         pauseGame(false);
 
         void Alert(`Incorrect save file format\n${error}`);
@@ -346,10 +366,10 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
         global.stageInfo.word[player.stage.current],
         format(player.strange[0].total, { type: 'input', padding: true }),
         format(player.cosmon[0].total, { type: 'input', padding: 'exponent' }),
-        format(player.cosmon[1].total, { type: 'input', padding: 'exponent' }),
+        format(player.cosmon[1].total, { type: 'input', padding: true }),
         `${player.inflation.vacuum}`,
-        `${format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' })} [${player.buildings[5][3].true}]`,
-        `${format(player.verses[0].current, { type: 'input', padding: 'exponent' })}${player.stage.true >= 8 ? ` [${player.verses[0].true} + ${player.inflation.voidVerses}]` : ''}`
+        `${format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' })} [${format(player.buildings[5][3].true, { type: 'input', padding: 'exponent' })}]`,
+        `${format(player.verses[0].current, { type: 'input', padding: 'exponent' })} [${format(global.inflationInfo.trueUniverses, { type: 'input', padding: 'exponent' })}]`
     ];
     for (let i = 0; i < special.length; i++) {
         name = name.replace(special[i], replaceWith[i]);
@@ -359,9 +379,8 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
 
 export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'normal' | 'hover' | 'max' | 'auto', change = false) => {
     const toggles = type === 'buildings' ? player.toggles.buildings[player.stage.active] : player.toggles[type];
-
     if (change) {
-        if (global.offline.active) { return; }
+        if (type === 'buildings' && toggles.length <= number) { return; }
         toggles[number] = !toggles[number];
     }
 
@@ -398,11 +417,11 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
 
 export const toggleConfirm = (number: number, change = false) => {
     const toggles = player.toggles.confirm;
-    if (change) { toggles[number] = toggles[number] === 'Safe' ? 'None' : 'Safe'; }
+    if (change) { toggles[number] = toggles[number] === 'All' ? 'Safe' : toggles[number] === 'Safe' ? 'None' : 'All'; }
 
     const toggleHTML = getId(`toggleConfirm${number}`);
     toggleHTML.textContent = toggles[number];
-    if (toggles[number] === 'Safe') {
+    if (toggles[number] !== 'None') {
         toggleHTML.style.color = 'var(--green-text)';
         toggleHTML.style.borderColor = 'forestgreen';
     } else {
@@ -438,8 +457,11 @@ const showAndFix = (element: HTMLElement) => {
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
     if (type === 'elements') {
         global.lastElement = index;
-    } else { global.lastUpgrade[player.stage.active] = [index, type]; }
-    getUpgradeDescription(index, type);
+    } else {
+        if ((type === 'upgrades' || type === 'researches' || type === 'researchesExtra') && global[`${type}Info`][player.stage.active].maxActive <= index) { return; }
+        global.lastUpgrade[player.stage.active] = [index, type];
+    }
+    getUpgradeDescription(type);
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflations') => {
     if (type === 'inflations') {
@@ -447,21 +469,13 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
     } else if (type === 'strangeness') {
         global.lastStrangeness = [index, stageIndex];
     } else { global.lastMilestone = [index, stageIndex]; }
-    getStrangenessDescription(index, stageIndex, type);
+    getUpgradeDescription(type);
 };
 const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
-    getChallengeDescription(index);
-    if (index === 0) {
-        getChallenge0Reward(global.lastChallenge[1]);
-    } else if (index === 1) {
-        getChallenge1Reward();
-    }
+    getChallengeDescription();
+    getChallengeRewards();
     visualUpdate();
-};
-export const changeRewardType = (state = !global.sessionToggles[0]) => {
-    global.sessionToggles[0] = state;
-    getId('rewardsType').textContent = `${state ? 'Supervoid' : 'Void'} rewards:`;
 };
 /** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */
 const handleAutoResearchCreation = (index: number) => {
@@ -481,20 +495,23 @@ const handleAutoResearchCreation = (index: number) => {
 /** Sets selected loadout to provided */
 export const loadoutsFinal = (load: number[]) => {
     if (!global.loadouts.open) { return; }
+    const max = global.treeInfo[0].max;
     const appeared = {} as Record<number, number>;
-    const { firstCost, scaling, max } = global.treeInfo[0];
 
     let cost = 0;
     let string = '';
     for (let i = 0, dupes = 0; i < load.length; i += dupes, dupes = 0) {
         const current = load[i];
         appeared[current] ??= 0;
+        const unlocked = checkUpgrade(current, 0, 'inflations');
         do {
-            if (appeared[current] >= max[current]) {
+            if (appeared[current] >= 20) {
                 load.splice(i + dupes, 1);
                 continue;
             }
-            cost += Math.floor(Math.round((firstCost[current] + scaling[current] * appeared[current]) * 100) / 100);
+            if (unlocked && appeared[current] < max[current]) {
+                cost += calculateTreeCost(current, 0, appeared[current]);
+            }
             appeared[current] += 1;
             dupes++;
         } while (load[i + dupes] === current);
@@ -530,7 +547,7 @@ const loadoutsRecreate = () => {
 };
 const loadoutsSave = () => {
     const name = (getId('loadoutsName') as HTMLInputElement).value;
-    if (name.length < 1 || name === 'Auto-generate') { return Notify(`Loadout name: '${name}' is not allowed`); }
+    if (name.length === 0) { return; }
     const loadouts = player.inflation.loadouts;
     let index = loadouts.length;
     for (let i = 0; i < index; i++) {
@@ -544,7 +561,7 @@ const loadoutsSave = () => {
     Notify(`Saved loadout as '${name}'`);
 };
 const loadoutsLoad = async(loadout = null as null | number[]) => {
-    if (global.offline.active || !await inflationRefund(loadout !== null || global.hotkeys.shift, true)) { return; }
+    if (!await inflationRefund(global.hotkeys.shift, true)) { return; }
 
     if (loadout === null) { loadout = global.loadouts.input; }
     for (let i = 0; i < loadout.length; i++) {
@@ -571,35 +588,39 @@ const loadoutsLoadAuto = () => {
         return array as startValue[];
     };
 
-    const { buildingsInfo } = global;
+    const trueInfo = vacuumStart.true;
+    const { toggles, buildings } = player;
+    const { buildingsInfo, upgradesInfo, strangenessInfo, milestonesInfo } = global;
     for (let s = 1; s < buildingsInfo.firstCost.length; s++) {
-        player.buildings[s] = [] as unknown as typeof player.buildings[0];
-        player.toggles.buildings[s] = createArray(buildingsInfo.firstCost[s].length, false);
+        buildings[s] = [] as unknown as typeof buildings[0];
+        toggles.buildings[s] = createArray(buildingsInfo.firstCost[s].length, false);
         buildingsInfo.producing[s] = [];
         for (let i = 0; i < buildingsInfo.firstCost[s].length; i++) {
-            const start = i === 0 && s === 4 ? 1 : 0;
-            player.buildings[s][i] = {
+            const start = i === 0 && s < 5 ? trueInfo.build0Start[s] : 0;
+            buildings[s][i] = {
                 current: new Overlimit(start),
                 total: new Overlimit(start),
                 trueTotal: new Overlimit(start)
             };
-            if (i !== 0) { player.buildings[s][i as 1].true = 0; }
-            buildingsInfo.producing[s as 0].push(i === 0 ? 0 : new Overlimit(0));
+            if (i !== 0) { buildings[s][i as 1].true = 0; }
+            buildingsInfo.producing[s as 0][i] = new Overlimit(0);
         }
         buildingsInfo.increaseStart[s] = cloneArray(buildingsInfo.increase[s]);
     }
-    player.toggles.verses = createArray(player.verses.length, false);
-    {
-        const pointer = global.upgradesInfo;
-        for (let s = 1; s < pointer.length; s++) {
-            const cost = pointer[s].cost;
-            player.upgrades[s] = createArray(cost.length, 0);
-            global.automatization.autoU[s] = [];
-            global.automatization.autoR[s] = [];
-            global.automatization.autoE[s] = [];
-            global.lastUpgrade[s] = [null, 'upgrades'];
-            if (s === 1) { continue; }
-            for (let i = 0; i < cost.length; i++) { cost[i] = new Overlimit(cost[i]); }
+    trueInfo.buildS1Cost = cloneArray(buildingsInfo.firstCost[1]);
+    toggles.verses = createArray(player.verses.length, false);
+    for (let s = 1; s < upgradesInfo.length; s++) {
+        const cost = upgradesInfo[s].cost;
+        player.upgrades[s] = createArray(cost.length, 0);
+        global.automatization.autoU[s] = [];
+        global.lastUpgrade[s] = [null, 'upgrades'];
+        if (s === 1) {
+            trueInfo.upgradesS1 = cloneArray(cost as number[]);
+            continue;
+        }
+        for (let i = 0; i < cost.length; i++) {
+            cost[i] = new Overlimit(cost[i]);
+            if (s === 4 || s === 5) { trueInfo[`upgradesS${s}`][i] = new Overlimit(cost[i]); }
         }
     }
     for (const upgradeType of ['researches', 'researchesExtra'] as const) {
@@ -614,42 +635,58 @@ const loadoutsLoadAuto = () => {
             for (let i = 0; i < firstCost.length; i++) {
                 firstCost[i] = new Overlimit(firstCost[i]);
                 pointer[s].cost[i] = new Overlimit(firstCost[i]);
+                if (s === 4 || s === 5) { trueInfo[`${upgradeType === 'researches' ? 'researches' : 'extras'}S${s}`][i] = new Overlimit(firstCost[i]); }
             }
+            global.automatization[`auto${upgradeType === 'researches' ? 'R' : 'E'}`][s] = [];
+        }
+        if (upgradeType === 'researches') {
+            trueInfo.researchesS1Cost = cloneArray(pointer[1].firstCost);
+            trueInfo.researchesS1Scale = cloneArray(pointer[1].scaling);
         }
     }
     player.researchesAuto = createArray(global.researchesAutoInfo.costRange.length, 0);
     player.ASR = createArray(global.ASRInfo.costRange.length, 0);
+    trueInfo.ASRS1 = cloneArray(global.ASRInfo.costRange[1]);
     {
         const cost = global.elementsInfo.cost;
         player.elements = createArray(cost.length, 0);
-        for (let i = 1; i < cost.length; i++) { cost[i] = new Overlimit(cost[i]); }
+        for (let i = 0; i < cost.length; i++) {
+            cost[i] = new Overlimit(cost[i]);
+            trueInfo.elements[i] = new Overlimit(cost[i]);
+        }
     }
-    for (let s = 1; s < global.strangenessInfo.length; s++) {
-        player.strangeness[s] = createArray(global.strangenessInfo[s].firstCost.length, 0);
-        global.strangenessInfo[s].cost = cloneArray(global.strangenessInfo[s].firstCost);
+    for (let s = 1; s < strangenessInfo.length; s++) {
+        player.strangeness[s] = createArray(strangenessInfo[s].firstCost.length, 0);
+        strangenessInfo[s].cost = cloneArray(strangenessInfo[s].firstCost);
+        if (s > 5) { continue; }
+        trueInfo[`strangenessS${s as 1}Cost`] = cloneArray(strangenessInfo[s].firstCost);
+        trueInfo[`strangenessS${s as 1}Scale`] = cloneArray(strangenessInfo[s].scaling);
     }
-    for (let s = 1; s < global.milestonesInfo.length; s++) {
-        const pointer = global.milestonesInfo[s];
-        player.milestones[s] = createArray(pointer.needText.length, 0);
-        for (let i = 0; i < pointer.needText.length; i++) {
-            pointer.need.push(new Overlimit(Infinity));
+    for (let s = 1; s < milestonesInfo.length; s++) {
+        player.milestones[s] = createArray(milestonesInfo[s].needText.length, 0);
+        for (let i = 0; i < milestonesInfo[s].needText.length; i++) {
+            milestonesInfo[s].need[i] = new Overlimit('1e1e308');
         }
     }
     for (let s = 0; s < global.treeInfo.length; s++) {
         player.tree[s] = createArray(global.treeInfo[s].firstCost.length, 0);
         global.treeInfo[s].cost = cloneArray(global.treeInfo[s].firstCost);
     }
-    player.toggles.normal = createArray(document.getElementsByClassName('toggleNormal').length, false);
-    player.toggles.confirm = createArray(document.getElementsByClassName('toggleConfirm').length, 'Safe');
-    player.toggles.hover = createArray(document.getElementsByClassName('toggleHover').length, false);
-    player.toggles.max = createArray(document.getElementsByClassName('toggleMax').length, false);
-    player.toggles.auto = createArray(document.getElementsByClassName('toggleAuto').length, false);
-    player.toggles.normal[1] = true;
+    toggles.normal = createArray(document.getElementsByClassName('toggleNormal').length, false);
+    toggles.confirm = createArray(document.getElementsByClassName('toggleConfirm').length, 'Safe');
+    toggles.hover = createArray(document.getElementsByClassName('toggleHover').length, false);
+    toggles.max = createArray(document.getElementsByClassName('toggleMax').length, false);
+    toggles.auto = createArray(document.getElementsByClassName('toggleAuto').length, false);
+    toggles.normal[1] = true;
+    toggles.confirm[6] = 'All';
 }
 export const playerStart = deepClone(player);
 export const globalSaveStart = deepClone(globalSave);
 
 try { //Start everything
+    const date = new Date();
+    if (date.getMonth() === 3 && date.getDay() < 8) { enableApril(); }
+
     const body = document.documentElement;
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
     if (globalSettings !== null) {
@@ -662,13 +699,15 @@ try { //Start everything
                     array[i] = decoder.decode(Uint8Array.from(array[i], (c) => c.codePointAt(0) as number));
                 }
             }
-            if (!(globalSave.intervals.offline >= 20)) { globalSave.intervals.offline = 20; } //Fix NaN and undefined
-            fillMissingValues(globalSave.toggles, globalSaveStart.toggles);
-            fillMissingValues(globalSave.MDSettings, globalSaveStart.MDSettings);
-            fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings);
+            fillMissingValues(globalSave.toggles, globalSaveStart.toggles, false);
+            fillMissingValues(globalSave.MDSettings, globalSaveStart.MDSettings, false);
+            fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings, false);
             for (const key in globalSaveStart.hotkeys) {
                 globalSave.hotkeys[key as hotkeysList] ??= ['None', 'None'];
             }
+
+            delete globalSave.intervals['offline' as keyof unknown];
+            delete globalSave.hotkeys['universe' as keyof unknown];
         } catch (error) {
             Notify('Global settings failed to parse, default ones will be used instead');
             console.log(`(Full parse error) ${error}`);
@@ -676,12 +715,18 @@ try { //Start everything
     }
     (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
     (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
-    (getId('offlineInterval') as HTMLInputElement).value = `${globalSave.intervals.offline}`;
     (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
     (getId('visualInterval') as HTMLInputElement).value = `${globalSave.intervals.visual}`;
     (getId('autoSaveInterval') as HTMLInputElement).value = `${globalSave.intervals.autoSave / 1000}`;
     for (let i = 0; i < globalSaveStart.toggles.length; i++) { toggleSpecial(i, 'global'); }
     if (globalSave.fontSize !== 16) { changeFontSize(true); } //Also sets breakpoints for screen size
+    if (globalSave.toggles[8]) { getId('alertCancel').after(getId('alertConfirm')); }
+    if (globalSave.toggles[7]) {
+        document.addEventListener('visibilitychange', () => {
+            if (global.offline.active || global.paused || document.visibilityState !== 'hidden') { return; }
+            saveGame(false, true);
+        });
+    }
     if (globalSave.toggles[5]) { specialHTML.styleSheet.textContent += 'body::-webkit-scrollbar { display: none; } '; }
     if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
     if (globalSave.toggles[3]) {
@@ -729,7 +774,6 @@ try { //Start everything
     toggleSpecial(0, 'reader');
 
     if (globalSave.MDSettings[0]) {
-        (document.getElementById('MDMessage1') as HTMLElement).remove();
         specialHTML.styleSheet.textContent += `html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
             #themeArea > div > div { position: unset; display: flex; width: 15em; }
             #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */`;
@@ -826,8 +870,14 @@ try { //Start everything
     if (save !== null) {
         oldVersion = updatePlayer(JSON.parse(atob(save)));
     } else {
-        prepareVacuum(false); //Set buildings values
-        updatePlayer(deepClone(playerStart));
+        const oldSave = localStorage.getItem('save');
+        if (oldSave !== null) {
+            oldVersion = updatePlayer(JSON.parse(atob(oldSave)));
+            Notify('Save file has been updated to newest version\nOld save can be retrieved in the advanced save settings');
+        } else {
+            prepareVacuum(false); //Set buildings values
+            updatePlayer(deepClone(playerStart));
+        }
     }
 
     /* Global */
@@ -845,8 +895,8 @@ try { //Start everything
             hotkeys.ctrl = false;
             numbersUpdate();
         }
-        hotkeys.repeat = false;
         hotkeys.tab = false;
+        hotkeys.last = '';
     };
     body.addEventListener('contextmenu', (event) => {
         const activeType = (document.activeElement as HTMLInputElement)?.type;
@@ -881,20 +931,23 @@ try { //Start everything
             releaseHotkey(null);
             cancelRepeat();
         });
-    }
-    {
+    } else {
+        body.addEventListener('touchstart', () => Notify('Touch events require mobile device support enabled in settings'), { once: true });
+    } {
         const hoverEvent = (event: MouseEvent) => {
             const element = event.currentTarget as HTMLElement;
             const window = getId('hoverWindow');
-            window.textContent = element.dataset.title as string;
+            specialHTML.hoverText = () => { window.textContent = element.dataset.title as string; };
+            specialHTML.hoverText();
             window.style.display = '';
             const position = (event: MouseEvent) => {
-                window.style.left = `${Math.min(event.clientX, document.documentElement.clientWidth - window.getBoundingClientRect().width - globalSave.fontSize / 2)}px`;
-                window.style.top = `${event.clientY}px`;
+                window.style.left = `${Math.min(event.clientX + 10, document.documentElement.clientWidth - window.getBoundingClientRect().width)}px`;
+                window.style.top = `${event.clientY + 10}px`;
             };
             position(event);
             element.addEventListener('mousemove', position);
             element.addEventListener('mouseleave', () => {
+                specialHTML.hoverText = null;
                 window.style.display = 'none';
                 element.removeEventListener('mousemove', position);
             }, { once: true });
@@ -902,8 +955,9 @@ try { //Start everything
         for (const element of getClass('hasTitle')) { element.addEventListener('mouseenter', hoverEvent); }
     }
     for (let i = 0; i < globalSaveStart.toggles.length; i++) {
+        const refreshOnThese = [1, 3, 5, 7];
         getId(`globalToggle${i}`).addEventListener('click', () => {
-            toggleSpecial(i, 'global', true, i === 1 || i === 3 || i === 5);
+            toggleSpecial(i, 'global', true, refreshOnThese.includes(i));
             if (i === 0) {
                 assignHotkeys();
                 const index = globalSave.toggles[0] ? 0 : 1;
@@ -914,14 +968,13 @@ try { //Start everything
                 getId('globalStats').style.display = !globalSave.toggles[4] ? '' : 'none';
                 visualUpdate();
                 numbersUpdate();
+            } else if (i === 8) {
+                getId('alertCancel')[globalSave.toggles[8] ? 'after' : 'before'](getId('alertConfirm'));
             }
         });
     }
     for (let i = 1; i < specialHTML.longestBuilding; i++) {
         getId(`toggleBuilding${i}`).addEventListener('click', () => toggleSwap(i, 'buildings', true));
-    }
-    for (let i = 0; i < playerStart.toggles.verses.length; i++) {
-        getId(`toggleVerse${i}`).addEventListener('click', () => toggleSwap(i, 'verses', true));
     }
     for (let i = 0; i < playerStart.toggles.normal.length; i++) {
         getId(`toggleNormal${i}`).addEventListener('click', () => toggleSwap(i, 'normal', true));
@@ -936,18 +989,7 @@ try { //Start everything
         getId(`toggleMax${i}`).addEventListener('click', () => toggleSwap(i, 'max', true));
     }
     for (let i = 0; i < playerStart.toggles.auto.length; i++) {
-        getId(`toggleAuto${i}`).addEventListener('click', () => {
-            toggleSwap(i, 'auto', true);
-            if (i === 5) {
-                for (let s = 1; s <= 6; s++) { autoUpgradesSet(s); }
-            } else if (i === 6) {
-                for (let s = 1; s <= 6; s++) { autoResearchesSet('researches', s); }
-            } else if (i === 7) {
-                for (let s = 1; s <= 6; s++) { autoResearchesSet('researchesExtra', s); }
-            } else if (i === 8) {
-                autoElementsSet();
-            }
-        });
+        getId(`toggleAuto${i}`).addEventListener('click', () => toggleSwap(i, 'auto', true));
     }
 
     /* Stage tab */
@@ -1045,25 +1087,24 @@ try { //Start everything
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
         if (MD) { button.addEventListener('touchstart', () => repeatFunction(clickFunc)); }
     }
-    for (let i = 0; i < playerStart.verses.length; i++) {
+    for (let i = 0; i < 1; i++) {
         const button = getId(`verse${i}Btn`);
-        const clickFunc = () => buyVerse(i);
+        const clickFunc = () => buyVerse();
         button.addEventListener('click', clickFunc);
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
         if (MD) { button.addEventListener('touchstart', () => repeatFunction(clickFunc)); }
     } {
         const button = getId('makeAllStructures');
         const footer = getId('makeAllFooter');
-        const clickFooterFunc = () => (global.hotkeys.shift ? createAll : buyAll)();
         button.addEventListener('click', buyAll);
-        footer.addEventListener('click', clickFooterFunc);
+        footer.addEventListener('click', buyAll);
         if (PC) {
             button.addEventListener('mousedown', () => repeatFunction(buyAll));
-            footer.addEventListener('mousedown', () => repeatFunction(clickFooterFunc));
+            footer.addEventListener('mousedown', () => repeatFunction(buyAll));
         }
         if (MD) {
             button.addEventListener('touchstart', () => repeatFunction(buyAll));
-            footer.addEventListener('touchstart', () => repeatFunction(clickFooterFunc));
+            footer.addEventListener('touchstart', () => repeatFunction(buyAll));
         }
     }
     getId('toggleAll').addEventListener('click', toggleAll);
@@ -1087,11 +1128,8 @@ try { //Start everything
         showAndFix(window);
         const input = getId('autoWaitInput') as HTMLInputElement;
         const change = () => {
-            if (!global.offline.active) {
-                const value = Math.max(Number(input.value), 1);
-                player.toggles.shop.wait[player.stage.active] = isNaN(value) ? 2 : value;
-            }
-            input.value = format(player.toggles.shop.wait[player.stage.active], { type: 'input' });
+            const value = Math.max(Number(input.value), 1);
+            input.value = format((player.toggles.shop.wait[player.stage.active] = isNaN(value) ? 2 : value), { type: 'input' });
         };
         input.addEventListener('change', change);
         input.addEventListener('blur', () => {
@@ -1100,21 +1138,32 @@ try { //Start everything
         }, { once: true });
     });
 
+    getId('exitFooter').addEventListener('click', () => enterExitChallengeUser(null));
     for (let i = 0; i < global.challengesInfo.length; i++) {
         const image = getId(`challenge${i + 1}`);
         if (!MD) { image.addEventListener('mouseenter', () => hoverChallenge(i)); }
         image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
     }
-    getId('challengeName').addEventListener('click', () => { toggleSupervoid(true); });
-    getId('rewardsType').addEventListener('click', () => {
-        changeRewardType();
-        getChallenge0Reward(global.lastChallenge[1]);
+    getId('challengeName').addEventListener('click', () => {
+        if (global.april && global.lastChallenge[0] === 0 && player.challenges.active !== 0 && global.hotkeys.shift && global.ultravoid === null) {
+            global.ultravoid = false;
+            global.challengesInfo[0].name = 'Ultravoid';
+            global.challengesInfo[0].time = 0;
+            numbersUpdate();
+            visualUpdate();
+            return;
+        }
+        toggleChallengeType(global.lastChallenge[0], true);
+    });
+    getId('voidRewardsHead').addEventListener('click', () => {
+        global.sessionToggles[0] = !global.sessionToggles[0];
+        getChallengeRewards();
     });
     for (let s = 1; s <= 5; s++) {
         const image = getId(`voidReward${s}`);
         const clickFunc = () => {
             global.lastChallenge[1] = s;
-            getChallenge0Reward(s);
+            getChallengeRewards();
         };
         image.addEventListener('mouseenter', clickFunc);
         if (PC || SR) {
@@ -1294,16 +1343,24 @@ try { //Start everything
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
     } {
         const button = getId('createAllUpgrades');
+        const footer = getId('createAllFooter');
         button.addEventListener('click', createAll);
-        if (PC) { button.addEventListener('mousedown', () => repeatFunction(createAll)); }
-        if (MD) { button.addEventListener('touchstart', () => repeatFunction(createAll)); }
+        footer.addEventListener('click', createAll);
+        if (PC) {
+            button.addEventListener('mousedown', () => repeatFunction(createAll));
+            footer.addEventListener('mousedown', () => repeatFunction(createAll));
+        }
+        if (MD) {
+            button.addEventListener('touchstart', () => repeatFunction(createAll));
+            footer.addEventListener('touchstart', () => repeatFunction(createAll));
+        }
     }
 
     {
         const button = getId('element0');
         const dblclickFunc = () => {
             global.lastElement = 0;
-            getUpgradeDescription(0, 'elements');
+            getUpgradeDescription('elements');
         };
         if (SR) {
             getId('element1').addEventListener('keydown', (event) => {
@@ -1363,7 +1420,7 @@ try { //Start everything
     for (let i = 0; i < playerStart.strange.length; i++) {
         const button = getId(`strange${i}`);
         const open = (focus = false) => {
-            if (i === 0 && player.stage.true < 6 && player.milestones[4][0] < 8) { return; }
+            if (player.progress.main < 15 && player.milestones[4][0] < 8) { return; }
             const html = getId(`strange${i}EffectsMain`);
             if (html.dataset.focus === 'true') { return; }
             const button = getId(`strange${i}`);
@@ -1381,6 +1438,7 @@ try { //Start everything
             }
             html.style.display = '';
             numbersUpdate();
+            visualUpdate();
         };
         button.addEventListener('mouseenter', () => open());
         if (SR) { button.addEventListener('focus', () => open(true)); }
@@ -1391,7 +1449,7 @@ try { //Start everything
             const label = getId(`strange${i + 1}Stage${s}`);
             const image = getQuery(`#strange${i + 1}Stage${s} > input`);
             const hoverFunc = () => hoverStrangeness(i, s, 'strangeness');
-            const clickFunc = () => buyStrangeness(i, s, 'strangeness');
+            const clickFunc = () => buyStrangenessMax(i, s, 'strangeness');
             if (PC) {
                 label.addEventListener('mouseenter', hoverFunc);
                 image.addEventListener('mouseenter', () => {
@@ -1423,7 +1481,7 @@ try { //Start everything
         const button = getId('strangenessCreate');
         const clickFunc = () => {
             const last = global.lastStrangeness;
-            if (last[0] !== null) { buyStrangeness(last[0], last[1], 'strangeness'); }
+            if (last[0] !== null) { buyStrangenessMax(last[0], last[1], 'strangeness'); }
         };
         button.addEventListener('click', clickFunc);
         button.addEventListener('touchstart', () => repeatFunction(clickFunc));
@@ -1433,10 +1491,10 @@ try { //Start everything
         const clickFunc = () => {
             if (globalSave.MDSettings[0]) {
                 const s = global.debug.MDStrangePage;
-                for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
+                for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
             } else {
                 for (let s = 1; s < global.strangenessInfo.length; s++) {
-                    for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangeness(i, s, 'strangeness'); }
+                    for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
                 }
             }
         };
@@ -1471,7 +1529,7 @@ try { //Start everything
             const label = getId(`inflation${i + 1}Tree${s + 1}`);
             const image = getQuery(`#inflation${i + 1}Tree${s + 1} > input`);
             const hoverFunc = () => hoverStrangeness(i, s, 'inflations');
-            const clickFunc = () => buyStrangeness(i, s, 'inflations');
+            const clickFunc = () => buyStrangenessMax(i, s, 'inflations');
             if (PC) {
                 label.addEventListener('mouseenter', hoverFunc);
                 image.addEventListener('mouseenter', () => {
@@ -1498,8 +1556,7 @@ try { //Start everything
                 });
             }
         }
-    }
-    {
+    } {
         const button = getId('loadoutsName');
         button.addEventListener('change', () => {
             const input = getId('loadoutsName') as HTMLInputElement;
@@ -1516,7 +1573,7 @@ try { //Start everything
     getId('inflationLoadouts').addEventListener('click', () => {
         if ((global.loadouts.open = !global.loadouts.open)) {
             getId('loadoutsMain').style.display = '';
-            (getId('loadoutsName') as HTMLInputElement).value = 'Auto-generate';
+            (getId('loadoutsName') as HTMLInputElement).value = 'Current';
             loadoutsLoadAuto();
             loadoutsRecreate();
         } else { getId('loadoutsMain').style.display = 'none'; }
@@ -1529,12 +1586,12 @@ try { //Start everything
             const index = first[i].indexOf('x');
             let repeat = 1;
             if (index !== -1) {
-                repeat = Number(first[i].slice(index + 1));
+                repeat = Math.min(Math.max(Number(first[i].slice(index + 1)), 0), 20);
+                if (isNaN(repeat)) { repeat = 1; }
                 first[i] = first[i].slice(0, index);
             }
             const number = Math.trunc(Number(first[i]) - 1);
-            if (!checkUpgrade(number, 0, 'inflations') || isNaN(repeat)) { continue; }
-            if (repeat > 99) { repeat = 99; }
+            if (number < 0 || !isFinite(number)) { continue; }
             for (let r = 0; r < repeat; r++) { final.push(number); }
         }
         loadoutsFinal(final);
@@ -1562,24 +1619,29 @@ try { //Start everything
         } else { loadouts.splice(newIndex, 0, deleted); }
         loadoutsRecreate();
     });
-    getId('loadoutsDelete').addEventListener('click', () => {
+    getId('loadoutsDelete').addEventListener('click', async() => {
         const loadouts = player.inflation.loadouts;
-        const name = (getId('loadoutsName') as HTMLInputElement).value;
-        let index;
-        for (let i = 0; i < loadouts.length; i++) {
-            if (name === loadouts[i][0]) {
-                index = i;
-                break;
+        if (global.hotkeys.shift) {
+            if (loadouts.length === 0 || !await Confirm('Delete all loadouts?')) { return; }
+            loadouts.length = 0;
+        } else {
+            const name = (getId('loadoutsName') as HTMLInputElement).value;
+            let index;
+            for (let i = 0; i < loadouts.length; i++) {
+                if (name === loadouts[i][0]) {
+                    index = i;
+                    break;
+                }
             }
+            if (index === undefined || !await Confirm(`Delete selected loadout '${name}'?\n(Hold shift before clicking 'delete' to delete all)`)) { return; }
+            loadouts.splice(index, 1);
         }
-        if (index === undefined) { return; }
-        loadouts.splice(index, 1);
         loadoutsRecreate();
     });
     if (MD) {
         const button = getId('inflationActivate');
         const clickFunc = () => {
-            if (global.lastInflation[0] !== null) { buyStrangeness(global.lastInflation[0], global.lastInflation[1], 'inflations'); }
+            if (global.lastInflation[0] !== null) { buyStrangenessMax(global.lastInflation[0], global.lastInflation[1], 'inflations'); }
         };
         button.addEventListener('click', clickFunc);
         button.addEventListener('touchstart', () => repeatFunction(clickFunc));
@@ -1612,40 +1674,47 @@ try { //Start everything
                 body.addEventListener('click', fullClose, { capture: true });
             }
             showAndFix(html);
+            if (number === 0) { visualUpdate(); }
         };
         button.addEventListener('click', () => open());
         if (PC) { button.addEventListener('mouseenter', () => open(true)); }
     }
     getId('stageInput').addEventListener('change', () => {
         const input = getId('stageInput') as HTMLInputElement;
-        if (!global.offline.active) { player.stage.input = Number(input.value); }
-        input.value = format(player.stage.input, { type: 'input' });
+        const type = Number(input.dataset.type);
+        if (playerStart.stage.input[type] !== undefined) {
+            input.value = format((player.stage.input[type] = Number(input.value)), { type: 'input' });
+        } else { player.stage.input[0] = 1; }
     });
+    {
+        const input = getId('stageInputType');
+        input.addEventListener('change', () => {
+            const input = getId('stageInputType') as HTMLInputElement;
+            const value = Math.trunc(Number(input.value));
+            input.value = format((player.stage.input[0] = Math.min(Math.max(1, isNaN(value) ? 1 : value), playerStart.stage.input.length - 1)), { type: 'input' });
+        });
+        input.addEventListener('blur', () => { visualUpdate(); });
+    }
     getId('vaporizationInput').addEventListener('change', () => {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        if (!global.offline.active) { player.vaporization.input[0] = Math.max(Number(input.value), 0); }
-        input.value = format(player.vaporization.input[0], { type: 'input' });
+        input.value = format((player.vaporization.input[0] = Math.max(Number(input.value), 0)), { type: 'input' });
     });
     getId('vaporizationInputMax').addEventListener('change', () => {
         const input = getId('vaporizationInputMax') as HTMLInputElement;
-        if (!global.offline.active) { player.vaporization.input[1] = Number(input.value); }
-        input.value = format(player.vaporization.input[1], { type: 'input' });
+        input.value = format((player.vaporization.input[1] = Number(input.value)), { type: 'input' });
     });
     getId('collapseInput').addEventListener('change', () => {
         const input = getId('collapseInput') as HTMLInputElement;
-        if (!global.offline.active) { player.collapse.input[0] = Math.max(Number(input.value), 1); }
-        input.value = format(player.collapse.input[0], { type: 'input' });
+        input.value = format((player.collapse.input[0] = Math.max(Number(input.value), 1)), { type: 'input' });
     });
     getId('collapseInputWait').addEventListener('change', () => {
         const input = getId('collapseInputWait') as HTMLInputElement;
-        if (!global.offline.active) { player.collapse.input[1] = Number(input.value); }
-        input.value = format(player.collapse.input[1], { type: 'input' });
+        input.value = format((player.collapse.input[1] = Number(input.value)), { type: 'input' });
     });
     getId('collapseAddNewPoint').addEventListener('change', () => {
         const input = getId('collapseAddNewPoint') as HTMLInputElement;
         const value = Number(input.value);
         input.value = '';
-        if (global.offline.active) { return; }
         if (isFinite(value)) {
             if (value === 0) {
                 player.collapse.points = [];
@@ -1666,52 +1735,60 @@ try { //Start everything
     });
     getId('mergeInput').addEventListener('change', () => {
         const input = getId('mergeInput') as HTMLInputElement;
-        if (!global.offline.active) { player.merge.input[0] = Math.trunc(Number(input.value)); }
-        input.value = format(player.merge.input[0], { type: 'input' });
+        input.value = format((player.merge.input[0] = Math.trunc(Number(input.value))), { type: 'input' });
     });
     getId('mergeInputSince').addEventListener('change', () => {
         const input = getId('mergeInputSince') as HTMLInputElement;
-        if (!global.offline.active) { player.merge.input[1] = Number(input.value); }
-        input.value = format(player.merge.input[1], { type: 'input' });
+        input.value = format((player.merge.input[1] = Number(input.value)), { type: 'input' });
     });
     getId('nucleationInput').addEventListener('change', () => {
         const input = getId('nucleationInput') as HTMLInputElement;
-        if (!global.offline.active) { player.darkness.input = Math.max(Number(input.value), 0); }
-        input.value = format(player.darkness.input, { type: 'input' });
+        input.value = format((player.darkness.input = Math.max(Number(input.value), 0)), { type: 'input' });
     });
     getId('versionButton').addEventListener('click', openVersionInfo);
     getId('hotkeysButton').addEventListener('click', openHotkeys);
-    getId('save').addEventListener('click', () => { saveGame(); });
+    getId('save').addEventListener('click', () => { saveGame(false, true); });
     getId('file').addEventListener('change', async() => {
         const id = getId('file') as HTMLInputElement;
         try {
             loadGame(await (id.files as FileList)[0].text());
         } finally { id.value = ''; }
     });
-    getId('export').addEventListener('click', () => {
+    const exportReward = () => {
+        if (player.progress.main < 17 && (player.inflation.vacuum || player.progress.main < 11)) { return; }
+        if (globalSave.developerMode) { return Notify("Export reward is not allowed when using 'devMode'\nDisable it by writting that string into the advanced save options (case sensitive)"); }
+
         const exportReward = player.time.export;
-        if ((player.stage.true >= 7 || player.strange[0].total > 0) && (player.challenges.active === null || global.challengesInfo[player.challenges.active].resetType === 'stage') && exportReward[0] > 0) {
-            const { strange } = player;
-            const divide = player.stage.true >= 7 ? 1 : 2.5;
-            const conversion = Math.min(exportReward[0] / (player.stage.true >= 8 ? 21600_000 : 86400_000), 1);
-            const quarks = (exportReward[1] / divide + 1) * conversion;
+        if (exportReward[0] <= 0) { return; }
+        const claimPer = player.inflation.ends[0] >= 1 ? 1 : 2.5;
+        const conversion = Math.min(exportReward[0] / 43200_000, 1);
 
-            strange[0].current += quarks;
-            strange[0].total += quarks;
-            exportReward[1] = Math.max(exportReward[1] - quarks, 0);
-            if (player.strangeness[5][8] >= 1) {
-                const strangelets = exportReward[2] / divide * conversion;
-                strange[1].current += strangelets;
-                strange[1].total += strangelets;
-                exportReward[2] -= strangelets;
-                assignBuildingsProduction.strange1();
-            }
+        if (player.inflation.ends[1] >= 1 && exportReward[3] > 0) {
+            const value = exportReward[3] / 5 * conversion;
+            player.cosmon[1].current += value;
+            player.cosmon[1].total += value;
+            exportReward[3] -= Math.max(exportReward[3] - value, 0);
+        } else if (player.challenges.active !== null && global.challengesInfo[player.challenges.active].resetType !== 'stage') { return; }
+        if (exportReward[2] > 0) {
+            const value = exportReward[2] / claimPer * conversion;
+            player.strange[1].current += value;
+            player.strange[1].total += value;
+            exportReward[2] -= Math.max(exportReward[2] - value, 0);
+            assignBuildingsProduction.strange1();
+        } {
+            const value = (exportReward[1] / claimPer + 1) * conversion;
+            player.strange[0].current += value;
+            player.strange[0].total += value;
+            exportReward[1] = Math.max(exportReward[1] - value, 0);
             assignBuildingsProduction.strange0();
-            exportReward[0] = 0;
-            numbersUpdate();
         }
+        exportReward[0] = 0;
+        numbersUpdate();
+    };
+    getId('export').addEventListener('click', () => {
+        exportReward();
 
-        const save = saveGame(globalSave.developerMode);
+        const save = saveGame(globalSave.developerMode, true);
         if (save === null) { return; }
         const a = document.createElement('a');
         a.href = `data:text/plain,${save}`;
@@ -1719,7 +1796,7 @@ try { //Start everything
         a.click();
     });
     getId('saveConsole').addEventListener('click', async() => {
-        let value = await Prompt("Available options:\n'Copy' ‒ copy save file to the clipboard\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it");
+        let value = await Prompt("Available options:\n'Copy' ‒ copy save file to the clipboard\n'Legacy' ‒ copy legacy save if it exist\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it");
         if (value === null || value === '') { return; }
         let lower = value.trim().toLowerCase();
         if (lower === 'global') {
@@ -1728,20 +1805,19 @@ try { //Start everything
             lower = `global_${value.trim().toLowerCase()}`;
         }
 
-        if (lower === 'copy' || lower === 'global_copy') {
-            const save = lower === 'global_copy' ? saveGlobalSettings(true) : saveGame(true);
-            if (save !== null) {
-                try {
-                    await navigator.clipboard.writeText(save);
-                    Notify(`${lower === 'global_copy' ? 'Settings have' : 'Save has'} been copied to the clipboard`);
-                } catch (error) {
-                    console.warn(`Full error for being unable to write to the clipboard:\n${error}`);
-                    if (await Confirm("Could not copy text into clipboard, press 'Confrim' to save it as a file instead")) {
-                        const a = document.createElement('a');
-                        a.href = `data:text/plain,${save}`;
-                        a.download = `Fundamental ${lower === 'global_copy' ? 'settings' : 'save'} clipboard`;
-                        a.click();
-                    }
+        if (lower === 'copy' || lower === 'global_copy' || lower === 'legacy') {
+            const save = lower === 'global_copy' ? saveGlobalSettings(true) : lower === 'copy' ? saveGame(true) : localStorage.getItem('save');
+            if (save === null) { return Notify('Could not copy text into the clipboard'); }
+            try {
+                await navigator.clipboard.writeText(save);
+                Notify('Text has been succefully copied to the clipboard');
+            } catch (error) {
+                console.warn(`Full clipboard write error:\n${error}`);
+                if (await Confirm("Could not copy text into the clipboard, press 'Confrim' to save it as a file instead")) {
+                    const a = document.createElement('a');
+                    a.href = `data:text/plain,${save}`;
+                    a.download = `Fundamental ${lower === 'global_copy' ? 'settings' : `${lower === 'legacy' ? 'legacy ' : ''}save`} clipboard`;
+                    a.click();
                 }
             }
         } else if (lower === 'delete' || lower === 'clear' || lower === 'global_reset') {
@@ -1756,6 +1832,8 @@ try { //Start everything
         } else if (value === 'devMode') {
             Notify(`Developer mode is ${((globalSave.developerMode = !globalSave.developerMode)) ? 'now' : 'no longer'} active`);
             saveGlobalSettings();
+        } else if (lower === 'console' && globalSave.developerMode) {
+            console.log(deepClone(player), deepClone(globalSave), deepClone(global));
         } else if (lower === 'achievement') {
             Notify('Unlocked a new Achievement! (If there were any)');
         } else if (lower === 'slow' || lower === 'free' || lower === 'boost') {
@@ -1764,13 +1842,9 @@ try { //Start everything
             Notify(`Found a ${lower === 'secret_secret' ? "ultra rare secret, but it doesn't proof anything" : `${lower === 'global_secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
         } else if (lower === 'secret_proof') {
             Notify('Found a proof that you were looking for!');
-        } else if (lower === 'quantum') {
-            getId('body').style.display = 'none';
-            document.documentElement.style.backgroundColor = 'black';
-            await Alert('Close when you are done enjoying the Quantum Vacuum');
-            document.documentElement.style.backgroundColor = '';
-            getId('body').style.display = '';
-            addIntoLog('Experienced the Quantum Vacuum');
+        } else if (lower === 'april') {
+            enableApril();
+            Notify(`April mode ${global.april ? 'enabled' : 'disabled'}`);
         } else {
             if (value.length < 20) { return void Alert(`Input '${value}' doesn't match anything`); }
             if (lower.includes('global_')) {
@@ -1793,13 +1867,13 @@ try { //Start everything
         const input = getId('saveFileNameInput') as HTMLInputElement;
         const changePreview = () => {
             const value = input.value.trim();
-            getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length < 1 ? playerStart.fileName : value);
+            getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length === 0 ? playerStart.fileName : value);
         };
         showAndFix(window);
         changePreview();
         const change = () => {
             let testValue = input.value.trim();
-            if (testValue.length < 1) {
+            if (testValue.length === 0) {
                 testValue = playerStart.fileName;
                 input.value = testValue;
             }
@@ -1812,12 +1886,6 @@ try { //Start everything
             input.removeEventListener('input', changePreview);
             input.removeEventListener('change', change);
         }, { once: true });
-    });
-    getId('offlineInterval').addEventListener('change', () => {
-        const input = getId('offlineInterval') as HTMLInputElement;
-        globalSave.intervals.offline = Math.min(Math.max(Math.trunc(Number(input.value)), 20), 6000);
-        input.value = `${globalSave.intervals.offline}`;
-        saveGlobalSettings();
     });
     getId('numbersInterval').addEventListener('change', () => {
         const input = getId('numbersInterval') as HTMLInputElement;
@@ -1835,24 +1903,31 @@ try { //Start everything
     });
     getId('autoSaveInterval').addEventListener('change', () => {
         const input = getId('autoSaveInterval') as HTMLInputElement;
-        globalSave.intervals.autoSave = Math.min(Math.max(Math.trunc(Number(input.value)), 4), 1800) * 1000;
+        globalSave.intervals.autoSave = Math.min(Math.max(Math.trunc(Number(input.value)), 5), 9999) * 1000;
         input.value = `${globalSave.intervals.autoSave / 1000}`;
         saveGlobalSettings();
-        changeIntervals();
+        if (!global.paused) {
+            clearInterval(global.intervalsId.autoSave);
+            global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+        }
     });
     getId('thousandSeparator').addEventListener('change', () => changeFormat(false));
     getId('decimalPoint').addEventListener('change', () => changeFormat(true));
     getId('MDToggle0').addEventListener('click', () => toggleSpecial(0, 'mobile', true, true));
     getId('SRToggle0').addEventListener('click', () => toggleSpecial(0, 'reader', true, true));
     getId('pauseButton').addEventListener('click', pauseGameUser);
-    getId('showLog').addEventListener('click', openLog);
     getId('reviewEvents').addEventListener('click', replayEvent);
     getId('fullscreenButton').addEventListener('click', () => {
         if (document.fullscreenElement === null) {
             void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
         } else { void document.exitFullscreen(); }
     });
-    getId('warpButton').addEventListener('click', offlineWarp);
+    {
+        const button = getId('warpButton');
+        button.addEventListener('click', offlineWarp);
+        button.addEventListener('touchstart', () => repeatFunction(offlineWarp));
+        if (PC) { button.addEventListener('mousedown', () => repeatFunction(offlineWarp)); }
+    }
     getId('customFontSize').addEventListener('change', () => changeFontSize());
 
     getId('stageHistorySave').addEventListener('change', () => {
@@ -1943,17 +2018,28 @@ try { //Start everything
     document.head.append(specialHTML.styleSheet);
     stageUpdate(true, true);
     if (globalSave.theme !== null) {
-        getId('currentTheme').textContent = global.stageInfo.word[globalSave.theme];
-        getId(`switchTheme${globalSave.theme}`).style.textDecoration = 'underline';
+        getId('currentTheme').textContent = globalSave.theme === -1 ? 'quantum' : global.stageInfo.word[globalSave.theme];
+        if (globalSave.theme > 0) { getId(`switchTheme${globalSave.theme}`).style.textDecoration = 'underline'; }
         getId('switchTheme0').style.textDecoration = '';
         setTheme();
     }
     if (save !== null) {
         global.lastSave = handleOfflineTime();
-        Notify(`Welcome back, you were away for ${format(global.lastSave / 1000, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${globalSave.developerMode ?
-            `\nGame loaded after ${format((Date.now() - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
-        `);
+        const offline = global.lastSave;
+        const timeAtLoad = Date.now();
         void simulateOffline(global.lastSave);
+
+        void (async() => {
+            const result = await fetch('./last_build.txt');
+            if (result.ok) {
+                global.lastUpdate = Number((await result.text()).replace('\n', ''));
+                if (global.lastUpdate === 0 || isNaN(global.lastUpdate)) { global.lastUpdate = null; }
+            }
+            Notify(`Welcome back, you were away for ${format(offline / 1000, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${global.lastUpdate !== null ?
+                `\nLast update was ${format((timeAtLoad - global.lastUpdate) / 1000, { type: 'time', padding: false })} ago` : ''}${globalSave.developerMode ?
+                `\nGame loaded after ${format((timeAtLoad - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
+            `);
+        })();
     } else { pauseGame(false); }
     getId('body').style.display = '';
     getId('loading').style.display = 'none';
@@ -1961,18 +2047,6 @@ try { //Start everything
     specialHTML.cache.idMap.clear();
     specialHTML.cache.queryMap.clear();
     specialHTML.cache.classMap.clear();
-
-    void (async() => {
-        const result = await fetch('./last_build.txt');
-        if (!result.ok) { return; }
-        global.lastUpdate = Number((await result.text()).replace('\n', ''));
-        if (global.lastUpdate === 0 || isNaN(global.lastUpdate)) {
-            global.lastUpdate = null;
-            return;
-        }
-        if (global.lastUpdate > 86400_000) { return; }
-        Notify(`Last game update happened ${format((Date.now() - global.lastUpdate) / 1000, { type: 'time', padding: false })} ago`);
-    })();
 } catch (error) {
     const stack = (error as { stack?: string }).stack;
     void Alert(`Game failed to load\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 2);
@@ -1991,7 +2065,7 @@ try { //Start everything
         a.click();
     });
     getId('deleteError').addEventListener('click', async() => {
-        if (!exported && !await Confirm("It's recommended to export save file first\nPress 'Confirm' to confirm and delete your save file")) { return; }
+        if (!globalSave.developerMode && !exported && !await Confirm("It's recommended to export save file first\nPress 'Confirm' to confirm and delete your save file")) { return; }
         localStorage.removeItem(specialHTML.localStorage.main);
         window.location.reload();
         void Alert('Awaiting game reload');

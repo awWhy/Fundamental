@@ -18,7 +18,7 @@
         "space-before-function-paren": "off", //Already in @typescript
         "spaced-comment": "off",
         "indent": ["error", 4, { "SwitchCase": 1, "flatTernaryExpressions": true }],
-        "curly": ["error", "all"],
+        "curly": ["error", "all"], //Probably can change it into "multi-line" to allow empty bodies for loops
         "object-shorthand": ["warn", "consistent-as-needed"],
         "comma-dangle": ["warn", "never"],
         "max-statements-per-line": ["error", { "max": 2 }], //Because brace-style isn't working. So only allowed for cases like 'if (condition) { do this; }'

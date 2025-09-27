@@ -41,7 +41,7 @@ html {
     --button-text: #e3e3e3;
     --main-text: var(--cyan-text);
     --white-text: white;
-    --cyan-text: #03d3d3;
+    --cyan-text: #00d6d6;
     --blue-text: dodgerblue;
     --orange-text: darkorange;
     --gray-text: #8f8f8f;
@@ -54,8 +54,8 @@ html {
     --yellow-text: #fafa00;
 
     --transition-all: 0s;
-    --transition-buttons: 100ms;
     --stage-text: var(--cyan-text);
+    --stage-subtext: var(--stage-text);
     --stage-button-border: darkcyan;
     --stage-image-borderColor: #008b8b;
     --image-border: url("Used_art/Stage1 border.png");
@@ -77,6 +77,7 @@ body {
 }
 
 .stageText { color: var(--stage-text) !important; }
+.stageTextSub { color: var(--stage-subtext) !important; }
 .mainText { color: var(--main-text) !important; }
 .whiteText { color: var(--white-text) !important; }
 .cyanText { color: var(--cyan-text) !important; }
@@ -173,6 +174,11 @@ p > img {
     margin: 0.5em 0.5em 0 0.2em;
 }
 
+sup {
+    vertical-align: text-top;
+    font-size: 0.72em;
+}
+
 input[type = "image"] { cursor: pointer; }
 
 .stageBorderImage {
@@ -180,8 +186,6 @@ input[type = "image"] { cursor: pointer; }
     background-repeat: no-repeat;
     background-position: center;
 }
-
-#MDMessage1 { display: none; }
 
 .reader { /* For screen readers */
     position: absolute;
@@ -226,7 +230,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     background-color: #00000050;
 }
 
-#alertMain > div {
+#alertMain > article {
     display: flex;
     flex-direction: column;
     width: 24rem;
@@ -247,7 +251,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     overscroll-behavior-y: none;
 }
 
-#alertMain > div > div {
+#alertMain div {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -313,7 +317,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     padding: 0.2em 0.4em;
     text-align: center;
     white-space: pre-line;
-    width: clamp(20vw, 29rem, 95vw);
+    width: clamp(20vw, 32rem, 95vw);
     overflow-wrap: break-word;
     pointer-events: auto;
     cursor: pointer !important;
@@ -361,10 +365,6 @@ button, input { appearance: none; }
 
 .hollowButton { background-color: var(--background-color); }
 
-img, input[type = "image"], button, #load, #logoLinks > a {
-    transition-duration: var(--transition-buttons);
-}
-
 button:hover, #load:hover { background-color: var(--button-hover); }
 .toggleNormal:hover, .toggleConfirm:hover, .toggleHover:hover, .toggleMax:hover, .toggleAuto:hover,
 .specialToggle:hover, input[type = "image"]:hover, .hollowButton:hover { background-color: var(--hollow-hover); }
@@ -377,7 +377,7 @@ button.selectBtn {
     border-bottom: 1px solid;
     border-color: inherit;
     color: inherit;
-    font-size: unset;
+    font-size: inherit;
     height: unset;
     transition-duration: var(--transition-all);
 }
@@ -425,7 +425,7 @@ input:-webkit-autofill { /* Chrome related pain */
     border: 2px solid var(--window-border);
     border-radius: 7px;
     width: max-content;
-    max-width: min(55em, 90vw);
+    max-width: min(55em, 95vw);
     padding: 0.5em 0.6em 0.6em;
     margin-top: 0.3em;
     overflow-wrap: break-word;
@@ -440,8 +440,6 @@ input:-webkit-autofill { /* Chrome related pain */
     width: max-content;
     max-width: min(55em, 100vw);
     padding: 0.2em 0.5em 0.3em;
-    margin-top: 0.5em;
-    margin-left: 0.5em;
     font-size: 0.92em;
     pointer-events: none;
     white-space: pre-line;
@@ -477,7 +475,7 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #resets button {
-    width: 16em;
+    width: 16.8em;
     height: 2.2em;
     font-size: 0.86em;
     margin-top: auto;
@@ -514,7 +512,7 @@ input:-webkit-autofill { /* Chrome related pain */
     column-gap: 0.3em;
 }
 
-.buyBuilding > img, #specials img { margin-right: 0.3em; }
+#buildings img { margin-right: 0.3em; }
 
 .buyBuilding > div:first-of-type {
     display: flex;
@@ -568,8 +566,8 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-left: 0.4em;
 }
 
-.availableBuilding button:first-of-type { border-color: var(--building-afford); }
-.availableBuilding > div > div > div { background-color: var(--building-afford); }
+.availableB button:first-of-type { border-color: var(--building-afford); }
+.availableB > div > div > div { background-color: var(--building-afford); }
 
 #buildingToggles {
     display: flex;
@@ -647,7 +645,7 @@ input:-webkit-autofill { /* Chrome related pain */
     border-radius: 0;
 }
 
-#challengesMain > section {
+#challengesMain > article {
     display: flex;
     gap: 0.44em;
 }
@@ -659,49 +657,68 @@ input:-webkit-autofill { /* Chrome related pain */
 }
 
 #challengeMultiline p { white-space: pre-line; }
-#challengeMultiline > section { margin-top: 1.2em; }
+#challengeMultiline > article { margin-top: 1.2em; }
 
-#challengeMultiline > section > div {
+#challengeMultiline div {
     display: flex;
     flex-direction: column;
     row-gap: 1em;
 }
 
-#voidRewards,
-#stabilityRewards {
+#challengeRewards {
     display: flex;
     flex-direction: column;
     align-items: center;
+    row-gap: 0.4em;
 }
 
-#voidRewards > div:first-of-type {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.3em;
-    margin-top: 0.3em;
-}
-
-#voidRewards > div button {
-    height: 1.9em;
-    padding: 0 0.4em;
-    border-radius: 4px;
-}
-
-.challengeRewards {
+#challengeRewardsMultiline {
     display: flex;
     flex-direction: column;
     background-color: var(--window-color);
     border: 2px solid var(--window-border);
     border-radius: 7px;
     padding: 0.5em 0.6em 0.6em;
-    margin-top: 0.2em;
     text-align: left;
     row-gap: 0.2em;
 }
 
-.challengeRewards p { white-space: pre-line; }
-#voidRewards > .challengeRewards { margin-top: 0.6em; }
+#challengeRewardsMultiline p { white-space: pre-line; }
+
+#voidRewards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3em;
+    margin-bottom: 0.2em;
+}
+
+#voidRewards button {
+    height: 1.9em;
+    padding: 0 0.4em;
+    border-radius: 4px;
+}
+
+#darknessTierMain {
+    display: flex;
+    align-items: center;
+    column-gap: 0.4em;
+}
+
+#darknessTierMain button {
+    width: 1.4em;
+    height: 1.6em;
+}
+
+#darknessTierMinus {
+    color: var(--red-text);
+    border-color: crimson;
+}
+
+#darknessTierPlus {
+    color: var(--green-text);
+    border-color: forestgreen;
+}
 
 .togglesDiv {
     display: flex;
@@ -723,7 +740,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: -0.4em;
 }
 
-#upgrades > section {
+#upgrades > article {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -734,13 +751,13 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.4em;
 }
 
-#researches > section {
+#researches > article {
     display: flex;
     align-items: center;
     margin-left: -32px;
 }
 
-#researches > section:not(:last-of-type) { margin-bottom: 0.4em; }
+#researches > article:not(:last-of-type) { margin-bottom: 0.4em; }
 
 #researches .researchesDiv {
     display: flex;
@@ -781,6 +798,12 @@ input:-webkit-autofill { /* Chrome related pain */
     height: 32px;
     pointer-events: none;
     transition-property: background-color;
+}
+
+.researchesDiv label > span.noMaxLevel {
+    padding-left: calc(3px + 0.4em);
+    padding-right: 0.4em;
+    min-width: 2.3em;
 }
 
 .descriptionTextMain {
@@ -842,7 +865,7 @@ input:-webkit-autofill { /* Chrome related pain */
     left: calc(-38px - 0.65em);
     opacity: 0;
     cursor: help;
-    transition: opacity 1s 3s, background-color var(--transition-buttons);
+    transition: opacity 1s 3s, background-color var(--transition-all);
 }
 
 #element0:hover { opacity: 1; }
@@ -1078,7 +1101,7 @@ input.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; 
     row-gap: 0.6em;
 }
 
-#inflationMilestones > section {
+#inflationMilestones > * {
     background-color: #004200;
     color: var(--green-text);
     border: 2px solid darkgreen;
@@ -1239,7 +1262,11 @@ input.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; 
 }
 
 li input[type = "number"] { width: 3.15em; }
-input.miniInput { width: 1.3em; }
+
+input.miniInput {
+    width: 1.3em;
+    padding: 0.1em;
+}
 
 li button {
     font-size: 0.92em;
@@ -1475,10 +1502,7 @@ li .hollowButton {
     width: 4.4em;
 }
 
-#fakeFooter {
-    visibility: hidden;
-    height: calc(32px + min(3.9vh, 2.4em) + 5.8472em + 1.2vw);
-}
+#fakeFooter { visibility: hidden; }
 
 #footer {
     position: fixed;
@@ -1557,7 +1581,7 @@ li .hollowButton {
 
 #shortcuts button,
 #subtabs button {
-    min-width: 5.5em;
+    min-width: 4.5em;
     background-color: var(--background-color);
     border-radius: 2px;
     padding: 0 0.6em;
