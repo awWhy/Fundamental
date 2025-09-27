@@ -1337,7 +1337,10 @@ li .hollowButton {
     height: 7.5em;
     max-height: 70vh;
     resize: vertical;
+    white-space: pre-line;
 }
+
+#historyMainDiv p { white-space: pre-line; }
 
 #historyMainDiv input {
     height: 1.7em;
