@@ -1329,16 +1329,27 @@ li .hollowButton {
 #historyMainDiv h3 { margin-bottom: 0.24em; }
 
 #historyMainDiv ol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     list-style-type: none;
     overflow-y: overlay;
     overscroll-behavior-y: none;
-    margin: 0.5em 0;
+    margin: 0.4em 0;
     padding: 0 1em;
-    height: 7.5em;
+    height: 12em;
     max-height: 70vh;
     resize: vertical;
     white-space: pre-line;
 }
+
+#historyMainDiv li {
+    padding: 2px 0;
+    border-bottom: 1px dashed;
+}
+
+#endHistory li { border-bottom-color: var(--red-text); }
+#stageHistory li { border-bottom-color: var(--stage-text); }
 
 #historyMainDiv p { white-space: pre-line; }
 
