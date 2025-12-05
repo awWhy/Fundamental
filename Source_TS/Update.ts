@@ -3,7 +3,7 @@ import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
 import { getClass, getId, getQuery, toggleSwap } from './Main';
 import { effectsCache, global, player } from './Player';
-import { MDStrangenessPage, Notify, errorNotify, globalSave, playEvent, resetMinSizes, setTheme, specialHTML } from './Special';
+import { MDStrangenessPage, Notify, globalSave, playEvent, resetMinSizes, setTheme, specialHTML } from './Special';
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 

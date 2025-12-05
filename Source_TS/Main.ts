@@ -571,11 +571,12 @@ const loadoutsLoadAuto = () => {
         return array as startValue[];
     };
 
-    for (let s = 1; s < global.buildingsInfo.firstCost.length; s++) {
+    const { buildingsInfo } = global;
+    for (let s = 1; s < buildingsInfo.firstCost.length; s++) {
         player.buildings[s] = [] as unknown as typeof player.buildings[0];
-        player.toggles.buildings[s] = createArray(global.buildingsInfo.firstCost[s].length, false);
-        global.buildingsInfo.producing[s] = [];
-        for (let i = 0; i < global.buildingsInfo.firstCost[s].length; i++) {
+        player.toggles.buildings[s] = createArray(buildingsInfo.firstCost[s].length, false);
+        buildingsInfo.producing[s] = [];
+        for (let i = 0; i < buildingsInfo.firstCost[s].length; i++) {
             const start = i === 0 && s === 4 ? 1 : 0;
             player.buildings[s][i] = {
                 current: new Overlimit(start),
@@ -583,8 +584,9 @@ const loadoutsLoadAuto = () => {
                 trueTotal: new Overlimit(start)
             };
             if (i !== 0) { player.buildings[s][i as 1].true = 0; }
-            global.buildingsInfo.producing[s as 0].push(i === 0 ? 0 : new Overlimit(0));
+            buildingsInfo.producing[s as 0].push(i === 0 ? 0 : new Overlimit(0));
         }
+        buildingsInfo.increaseStart[s] = cloneArray(buildingsInfo.increase[s]);
     }
     player.toggles.verses = createArray(player.verses.length, false);
     {

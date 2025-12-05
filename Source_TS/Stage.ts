@@ -1169,7 +1169,7 @@ export const addEnergy = (increase: number, index: number, stage: number) => {
 };
 
 export const calculateBuildingsCost = (index: number, stageIndex: number): Overlimit => {
-    let increase = global.buildingsInfo.increase[stageIndex][index];
+    let increase = global.buildingsInfo.increaseStart[stageIndex][index];
     let firstCost = global.buildingsInfo.firstCost[stageIndex][index];
     if (stageIndex === 1) {
         increase -= effectsCache.S1Upgrade6;
@@ -1217,6 +1217,7 @@ export const calculateBuildingsCost = (index: number, stageIndex: number): Overl
         }
     }
 
+    global.buildingsInfo.increase[stageIndex][index] = increase;
     return new Overlimit(increase).power(player.buildings[stageIndex][index as 1].true).multiply(firstCost);
 };
 

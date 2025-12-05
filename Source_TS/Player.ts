@@ -315,6 +315,7 @@ export const global: globalType = {
             [0, 1e50, 1e54, 1e5],
             [0, 1e8]
         ],
+        increaseStart: [[]],
         increase: [
             [],
             [0, 1.4, 1.4, 1.4, 1.4, 1.4],
@@ -1739,7 +1740,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangeness2Cost = [1, 1, 2, 2, 4, 2, 24];
         strangeness2Scaling = [0.5, 0.75, 1, 2, 0, 0, 0];
         strangeness3Cost = [1, 1, 2, 6, 4, 2, 4, 24];
-        strangeness3Scaling = [0.75, 1.5, 1, 0, 0, 0, 2.5, 0];
+        strangeness3Scaling = [0.75, 1.5, 1, 0, 0, 0, 2, 0];
         strangeness4Cost = [1, 1, 3, 2, 4, 2, 4, 24];
         strangeness4Scaling = [1, 2, 1.5, 2, 0, 0, 68, 0];
         strangeness5Cost = [20, 24, 240, 24, 6000, 24, 20, 120];
