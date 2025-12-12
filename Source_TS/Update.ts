@@ -3,7 +3,7 @@ import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
 import { getClass, getId, getQuery, toggleSwap } from './Main';
 import { effectsCache, global, player } from './Player';
-import { MDStrangenessPage, Notify, errorNotify, globalSave, playEvent, resetMinSizes, setTheme, specialHTML } from './Special';
+import { MDStrangenessPage, Notify, globalSave, playEvent, resetMinSizes, setTheme, specialHTML } from './Special';
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 
@@ -676,8 +676,6 @@ export const visualUpdate = (ignoreOffline = false) => {
         } else if (highest === 1) {
             if (player.upgrades[1][9] === 1) { playEvent(1, false); }
         }
-    } else if (highest === 7 && player.challenges.supervoid[1] < 1 && !player.challenges.super) {
-        errorNotify("To toggle the Supervoid you need to click the 'Void' button");
     }
 
     {
@@ -1098,7 +1096,7 @@ export const visualUpdate = (ignoreOffline = false) => {
                 getId('strange10Stage2').style.display = voidProgress[2] >= 2 ? '' : 'none';
                 getId('strange5Stage3').style.display = voidProgress[4] >= 1 || show3 ? '' : 'none';
                 getId('strange9Stage3').style.display = voidProgress[4] >= 4 ? '' : 'none';
-                getId('strange10Stage3').style.display = voidProgress[5] >= 1 || (player.challenges.active === 0 && player.challenges.super && player.tree[1][6] >= 4) ? '' : 'none';
+                getId('strange10Stage3').style.display = voidProgress[5] >= 1 ? '' : 'none';
                 getId('strange5Stage4').style.display = voidProgress[4] >= 1 || show3 ? '' : 'none';
                 getId('strange9Stage4').style.display = voidProgress[4] >= 3 ? '' : 'none';
                 getId('strange10Stage4').style.display = voidProgress[4] >= 5 ? '' : 'none';
@@ -1925,12 +1923,12 @@ const updateStageHistory = () => {
 
     let text = '';
     for (let i = 0; i < Math.min(list.length, player.history.stage.input[1]); i++) {
-        text += `<li class="whiteText"><span class="greenText">${format(list[i][1], { padding: true })} Strange quarks</span>, <span class="darkorchidText">${format(list[i][1] / list[i][0], { type: 'income' })}</span> <span class="greenText">| Peak:</span> <span class="darkorchidText">${format(list[i][3], { type: 'income' })}</span>${list[i][2] > 0 ? `,\n<span class="greenText">${format(list[i][2], { padding: true })} Strangelets</span>, <span class="darkorchidText">${format(list[i][2] / list[i][0], { type: 'income' })}</span>` : ''}, <span class="blueText">${format(list[i][0], { type: 'time' })}</span> <span class="greenText">| At:</span> <span class="blueText">${format(list[i][4], { type: 'time' })}</span></li>`;
+        text += `<li class="whiteText"><span class="greenText">${format(list[i][1], { padding: true })} Strange quarks</span>, <span class="darkorchidText">${format(list[i][1] / list[i][0], { type: 'income' })}</span> <span class="greenText">| Peak:</span> <span class="darkorchidText">${format(list[i][3], { type: 'income' })}</span>${list[i][2] > 0 ? `\n<span class="greenText">${format(list[i][2], { padding: true })} Strangelets</span>, <span class="darkorchidText">${format(list[i][2] / list[i][0], { type: 'income' })}</span>` : ''}, <span class="blueText">${format(list[i][0], { type: 'time' })}</span> <span class="greenText">| At:</span> <span class="blueText">${format(list[i][4], { type: 'time' })}</span></li>`;
     }
     getId('stageHistoryList').innerHTML = text !== '' ? text : '<li class="redText">Reference list is empty</li>';
 
     const best = player.history.stage.best;
-    getId('stageHistoryBest').innerHTML = `<span class="greenText">${format(best[1], { padding: true })} Strange quarks</span>, <span class="darkorchidText">${format(best[1] / best[0], { type: 'income' })}</span> <span class="greenText">| Peak:</span> <span class="darkorchidText">${format(best[3], { type: 'income' })}</span>${best[2] > 0 ? `,\n<span class="greenText">${format(best[2], { padding: true })} Strangelets</span>, <span class="darkorchidText">${format(best[2] / best[0], { type: 'income' })}</span>` : ''}, <span class="blueText">${format(best[0], { type: 'time' })}</span> <span class="greenText">| At:</span> <span class="blueText">${format(best[4], { type: 'time' })}</span>`;
+    getId('stageHistoryBest').innerHTML = `<span class="greenText">${format(best[1], { padding: true })} Strange quarks</span>, <span class="darkorchidText">${format(best[1] / best[0], { type: 'income' })}</span> <span class="greenText">| Peak:</span> <span class="darkorchidText">${format(best[3], { type: 'income' })}</span>${best[2] > 0 ? `\n<span class="greenText">${format(best[2], { padding: true })} Strangelets</span>, <span class="darkorchidText">${format(best[2] / best[0], { type: 'income' })}</span>` : ''}, <span class="blueText">${format(best[0], { type: 'time' })}</span> <span class="greenText">| At:</span> <span class="blueText">${format(best[4], { type: 'time' })}</span>`;
     global.debug.historyStage = player.stage.resets;
 };
 const updateEndHistory = () => {

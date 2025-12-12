@@ -234,7 +234,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (player.stage.true < 7) { return false; }
                 if (upgrade === 3 || upgrade === 4) { return player.stage.true >= 8 || player.event; }
                 if (upgrade === 5) { return player.challenges.supervoid[3] >= 3; }
-                return upgrade <= 2;
+                return upgrade === 0 || upgrade === 1 || upgrade === 2;
             } else {
                 if (upgrade === 2) { return player.challenges.stability >= 1; }
                 if (upgrade === 3) { return player.challenges.supervoid[3] >= 5; }

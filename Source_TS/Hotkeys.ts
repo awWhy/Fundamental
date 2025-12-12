@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { numbersUpdate, switchTab, visualUpdate } from './Update';
-import { buyBuilding, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleSupervoid, vaporizationResetUser } from './Stage';
+import { autoElementsSet, autoResearchesSet, autoUpgradesSet, buyBuilding, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleSupervoid, vaporizationResetUser } from './Stage';
 import { pauseGameUser, playerStart, simulateOffline, toggleSwap } from './Main';
 import { Notify, globalSave, specialHTML } from './Special';
 import type { hotkeysList, numbersList } from './Types';
@@ -34,6 +34,12 @@ const basicFunctions: Record<hotkeysList, () => boolean> = {
             player.toggles.auto[i] = !anyOn;
             toggleSwap(i, 'auto');
         }
+        for (let s = 1; s <= 6; s++) {
+            autoUpgradesSet(s);
+            autoResearchesSet('researches', s);
+            autoResearchesSet('researchesExtra', s);
+        }
+        autoElementsSet();
         return true;
     },
     discharge: () => {

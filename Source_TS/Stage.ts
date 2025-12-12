@@ -549,9 +549,9 @@ export const assignBuildingsProduction = {
         const vacuum = player.inflation.vacuum;
         const index = vacuum ? 4 : 2;
 
-        let multiplier = (vacuum ? 0.8 : 0.4) * effectsCache.microworld * (effectsCache.S1Upgrade7 ** player.buildings[1][index].true);
+        let multiplier = (vacuum ? 0.8 : 0.4) * effectsCache.microworld;
         if (player.upgrades[1][3] === 1) { multiplier *= vacuum ? 6 : 4; }
-        return global.buildingsInfo.producing[1][index].setValue(multiplier).multiply(player.buildings[1][index].current);
+        return global.buildingsInfo.producing[1][index].setValue(effectsCache.S1Upgrade7).power(player.buildings[1][index].true).allMultiply(multiplier, player.buildings[1][index].current);
     },
     /** Molecules, visual will assign effect */
     S1Build5: (visual = false): number => {
@@ -1169,7 +1169,7 @@ export const addEnergy = (increase: number, index: number, stage: number) => {
 };
 
 export const calculateBuildingsCost = (index: number, stageIndex: number): Overlimit => {
-    let increase = global.buildingsInfo.increase[stageIndex][index];
+    let increase = global.buildingsInfo.increaseStart[stageIndex][index];
     let firstCost = global.buildingsInfo.firstCost[stageIndex][index];
     if (stageIndex === 1) {
         increase -= effectsCache.S1Upgrade6;
@@ -1217,6 +1217,7 @@ export const calculateBuildingsCost = (index: number, stageIndex: number): Overl
         }
     }
 
+    global.buildingsInfo.increase[stageIndex][index] = increase;
     return new Overlimit(increase).power(player.buildings[stageIndex][index as 1].true).multiply(firstCost);
 };
 
@@ -3017,6 +3018,7 @@ const awardVoidReward = (index: number): void => {
     } else if (index === 5) {
         if (player.merge.resets >= 1) { progress++; }
         if (player.merge.rewards[0] >= 1) { progress++; }
+        if (player.merge.rewards[1] >= 1) { progress++; }
     }
 
     const pointer = challenges.void;

@@ -315,6 +315,7 @@ export const global: globalType = {
             [0, 1e50, 1e54, 1e5],
             [0, 1e8]
         ],
+        increaseStart: [[]],
         increase: [
             [],
             [0, 1.4, 1.4, 1.4, 1.4, 1.4],
@@ -1319,7 +1320,7 @@ export const global: globalType = {
             () => `True Vacuum only, gain +1 free Goals and decrease requirement scaling by -${format(0.5)} with every level.\nAlso improve Discharge base by +${format(0.5)} (before the softcap), but only inside any Void.`,
             () => "True Vacuum only, make 'Natural Vaporization' Clouds Research old effect permanent and replace it with auto Vaporization level 2 (it itself will now increase strength by 4), second level will increase its max level by +3, third level will unlock a new Research for 'Galactic tide' Strangeness.\nFinal level will increase max level of 'Ocean world' Strangeness and remove the 'no Rank resets' condition from the Void rewards.\nAlso decrease required Drops for a Cloud by 5 per level if inside any Void.",
             () => `True Vacuum only, make effective Rank boost even more: (all effects are per Rank)\n+${format(0.5)} Discharge goals at level 1, +1 to max level of 'Planetary system' Interstellar Research at level 2 and ${format(1.01)}x to the Solar mass gain at level 3.\nFinal level will instead increase max level of 'Rank raise' Strangeness and improve auto Rank level 2 by making it not reset anything.\nAlso increase effective Rank by +1 per level if inside any Void.`,
-            () => `True Vacuum only, reclaim up to 25% of Remnants once (doesn't affect Milestones).\nSecond level will increase max level of 'Galactic tide' Strangeness, but without passive effects until level 3.\n(WIP) Final level will increase max level of 'Strange growth' and unlock level 2 auto Collapse for false Vacuum.\nAlso increase Solar mass effect by ${format(1.6)} per level if inside any Void.`,
+            () => `True Vacuum only, reclaim up to 25% of Remnants once (doesn't affect Milestones).\nSecond level will increase max level of 'Galactic tide' Strangeness, but without passive effects until level 3.\nAlso increase Solar mass effect by ${format(1.6)} per level if inside any Void.\n(Due to the bug 1st level also affect false Vacuum)`,
             () => { //[8]
                 let unlocks = 'none';
                 if (player.tree[1][8] >= 1) { unlocks = 'Microworld'; }
@@ -1454,7 +1455,7 @@ export const global: globalType = {
             ], [
                 () => 'Vaporize the Drops',
                 () => `Have more than ${format(1e4)} Clouds`,
-                () => player.tree[1][5] >= 2 ? `Have more than ${format(1e12)} Clouds` : player.stage.true >= 7 ? `Reach ${format(1e12)} Clouds with no Rank resets` : null
+                () => player.tree[1][5] >= 4 ? `Have more than ${format(1e12)} Clouds` : player.stage.true >= 7 ? `Reach ${format(1e12)} Clouds with no Rank resets` : null
             ], [
                 () => "Reach 'Meteoroid' Rank",
                 () => "Reach 'Asteroid' Rank",
@@ -1739,7 +1740,7 @@ export const prepareVacuum = (state: boolean) => { //Must not use direct player 
         strangeness2Cost = [1, 1, 2, 2, 4, 2, 24];
         strangeness2Scaling = [0.5, 0.75, 1, 2, 0, 0, 0];
         strangeness3Cost = [1, 1, 2, 6, 4, 2, 4, 24];
-        strangeness3Scaling = [0.75, 1.5, 1, 0, 0, 0, 2.5, 0];
+        strangeness3Scaling = [0.75, 1.5, 1, 0, 0, 0, 2, 0];
         strangeness4Cost = [1, 1, 3, 2, 4, 2, 4, 24];
         strangeness4Scaling = [1, 2, 1.5, 2, 0, 0, 68, 0];
         strangeness5Cost = [20, 24, 240, 24, 6000, 24, 20, 120];

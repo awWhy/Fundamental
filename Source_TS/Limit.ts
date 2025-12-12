@@ -259,7 +259,7 @@ const technical = {
 
         const after = Math.abs(left[0]);
         if (after === 0) {
-            right[1] = 0;
+            left[1] = 0;
             return left;
         } else if (after >= 10) {
             left[0] /= 10;
