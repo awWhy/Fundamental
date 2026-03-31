@@ -1,12 +1,5 @@
 html { --elements-columns-phone: min(var(--elements-columns), 9); }
 
-#MDMessage1 {
-    display: block;
-    text-align: center;
-    color: var(--green-text);
-    max-width: 90vw;
-}
-
 #notifications { max-height: 33vh; }
 #notifications > p { width: 95vw; }
 
@@ -47,8 +40,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 
 .buyBuilding .specialToggle { margin-left: auto; }
 .buyBuilding > div > div > div { display: none; }
-.availableBuilding > div > div > p { border-color: var(--building-afford); }
-
+.availableB > div > div > p { border-color: var(--building-afford); }
 
 #challengesMain > div {
     flex-direction: column;
@@ -86,7 +78,6 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
     right: 1vw;
 }
 
-#fakeFooter { height: calc(32px + min(3.9vh, 2.4em) + 9.6744em + 3.6vw); }
 #footerStats,
 #footerMain > nav { column-gap: 0.8em; }
 
