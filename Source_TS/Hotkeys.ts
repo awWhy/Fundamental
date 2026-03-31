@@ -105,7 +105,7 @@ const basicFunctions: Record<hotkeysList, () => void> = {
     supervoid: () => {
         if (global.hotkeys.last === 'super') { return; }
         global.hotkeys.last = 'super';
-        if (toggleChallengeType(true)) { Notify(`Toggled into the '${global.challengesInfo[0].name}'`); }
+        if (toggleChallengeType(true)) { Notify(`Toggled into the ${global.challengesInfo[0].name}`); }
     },
     warp: () => offlineWarp(),
     pause: () => {

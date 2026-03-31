@@ -647,7 +647,7 @@ export const visualUpdate = (ignoreOffline = false) => {
     const highest = player.progress.main;
 
     {
-        let showReset1 = tab === 'upgrade' || tab === 'Elements';
+        let showReset1 = (tab === 'stage' && subtab === 'Structures') || tab === 'upgrade' || tab === 'Elements';
         if (globalSave.toggles[1]) { getId('ElementsTabBtn').style.display = player.upgrades[4][1] === 1 ? '' : 'none'; }
         if (active === 1) {
             if (player.upgrades[1][5] !== 1) { showReset1 = false; }
@@ -1071,7 +1071,7 @@ export const visualUpdate = (ignoreOffline = false) => {
                 getId('strange5Stage5').style.display = (universes >= 5 ? show3 : voidProgress[4] >= 1) && bound ? '' : 'none';
                 getId('strange6Stage5').style.display = show1 && bound ? '' : 'none';
                 getId('strange8Stage5').style.display = bound ? '' : 'none';
-                getId('strange9Stage5').style.display = voidProgress[5] >= 2 || (universes >= 12 ? global.sessionToggles[1] : voidProgress[3] >= 5) ? '' : 'none';
+                getId('strange9Stage5').style.display = voidProgress[5] >= 2 || (universes >= 13 ? global.sessionToggles[1] : voidProgress[3] >= 5) ? '' : 'none';
                 getId('strange10Stage5').style.display = (universes >= 5 ? show3 : voidProgress[3] >= 6) && bound ? '' : 'none';
                 getId('strange11Stage5').style.display = voidProgress[2] >= 3 && bound ? '' : 'none';
                 getId(`strangeness${globalSave.MDSettings[0] ? 'Page' : 'Section'}6`).style.display = voidProgress[5] >= 2 ? '' : 'none';
@@ -1143,7 +1143,7 @@ export const visualUpdate = (ignoreOffline = false) => {
             getId('inflationMilestone3').classList[current >= 3 ? 'remove' : 'add']('uncompleted');
             getId('inflationMilestone4').classList[current >= 5 ? 'remove' : 'add']('uncompleted');
             getId('inflationMilestone5').classList[current >= 8 ? 'remove' : 'add']('uncompleted');
-            getId('inflationMilestone6').classList[current >= 12 ? 'remove' : 'add']('uncompleted');
+            getId('inflationMilestone6').classList[current >= 13 ? 'remove' : 'add']('uncompleted');
         }
     } else if (tab === 'settings') {
         if (subtab === 'Settings') {
@@ -1168,7 +1168,7 @@ export const visualUpdate = (ignoreOffline = false) => {
             getId('autoUMain').style.display = researchesAuto[0] >= 1 ? '' : 'none';
             getId('autoRMain').style.display = researchesAuto[0] >= 2 ? '' : 'none';
             getId('autoEMain').style.display = researchesAuto[0] >= 3 ? '' : 'none';
-            getId('autoSMain').style.display = player.verses[0].current >= 12 ? '' : 'none';
+            getId('autoSMain').style.display = player.verses[0].current >= 13 ? '' : 'none';
             getId('toggleAuto0').style.display = strangeness[5][6] >= 1 ? '' : 'none';
             getId('toggleAuto0Info').style.display = strangeness[5][6] >= 1 ? '' : 'none';
             if (getId('toggleAuto0Menu').style.display !== 'none') {
@@ -1528,7 +1528,7 @@ export const getUpgradeDescription = (type: 'upgrades' | 'researches' | 'researc
             const timeLimit = isActive && (player.tree[0][4] < 1 || player.challenges.active === 1);
             text = `<p class="orchidText">Requirement: <span class="greenText">${pointer.needText[index]()}</span></p>
             <p class="blueText">Time limit: <span class="greenText">${format(pointer.reward[index] - (timeLimit ? player.time.stage : 0), { type: 'time' })} ${timeLimit ? 'remains ' : ''}to complete this tier within ${isActive ? 'current' : global.stageInfo.word[index === 0 && stageIndex === 5 ? 4 : stageIndex]} Stage.</span></p>
-            <p class="darkvioletText">Unlock: <span class="greenText">Main reward unlocked after ${pointer.scaling[index].length - level} more completions.</span></p>`;
+            <p class="darkvioletText">Unlock: <span class="greenText">${player.progress.main >= 15 ? `${pointer.rewardText[index]()}\nUnlocked` : 'Main reward will be unlocked'} after ${pointer.scaling[index].length - level} more completions.</span></p>`;
         } else { text = `<p class="darkvioletText">Reward: <span class="greenText">${pointer.rewardText[index]()}</span></p>`; }
 
         if (assignInnerHTML(multilineID, text)) {
@@ -2057,7 +2057,7 @@ export const format = (input: number | Overlimit, settings = {} as { type?: 'num
         if (index !== -1) {
             formated = `${formated.slice(0, index)}${globalSave.format[0]}${formated.slice(index + 1)}`;
         } else { index = formated.length; }
-        if (index > 3) {
+        if (index > (result < 0 ? 4 : 3)) {
             index -= 3;
             formated = `${formated.slice(0, index)}${globalSave.format[1]}${formated.slice(index)}`;
         }

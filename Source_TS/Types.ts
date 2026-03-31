@@ -197,6 +197,7 @@ export interface playerType {
         results: number
         /** Highest reached basic self-made Universes for visuals */
         universe: number
+        quantum?: number
     }
     clone: {
         depth?: 'stage' | 'vacuum'
@@ -556,6 +557,34 @@ export interface globalSaveType {
     /** Status[0], Keep tabindex on Upgrades[1] */
     SRSettings: boolean[]
     developerMode: boolean
+}
+
+export interface Quantum {
+    active: null | Quantum['sliderTypes'][0]
+    /** Must have same order as appear in HTML */
+    sliderTypes: Array<'foam' | 'particles' | 'quasiparts' | 'gravitons' | 'chronons'>
+    /** 1 per Slider, plus 1 for Upgrades */
+    widthCache: number[]
+    lastTick: number
+    offline: number
+    upgradesInfo: {
+        totalLevels: number
+        name: string[]
+        effect: string[]
+        cost: number[]
+        scaling: number[]
+        max: Array<() => number>
+    }
+    requirement: number[]
+    upgrades: number[]
+    quantization: number
+    foam: number
+    particles: number
+    quasiparts: number
+    gravitons: number
+    chronons: number
+    /** [Particles, Quasiparticles] */
+    auto: boolean[]
 }
 
 export type hotkeysList = 'makeAll' | 'toggleAll' | 'createAll' | 'toggleUpgrades' |

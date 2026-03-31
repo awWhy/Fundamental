@@ -22,6 +22,7 @@
         "object-shorthand": ["warn", "consistent-as-needed"],
         "comma-dangle": ["warn", "never"],
         "max-statements-per-line": ["error", { "max": 2 }], //Because brace-style isn't working. So only allowed for cases like 'if (condition) { do this; }'
+        "no-irregular-whitespace": ["error", { "skipStrings": true, "skipTemplates": true }],
         "no-promise-executor-return": "error",
         "no-unsafe-optional-chaining": "error",
         "no-fallthrough": "error", //falls through; For intentional one

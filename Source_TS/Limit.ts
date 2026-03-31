@@ -688,7 +688,7 @@ const technical = {
             if (index !== -1) {
                 formated = `${formated.slice(0, index)}${globalSave.format[0]}${formated.slice(index + 1)}`;
             } else { index = formated.length; }
-            if (index > 3) {
+            if (index > (mantissa < 0 ? 4 : 3)) {
                 index -= 3;
                 formated = `${formated.slice(0, index)}${globalSave.format[1]}${formated.slice(index)}`;
             }

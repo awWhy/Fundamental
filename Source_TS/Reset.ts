@@ -341,7 +341,7 @@ export const resetVacuum = (level = 0) => {
     }
     if (universes >= 5 && vacuum) { player.strangeness[5][9] = 1; }
     if (universes >= 8) { player.strangeness[5][6] = vacuum ? 1 : 2; }
-    if (universes >= 12 && vacuum) { player.strangeness[5][8] = 1; }
+    if (universes >= 13 && vacuum) { player.strangeness[5][8] = 1; }
     if (player.darkness.active) { player.strangeness[6][3] = 1; }
     prepareDarkness();
 
@@ -382,7 +382,7 @@ export const cloneBeforeReset = (depth: 'stage' | 'vacuum') => {
     if (depth !== 'stage') {
         clone.strangeness = [[]];
         clone.milestones = [[]];
-    }
+    } else { global.debug.timeLimit = false; }
     for (let s = 1; s <= 6; s++) {
         const buildings = player.buildings[s];
         clone.buildings[s] = [{

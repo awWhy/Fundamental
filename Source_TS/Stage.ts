@@ -61,7 +61,7 @@ export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
     }
     const vacuum = player.inflation.vacuum;
 
-    if (auto[11] && universes.current >= 12) { autoStrangeness(); }
+    if (auto[11] && universes.current >= 13) { autoStrangeness(); }
     assignBuildingsProduction.globalCache();
     if (activeAll.includes(6)) {
         if (universes.lowest[0] <= 6) {
@@ -856,7 +856,7 @@ export const assignBuildingsProduction = {
     strange0: (iron = player.elements[26] >= 1) => {
         const vacuum = player.inflation.vacuum;
         const stageBoost = global.strangeInfo.stageBoost;
-        const strangeQuarks = player.strange[0][player.verses[0].current >= 12 ? 'total' : 'current'] + 1;
+        const strangeQuarks = player.strange[0][player.verses[0].current >= 13 ? 'total' : 'current'] + 1;
 
         stageBoost[1] = strangeQuarks ** (vacuum ? 0.26 : 0.22);
         stageBoost[2] = strangeQuarks ** (vacuum ? 0.22 : 0.18);
@@ -1582,8 +1582,6 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             } else if (upgrade === 5) {
                 if (player.clone.depth === 'stage') { player.clone.ASR[1] = global.ASRInfo.max[1]; }
                 player.ASR[1] = global.ASRInfo.max[1];
-            } else if (upgrade === 6) {
-                if (player.verses[0].current >= 12) { assignBuildingsProduction.strange0(); }
             } else if (upgrade === 7) {
                 assignResetInformation.trueEnergy();
             }
@@ -1642,7 +1640,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
                     buyUpgrades(i, 4, 'elements', true);
                 }
             } else if (upgrade === 7) {
-                if (player.verses[0].current >= 12) { assignBuildingsProduction.strange0(); }
+                if (player.verses[0].current >= 13) { assignBuildingsProduction.strange0(); }
             } else if (upgrade === 8) {
                 if (player.clone.depth === 'stage') { player.clone.elements[0] = 1; }
                 if (player.elements[0] < 1) { player.elements[0] = 1; }
@@ -1675,7 +1673,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             }
         }
         assignResearchCost(upgrade, stageIndex, 'strangeness');
-        if (player.verses[0].current < 12) { assignBuildingsProduction.strange0(); }
+        if (player.verses[0].current < 13) { assignBuildingsProduction.strange0(); }
         if (!auto) {
             global.automatization.autoS = [];
             if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`; }
@@ -2104,9 +2102,7 @@ const autoResearches = (type: 'researches' | 'researchesExtra', stageIndex: numb
             } else {
                 while (current.moreThan(cost[auto[i]])) { i++; }
             }
-            if (old !== i - 1) {
-                auto.splice(i - 1, 0, auto.splice(old, 1)[0]);
-            } else if (old === nextIndex + 1) { return; }
+            if (old !== i - 1) { auto.splice(i - 1, 0, auto.splice(old, 1)[0]); }
         }
         i = nextIndex;
     }
@@ -2116,15 +2112,12 @@ const autoResearches = (type: 'researches' | 'researchesExtra', stageIndex: numb
 const autoElements = () => {
     if (player.researchesAuto[1] < 2) { return; }
 
-    let next = global.automatization.element;
-    while (next < global.elementsInfo.maxActive) {
-        if (!checkUpgrade(next, 4, 'elements')) { break; }
-        buyUpgrades(next, 4, 'elements', true);
-
-        if (player.elements[next] >= 1) {
-            global.automatization.element++;
-            next = global.automatization.element;
-        } else { break; }
+    const auto = global.automatization;
+    while (auto.element < global.elementsInfo.maxActive) {
+        if (!checkUpgrade(auto.element, 4, 'elements')) { break; }
+        buyUpgrades(auto.element, 4, 'elements', true);
+        if (player.elements[auto.element] === 0) { break; }
+        auto.element++;
     }
 };
 
@@ -2141,12 +2134,16 @@ const autoStrangenessAdd = (stageIndex: number, which: number) => {
     while (index < auto.length && current > pointer[auto[index][1]].cost[auto[index][0]]) { index++; }
     while (index < auto.length) {
         const check = auto[index];
-        if (current !== pointer[check[1]].cost[check[0]] || (stageIndex <= check[1] && index < check[0])) { break; }
+        if (current !== pointer[check[1]].cost[check[0]] || stageIndex < check[1] || (stageIndex === check[1] && which < check[0])) { break; }
         index++;
     }
 
-    if (index !== 0 && auto[index - 1][1] === stageIndex && auto[index - 1][0] === which) { return; }
-    auto.splice(index, 0, [which, stageIndex]);
+    if (index === 0) {
+        auto.unshift([which, stageIndex]);
+    } else {
+        if (auto[index - 1][1] === stageIndex && auto[index - 1][0] === which) { return; }
+        auto.splice(index, 0, [which, stageIndex]);
+    }
 };
 
 const autoStrangeness = () => {
@@ -2181,14 +2178,12 @@ const autoStrangeness = () => {
             const current = pointer[stageIndex].cost[index];
             i++;
             while (i < auto.length && current > pointer[auto[i][1]].cost[auto[i][0]]) { i++; }
-            if (old !== i - 1) {
-                while (i < auto.length) {
-                    const check = auto[i];
-                    if (current !== pointer[check[1]].cost[check[0]] || (stageIndex <= check[1] && index < check[0])) { break; }
-                    i++;
-                }
-                auto.splice(i - 1, 0, auto.splice(old, 1)[0]);
-            } else if (old === nextIndex + 1) { return; }
+            while (i < auto.length) {
+                const check = auto[i];
+                if (current !== pointer[check[1]].cost[check[0]] || stageIndex < check[1] || (stageIndex === check[1] && index < check[0])) { break; }
+                i++;
+            }
+            if (old !== i - 1) { auto.splice(i - 1, 0, auto.splice(old, 1)[0]); }
         }
         i = nextIndex;
     }
@@ -2236,6 +2231,9 @@ const endReset = () => {
     const income = calculateEffects.cosmonGain();
     player.cosmon[1].current += income;
     player.cosmon[1].total += income;
+    if (player.cosmon[1].current < 1e6) { //Attempt to fix floats
+        player.cosmon[1].current = Math.round(player.cosmon[1].current * 1e14) / 1e14;
+    }
 
     const history = player.history.end;
     const storage = global.historyStorage.end;
@@ -2927,7 +2925,7 @@ const mergeReset = () => {
             player.cosmon[0].current++;
             player.cosmon[0].total++;
             if (player.challenges.supervoid[1] < 1 && player.cosmon[0].total >= 2) {
-                Notify("Click the 'Void' button in the 'Advanced' subtab to toggle into Supervoid");
+                Notify("Click the 'Void' button in the 'Advanced' subtab to toggle the 'Supervoid'");
             }
         }
         if (player.stage.active < 6) { setActiveStage(1); }

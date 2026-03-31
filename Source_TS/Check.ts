@@ -175,7 +175,10 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
             if (stageIndex === 3) { return player.accretion.rank !== 0; }
             return true;
         case 'elements':
-            if (upgrade >= 29) { return (player.upgrades[4][4] === 1 ? 1 + calculateEffects.trueUniverses() : 0) >= upgrade - 28; }
+            if (upgrade >= 29) {
+                if (player.upgrades[4][4] !== 1) { return false; }
+                return 1 + calculateEffects.trueUniverses() >= upgrade - 28;
+            }
             if (upgrade >= 27) { return player.upgrades[4][3] === 1; }
             if (upgrade >= 11) { return player.upgrades[4][2] === 1 && (player.collapse.stars[1] > 0 || player.researchesExtra[5][0] >= 1); }
             if (upgrade >= 6) { return player.upgrades[4][2] === 1; }

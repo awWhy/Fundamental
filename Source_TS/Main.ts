@@ -685,7 +685,7 @@ export const globalSaveStart = deepClone(globalSave);
 
 try { //Start everything
     const date = new Date();
-    if (date.getMonth() === 3 && date.getDay() < 8) { enableApril(true); }
+    if (date.getMonth() === 3 && date.getDate() < 8) { enableApril(); }
 
     const body = document.documentElement;
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
@@ -727,7 +727,7 @@ try { //Start everything
             saveGame(false, true);
         });
     }
-    if (globalSave.toggles[5]) { specialHTML.styleSheet.textContent += 'body::-webkit-scrollbar { display: none; } '; }
+    if (globalSave.toggles[5]) { specialHTML.styleSheet.textContent += ' body::-webkit-scrollbar { display: none; }'; }
     if (globalSave.toggles[4]) { getId('globalStats').style.display = 'none'; }
     if (globalSave.toggles[3]) {
         getQuery('#footer > div:first-child').style.display = 'none';
@@ -738,7 +738,7 @@ try { //Start everything
         const div = document.createElement('div');
         div.append(getId('footerStats'), getQuery('#footerMain > nav'), getId('stageSelect'));
         getId('footerMain').append(div, getId('subtabs'));
-        specialHTML.styleSheet.textContent += `.insideTab { margin-top: 0.6rem; }
+        specialHTML.styleSheet.textContent += ` .insideTab { margin-top: 0.6rem; }
             #footer { top: 0; bottom: unset; }
             #footerMain { flex-direction: row; padding: 0.6em 0; gap: 0.6em; }
             #footerMain > div { display: flex; flex-direction: column; row-gap: 0.6em; margin: 0 0 0 auto; }
@@ -750,7 +750,7 @@ try { //Start everything
             #subtabs button { width: 100%; min-width: 7em; }
             #globalStats { bottom: 3.04em; right: calc(50vw - 6.325em); }
             #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
-            #fakeFooter { height: 3.04em; } `;
+            #fakeFooter { height: 3.04em; }`;
     }
     if (globalSave.toggles[2]) { body.classList.remove('noTextSelection'); }
     if (globalSave.toggles[1]) {
@@ -774,7 +774,7 @@ try { //Start everything
     toggleSpecial(0, 'reader');
 
     if (globalSave.MDSettings[0]) {
-        specialHTML.styleSheet.textContent += `html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
+        specialHTML.styleSheet.textContent += ` html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
             #themeArea > div > div { position: unset; display: flex; width: 15em; }
             #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */`;
         (getId('file') as HTMLInputElement).accept = ''; //Accept for unknown reason not properly supported on phones
@@ -788,12 +788,12 @@ try { //Start everything
             arrow.addEventListener('click', () => getId(`reset${i}Main`).classList.toggle('open'));
             arrow.addEventListener('blur', () => getId(`reset${i}Main`).classList.remove('open'));
         }
-        specialHTML.styleSheet.textContent += `#resets { row-gap: 1em; }
+        specialHTML.styleSheet.textContent += ` #resets { row-gap: 1em; }
             #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
             #resets > section:not(.open) > p { display: none !important; }
             #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em; margin-left: -2px; }
             #resets .downArrow { width: 1.24em; height: 1.24em; }
-            #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; } `;
+            #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; }`;
 
         const createUpgButton = document.createElement('button');
         createUpgButton.className = 'hollowButton';
@@ -812,7 +812,7 @@ try { //Start everything
         const pages = document.createElement('div');
         pages.id = 'strangenessPages';
         pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessPage6" class="stage6borderImage hollowButton">6</button>';
-        specialHTML.styleSheet.textContent += `#strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
+        specialHTML.styleSheet.textContent += ` #strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
             #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }`;
         getId('strangenessResearch').append(pages);
         const createStrButton = document.createElement('button');
@@ -1777,13 +1777,13 @@ try { //Start everything
             const value = exportReward[3] / 5 * conversion;
             player.cosmon[1].current += value;
             player.cosmon[1].total += value;
-            exportReward[3] -= Math.max(exportReward[3] - value, 0);
+            exportReward[3] = Math.max(exportReward[3] - value, 0);
         } else if (player.challenges.active !== null && global.challengesInfo[player.challenges.active].resetType !== 'stage') { return; }
         if (exportReward[2] > 0) {
             const value = exportReward[2] / claimPer * conversion;
             player.strange[1].current += value;
             player.strange[1].total += value;
-            exportReward[2] -= Math.max(exportReward[2] - value, 0);
+            exportReward[2] = Math.max(exportReward[2] - value, 0);
             assignBuildingsProduction.strange1();
         } {
             const value = (exportReward[1] / claimPer + 1) * conversion;
@@ -1806,7 +1806,7 @@ try { //Start everything
         a.click();
     });
     getId('saveConsole').addEventListener('click', async() => {
-        let value = await Prompt("Available options:\n'Copy' ‒ copy save file to the clipboard\n'Legacy' ‒ copy legacy save if it exist\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it");
+        let value = await Prompt(`Available options:\n'Copy' ‒ copy save file to the clipboard${localStorage.getItem('save') !== null ? "\n'Legacy' ‒ copy legacy save if it exist" : ''}\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it`);
         if (value === null || value === '') { return; }
         let lower = value.trim().toLowerCase();
         if (lower === 'global') {
@@ -1844,12 +1844,12 @@ try { //Start everything
             saveGlobalSettings();
         } else if (lower === 'console' && globalSave.developerMode) {
             console.log(deepClone(player), deepClone(globalSave), deepClone(global));
-        } else if (lower === 'achievement') {
-            Notify('Unlocked a new Achievement! (If there were any)');
-        } else if (lower === 'slow' || lower === 'free' || lower === 'boost') {
+        } else if (lower === 'achievement' || lower === 'secret_achievement') {
+            Notify(`Unlocked a new ${lower === 'achievement' ? '' : 'super secret'} Achievement! (If there were any)`);
+        } else if (lower === 'slow' || lower === 'free' || lower === 'boost' || lower === 'speedup') {
             Notify('Game speed was increased by 1x');
         } else if (lower === 'secret' || lower === 'global_secret' || lower === 'secret_secret') {
-            Notify(`Found a ${lower === 'secret_secret' ? "ultra rare secret, but it doesn't proof anything" : `${lower === 'global_secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
+            Notify(`Found ${lower === 'secret_secret' ? "an ultra rare secret, but it doesn't proof anything" : `a ${lower === 'global_secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
         } else if (lower === 'secret_proof') {
             Notify('Found a proof that you were looking for!');
         } else if (lower === 'april') {
@@ -2031,10 +2031,8 @@ try { //Start everything
     document.head.append(specialHTML.styleSheet);
     stageUpdate(true, true);
     if (globalSave.theme !== null) {
-        getId('currentTheme').textContent = globalSave.theme === -1 ? 'quantum' : global.stageInfo.word[globalSave.theme];
-        if (globalSave.theme > 0) { getId(`switchTheme${globalSave.theme}`).style.textDecoration = 'underline'; }
         getId('switchTheme0').style.textDecoration = '';
-        setTheme();
+        setTheme(globalSave.theme, true);
     }
     if (save !== null) {
         global.lastSave = handleOfflineTime();
