@@ -251,9 +251,13 @@ export interface globalType {
         autosave: boolean
         cacheUpdate: boolean
     }
+    april: {
+        active: boolean
+        light: boolean
+        ultravoid: boolean | null
+        quantum: boolean
+    }
     paused: boolean
-    april: boolean
-    ultravoid: boolean | null
     hotkeys: {
         disabled: boolean
         shift: boolean
@@ -268,7 +272,7 @@ export interface globalType {
     lastInflation: [number | null, number]
     lastMilestone: [number | null, number]
     lastChallenge: [number, number]
-    /** Void reward type[0], Strangeness shown[1], Stability type[2] */
+    /** Void reward type[0], Strangeness shown[1] */
     sessionToggles: boolean[]
     /** Sorted cheapest first, -1 inserted to the start if auto is done */
     automatization: {

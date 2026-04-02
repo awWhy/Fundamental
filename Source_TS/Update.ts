@@ -234,7 +234,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
             if (active === 1) {
                 const dischargeInfo = global.dischargeInfo;
                 getId('reset0Button').textContent = dischargeInfo.energyTrue > player.discharge.energy ? 'Reset to regain spent Energy' : `Next goal is ${format(dischargeInfo.next, { padding: true })} Energy`;
-                getQuery('#tritiumEffect > span:last-of-type').textContent = format(effectsCache.tritium * speed, { padding: true });
+                getQuery('#tritiumEffect > span.last').textContent = format(effectsCache.tritium * speed, { padding: true });
                 getQuery('#dischargeEffect > span').textContent = format(dischargeInfo.base ** dischargeInfo.total, { padding: true });
                 getQuery('#energySpent > span').textContent = format(dischargeInfo.energyTrue - player.discharge.energy, { padding: 'exponent' });
                 if (vacuum) {
@@ -246,7 +246,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
                 getId('reset0Button').textContent = `Reset for ${format(Math.max(global.vaporizationInfo.get, 0), { padding: true })} Clouds`;
                 getQuery('#cloudEffect > span').textContent = format(calculateEffects.clouds(), { padding: true });
                 if (vacuum) {
-                    getQuery('#molesProduction > span:last-of-type').textContent = format(effectsCache.tritium / 6.02214076e23 * speed, { padding: true });
+                    getQuery('#molesProduction > span.last').textContent = format(effectsCache.tritium / 6.02214076e23 * speed, { padding: true });
                 }
 
                 const rainNow = calculateEffects.S2Extra1(player.researchesExtra[2][1]);
@@ -279,7 +279,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     for (let i = 0; i < 3; i++) {
                         getId(`special${i + 1}Cur`).textContent = format(player.collapse.stars[i], { padding: 'exponent' });
                         getId(`special${i + 1}Get`).textContent = format(collapseInfo.starCheck[i], { padding: 'exponent' });
-                        getQuery(`#star${i + 1}Effect > span:last-of-type`).textContent = format(effectsCache.star[i], { padding: true });
+                        getQuery(`#star${i + 1}Effect > span.last`).textContent = format(effectsCache.star[i], { padding: true });
 
                         /* Fixes text movement */
                         const mainQuery = getQuery(`#special${i + 1} > p`);
@@ -365,8 +365,8 @@ export const numbersUpdate = (ignoreOffline = false) => {
 
                 const stable = vacuum || player.tree[0][5] >= 1;
                 if (stable && player.darkness.active) {
-                    getId('reset0Button').textContent = `Reset for ${format(Math.max(assignResetInformation.newFluid(), 0), { padding: true })} Dark fluid`;
-                    getQuery('#darkEnergySpent > span').textContent = format(global.dischargeInfo.energyStage[6] - player.darkness.energy, { padding: 'exponent' });
+                    getId('reset0Button').textContent = `Reset for ${format(Math.max(assignResetInformation.newFluid(), 0), { padding: true })} ${global.april.light ? 'Light' : 'Dark'} fluid`;
+                    getQuery('#darkEnergySpent > span.last').textContent = format(global.dischargeInfo.energyStage[6] - player.darkness.energy, { padding: 'exponent' });
                     const darkPost = calculateEffects.darkFluid(true);
                     getQuery('#nucleationBoostTotal > span').textContent = format((darkPost / effectsCache.fluid) * (calculateEffects.effectiveDarkEnergy(darkPost) / calculateEffects.effectiveDarkEnergy()) ** (player.researchesExtra[6][3] / 40), { padding: true });
                 }
@@ -396,11 +396,11 @@ export const numbersUpdate = (ignoreOffline = false) => {
             }
 
             const cosmonGain = calculateEffects.cosmonGain();
-            getId('reset2Button').textContent = (!player.darkness.active && global.inflationInfo.trueUniverses >= 1) || player.darkness.energy >= 1000 ? `Big ${player.darkness.energy >= 1000 ? 'Rip' : 'Crunch'} for ${format(cosmonGain, { padding: true })} Cosmons` : `Requires ${player.darkness.active ? `${format(1000)} Dark energy` : 'a self-made Universe'}`;
+            getId('reset2Button').textContent = (!player.darkness.active && global.inflationInfo.trueUniverses >= 1) || player.darkness.energy >= 1000 ? `Big ${player.darkness.energy >= 1000 ? 'Rip' : 'Crunch'} for ${format(cosmonGain, { padding: true })} Cosmons` : `Requires ${player.darkness.active ? `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy` : 'a self-made Universe'}`;
             if (!vacuum && (active < 4 || active >= 6)) {
                 getId('stageReward').textContent = format(calculateEffects.strangeGain(false), { padding: true });
                 getId('reset1Button').textContent = stageResetCheck(active) ? 'Requirements are met' : active === 6 && (!player.darkness.active || player.tree[0][5] < 1 || player.tree[0][4] < 1) ? 'No Stage resets available' :
-                    `Requires ${active === 6 ? `${format(1000)} Dark energy` : active === 3 ? `${format(2.45576045e31)} Mass` : active === 2 ? `${format(1.19444e29)} Drops` : `${format(1.67133125e21)} Molecules`}`;
+                    `Requires ${active === 6 ? `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy` : active === 3 ? `${format(2.45576045e31)} Mass` : active === 2 ? `${format(1.19444e29)} Drops` : `${format(1.67133125e21)} Molecules`}`;
             } else {
                 if (player.elements[26] < 0.5) { assignResetInformation.quarksGain(); }
                 getId('stageReward').textContent = format(global.strangeInfo.strange0Gain, { padding: true });
@@ -573,7 +573,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
                             const restProd = new Overlimit(starProd[1]).allPlus(starProd[3], starProd[4], starProd[5]);
                             star0 = new Overlimit(starProd[2]).multiply(calculateEffects.star[0](true) / effectsCache.star[0]).plus(restProd).divide(restProd.plus(starProd[2])).replaceNaN(1).toNumber();
                             getQuery('#star1Stat > span').textContent = format(star0, { padding: true });
-                            getQuery('#star2Stat > span:last-of-type').textContent = format(star1, { padding: true });
+                            getQuery('#star2Stat > span.last').textContent = format(star1, { padding: true });
                             getQuery('#star3Stat > span').textContent = format(star2, { padding: true });
                         }
                         const gamma = calculateEffects.S4Research4(true) / calculateEffects.S4Research4();
@@ -607,12 +607,12 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     assignResetInformation.newFluid();
                     const post = calculateEffects.darkFluid(true);
                     const base = post / effectsCache.fluid;
-                    getQuery('#darkFluidStat > span').textContent = format(base, { padding: true });
+                    getQuery('#darkFluidStat > span.last').textContent = format(base, { padding: true });
                     const quint = (calculateEffects.effectiveDarkEnergy(post) / calculateEffects.effectiveDarkEnergy()) ** (player.researchesExtra[6][3] / 40);
                     getQuery('#quintessenceStat > span').textContent = format(quint, { padding: true });
                     getId('nucleationTotal').textContent = format(base * quint, { padding: true });
 
-                    getQuery('#effectiveDarkEnergyStat > span').textContent = format(calculateEffects.effectiveDarkEnergy(), { padding: true });
+                    getQuery('#effectiveDarkEnergyStat > span.last').textContent = format(calculateEffects.effectiveDarkEnergy(), { padding: true });
                     const energyType = global.dischargeInfo.energyType[6];
                     for (let i = 1; i < energyType.length; i++) {
                         getId(`energyGainStage6Build${i}Cur`).textContent = format(energyType[i] * buildings[i as 1].true, { padding: 'exponent' });
@@ -840,7 +840,7 @@ export const visualUpdate = (ignoreOffline = false) => {
                 if (vacuum || highest < 11) { getId('exportMaxed').style.display = 'none'; }
             }
         } else if (subtab === 'Advanced') {
-            (getId('challengeName') as HTMLButtonElement).disabled = global.lastChallenge[0] === 1 ? !global.april : global.lastChallenge[0] !== 0;
+            (getId('challengeName') as HTMLButtonElement).disabled = global.lastChallenge[0] === 1 || global.lastChallenge[0] === 2 ? !global.april.active : global.lastChallenge[0] !== 0;
             getId('voidRewardsHead').style.display = global.lastChallenge[0] === 0 ? '' : 'none';
             getId('voidRewards').style.display = global.lastChallenge[0] === 0 ? '' : 'none';
             if (global.lastChallenge[0] === 0) {
@@ -851,7 +851,7 @@ export const visualUpdate = (ignoreOffline = false) => {
                 getId('voidReward4').style.display = progress[3] >= 5 ? '' : 'none';
                 getId('voidReward5').style.display = progress[4] >= 5 ? '' : 'none';
             }
-            getId('challengeRewards').style.display = (global.lastChallenge[0] !== 0 || global.ultravoid === null) && (global.lastChallenge[0] !== 1 || !global.sessionToggles[2]) ? '' : 'none';
+            getId('challengeRewards').style.display = (global.lastChallenge[0] !== 0 || global.april.ultravoid === null) && (global.lastChallenge[0] !== 1 || !global.april.quantum) ? '' : 'none';
             getId('stabilityRewardsHead').style.display = global.lastChallenge[0] === 1 ? '' : 'none';
             getId('darknessTierMain').style.display = global.lastChallenge[0] === 2 ? '' : 'none';
             getId('challengesToggles').style.display = player.strangeness[5][6] >= (vacuum ? 1 : 2) ? '' : 'none';
@@ -1612,7 +1612,7 @@ export const getUpgradeDescription = (type: 'upgrades' | 'researches' | 'researc
                     }
                 }
 
-                getId('upgradeCost').textContent = `${format(cost)} ${stageIndex === 6 && type === 'researchesExtra' ? 'Dark energy' : global.stageInfo.costName[stageIndex]}.${newLevels > 1 ? ` [x${newLevels}]` : ''}`;
+                getId('upgradeCost').textContent = `${format(cost)} ${stageIndex === 6 && type === 'researchesExtra' ? `${global.april.light ? 'Light' : 'Dark'} energy` : global.stageInfo.costName[stageIndex]}.${newLevels > 1 ? ` [x${newLevels}]` : ''}`;
             }
         } else if (type === 'researchesAuto') {
             const pointer = global.researchesAutoInfo;
@@ -1731,11 +1731,11 @@ export const getChallengeRewards = () => {
         const info = global.challengesInfo[2];
 
         const current = player.verses[0].lowest[0];
-        text += `Completed by causing End reset with at least ${format(1000)} Dark energy\nMost of rewards are related to Darkness automatization</p>`;
+        text += `Completed by causing End reset with at least ${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy\nMost of rewards are related to ${global.challengesInfo[2].name} automatization</p>`;
         for (let i = info.rewardText.length - 1; i >= 0; i--) {
             const unlocked = current <= i;
             let failText;
-            if (global.inflationInfo.trueUniverses > i) {
+            if (!unlocked && global.inflationInfo.trueUniverses > i) {
                 failText = 'Too many Universes';
             }
 
@@ -1888,7 +1888,7 @@ const setRemnants = () => {
         const img2 = getQuery('#special2 > img') as HTMLImageElement;
         if (specialHTML.cache.innerHTML.get(img2) !== src2) {
             specialHTML.cache.innerHTML.set(img2, src2);
-            const name = global.april ? 'Antineutron' : 'neutron';
+            const name = global.april.active ? 'Antineutron' : 'neutron';
             img2.src = `Used_art/${src2}.png`;
             img2.alt = quarkStar ? `Quark stars (${name} stars)` : `${name} stars`;
             getId('special2').dataset.title = img2.alt;

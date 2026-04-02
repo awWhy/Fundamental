@@ -1,7 +1,7 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
 import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
-import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril } from './Special';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, toggleAll } from './Hotkeys';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
@@ -254,7 +254,7 @@ const saveGame = (noSaving = false, manual = false): string | null => {
         global.offline.autosave = true;
         clearInterval(global.intervalsId.autoSave);
         return null;
-    } else if (global.ultravoid === true) {
+    } else if (global.april.ultravoid === true) {
         getId('isSaved').textContent = 'Saved';
         global.lastSave = 0;
         return null;
@@ -287,7 +287,7 @@ const saveGame = (noSaving = false, manual = false): string | null => {
     }
 };
 const loadGame = (save: string) => {
-    if (global.offline.active || global.ultravoid === true) { return; }
+    if (global.offline.active || global.april.ultravoid === true) { return; }
     pauseGame();
     try {
         const versionCheck = updatePlayer(JSON.parse(atob(save)));
@@ -685,7 +685,7 @@ export const globalSaveStart = deepClone(globalSave);
 
 try { //Start everything
     const date = new Date();
-    if (date.getMonth() === 3 && date.getDay() < 8) { enableApril(); }
+    if (date.getMonth() === 3 && date.getDay() < 8) { enableApril(true); }
 
     const body = document.documentElement;
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
@@ -1145,15 +1145,25 @@ try { //Start everything
         image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
     }
     getId('challengeName').addEventListener('click', () => {
-        if (global.april && global.lastChallenge[0] === 0 && player.challenges.active !== 0 && global.hotkeys.shift && global.ultravoid === null) {
-            global.ultravoid = false;
-            global.challengesInfo[0].name = 'Ultravoid';
-            global.challengesInfo[0].time = 0;
+        if (global.lastChallenge[0] === 0) {
+            if (global.april.active && player.challenges.active !== 0 && global.hotkeys.shift && global.april.ultravoid === null) {
+                global.april.ultravoid = false;
+                global.challengesInfo[0].name = 'Ultravoid';
+                global.challengesInfo[0].time = 0;
+                numbersUpdate();
+                visualUpdate();
+                return;
+            }
+            toggleChallengeType(true);
+        } else if (global.lastChallenge[0] === 1) {
+            if (player.challenges.active === 1) { return Notify(`Can't be toggled while inside ${global.challengesInfo[1].name}`); }
+            global.april.quantum = !global.april.quantum;
+            global.challengesInfo[1].name = global.april.quantum ? 'Quantum Vacuum' : 'Vacuum stability';
             numbersUpdate();
             visualUpdate();
-            return;
+        } else if (global.lastChallenge[0] === 2) {
+            enableLightness();
         }
-        toggleChallengeType(global.lastChallenge[0], true);
     });
     getId('voidRewardsHead').addEventListener('click', () => {
         global.sessionToggles[0] = !global.sessionToggles[0];
@@ -1756,7 +1766,7 @@ try { //Start everything
     });
     const exportReward = () => {
         if (player.progress.main < 17 && (player.inflation.vacuum || player.progress.main < 11)) { return; }
-        if (globalSave.developerMode) { return Notify("Export reward is not allowed when using 'devMode'\nDisable it by writting that string into the advanced save options (case sensitive)"); }
+        if (globalSave.developerMode) { return Notify("Export reward is not disabled when using 'devMode'\nDisable it by writting that string exactly into the advanced save options"); }
 
         const exportReward = player.time.export;
         if (exportReward[0] <= 0) { return; }
@@ -1844,7 +1854,10 @@ try { //Start everything
             Notify('Found a proof that you were looking for!');
         } else if (lower === 'april') {
             enableApril();
-            Notify(`April mode ${global.april ? 'enabled' : 'disabled'}`);
+            Notify(`April mode ${global.april.active ? 'enabled' : 'disabled'}`);
+        } else if (lower === 'light' || lower === 'dark') {
+            enableLightness();
+            Notify(`${global.april.light ? 'Lightness' : 'Darkness'} had returned`);
         } else {
             if (value.length < 20) { return void Alert(`Input '${value}' doesn't match anything`); }
             if (lower.includes('global_')) {

@@ -929,50 +929,100 @@ export const changeFormat = (point: boolean) => {
     saveGlobalSettings();
 };
 
-export const enableApril = () => {
-    global.april = !global.april;
+export const enableApril = (firstLoad = false) => {
+    const active = !global.april.active;
+    global.april.active = active;
     const names1U = global.upgradesInfo[1].name;
-    names1U[2] = global.april ? 'Positrons' : 'Electrons';
+    names1U[2] = active ? 'Positrons' : 'Electrons';
     for (let i = 3; i < 9; i++) {
         if (i === 5) { continue; }
-        names1U[i] = global.april ? `Anti${names1U[i][0].toLowerCase()}${names1U[i].slice(1)}` :
+        names1U[i] = active ? `Anti${names1U[i][0].toLowerCase()}${names1U[i].slice(1)}` :
             `${names1U[i][4].toUpperCase()}${names1U[i].slice(5)}`;
     }
-    specialHTML.upgradeHTML[1][2] = `UpgradeQ3${global.april ? '_A' : ''}.png`;
-    specialHTML.upgradeHTML[1][3] = `UpgradeQ4${global.april ? '_A' : ''}.png`;
+    specialHTML.upgradeHTML[1][2] = `UpgradeQ3${active ? '_A' : ''}.png`;
+    specialHTML.upgradeHTML[1][3] = `UpgradeQ4${active ? '_A' : ''}.png`;
     for (const ID of getClass('newAntiName')) {
         const current = ID.textContent as string;
-        ID.textContent = global.april ? `Anti${current[0].toLowerCase()}${current.slice(1)}` :
+        ID.textContent = active ? `Anti${current[0].toLowerCase()}${current.slice(1)}` :
             `${current[4].toUpperCase()}${current.slice(5)}`;
     }
     const names4U = global.upgradesInfo[4].name;
-    names4U[1] = `${global.april ? 'Antiproton-Antiproton' : 'Proton-Proton'} chain`;
-    names4U[2] = `${global.april ? 'Anticarbon-Antinitrogen-Antioxygen' : 'Carbon-Nitrogen-Oxygen'} cycle`;
-    names4U[3] = `${global.april ? 'Antihelium' : 'Helium'} fusion`;
-    names4U[5] = `${global.april ? 'Antiproton' : 'Proton'} capture`;
+    names4U[1] = `${active ? 'Antiproton-Antiproton' : 'Proton-Proton'} chain`;
+    names4U[2] = `${active ? 'Anticarbon-Antinitrogen-Antioxygen' : 'Carbon-Nitrogen-Oxygen'} cycle`;
+    names4U[3] = `${active ? 'Antihelium' : 'Helium'} fusion`;
+    names4U[5] = `${active ? 'Antiproton' : 'Proton'} capture`;
     global.researchesInfo[1].name[0] = `Stronger ${names1U[6]}`;
     global.researchesInfo[1].name[1] = `Better ${names1U[7]}`;
     global.researchesInfo[1].name[2] = `Improved ${names1U[8]}`;
     const namesE = global.elementsInfo.name;
     for (let i = 0; i < namesE.length; i++) {
         const index = namesE[i].indexOf(' ') + 1;
-        namesE[i] = global.april ? `${namesE[i].slice(0, index)}Anti${namesE[i][index].toLowerCase()}${namesE[i].slice(index + 1)}` :
+        namesE[i] = active ? `${namesE[i].slice(0, index)}Anti${namesE[i][index].toLowerCase()}${namesE[i].slice(index + 1)}` :
             `${namesE[i].slice(0, index)}${namesE[i][index + 4].toUpperCase()}${namesE[i].slice(index + 5)}`;
         (getId(`element${i}`) as HTMLInputElement).alt = namesE[i];
     }
-    global.strangenessInfo[4].name[8] = global.april ? 'Antineutronium' : 'Neutronium';
+    global.strangenessInfo[4].name[8] = active ? 'Antineutronium' : 'Neutronium';
     global.challengesInfo[0].rewardText[0][4][2] = `'${global.strangenessInfo[4].name[8]}' (Interstellar)`;
     (getQuery('#strange9Stage4 > input') as HTMLInputElement).alt = global.strangenessInfo[4].name[8];
 
-    if (!global.april) {
-        if (global.ultravoid === false) { toggleChallengeType(0, true); }
-        if (global.sessionToggles[2]) { toggleChallengeType(1, true); }
+    if (firstLoad) { return; }
+    if (!active) {
+        if (global.april.ultravoid === false) { toggleChallengeType(true); }
+        if (global.april.quantum) {
+            global.april.quantum = false;
+            global.challengesInfo[1].name = 'Vacuum stability';
+        }
+        if (global.april.light) { enableLightness(); }
     }
+    stageUpdate();
+    global.offline.cacheUpdate = false;
+    preventImageUnload();
+};
+export const enableLightness = () => {
+    const active = !global.april.light;
+    global.april.light = active;
+    const Light = active ? 'Light' : 'Dark';
+    const Dark = active ? 'Dark' : 'Light';
+    for (const ID of getClass('newLightName')) { ID.textContent = Light; }
+    const nameS6 = global.buildingsInfo.name[6];
+    for (let i = 0; i < nameS6.length; i++) { nameS6[i] = nameS6[i].replace(Dark, Light); }
+    for (const type of ['upgradesInfo', 'researchesInfo', 'researchesExtraInfo'] as const) {
+        const names = global[type][6].name;
+        for (let i = 0; i < names.length; i++) {
+            names[i] = names[i].replace(Dark, Light);
+        }
+    }
+    global.upgradesInfo[6].name[0] = global.upgradesInfo[6].name[0].replace(Dark, Light);
+    global.researchesInfo[6].name[0] = global.researchesInfo[6].name[0].replace(Dark, Light);
+    global.buildingsInfo.hoverText[6][0] = `${nameS6[0]} softcap`;
+    global.stageInfo.costName[6] = nameS6[0];
+
+    specialHTML.researchExtraDivHTML[6][2] = `${Light} energy`;
+    getQuery('#verse0 > div > p:last-of-type').dataset.title = nameS6[0];
+    getId('energyGainStage6').ariaLabel = `${Light} energy gain`;
+    const darknessInfo = global.challengesInfo[2];
+    darknessInfo.name = active ? 'Lightness' : 'Darkness';
+    for (let i = 0; i < darknessInfo.rewardText.length; i++) {
+        darknessInfo.rewardText[i] = darknessInfo.rewardText[i].replace(Dark, Light);
+    }
+    (getId('challenge3') as HTMLInputElement).alt = darknessInfo.name;
+    global.strangenessInfo[6].name[3] = darknessInfo.name;
+    (getId('strange4Stage6') as HTMLInputElement).alt = darknessInfo.name;
+    specialHTML.buildingHTML[6][0] = `${Light}%20planet.png`;
+    specialHTML.footerStatsHTML[6][0][0] = `${Light}%20matter.png`;
+    (getQuery('#globalStat5 img') as HTMLImageElement).src = `Used_art/${specialHTML.footerStatsHTML[6][0][0]}`;
+    specialHTML.upgradeHTML[6][0] = `UpgradeD1${active ? '_L' : ''}.png`;
+    specialHTML.researchHTML[6][0][0] = `ResearchD1${active ? '_L' : ''}.png`;
+    specialHTML.researchHTML[6][2][0] = `ResearchD3${active ? '_L' : ''}.png`;
+    specialHTML.researchExtraHTML[6][0][0] = `ResearchDark1${active ? '_L' : ''}.png`;
+    specialHTML.researchExtraHTML[6][3][0] = `ResearchDark4${active ? '_L' : ''}.png`;
+
+    stageUpdate();
     global.offline.cacheUpdate = false;
     preventImageUnload();
 };
 export const enterUltravoid = () => {
-    global.ultravoid = true;
+    global.april.ultravoid = true;
     const lastSave = global.lastSave;
     const currentSave = deepClone(player);
 
@@ -1041,7 +1091,7 @@ export const enterQuantum = () => {
         timeoutID = setTimeout(() => {
             query('#leaveQuantum').style.opacity = '';
             timeoutID = setTimeout(() => {
-                styleSheet.textContent += 'html { transition-duration: 100s; }';
+                styleSheet.textContent += 'html { transition-duration: 120s; }';
                 html.style.background = '#041004';
                 timeoutID = setTimeout(() => {
                     globalSave.theme = -1;
@@ -1059,8 +1109,8 @@ export const enterQuantum = () => {
                         getId('notifications').style.display = '';
                         Notify('Work in progress, return later');
                     });
-                }, 100_000);
-            }, 20_000);
+                }, 120_000);
+            }, 30_000);
         }, 4_000);
     }, 6_000);
 };
@@ -1227,7 +1277,7 @@ const playEvent = (event: number, replay = true) => {
     } else if (event === 11) {
         text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.";
     } else if (event === 12) {
-        text = `${format(1000)} Dark energy allows to do a more advanced End reset ‒ 'Big Rip', this one just adds non-self-made Universes into Cosmons gain base.\n(Doing it for the first time will also unlock new Inflation and ability to create new types of self-made Universes)`;
+        text = `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy allows to do a more advanced End reset ‒ 'Big Rip', this one just adds non-self-made Universes into Cosmons gain base.\n(Doing it for the first time will also unlock new Inflation and ability to create new types of self-made Universes)`;
     }
     if (!replay) {
         text += "\n\n(Can be viewed again with 'Events' button in Settings tab)";

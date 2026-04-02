@@ -190,9 +190,13 @@ export const global: globalType = {
         autosave: false,
         cacheUpdate: true
     },
+    april: {
+        active: false,
+        light: false,
+        ultravoid: null,
+        quantum: false
+    },
     paused: true,
-    april: false,
-    ultravoid: null,
     trueActive: 1,
     lastSave: 0,
     lastUpdate: null,
@@ -209,7 +213,7 @@ export const global: globalType = {
     lastInflation: [null, 0],
     lastMilestone: [null, 0],
     lastChallenge: [1, 1],
-    sessionToggles: [false, false, false],
+    sessionToggles: [false, false],
     automatization: {
         autoU: [[]],
         autoR: [[]],
@@ -365,7 +369,7 @@ export const global: globalType = {
                 () => 'Molecules will produce 4 times more Atoms.',
                 () => `Ability to regain spent Energy and if had enough Energy, it will also boost production of ${player.inflation.vacuum ? 'Microworld' : 'all'} Structures by ${format(global.dischargeInfo.base, { padding: true })}.${player.inflation.vacuum ? `\n(In true Vacuum it will also reset resources and all non-self-made Structures from all Stages${player.progress.main >= 18 ? ' before Abyss' : ''}, and enough self-made Structures to fully regain spent Energy)` : ''}`,
                 () => `Decrease Structures cost scaling by -${format(calculateEffects.S1Upgrade6())}.`,
-                () => `Make self-made Structures boost themselves by ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ? `\n(Self-made Preons boost themselves by ${format(calculateEffects.S1Upgrade7(true), { padding: player.buildings[1][1].true < 1001 })} instead : , softcaps instantly and gets completely disabled after ${format(1001)} Preons)` : ''}`,
+                () => `Make self-made Structures boost themselves by ${format(calculateEffects.S1Upgrade7())}.${player.inflation.vacuum ? `\n(Self-made Preons boost themselves by ${format(calculateEffects.S1Upgrade7(true), { padding: player.buildings[1][1].true < 1001 })} instead, softcaps instantly and gets completely disabled after ${format(1001)} Preons)` : ''}`,
                 () => `Molecules will produce Molecules, at a reduced rate.\n(${format(new Overlimit(effectsCache.tritium).multiply(global.inflationInfo.globalSpeed), { padding: true })} Molecules per second)`,
                 () => `Unspent Energy ${player.upgrades[1][10] === 1 ? '' : `^${format(0.5)}`} will boost '${global.upgradesInfo[1].name[8]}' production of Molecules.\n(Boost: ${format(calculateEffects.S1Upgrade9(), { padding: true })})`,
                 () => "Unlock the full strength of 'Nuclear fusion' and increase effective Energy by 2."
@@ -453,11 +457,11 @@ export const global: globalType = {
             effectText: [
                 () => `As fuel runs out, every Star will boost production in its own special way.\nSolar mass ${player.inflation.vacuum ? `on Collapse is Accretion Mass / ${format(1.98847e33)} and ` : ''}will not decrease if to reset below current. (Hover over Remnants effects to see what they boost)`,
                 () => `Fuse with ${global.upgradesInfo[1].name[6]} instead of ${global.upgradesInfo[1].name[7]}. Unlocks 5 first Elements. ('Elements' subtab)`,
-                () => `Unlock 5 more Elements through the CNO cycle, which is also is a better source of ${global.april ? 'Antihelium' : 'Helium'} and Energy.`,
+                () => `Unlock 5 more Elements through the CNO cycle, which is also is a better source of ${global.april.active ? 'Antihelium' : 'Helium'} and Energy.`,
                 () => 'Through Triple-alpha and then Alpha process unlock 2 more Elements.',
                 () => { //[4]
                     const effect = 1 + calculateEffects.trueUniverses();
-                    return `Create new Atomic nuclei with ${global.april ? 'Antineutron' : 'Neutron'} capture (s-process and r-process).\nUnlocks ${effect} more Element${effect !== 1 ? 's' : ''} (+1 for every ${player.progress.main >= 18 ? `${universeName()} Universe` : '(unlocked with Abyss)'}).`;
+                    return `Create new Atomic nuclei with ${global.april.active ? 'Antineutron' : 'Neutron'} capture (s-process and r-process).\nUnlocks ${effect} more Element${effect !== 1 ? 's' : ''} (+1 for every ${player.progress.main >= 18 ? `${universeName()} Universe` : '(unlocked with Abyss)'}).`;
                 },
                 () => { //[5]
                     const effect = 1 + player.verses[1].true;
@@ -493,7 +497,10 @@ export const global: globalType = {
                 'Placeholder'
             ],
             effectText: [
-                () => `Unlock a new Dark reset, it will start the formation of the new Dark resources by modifing existing physics.\n(Formula for Dark fluid gain is (log2(Dark matter / ${format(1e8)}) + Dark energy) ^${format(calculateEffects.S6Upgrade0())}, gain is reduced with more Dark fluid. Dark fluid boost Dark matter production and effective Dark energy)`,
+                () => { //[0]
+                    const Dark = global.april.light ? 'Light' : 'Dark';
+                    return `Unlock a new ${Dark} reset, it will start the formation of the new ${Dark} resources by modifing existing physics.\n(Formula for ${Dark} fluid gain is (log2(${Dark} matter / ${format(1e8)}) + ${Dark} energy) ^${format(calculateEffects.S6Upgrade0())}, gain is reduced with more ${Dark} fluid. ${Dark} fluid boost ${Dark} matter production and effective ${Dark} energy)`;
+                },
                 () => 'Work in progress.'
             ],
             cost: [8e12, 2e20] as unknown as Overlimit[],
@@ -651,10 +658,10 @@ export const global: globalType = {
                 'Composition'
             ],
             effectText: [
-                () => `Boost production of Dark matter by 3 for the first ${6 + player.researchesExtra[6][0]} levels and by 2 for the rest.\n(First time reaching levels 6, 10, 12 and 20 also unlocks something new)`,
-                () => `Boost global speed by ${format(1.1)}.\nAlso delays Dark matter softcap by 1 + level.`,
-                () => `Make self-made Dark planets boost each other by 1 + ${format(0.01)} * level and scale in cost slower by -${format(0.05)} * level.`,
-                () => 'Have more Dark energy by increasing its gain by 1 + level.'
+                () => `Boost production of ${global.buildingsInfo.name[6][0]} by 3 for the first ${6 + player.researchesExtra[6][0]} levels and by 2 for the rest.\n(First time reaching levels 6, 10, 12 and 20 also unlocks something new)`,
+                () => `Boost global speed by ${format(1.1)}.\nAlso delays ${global.buildingsInfo.name[6][0]} softcap by 1 + level.`,
+                () => `Make self-made ${global.buildingsInfo.name[6][1]} boost each other by 1 + ${format(0.01)} * level and scale in cost slower by -${format(0.05)} * level.`,
+                () => `Have more ${global.april.light ? 'Light' : 'Dark'} energy by increasing its gain by 1 + level.`
             ],
             cost: [],
             firstCost: [2e6, 2e9, 8e9, 5e15] as unknown as Overlimit[],
@@ -771,7 +778,7 @@ export const global: globalType = {
                 () => `This violent stellar explosion is the main source of Elements, but also starts the formation of new Stars.\nUnlock a new Star type and even more, after Collapse of that Star type.\n(Will require at least ${format(global.collapseInfo.unlockB[Math.min(player.researchesExtra[4][0] + 2, 4)])} Solar mass to create that new Star type)`,
                 () => `Star material will transfer from one Star to another, improving Solar mass gain${player.inflation.vacuum ? ' (also delaying Preons hardcap)' : ''} by ${format(calculateEffects.S4Extra1())} in the process.\nImproved by 'Star system' levels, but also improves their scaling (effect increase for 'Star system' is ${format(new Overlimit(calculateEffects.S4Research1(undefined, 1) / calculateEffects.S4Research1(undefined, 0)).power(global.collapseInfo.trueStars), { padding: true })}).`,
                 () => `After matter were dispeled from Red giant, White dwarf was all that remained.\nImprove effect of '${global.elementsInfo.name[6]}' by +${format(0.5)} and increase max level of 'Star system' by +1.`,
-                () => `As ${global.april ? 'Antineutron' : 'Neutron'} stars spin down, some of them may get converted into Quark stars.\nThis will add a new effect to ${global.april ? 'Antineutron' : 'Neutron'} stars ‒ Interstellar Stars are cheaper, and will also increase max level of 'Star system' by +1.`,
+                () => `As ${global.april.active ? 'Antineutron' : 'Neutron'} stars spin down, some of them may get converted into Quark stars.\nThis will add a new effect to ${global.april.active ? 'Antineutron' : 'Neutron'} stars ‒ Interstellar Stars are cheaper, and will also increase max level of 'Star system' by +1.`,
                 () => 'Spawn White holes that will boost global speed with current Black holes effect.'
             ],
             cost: [],
@@ -814,17 +821,20 @@ export const global: globalType = {
                 'Stability'
             ],
             effectText: [
-                () => "Increases how many levels of 'Dark aggregation' boost production by 3 instead of 2 and max level by +1.",
+                () => `Increases how many levels of '${global.researchesInfo[6].name[0]}' boost production by 3 instead of 2 and max level by +1.`,
                 () => "Delay 'Global boost' Inflaton Inflation softcap by (1 + level) ^2.\nAlso increase max level of 'Acceleration' by +2.",
                 () => { //[2]
                     const energy = calculateEffects.effectiveDarkEnergy();
-                    return `Delay Dark matter softcap by current Dark energy ^(level / 5).\n(Current delay: ${format(energy ** (player.researchesExtra[6][2] / 5), { padding: true })} ⟶ ${format(energy ** ((player.researchesExtra[6][2] + 1) / 5), { padding: true })})`;
+                    return `Delay ${global.buildingsInfo.name[6][0]} softcap by current ${global.april.light ? 'Light' : 'Dark'} energy ^(level / 5).\n(Current delay: ${format(energy ** (player.researchesExtra[6][2] / 5), { padding: true })} ⟶ ${format(energy ** ((player.researchesExtra[6][2] + 1) / 5), { padding: true })})`;
                 },
                 () => { //[3]
                     const delay = calculateEffects.darkSoftcap(true);
-                    return `Buff Universes with Dark matter softcap delays ^(level / 40) by improving the ratio of kinetic and potential Dark energy.\n(Current effect: ${format(delay ** (player.researchesExtra[6][3] / 40), { padding: true })} ⟶ ${format(delay ** ((player.researchesExtra[6][3] + 1) / 40), { padding: true })})`;
+                    return `Buff Universes with ${global.buildingsInfo.name[6][0]} softcap delays ^(level / 40) by improving the ratio of kinetic and potential ${global.april.light ? 'Light' : 'Dark'} energy.\n(Current effect: ${format(delay ** (player.researchesExtra[6][3] / 40), { padding: true })} ⟶ ${format(delay ** ((player.researchesExtra[6][3] + 1) / 40), { padding: true })})`;
                 },
-                () => `Increase Dark fluid gain by +^${format(0.05)} and starting effective Dark energy by +Dark fluid effect * level / 4.`
+                () => { //[4]
+                    const Dark = global.april.light ? 'Light' : 'Dark';
+                    return `Increase ${Dark} fluid gain by +^${format(0.05)} and starting effective ${Dark} energy by +${Dark} fluid effect * level / 4.`;
+                }
             ],
             cost: [],
             firstCost: [25, 25, 50, 100, 100],
@@ -968,7 +978,13 @@ export const global: globalType = {
             '[36] Krypton'
         ],
         effectText: [
-            () => `Element with no ${global.upgradesInfo[1].name[3]}, true head of this table.\nThis one is ${Math.random() < 0.1 ? (Math.random() < 0.1 ? `an illusive ${global.april ? 'Antitetraneutron' : 'Tetraneutron'}, or maybe even ${global.april ? 'Antipentaneutron' : 'Pentaneutron'}. Wait where did it go? Was it even there?` : `a rare ${global.april ? 'Antidineutron' : 'Dineutron'}, but it is already gone...`) : `a simple ${global.april ? 'Antimononeutron' : 'Mononeutron'}, it will stay with you for as long as it can.`}`,
+            () => {
+                const random = Math.random();
+                const base = `Element with no ${global.upgradesInfo[1].name[3]}, true head of this table.\n`;
+                if (!global.april.active) { return `${base}This one is ${random < 0.01 ? 'an illusive Tetraneutron, or maybe even Pentaneutron. Wait where did it go? Was it even there?' : random < 0.1 ? 'a rare Dineutron and its already gone...' : 'just a simple Mononeutron, but it will stay with you for as long as it can.'}`; }
+                const array = ['Ultravoid calls your name', "'Shift' is how you access it", "don't forget it", "it wasn't a dream", 'its truly gone', 'will you realize', 'there are others', 'Wormholes connect them', 'they will consume', "you can't stop it", 'it could all be inside', 'just one', 'Gravastars are bigger', 'Quantum Universes are real', 'if you wait long enough within', 'there is more to it', 'you have done it before', 'Antimatter always prevails', 'you have seen it', 'it has always been this way', 'it wont last long', 'it will be all undone', 'Light grows', 'it escaped', 'it should had stayed in the Dark', 'which one will prevail', 'there is only one way to stop it', 'toggle it', 'its just the beginning', 'there are Layers above', 'you only need six of them', 'create more of them', "don't stop yet", 'bring them closer', 'just for how much longer', "don't share it", 'look closer', 'proof is all you need', 'it hides in plain sight', "don't overthink it", 'how was your day'];
+                return `${base}It has a message just for you: "${array[Math.ceil(random * array.length) - 1]}".`;
+            },
             () => `The most basic Element, increases Brown dwarfs${player.inflation.vacuum ? ' and Puddles' : ''} production by 2.`,
             () => `Fusion reaction byproduct, makes Interstellar Stars cost scale -${format(0.1)} less.`,
             () => `First metal, base for Solar mass gain${player.inflation.vacuum ? ' and delay to the Cosmic dust hardcap' : ''} from Brown dwarfs will be lightly increased.\n(Additive, boost is equal to ${format(1.5)}x when nothing else boosting it)`,
@@ -980,8 +996,8 @@ export const global: globalType = {
             () => "Highly toxic and reactive, +12 to max level of 'Planetary system'.",
             () => `A noble 2x boost to the Solar mass gain${player.inflation.vacuum ? ' and delay to the Preons hardcap' : ''}.`,
             () => "Through leaching will increase max level of 'Protoplanetary disk' by +1.",
-            () => `Stars are inside you, as well ${global.april ? 'Antineutron' : 'Neutron'} stars will improve themselves by log4 of their own amount.`,
-            () => `Has a great affinity towards ${global.april ? 'Antioxygen' : 'Oxygen'} and to decrease cost of Interstellar Stars by 100.`,
+            () => `Stars are inside you, as well ${global.april.active ? 'Antineutron' : 'Neutron'} stars will improve themselves by log4 of their own amount.`,
+            () => `Has a great affinity towards ${global.april.active ? 'Antioxygen' : 'Oxygen'} and to decrease cost of Interstellar Stars by 100.`,
             () => `Just another tetravalent metalloid, and so is another ${format(1.4)}x boost to Interstellar Stars${player.inflation.vacuum ? ' and Cosmic dust' : ''}.`,
             () => `One of the fundamentals for Life and to make all self-made Stars to boost Solar mass gain${player.inflation.vacuum ? ' and delay Cosmic dust hardcap' : ''}.`,
             () => "A burning rock that will increase max level of 'Star system' by 1.",
@@ -990,7 +1006,7 @@ export const global: globalType = {
             () => "Don't forget about it and it will increase effective level of 'Planetary system' by +1.",
             () => "Get stronger by increasing max level of 'Star system' by +1.",
             () => `A new color and a rare bonus of ^${format(1.1)} to the Solar mass effect.`,
-            () => `Part of a new alloy that will allow for Red giants to be added into an effective amount of ${global.april ? 'Antineutron' : 'Neutron'} stars.`,
+            () => `Part of a new alloy that will allow for Red giants to be added into an effective amount of ${global.april.active ? 'Antineutron' : 'Neutron'} stars.`,
             () => `Catalyst for production of Stardust. 'Gamma-ray burst' effect will be increased by Solar mass ^${format(0.1)}.\n(Effect increase: ${format(player.collapse.mass ** 0.1, { padding: true })})`,
             () => `No corrosion, only boost to Interstellar Stars that is based on unspent Stardust ^${format(calculateEffects.element24_power())}.\n(Boost to Stars: ${format(calculateEffects.element24(), { padding: true })})`,
             () => "Brittle Element, but not the bonus ‒ 1 more level in 'Star system'.",
@@ -1141,7 +1157,7 @@ export const global: globalType = {
                 () => 'Make auto for all Interstellar Structures permanent.',
                 () => `Elements will no longer require Collapse for activation${player.inflation.vacuum ? ' and related automatization Research will cost as if its level is -1' : ''}.\nSecond level will unlock auto creation of Elements. (${global.strangenessInfo[4].max[6] > 1 ? 'Needs to be enabled in settings' : 'Not yet unlocked for Interstellar space'})`,
                 () => `${player.verses[0].current >= 12 ? 'Total' : 'Unspent'} Strange quarks will boost Interstellar by improving its Structures${global.strangenessInfo[4].max[7] > 1 ? ' at level 1 and by reducing cost of Brown dwarfs at level 2' : ''}.\n(Formula: Strange quarks ^${format(player.elements[26] >= 1 ? 0.32 : 0.16)}, exponent is 2 times bigger with '${global.elementsInfo.name[26]}' | Effect: ${format(global.strangeInfo.stageBoost[4], { padding: true })})`,
-                () => `Increase effective amount of ${global.april ? 'Antineutron' : 'Neutron'} stars (doesn't include ones from '${global.elementsInfo.name[22]}') by 1 + level and improve ${global.april ? 'Antineutron' : 'Neutron'} stars strength by +^${format(0.125)}.`,
+                () => `Increase effective amount of ${global.april.active ? 'Antineutron' : 'Neutron'} stars (doesn't include ones from '${global.elementsInfo.name[22]}') by 1 + level and improve ${global.april.active ? 'Antineutron' : 'Neutron'} stars strength by +^${format(0.125)}.`,
                 () => `Unlock yet another an even better new Upgrade: (all of them cost around ${format(1e140)} Stardust)\nUpgrade ‒ '${player.strangeness[4][9] >= 1 || player.progress.main >= 18 ? 'Nucleosynthesis' : '(Unknown)'}', Collapse Research ‒ '${player.strangeness[4][9] >= 2 || player.progress.main >= 18 ? 'Quark-nova' : '(Unknown)'}', Stage Research ‒ '${player.strangeness[4][9] >= 3 || player.progress.main >= 18 ? 'Inner Black hole' : '(Unknown)'}'.`
             ],
             cost: [],
@@ -1212,7 +1228,7 @@ export const global: globalType = {
                 () => `Boost global speed by ${format(1.4)}.`,
                 () => `Gain ${format(1.4)} times more Strangelets from the Stage resets.`,
                 () => "Increase max levels for a lot of Strangeness by +1, these include:\n'Fundamental boost', 'Bigger Puddles', 'Faster Accretion', 'Hotter Stars' and 'Bigger Structures'",
-                () => "Unlock a new mini Stage 'Darkness', activated in the 'Advanced' subtab."
+                () => `Unlock a new mini Stage '${global.challengesInfo[2].name}', activated in the 'Advanced' subtab.`
             ],
             cost: [],
             firstCost: [2e15, 4e15, 6e15, 4e14],
@@ -1235,11 +1251,11 @@ export const global: globalType = {
             () => `Boost global speed by 2, but reduce time limit for ${player.challenges.stability >= 1 ? 'Challenges' : 'on everything that has it'} by 4, if level is below 2.\nIf ${player.challenges.stability >= 1 ? 'not inside any Challenge' : 'there is no time limit'}, then 2nd level will instead boost global speed by ${player.challenges.stability >= 1 ? 2 : `${format(calculateEffects.T0Inflation0(), { padding: true })} (strength depletes over 1 hour of the Stage time)`}.`,
             () => { //[1]
                 const effect = calculateEffects.T0Inflation1();
-                return `Boost global speed by unspent Dark matter ^${format((effect > 1 ? logAny(effect, player.buildings[6][0].current.toNumber() + 1) : 0.04) * player.tree[0][1], { padding: true })}.\n(Boost per level: ${format(effect, { padding: true })}, softcaps after ${format(calculateEffects.TOInflation1_softcap())} Dark matter. Global speed doesn't speed up game ticks)`;
+                return `Boost global speed by unspent ${global.buildingsInfo.name[6][0]} ^${format((effect > 1 ? logAny(effect, player.buildings[6][0].current.toNumber() + 1) : 0.04) * player.tree[0][1], { padding: true })}.\n(Boost per level: ${format(effect, { padding: true })}, softcaps after ${format(calculateEffects.TOInflation1_softcap())} ${global.buildingsInfo.name[6][0]}. Global speed doesn't speed up game ticks)`;
             },
             () => `Gain ${format(1.4)} times more Strange quarks from any Stage reset per level.${player.challenges.stability >= 1 ? `\nFirst ${player.challenges.stability} levels (1 per Vacuum stability completion) will also boost global speed by ${format(1.1)}, but only while inside any Challenge.` : ''}`,
             () => `Boost global speed and Stage reset reward by ${format(calculateEffects.T0Inflation3())}, strength is based on Supervoid progress${player.challenges.stability < 2 ? ' in the current End reset' : ''}.`,
-            () => `For false Vacuum it will remove time limit from Milestones${player.tree[0][5] >= 1 ? " and allow for Darkness to be reset for Strangelets, Darkness won't reset with other Stages" : ''}.\nFor true Vacuum it will unlock false Vacuum Milestones for Void. Their effects are active anywhere, but only if this Inflation is active.`,
+            () => `For false Vacuum it will remove time limit from Milestones${player.tree[0][5] >= 1 ? ` and allow for ${global.challengesInfo[2].name} to be reset for Strangelets, ${global.challengesInfo[2].name} won't reset with other Stages` : ''}.\nFor true Vacuum it will unlock false Vacuum Milestones for Void. Their effects are active anywhere, but only if this Inflation is active.`,
             () => "Allow to go above max allowed Merges up to the current relevant self-made Universes without making next Universe requiring less.\nAlso stabilize false Vacuum, allow creation of false Universes and add new effect for false Vacuum 'Void Milestones'. Or make Strangelets produce themselves, if in true Vacuum.",
             () => { //[6]
                 const level = player.tree[0][6];
@@ -1391,9 +1407,9 @@ export const global: globalType = {
     ],
     challengesInfo: [{ //Challenge [0]
         name: 'Void',
-        description: () => `Result of Vacuum Instability, investigate at your own will\n(${global.ultravoid === false ? "Entering forces Hardreset, can't be reverted" : `${player.inflation.vacuum || player.toggles.supervoid ? `Entering will force a ${player.toggles.supervoid ? 'Vacuum' : 'Stage'} reset, will be reverted after exiting` : 'No reason to enter from false Vacuum, since all rewards are disabled'}`})`,
+        description: () => `Result of Vacuum Instability, investigate at your own will\n(${global.april.ultravoid === false ? "Entering forces Hardreset, can't be reverted" : `${player.inflation.vacuum || player.toggles.supervoid ? `Entering will force a ${player.toggles.supervoid ? 'Vacuum' : 'Stage'} reset, will be reverted after exiting` : 'No reason to enter from false Vacuum, since all rewards are disabled'}`})`,
         effectText: () => {
-            if (global.ultravoid === false) { return '<p class="darkorchidText">‒ More nerfs will be shown with more rewards</p>'; }
+            if (global.april.ultravoid === false) { return '<p class="darkorchidText">‒ More nerfs will be shown with more rewards</p>'; }
             const progress = player.challenges.voidCheck;
             const progress2 = player.challenges.supervoid;
             const supervoid = player.toggles.supervoid;
@@ -1423,7 +1439,7 @@ export const global: globalType = {
             ], [
                 () => 'Cause the Collapse',
                 () => 'Get the first Red giant',
-                () => `Get the first ${global.april ? 'Antineutron' : 'Neutron'} star`,
+                () => `Get the first ${global.april.active ? 'Antineutron' : 'Neutron'} star`,
                 () => 'Get the first Black hole',
                 () => 'Unlock Intergalactic Stage'
             ], [
@@ -1453,11 +1469,11 @@ export const global: globalType = {
         color: 'darkviolet'
     }, { //Challenge [1]
         name: 'Vacuum stability',
-        description: () => !global.sessionToggles[2] ? 'A more stable, but still the false Vacuum state\n(Entering will force a Vacuum reset, will be reverted after exiting)' : 'Vacuum state with the lowest possible Energy\n(Entering will force a Quantum reset, will be reverted after exiting)',
+        description: () => !global.april.quantum ? 'A more stable, but still the false Vacuum state\n(Entering will force a Vacuum reset, will be reverted after exiting)' : 'Vacuum state with the lowest possible Energy\n(Entering will force a Quantum reset, will be reverted after exiting)',
         effectText: () => {
-            if (global.sessionToggles[2]) { return '<p class="cyanText">‒ Global speed is set to 1\n‒ Stage resets are disabled\n‒ All Stages are removed from reset cycle</p>'; }
+            if (global.april.quantum) { return '<p class="cyanText">‒ Global speed is set to 1\n‒ Stage resets are disabled\n‒ All Stages are removed from reset cycle</p>'; }
             const completions = player.challenges.stability;
-            return `<p class="orchidText">‒ Global speed is decreased by ${format(4 * 8 ** completions, { padding: 'exponent' })}\n‒ Milestones time limit is 0 seconds\n‒ Permanent Stages are removed from reset cycle${player.tree[0][5] >= 1 ? '\n‒ Darkness resets other Stages and reset by other Stages\n‒ On Stage reset will receive reward only for the selected Stage' : ''}</p>
+            return `<p class="orchidText">‒ Global speed is decreased by ${format(4 * 8 ** completions, { padding: 'exponent' })}\n‒ Milestones time limit is 0 seconds\n‒ Permanent Stages are removed from reset cycle${player.tree[0][5] >= 1 ? `\n‒ ${global.challengesInfo[2].name} resets other Stages and reset by other Stages\n‒ On Stage reset will receive reward only for the selected Stage` : ''}</p>
             <p class="greenText">‒ Strange quarks from Stage resets are decreased by ${format(2 ** completions, { padding: 'exponent' })}\n‒ Strange quarks from non-Interstellar Stage resets are further decreased by ${format(4 * 2 ** completions, { padding: 'exponent' })}\n‒ Stage resets above ${8 - completions} decrease Strange quarks from the Stage resets by 2\n‒ Going above 10 minutes of the Stage time will force Stage reset</p>
             <p class="darkvioletText">‒ Galaxies scale in cost faster by +${format(0.01)}\n‒ Intergalactic Upgrade 'Galactic Merger' cost ${format(1e10)} times more\n‒ Merge requirement is set to ${22 + completions}${player.tree[0][5] >= 1 ? '\n‒ Creation of Universes is disabled' : ''}</p>`;
         },
@@ -1478,10 +1494,11 @@ export const global: globalType = {
         color: 'darkorchid'
     }, { //Challenge [2]
         name: 'Darkness',
-        description: () => `Expansion for the Abyss Stage through Dark matter Upgrades\n(Activating doesn't reset anything, but ${player.strangeness[6][3] < 1 ? "requires 'Darkness' Strangeness" : 'deactivating forces Stage reset'})`,
+        description: () => `Expansion for the Abyss Stage through ${global.buildingsInfo.name[6][0]} Upgrades\n(Activating doesn't reset anything, but ${player.strangeness[6][3] < 1 ? `requires '${global.strangenessInfo[6].name[3]}' Strangeness` : 'deactivating forces Stage reset'})`,
         effectText: () => {
+            const name = global.challengesInfo[2].name;
             return `<p class="darkvioletText">‒ Doesn't count as a Challenge\n‒ Disables Big Crunches</p>
-            <p class="orchidText">‒ Darkness uses separate automatizations\n‒ Darkness is ${player.tree[0][5] < 1 ? 'disabled' : 'enabled'} in false Vacuum\nMore information to be revealed (WIP)</p>
+            <p class="orchidText">‒ ${name} uses separate automatizations\n‒ ${name} is ${player.tree[0][5] < 1 ? 'disabled' : 'enabled'} in false Vacuum\nMore information to be revealed (WIP)</p>
             <p class="cyanText">‒ Time limit is based on Universe age\n‒ Time limit is always active (WIP)\nMore information to be revealed (WIP)</p>`;
         },
         rewardText: [
@@ -2096,8 +2113,8 @@ export const updatePlayer = (load: playerType): string => {
     global.automatization.element = 1;
     global.automatization.autoS = [];
 
-    if (global.ultravoid === false) { global.ultravoid = null; }
-    toggleChallengeType(0);
+    if (global.april.ultravoid === false) { global.april.ultravoid = null; }
+    toggleChallengeType();
     for (let i = 0; i < global.challengesInfo.length; i++) { assignChallengeInformation(i); }
     global.lastElement = null;
     global.lastStrangeness = [null, 0];

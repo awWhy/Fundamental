@@ -23,7 +23,7 @@ export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
             time.excess = timeWarp;
             return;
         } else { time.excess = 0; } //Must be before potential warp
-        if (timeWarp > tick * 600) { return void simulateOffline(timeWarp, timeWarp < 600_000 && !globalSave.developerMode); }
+        if (timeWarp > tick * 600) { return void simulateOffline(timeWarp, player.toggles.normal[4] || (timeWarp < 600_000 && !globalSave.developerMode)); }
         timeWarp -= tick;
         time.online += tick;
     }
@@ -3096,36 +3096,27 @@ const awardMilestone = (index: number, stageIndex: number) => {
 };
 
 /** Also updates related information */
-export const toggleChallengeType = (which: number, change = false): boolean => {
-    const reEnter = which === 0 && player.challenges.active === 0;
+export const toggleChallengeType = (change = false): boolean => {
+    const reEnter = player.challenges.active === 0;
     if (change) {
-        if (which === 0 ? player.progress.main < 20 : player.challenges.active === 1) { return false; }
+        if (player.progress.main < 20) { return false; }
         if (reEnter) { challengeReset(); }
-        if (which === 0) {
-            if (global.ultravoid === false) {
-                global.ultravoid = null;
-            } else {
-                player.toggles.supervoid = !player.toggles.supervoid;
-                global.sessionToggles[0] = player.toggles.supervoid;
-            }
-        } else { global.sessionToggles[2] = !global.sessionToggles[2]; }
+        if (global.april.ultravoid === false) {
+            global.april.ultravoid = null;
+        } else {
+            player.toggles.supervoid = !player.toggles.supervoid;
+            global.sessionToggles[0] = player.toggles.supervoid;
+        }
     }
 
-    const status = which === 0 ? player.toggles.supervoid : global.sessionToggles[2];
-    const info = global.challengesInfo[which];
-    if (which === 0) {
-        info.name = status ? 'Supervoid' : 'Void';
-        info.resetType = status ? 'vacuum' : 'stage';
-    } else {
-        info.name = status ? 'Quantum Vacuum' : 'Vacuum stability';
-    }
+    const info = global.challengesInfo[0];
+    info.name = player.toggles.supervoid ? 'Supervoid' : 'Void';
+    info.resetType = player.toggles.supervoid ? 'vacuum' : 'stage';
     if (change) {
-        if (which === 0) {
-            assignChallengeInformation(0);
-            if (reEnter) {
-                enterExitChallengeUser(0);
-                if (player.challenges.active !== 0) { Notify(`Failed to re-enter '${info.name}'`); }
-            }
+        assignChallengeInformation(0);
+        if (reEnter) {
+            enterExitChallengeUser(0);
+            if (player.challenges.active !== 0) { Notify(`Failed to re-enter '${info.name}'`); }
         }
         numbersUpdate();
         visualUpdate();
@@ -3266,6 +3257,9 @@ export const prepareDarkness = (full = true, entering = false) => {
             for (let i = 0; i < infoR.maxActive; i++) { calculateMaxLevel(i, 6, 'researches'); }
             for (let i = 0; i < infoE.maxActive; i++) { calculateMaxLevel(i, 6, 'researchesExtra'); }
         }
+        global.automatization.autoU[6] = [];
+        global.automatization.autoR[6] = [];
+        global.automatization.autoE[6] = [];
     } else {
         if (full) { player.ASR[6] = 0; }
         infoB.maxActive[6] = 1;
@@ -3291,8 +3285,8 @@ export const enterExitChallengeUser = (index: number | null) => {
             Notify(`Exited the ${global.challengesInfo[old].name}`);
         }
     } else {
-        if (index === 0 && global.ultravoid === false) { return enterUltravoid(); }
-        if (index === 1 && global.sessionToggles[2]) { return enterQuantum(); }
+        if (index === 0 && global.april.ultravoid === false) { return enterUltravoid(); }
+        if (index === 1 && global.april.quantum) { return enterQuantum(); }
         if (!allowedToEnter(index)) { return; }
         if (index === 2) {
             player.darkness.active = true;
