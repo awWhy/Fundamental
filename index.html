@@ -60,7 +60,7 @@
                             <p class="whiteText stage3Only"><img src="Used_art/Missing.png" alt="" loading="lazy" draggable="false" id="rankImage">Current <span class="darkorchidText">Rank</span> is <span id="rankName">Missing</span><sup id="rankExtra" class="orangeText" style="display: none;"></sup>.<br>Resets Structures, Upgrades and Stage Researches.</p>
                             <p class="whiteText stage4Only"><span class="orchidText">Collapse</span> resets Structures, Upgrades and all Researches for <span class="cyanText">Solar mass</span> and <span class="darkorchidText">Star remnants</span>.</p>
                             <p class="whiteText stage5Only"><span id="mergeTrue"><span class="darkvioletText">Merge</span> does a <span class="grayText">Galaxy</span> reset, while also converting all self-made <span class="grayText">Galaxies</span> into bonus ones</span><span id="mergeFalse">Missing</span>.</p>
-                            <p class="whiteText stage6Only"><span class="orangeText">Nucleation</span> resets <span class="grayText">Dark energy</span>, Dark Structures, <span class="darkvioletText">Abyss</span> Upgrades and Researches for <span class="darkvioletText">Dark fluid</span>.</p>
+                            <p class="whiteText stage6Only"><span class="orangeText">Nucleation</span> resets <span class="grayText"><span class="newLightName">Dark</span> energy</span>, <span class="newLightName">Dark</span> Structures, <span class="darkvioletText">Abyss</span> Upgrades and Researches for <span class="darkvioletText"><span class="newLightName">Dark</span> fluid</span>.</p>
                             <button type="button" id="reset0Button">Missing</button>
                         </section>
                     </article>
@@ -198,13 +198,13 @@
                     </article>
                     <section id="stageInfo" class="center" aria-label="Stage information">
                         <div class="stage1Only">
-                            <p id="tritiumEffect" class="cyanText"><span class="newAntiName">Tritium</span> production of Molecules: <span class="blueText">0</span></p>
+                            <p id="tritiumEffect" class="cyanText"><span class="newAntiName">Tritium</span> production of Molecules: <span class="blueText last">0</span></p>
                             <p id="preonCap" class="cyanText">Preons production hardcap starts at <span class="grayText">1e14</span><br>(Production to the hardcap ratio is <span id="preonCapRatio" class="grayText">0</span>)</p>
                             <p id="dischargeEffect" class="orangeText">Boost from Discharge goals: <span class="darkorchidText">1</span></p>
                             <p id="energySpent" class="orangeText">Missing Energy: <span class="darkorchidText">0</span></p>
                         </div>
                         <div class="stage2Only">
-                            <p id="molesProduction" class="blueText"><span class="newAntiName">Tritium</span> production of Moles: <span class="cyanText">0</span></p>
+                            <p id="molesProduction" class="blueText"><span class="newAntiName">Tritium</span> production of Moles: <span class="cyanText last">0</span></p>
                             <p id="cloudEffect" class="grayText">Boost to Puddles from Clouds: <span class="blueText">1</span></p>
                             <p id="vaporizationBoostTotal" class="grayText">Total boost after Vaporization: <span class="blueText">1</span></p>
                         </div>
@@ -220,9 +220,9 @@
                             <article id="starEffects">
                                 <h3 class="orangeText bigWord">Current effects</h3>
                                 <p id="solarMassEffect" class="cyanText hasTitle" data-title="Boost to Interstellar Stars">Solar mass: <span class="greenText">0</span></p>
-                                <p id="star1Effect" class="redText hasTitle" data-title="Boost to Main-sequence">Red giants: <span class="greenText">0</span></p>
-                                <p id="star2Effect" class="darkvioletText hasTitle" data-title="Boost to Interstellar Stars"><span class="newAntiName">Neutron</span> stars: <span class="greenText">0</span></p>
-                                <p id="star3Effect" class="grayText hasTitle" data-title="Boost to the Solar mass gain">Black holes: <span class="greenText">0</span></p>
+                                <p id="star1Effect" class="redText hasTitle" data-title="Boost to Main-sequence">Red giants: <span class="greenText last">0</span></p>
+                                <p id="star2Effect" class="darkvioletText hasTitle" data-title="Boost to Interstellar Stars"><span class="newAntiName">Neutron</span> stars: <span class="greenText last">0</span></p>
+                                <p id="star3Effect" class="grayText hasTitle" data-title="Boost to the Solar mass gain">Black holes: <span class="greenText last">0</span></p>
                             </article>
                         </div>
                         <div class="stage5Only">
@@ -237,9 +237,9 @@
                             </article>
                         </div>
                         <div class="stage6Only">
-                            <p class="grayText">Dark matter softcap starts at <span id="darkSoftcap" class="cyanText">0</span></p>
+                            <p class="grayText"><span class="newLightName">Dark</span> matter softcap starts at <span id="darkSoftcap" class="cyanText">0</span></p>
                             <p id="nucleationBoostTotal" class="grayText">Total boost after Nucleation: <span class="blueText">0</span></p>
-                            <p id="darkEnergySpent" class="grayText">Missing Dark energy: <span class="orangeText">0</span></p>
+                            <p id="darkEnergySpent" class="grayText">Missing <span class="newLightName">Dark</span> energy: <span class="orangeText last">0</span></p>
                             <p id="mergeResetsS6" class="darkvioletText">Merge resets: <span>0</span> | <span class="greenText">1</span> Max</p>
                             <article id="mergeScore" class="stage6borderImage" aria-label="Merge score">
                                 <p id="mergeScore0" class="grayText"><span>Galaxies:</span> <span id="mergeScore0Cur" class="greenText">0</span> <span>(<span class="greenText">1</span> per)</span></p>
@@ -1028,7 +1028,7 @@
                                     <button type="button" id="toggleConfirm7" class="toggleConfirm">Safe</button>
                                     <button type="button" id="toggleAuto10Info" class="hollowButton stage4borderButton" aria-label="Settings" aria-haspopup="menu" aria-controls="toggleAuto10Menu">!</button>
                                     <div id="toggleAuto10Menu" class="popUpMenu" style="display: none;" role="menu" aria-label="Settings menu">
-                                        <label>Nucleate if boost is at least <input type="number" id="nucleationInput" step="any">, ignored if unlocked passive Dark fluid gain</label>
+                                        <label>Nucleate if boost is at least <input type="number" id="nucleationInput" step="any">, ignored if unlocked passive <span class="newLightName">Dark</span> fluid gain</label>
                                     </div>
                                 </div>
                                 <button type="button" id="toggleAuto10" class="toggleAuto">Auto OFF</button>
@@ -1328,7 +1328,7 @@
                             <h3 class="orangeText">Boost after Collapse</h3>
                             <p id="solarMassStat" class="cyanText">Solar mass: <span class="greenText">1</span></p>
                             <p id="star1Stat" class="redText">Red giants: <span class="greenText">1</span></p>
-                            <p id="star2Stat" class="darkvioletText"><span class="newAntiName">Neutron</span> stars: <span class="greenText">1</span></p>
+                            <p id="star2Stat" class="darkvioletText"><span class="newAntiName">Neutron</span> stars: <span class="greenText last">1</span></p>
                             <p id="star3Stat" class="grayText">Black holes: <span class="greenText">1</span></p>
                             <p id="gammaRayStat" class="darkvioletText">Gamma-ray burst: <span class="greenText">1</span></p>
                             <p id="quasarStat" class="redText">Quasar: <span class="greenText">1</span> ^2</p>
@@ -1348,11 +1348,11 @@
                         <div class="stats stage6Only">
                             <article id="nucleationBoost">
                                 <h3 class="blueText">Boost after Nucleation</h3>
-                                <p id="darkFluidStat" class="darkvioletText">Dark fluid: <span class="greenText">1</span></p>
+                                <p id="darkFluidStat" class="darkvioletText"><span class="newLightName">Dark</span> fluid: <span class="greenText last">1</span></p>
                                 <p id="quintessenceStat" class="grayText">Quintessence: <span class="greenText">1</span></p>
                                 <h4 class="orangeText">Total: <span id="nucleationTotal" class="greenText">1</span></h4>
                             </article>
-                            <p id="effectiveDarkEnergyStat" class="grayText">Effective Dark energy: <span class="orangeText">0</span></p>
+                            <p id="effectiveDarkEnergyStat" class="grayText">Effective <span class="newLightName">Dark</span> energy: <span class="orangeText last">0</span></p>
                             <article id="energyGainStage6" class="darkvioletText stage6borderImage" aria-label="Dark energy gain">
                                 <p><span>Planets:</span> <span id="energyGainStage6Build1Cur" class="greenText">0</span> <span>(<span id="energyGainStage6Build1Per" class="greenText">0</span> per)</span></p>
                             </article>
