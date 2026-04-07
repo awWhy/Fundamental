@@ -1,7 +1,7 @@
-# Fundamental
-Attempt to make something\
-Can be played at 'https://awwhy.github.io/Fundamental/' \
-If you want to report a bug (here or on discord), try to give details on how it happened and screenshot of any errors in console (Errors look like small wall of red text, as example: Uncaught TypeError: Cannot read properties of null (reading '0'))
+# Fundamental Mod Test 
+#### (original version v0.2.8)
+Original can be played at 'https://awwhy.github.io/Fundamental/' \
+If you want to report a bug (here or on discord), try to give details on how it happened and screenshot of any errors in console (Errors look like small wall of red text, as example: Uncaught TypeError: Cannot read properties of null (reading '0')). Probably would be an error in the mod.
 
 #### Should be supported by:
 1. Modern browsers,
