@@ -1,7 +1,7 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
 import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
-import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness, cheatStrangeQuarks, cheatInflations, cheatCosmons } from './Special';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness, cheatStrangeQuarks, cheatInflations, cheatCosmons, getSaves } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, toggleAll } from './Hotkeys';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
@@ -1662,6 +1662,30 @@ try { //Start everything
     getId('cheatStrangeQuarks').addEventListener('click', () => {cheatStrangeQuarks();});
     getId('cheatInflations').addEventListener('click', () => {cheatInflations();});
     getId('cheatCosmons').addEventListener('click', () => {cheatCosmons();});
+
+    (async () => {
+        const saveSelect = getId('saveSelect', true); // true = noError
+        if (!saveSelect) {
+            Notify('Save select element not found');
+            return;
+        }
+        const saves = await getSaves();
+        Notify('Saves loaded: ' + saves.length);
+        for (let i = 0; i < saves.length; i++) {
+            const option = document.createElement('option');
+            option.value = saves[i];
+            option.textContent = "Save" + (i + 1);
+            saveSelect.appendChild(option);
+        }
+    })();
+
+    getId('loadSelectedSave').addEventListener('click', () => {
+        const saveSelect = getId('saveSelect') as HTMLSelectElement;
+        const selectedSave = saveSelect.value;
+        if (selectedSave === '') { return; }
+        void loadGame(selectedSave);
+    });
+
 
     /* Settings tab */
     for (const number of [0, 2, 4, 9, 10]) {

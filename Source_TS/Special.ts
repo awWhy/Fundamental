@@ -188,7 +188,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG4.png',
             'UpgradeG5.png',
             'UpgradeG6.png',
-            'UpgradeG7.png'
+            'UpgradeG7.png',
+            'PixelArtBall.png' //I drew this. TBH, it's not great, but whatever
         ], [
             'UpgradeD1.png',
             'Missing.png'
@@ -1611,4 +1612,18 @@ export const cheatCosmons = () => {
     }
     numbersUpdate();
     visualUpdate();
+};
+
+export const getSaves = async () : Promise<Array<string>> => {
+    let saves: Array<string> = [];
+    try {
+        const response = await fetch('./Saves.txt');
+        if (response.ok) {
+            const text = await response.text();
+            saves = text.split('\n').filter(line => !line.trim().startsWith('#'));
+        }
+    } catch (error) {
+        console.error('Error reading Saves.txt:', error);
+    }
+    return saves;
 };

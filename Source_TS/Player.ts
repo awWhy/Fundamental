@@ -482,7 +482,8 @@ export const global: globalType = {
                 'Galactic Merger',
                 'Starburst region',
                 'Globular cluster',
-                'Starburst Galaxy'
+                'Starburst Galaxy',
+                'Example Upgrade'
             ],
             effectText: [
                 () => `Nebula that is dense enough to block the light, it will boost Nebulas by ${format(calculateEffects.S5Upgrade0())}.`,
@@ -491,10 +492,11 @@ export const global: globalType = {
                 () => `Unlock a new reset type that will bring Galaxies closer for potential Merging.${player.inflation.vacuum ? ' That reset behaves like a Galaxy reset, while also converting self-made Galaxies into bonus ones. Can only be done a limited amount of times per Stage reset.' : ''}`,
                 () => `Region of space that is undergoing a larger amount of Star formations, it will boost Nebulas by ${format(1000 * 10 ** player.researches[5][4])}.`,
                 () => `A spheroidal conglomeration of Stars that is even more dense than Super Star cluster, it will boost Star clusters by ${format(1000 * 10 ** player.researches[5][4])}.`,
-                () => `An entire Galaxy that is undergoing higher rate of Star formations, it will boost Galaxies by ${format(100 * 10 ** player.researches[5][4])}.`
+                () => `An entire Galaxy that is undergoing higher rate of Star formations, it will boost Galaxies by ${format(100 * 10 ** player.researches[5][4])}.`,
+                () => 'Just an example upgrade'
             ],
-            cost: [1e56, 1e60, 1e120, 1e160, 1e200, 1e210, '1e360'] as unknown as Overlimit[],
-            maxActive: 7 //Required
+            cost: [1e56, 1e60, 1e120, 1e160, 1e200, 1e210, '1e360', '1e1000'] as unknown as Overlimit[],
+            maxActive: 8 //Required
         }, { //Stage 6
             name: [
                 'Dark nucleation',
