@@ -947,6 +947,24 @@
                     </article>
                 </section>
             </section>
+            <section id="cheatsTab" style="display: none;">
+                <section id="cheatsSubtabCheats" class="insideTab" aria-label="Current tab">
+                    <div class="center">
+                        <h2 class="bigWord redText">Cheats</h2>
+                        <p>These things give amounts of different resources and currencies to speed up testing. Plus one save file, but you can add more easily.</p>
+                        <button type="button" id="cheatStrangeQuarks" class="hollowButton" aria-label="Cheat strange quarks">*10 strange quarks</button>
+                        <button type="button" id="cheatInflations" class="hollowButton" aria-label="Cheat inflations">*10 inflations</button>
+                        <button type="button" id="cheatCosmons" class="hollowButton" aria-label="Cheat cosmons">*10 cosmons</button>
+                    </div>
+                </section>
+                <section id="cheatsSubtabSaves" class="insideTab" style="display: none;" aria-label="Current Tab">
+                    <div class="center">
+                        <h2 class="bigWord redText">Saves</h2>
+                        <p>Here are some premade saves, the first one is my save from right before v0.2.8, it was maxed out. It is in a good position for the new update. Reset your save in 'advanced save options'</p>
+                        <button type="button" id="save1" class="hollowButton" aria-label="Load save 1">Load save 1</button>
+                    </div>
+                </section>
+            </section>
             <section id="settingsTab" style="display: none;">
                 <section id="settingsSubtabSettings" class="insideTab" aria-label="Current tab">
                     <article id="resetToggles">
@@ -1419,6 +1437,8 @@
                         <button type="button" id="strangenessSubtabBtnMilestones" style="display: none;">Milestones</button>
                         <button type="button" id="inflationSubtabBtnInflations" class="tabActive" style="display: none;">Inflations</button>
                         <button type="button" id="inflationSubtabBtnMilestones" style="display: none;">Milestones</button>
+                        <button type="button" id="cheatsSubtabBtnCheats" style="display: none">Cheats</button>
+                        <button type="button" id="cheatsSubtabBtnSaves" style="display: none">Saves</button>
                         <button type="button" id="settingsSubtabBtnSettings" class="tabActive" style="display: none;">Settings</button>
                         <button type="button" id="settingsSubtabBtnStats" style="display: none;">Stats</button>
                         <button type="button" id="settingsSubtabBtnHistory" style="display: none;">History</button>
@@ -1454,6 +1474,7 @@
                         <button type="button" id="upgradeTabBtn">Upgrade</button>
                         <button type="button" id="strangenessTabBtn">Strangeness</button>
                         <button type="button" id="inflationTabBtn">Inflation</button>
+                        <button type="button" id="cheatsTabBtn">Cheats</button>
                         <button type="button" id="settingsTabBtn">Settings</button>
                     </nav>
                 </div>

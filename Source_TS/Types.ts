@@ -204,11 +204,12 @@ export interface playerType {
     }
 }
 
-export type gameTab = 'stage' | 'upgrade' | 'Elements' | 'strangeness' | 'inflation' | 'settings';
+export type gameTab = 'stage' | 'upgrade' | 'Elements' | 'strangeness' | 'inflation' | 'cheats' | 'settings';
 export type gameSubtab = 'Structures' | 'Advanced' | //Stage tab
     'Upgrades' | 'Elements' | //Upgrade tab
     'Matter' | 'Milestones' | //Strangeness tab
     'Inflations' | 'Milestones' | //Inflation tab
+    'Cheats' | 'Saves' | //Cheats tab
     'Settings' | 'Stats' | 'History'; //Settings tab
 
 export interface globalType {

@@ -3,7 +3,7 @@ import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, paus
 import { global, player, prepareVacuum, updatePlayer } from './Player';
 import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
 import type { globalSaveType, hotkeysList, numbersList } from './Types';
-import { format, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
+import { format, numbersUpdate, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
@@ -1574,5 +1574,41 @@ export const openHotkeys = () => {
     addCloseEvents(getId('hotkeysHTML'), getQuery('#tabRightHotkey button'));
     getQuery('#bigWindow > article').ariaLabel = 'Hotkeys menu';
     visualProgressUnlocks();
+    visualUpdate();
+};
+
+export const cheatStrangeQuarks = () => {
+    if (player.strange[0].current <= 0) { 
+        player.strange[0].current = 10;
+        player.strange[0].total = 10;
+    } else {
+        player.strange[0].current *= 10;
+        player.strange[0].total *= 10;
+    }
+    numbersUpdate();
+    visualUpdate();
+};
+
+export const cheatInflations = () => {
+    if (player.cosmon[0].current <= 0) { 
+        player.cosmon[0].current = 10;
+        player.cosmon[0].total = 10;
+    } else {
+        player.cosmon[0].current *= 10;
+        player.cosmon[0].total *= 10;
+    }
+    numbersUpdate();
+    visualUpdate();
+};
+
+export const cheatCosmons = () => {
+    if (player.cosmon[1].current <= 0) { 
+        player.cosmon[1].current = 10;
+        player.cosmon[1].total = 10;
+    } else {
+        player.cosmon[1].current *= 10;
+        player.cosmon[1].total *= 10;
+    }
+    numbersUpdate();
     visualUpdate();
 };

@@ -20,6 +20,8 @@ export const checkTab = (tab: gameTab, subtab = null as null | gameSubtab): bool
         case 'inflation':
             if (player.progress.main < 19) { return false; }
             return subtab === 'Inflations' || subtab === 'Milestones' || subtab === null;
+        case 'cheats':
+            return subtab === 'Cheats' || subtab === 'Saves' || subtab === null;
         case 'settings':
             if (subtab === 'History') { return player.progress.main >= 17 || (!player.inflation.vacuum && player.progress.main >= 11); }
             return subtab === 'Settings' || subtab === 'Stats' || subtab === null;
