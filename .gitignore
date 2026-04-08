@@ -2,5 +2,4 @@
 .vscode/
 node_modules/
 eslintconifg.txt
-Code.js.map
-Code.js
+Source_TS/
