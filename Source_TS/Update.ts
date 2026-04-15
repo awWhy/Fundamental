@@ -376,7 +376,8 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     getId('mergeScore1Cur').textContent = format(merge.rewards[0] * 2, { padding: 'exponent' });
                     getId('mergeScore2Cur').textContent = format(merge.rewards[1] * 4, { padding: 'exponent' });
                     getId('mergeScoreTotal').textContent = format(mergeScore, { padding: 'exponent' });
-                    const safe = calculateEffects.mergeMaxResets(true) - merge.resets;
+                    const maxSafe = calculateEffects.mergeMaxResets(true);
+                    const safe = maxSafe - merge.resets;
                     let post = mergeScore;
                     if (safe > 0) {
                         const allowed = player.buildings[5][3].true * (safe - 1);
@@ -389,7 +390,8 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     getId('mergeScoreAfter').textContent = format(post, { padding: 'exponent' });
 
                     getQuery('#mergeResetsS6 > span').textContent = format(merge.resets, { padding: 'exponent' });
-                    getQuery('#mergeResetsS6 > span:last-of-type').textContent = format(calculateEffects.mergeMaxResets(), { padding: 'exponent' });
+                    getQuery('#mergeResetsS6 > span:nth-of-type(2)').textContent = format(calculateEffects.mergeMaxResets(), { padding: 'exponent' });
+                    getQuery('#mergeResetsS6Safe > span').textContent = format(maxSafe, { padding: 'exponent' });
                 }
                 getQuery('#universeTime > span').textContent = format(player.inflation.age, { type: 'time' });
                 getQuery('#universeTimeReal > span').textContent = format(player.time.universe, { type: 'time' });
@@ -822,9 +824,11 @@ export const visualUpdate = (ignoreOffline = false) => {
                 getId('mergeScore').style.display = stable && player.researchesExtra[5][0] >= 1 ? '' : 'none';
                 getId('mergeResetsS6').style.display = stable && player.upgrades[5][3] === 1 ? '' : 'none';
                 if (stable) {
+                    const maxResets = calculateEffects.mergeMaxResets();
                     getId('mergeScore1').style.display = player.researchesExtra[5][1] >= 1 ? '' : 'none';
                     getId('mergeScore2').style.display = player.researchesExtra[5][5] >= 1 ? '' : 'none';
                     getQuery('#mergeResetsS6 > span').style.color = `var(--${player.merge.resets >= calculateEffects.mergeMaxResets() ? 'green' : 'red'}-text)`;
+                    getId('mergeResetsS6Safe').style.display = maxResets !== calculateEffects.mergeMaxResets(true) ? '' : 'none';
                 }
             }
             if (highest < 17) {

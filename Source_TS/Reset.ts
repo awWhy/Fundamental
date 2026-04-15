@@ -224,6 +224,7 @@ export const resetStage = (stageIndex: number[], update = true as null | boolean
 
 /** Level 0 is Vacuum reset, level 1 is Universe reset, level 2 is End reset */
 export const resetVacuum = (level = 0) => {
+    const strangenesss3S6 = player.strangeness[6][3];
     const vacuum = player.inflation.vacuum;
     if (level >= 2) {
         player.verses[0].true = 0;
@@ -284,6 +285,7 @@ export const resetVacuum = (level = 0) => {
     player.researchesAuto[0] = universes >= 3 ? 3 : 0;
     player.researchesAuto[1] = universes >= 3 ? 2 : 0;
     player.researchesAuto[2] = universes >= 5 ? (vacuum ? 4 : 1) : 0;
+    if (level < 2) { player.strangeness[6][3] = strangenesss3S6; }
     player.stage.current = 1;
     player.stage.resets = 0;
     player.stage.peak = [0, 0];
@@ -342,7 +344,6 @@ export const resetVacuum = (level = 0) => {
     if (universes >= 5 && vacuum) { player.strangeness[5][9] = 1; }
     if (universes >= 8) { player.strangeness[5][6] = vacuum ? 1 : 2; }
     if (universes >= 13 && vacuum) { player.strangeness[5][8] = 1; }
-    if (player.darkness.active) { player.strangeness[6][3] = 1; }
     prepareDarkness();
 
     for (let i = 0; i < playerStart.researchesAuto.length; i++) { calculateMaxLevel(i, 0, 'researchesAuto'); }

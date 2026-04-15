@@ -1033,13 +1033,16 @@ export const enterUltravoid = () => {
     const currentSave = deepClone(player);
 
     prepareVacuum(false); //Set buildings values
-    updatePlayer(deepClone(playerStart));
+    updatePlayer(deepClone(playerStart), false);
     stageUpdate(true, true);
+    const time = Date.now();
+    player.time.started = time;
+    player.time.updated = time;
     setTimeout(() => {
         if (specialHTML.alert[0] !== null) { (specialHTML.alert[1] as () => undefined)(); }
         global.april.ultravoid = false;
         enableApril();
-        updatePlayer(currentSave);
+        updatePlayer(currentSave, false);
         stageUpdate(true, true);
         global.lastSave = lastSave;
         Notify('Must have been a bad dream');
@@ -1572,7 +1575,7 @@ export const enterQuantum = () => {
                         update2();
                     }, { once: true });
                 }, continuation ? 6_000 : 120_000); //Adds reset button
-            }, continuation ? 0 : 30_000); //Changes theme
+            }, continuation ? 2_000 : 30_000); //Changes theme
         }, continuation ? 2_000 : 4_000); //Makes button visible
     }, continuation ? 0 : 6_000); //Adds exit button
 };

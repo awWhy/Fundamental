@@ -1228,7 +1228,7 @@ export const global: globalType = {
                 () => `Boost global speed by ${format(1.4)}.`,
                 () => `Gain ${format(1.4)} times more Strangelets from the Stage resets.`,
                 () => "Increase max levels for a lot of Strangeness by +1, these include:\n'Fundamental boost', 'Bigger Puddles', 'Faster Accretion', 'Hotter Stars' and 'Bigger Structures'",
-                () => `Unlock a new mini Stage '${global.challengesInfo[2].name}', activated in the 'Advanced' subtab.`
+                () => `Unlock a new mini Stage '${global.challengesInfo[2].name}', activated in the 'Advanced' subtab.\n(This Strangeness persists through Vacuum resets)`
             ],
             cost: [],
             firstCost: [2e15, 4e15, 6e15, 4e14],
@@ -1497,7 +1497,7 @@ export const global: globalType = {
         description: () => `Expansion for the Abyss Stage through ${global.buildingsInfo.name[6][0]} Upgrades\n(Activating doesn't reset anything, but ${player.strangeness[6][3] < 1 ? `requires '${global.strangenessInfo[6].name[3]}' Strangeness` : 'deactivating forces Stage reset'})`,
         effectText: () => {
             const name = global.challengesInfo[2].name;
-            return `<p class="darkvioletText">‒ Doesn't count as a Challenge\n‒ Disables Big Crunches</p>
+            return `<p class="darkvioletText">‒ Doesn't count as a Challenge\n‒ Disables Big Crunches while active</p>
             <p class="orchidText">‒ ${name} uses separate automatizations\n‒ ${name} is ${player.tree[0][5] < 1 ? 'disabled' : 'enabled'} in false Vacuum\nMore information to be revealed (WIP)</p>
             <p class="cyanText">‒ Time limit is based on Universe age\n‒ Time limit is always active (WIP)\nMore information to be revealed (WIP)</p>`;
         },
@@ -1867,7 +1867,7 @@ export const fillMissingValues = <ArrayType extends any[]>(test: ArrayType, star
     for (let i = test.length; i < start.length; i++) { test[i] = deepClone(start[i]); }
 };
 
-export const updatePlayer = (load: playerType): string => {
+export const updatePlayer = (load: playerType, decode = true): string => {
     if (load.inflation === undefined) { throw new ReferenceError('This save file is not from this game or too old'); }
     prepareVacuum(load.inflation.vacuum); //Only to set starting buildings values
 
@@ -2037,9 +2037,12 @@ export const updatePlayer = (load: playerType): string => {
     } else { load.clone = {}; }
 
     /* Restore data post JSON parse */
-    load.fileName = new TextDecoder().decode(Uint8Array.from(load.fileName, (c) => c.codePointAt(0) as number));
-    for (let i = 0; i < load.inflation.loadouts.length; i++) {
-        load.inflation.loadouts[i][0] = new TextDecoder().decode(Uint8Array.from(load.inflation.loadouts[i][0], (c) => c.codePointAt(0) as number));
+    if (decode) {
+        const decoder = new TextDecoder();
+        load.fileName = decoder.decode(Uint8Array.from(load.fileName, (c) => c.codePointAt(0) as number));
+        for (let i = 0; i < load.inflation.loadouts.length; i++) {
+            load.inflation.loadouts[i][0] = decoder.decode(Uint8Array.from(load.inflation.loadouts[i][0], (c) => c.codePointAt(0) as number));
+        }
     }
     for (let s = 1; s < load.buildings.length; s++) {
         for (let i = 0; i < load.buildings[s].length; i++) {

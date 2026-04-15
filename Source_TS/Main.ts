@@ -298,7 +298,7 @@ const loadGame = (save: string) => {
 
         void simulateOffline(global.lastSave);
     } catch (error) {
-        updatePlayer(player); //Fixes bugs
+        updatePlayer(player, false); //Fixes bugs
         pauseGame(false);
 
         void Alert(`Incorrect save file format\n${error}`);
@@ -876,7 +876,7 @@ try { //Start everything
             Notify('Save file has been updated to newest version\nOld save can be retrieved in the advanced save settings');
         } else {
             prepareVacuum(false); //Set buildings values
-            updatePlayer(deepClone(playerStart));
+            updatePlayer(deepClone(playerStart), false);
         }
     }
 
@@ -1773,27 +1773,34 @@ try { //Start everything
         const claimPer = player.inflation.ends[0] >= 1 ? 1 : 2.5;
         const conversion = Math.min(exportReward[0] / 43200_000, 1);
 
+        let claimed = false;
         if (player.inflation.ends[1] >= 1 && exportReward[3] > 0) {
             const value = exportReward[3] / 5 * conversion;
             player.cosmon[1].current += value;
             player.cosmon[1].total += value;
             exportReward[3] = Math.max(exportReward[3] - value, 0);
-        } else if (player.challenges.active !== null && global.challengesInfo[player.challenges.active].resetType !== 'stage') { return; }
-        if (exportReward[2] > 0) {
-            const value = exportReward[2] / claimPer * conversion;
-            player.strange[1].current += value;
-            player.strange[1].total += value;
-            exportReward[2] = Math.max(exportReward[2] - value, 0);
-            assignBuildingsProduction.strange1();
-        } {
-            const value = (exportReward[1] / claimPer + 1) * conversion;
-            player.strange[0].current += value;
-            player.strange[0].total += value;
-            exportReward[1] = Math.max(exportReward[1] - value, 0);
-            assignBuildingsProduction.strange0();
+            claimed = true;
         }
-        exportReward[0] = 0;
-        numbersUpdate();
+        if (player.challenges.active === null || global.challengesInfo[player.challenges.active].resetType === 'stage') {
+            if (exportReward[2] > 0) {
+                const value = exportReward[2] / claimPer * conversion;
+                player.strange[1].current += value;
+                player.strange[1].total += value;
+                exportReward[2] = Math.max(exportReward[2] - value, 0);
+                assignBuildingsProduction.strange1();
+            } {
+                const value = (exportReward[1] / claimPer + 1) * conversion;
+                player.strange[0].current += value;
+                player.strange[0].total += value;
+                exportReward[1] = Math.max(exportReward[1] - value, 0);
+                assignBuildingsProduction.strange0();
+            }
+            claimed = true;
+        }
+        if (claimed) {
+            exportReward[0] = 0;
+            numbersUpdate();
+        }
     };
     getId('export').addEventListener('click', () => {
         exportReward();
@@ -1820,7 +1827,7 @@ try { //Start everything
             if (save === null) { return Notify('Could not copy text into the clipboard'); }
             try {
                 await navigator.clipboard.writeText(save);
-                Notify('Text has been succefully copied to the clipboard');
+                Notify('Text has been successfully copied to the clipboard');
             } catch (error) {
                 console.warn(`Full clipboard write error:\n${error}`);
                 if (await Confirm("Could not copy text into the clipboard, press 'Confrim' to save it as a file instead")) {
