@@ -1256,7 +1256,7 @@ export const global: globalType = {
             () => `Gain ${format(1.4)} times more Strange quarks from any Stage reset per level.${player.challenges.stability >= 1 ? `\nFirst ${player.challenges.stability} levels (1 per Vacuum stability completion) will also boost global speed by ${format(1.1)}, but only while inside any Challenge.` : ''}`,
             () => `Boost global speed and Stage reset reward by ${format(calculateEffects.T0Inflation3())}, strength is based on Supervoid progress${player.challenges.stability < 2 ? ' in the current End reset' : ''}.`,
             () => `For false Vacuum it will remove time limit from Milestones${player.tree[0][5] >= 1 ? ` and allow for ${global.challengesInfo[2].name} to be reset for Strangelets, ${global.challengesInfo[2].name} won't reset with other Stages` : ''}.\nFor true Vacuum it will unlock false Vacuum Milestones for Void. Their effects are active anywhere, but only if this Inflation is active.`,
-            () => "Allow to go above max allowed Merges up to the current relevant self-made Universes without making next Universe requiring less.\nAlso stabilize false Vacuum, allow creation of false Universes and add new effect for false Vacuum 'Void Milestones'. Or make Strangelets produce themselves, if in true Vacuum.",
+            () => "Increase max allowed non-safe Merge resets by +current relevant self-made Universes, every Merge reset above safe value adjusts cost for the next Universe.\nAlso stabilize false Vacuum, allow creation of false Universes and add new effect for false Vacuum 'Void Milestones'.\nFor true Vacuum it will instead also make Strangelets produce themselves.",
             () => { //[6]
                 const level = player.tree[0][6];
                 return `Unlock 1 minute Warps for the price of ${Math.min(7 - level, 6)}${level < 4 ? ` ⟶ ${6 - level}` : ''} minutes of stored Offline time.\nIncrease Export storage by +${(2 + 2 * level) * level}%${level < 4 ? ` ⟶ ${(4 + 2 * level) * (level + 1)}%` : ''} of the Stage reset value after any Stage reset.\nIf inside any Challenge, then it will boost global speed by ${format(5 / (5 - level))}${level < 4 ? ` ⟶ ${format(5 / (4 - level))}` : ''}, but decrease time limit by ${format(6 / (6 - level))}${level < 4 ? ` ⟶ ${format(6 / (5 - level))}` : ''}.\n(Offline time can be stored by rejecting it, max storage is 12 hours)`;
@@ -2056,7 +2056,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
 
     /* Final preparations */
     prepareChallenge();
-    prepareDarkness(false);
+    prepareDarkness(false, false);
     global.trueActive = player.stage.active;
     global.debug.historyStage = null;
     global.debug.historyEnd = null;
@@ -2124,6 +2124,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
     global.lastStrangeness = [null, 0];
     global.lastMilestone = [null, 0];
     global.lastChallenge[0] = player.challenges.active !== null ? player.challenges.active : player.darkness.active ? 2 : 1;
+    global.sessionToggles[0] = player.toggles.supervoid;
     global.lastInflation = [null, 0];
 
     assignBuildingsProduction.strange1();

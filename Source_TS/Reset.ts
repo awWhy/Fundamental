@@ -547,6 +547,7 @@ export const loadFromClone = () => {
         global.automatization.autoS = [];
         global.lastStrangeness = [null, 0];
         global.lastMilestone = [null, 0];
+        prepareDarkness();
     }
 
     for (let i = 0; i < playerStart.researchesAuto.length; i++) { calculateMaxLevel(i, 0, 'researchesAuto'); }

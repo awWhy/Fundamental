@@ -1204,7 +1204,7 @@ export const enterQuantum = () => {
                                     () => data.quantization < 12 ? 0 : 1 //[21]
                                 ]
                             },
-                            requirement: [0, 8, 24, 100, 800, 24000, 1e6, 2e7, 1e10, 4e12, 1e16, 4e18, 1e28, Infinity],
+                            requirement: [0, 8, 24, 100, 800, 24000, 1e6, 2e7, 1e10, 4e12, 1e16, 4e18, 1e28],
                             upgrades: [],
                             quantization: 12,
                             foam: 0,

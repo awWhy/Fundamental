@@ -1712,7 +1712,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
                 }
             } else if (upgrade === 5) {
                 if (!player.inflation.vacuum && player.darkness.active) {
-                    prepareDarkness(true, true);
+                    prepareDarkness(true);
                     stageUpdate();
                 }
             } else if (upgrade === 6) {
@@ -3124,8 +3124,8 @@ export const toggleChallengeType = (change = false): boolean => {
 
 export const assignChallengeInformation = (index: number) => {
     if (index === 2) { return; }
-    let time = index === 1 ? 5400 :
-        (player.toggles.supervoid ? 1200 : 3600) / (6 / (6 - player.tree[0][6]));
+    let time = (index === 1 ? 5400 :
+        (player.toggles.supervoid ? 1200 : 3600)) / (6 / (6 - player.tree[0][6]));
     if (player.tree[0][0] === 1) { time /= 4; }
     global.challengesInfo[index].time = time;
 };
@@ -3236,8 +3236,8 @@ const awardStabilityReward = () => {
     }
 };
 
-/** Requires calling update stageUpdate call */
-export const prepareDarkness = (full = true, entering = false) => {
+/** Requires calling stageUpdate afterwards */
+export const prepareDarkness = (entering = false, fullReset = true) => {
     const enabled = player.darkness.active && (player.inflation.vacuum || player.tree[0][5] >= 1);
     const infoB = global.buildingsInfo;
     const infoU = global.upgradesInfo[6];
@@ -3246,7 +3246,7 @@ export const prepareDarkness = (full = true, entering = false) => {
 
     calculateMaxLevel(0, 6, 'ASR');
     if (enabled) {
-        if (full && player.verses[0].lowest[0] <= 5) { player.ASR[6] = 1; }
+        if (fullReset && player.verses[0].lowest[0] <= 5) { player.ASR[6] = 1; }
         infoB.maxActive[6] = infoB.firstCost[6].length;
         infoU.maxActive = infoU.cost.length;
         infoR.maxActive = infoR.firstCost.length;
@@ -3254,12 +3254,12 @@ export const prepareDarkness = (full = true, entering = false) => {
         if (entering) {
             for (let i = 0; i < infoR.maxActive; i++) { calculateMaxLevel(i, 6, 'researches'); }
             for (let i = 0; i < infoE.maxActive; i++) { calculateMaxLevel(i, 6, 'researchesExtra'); }
+            global.automatization.autoU[6] = [];
+            global.automatization.autoR[6] = [];
+            global.automatization.autoE[6] = [];
         }
-        global.automatization.autoU[6] = [];
-        global.automatization.autoR[6] = [];
-        global.automatization.autoE[6] = [];
     } else {
-        if (full) { player.ASR[6] = 0; }
+        if (fullReset) { player.ASR[6] = 0; }
         infoB.maxActive[6] = 1;
         infoU.maxActive = 0;
         infoR.maxActive = 0;
@@ -3288,7 +3288,7 @@ export const enterExitChallengeUser = (index: number | null) => {
         if (!allowedToEnter(index)) { return; }
         if (index === 2) {
             player.darkness.active = true;
-            prepareDarkness(true, true);
+            prepareDarkness(true);
             stageUpdate();
             Notify(`Activated the ${global.challengesInfo[2].name}`);
         } else {
