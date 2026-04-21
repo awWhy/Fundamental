@@ -25,7 +25,7 @@ html { --elements-columns-phone: min(var(--elements-columns), 9); }
 .buyBuilding > div:last-of-type {
     flex-shrink: 0;
     row-gap: 0.16em;
-    width: clamp(11.5em, 38vw, 12.5em);
+    width: clamp(12em, 40vw, 12.5em);
     grid-template-areas: "button button" "buy toggle";
 }
 
