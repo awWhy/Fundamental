@@ -1711,9 +1711,10 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
                     }
                 }
             } else if (upgrade === 5) {
-                if (!player.inflation.vacuum && player.darkness.active) {
-                    prepareDarkness(true);
-                    stageUpdate();
+                if (player.darkness.active) {
+                    const falseVacuum = !player.inflation.vacuum;
+                    if (falseVacuum || player.clone.inflation?.vacuum === false) { prepareDarkness(true, falseVacuum); }
+                    if (falseVacuum) { stageUpdate(); }
                 }
             } else if (upgrade === 6) {
                 for (let i = 0; i < global.challengesInfo.length; i++) {
@@ -1756,6 +1757,7 @@ export const inflationRefund = async(noConfirmation = false, loadout = false): P
     if (inflaton.current === inflaton.total && player.tree[0][0] < 1) { return true; }
     const challenge = player.challenges.active;
     if (!noConfirmation && !await Confirm(`This will force a Stage reset${challenge !== null ? ' and restart current Challenge' : ''} to refund Inflations${loadout ? ' and load this loadout' : ''}, continue?\n(Holding shift will automatically accept this)`)) { return false; }
+    const falseDark = player.darkness.active && player.tree[0][5] >= 1;
 
     if (challenge !== null) { challengeReset(); }
     stageFullReset();
@@ -1776,7 +1778,7 @@ export const inflationRefund = async(noConfirmation = false, loadout = false): P
             assignMilestoneInformation(i, s);
         }
     }
-    if (!player.inflation.vacuum && player.darkness.active) { prepareDarkness(); }
+    if (falseDark && (!player.inflation.vacuum || player.clone.inflation?.vacuum === false)) { prepareDarkness(true, !player.inflation.vacuum); }
     if (!loadout) {
         numbersUpdate();
         loadoutsFinal([]);
@@ -2399,19 +2401,11 @@ const stageResetReward = (stageIndex: number) => {
         if (challenge === null) { global.debug.timeLimit = false; }
         global.milestonesInfo[stage.current].recent = cloneArray(playerStart.milestones[stage.current]);
         if (stage.current === 4) { global.milestonesInfo[5].recent = cloneArray(playerStart.milestones[5]); }
-        if (player.tree[0][5] < 1 || player.tree[0][4] < 1 || challenge === 1) { resetThese.push(6); }
+        if (player.tree[0][5] < 1 || player.tree[0][4] < 1) { resetThese.push(6); }
     } else {
-        if (challenge === 1) { //stageIndex === 6
-            if (stage.current >= 4) {
-                stage.current = 4;
-                resetThese.unshift(4, 5);
-            } else { resetThese.unshift(stage.current); }
-            update = false;
-        } else {
-            if (stageIndex < 6) { global.milestonesInfo[stageIndex].recent = cloneArray(playerStart.milestones[stageIndex]); }
-            update = stageIndex === stage.active ? false : null;
-            fullReset = false;
-        }
+        if (stageIndex < 6) { global.milestonesInfo[stageIndex].recent = cloneArray(playerStart.milestones[stageIndex]); }
+        update = stageIndex === stage.active ? false : null;
+        fullReset = false;
     }
 
     if (player.progress.main >= 9) {
@@ -3237,21 +3231,27 @@ const awardStabilityReward = () => {
 };
 
 /** Requires calling stageUpdate afterwards */
-export const prepareDarkness = (entering = false, fullReset = true) => {
-    const enabled = player.darkness.active && (player.inflation.vacuum || player.tree[0][5] >= 1);
+export const prepareDarkness = (enterExit = false as boolean | null, fullReset = true) => {
+    const enabled = player.darkness.active && (player.tree[0][5] >= 1 || player.inflation.vacuum);
     const infoB = global.buildingsInfo;
     const infoU = global.upgradesInfo[6];
     const infoR = global.researchesInfo[6];
     const infoE = global.researchesExtraInfo[6];
 
     calculateMaxLevel(0, 6, 'ASR');
+    if (fullReset) {
+        player.ASR[6] = enabled && player.verses[0].lowest[0] <= 5 ? 1 : 0;
+    }
+    if (enterExit && player.challenges.active !== null) {
+        const enabledOutside = player.darkness.active && (player.tree[0][5] >= 1 || (player.clone.inflation?.vacuum as boolean ?? player.inflation.vacuum));
+        player.clone.ASR[6] = enabledOutside && player.verses[0].lowest[0] <= 5 ? 1 : 0;
+    }
     if (enabled) {
-        if (fullReset && player.verses[0].lowest[0] <= 5) { player.ASR[6] = 1; }
         infoB.maxActive[6] = infoB.firstCost[6].length;
         infoU.maxActive = infoU.cost.length;
         infoR.maxActive = infoR.firstCost.length;
         infoE.maxActive = infoE.firstCost.length;
-        if (entering) {
+        if (enterExit) {
             for (let i = 0; i < infoR.maxActive; i++) { calculateMaxLevel(i, 6, 'researches'); }
             for (let i = 0; i < infoE.maxActive; i++) { calculateMaxLevel(i, 6, 'researchesExtra'); }
             global.automatization.autoU[6] = [];
@@ -3259,7 +3259,6 @@ export const prepareDarkness = (entering = false, fullReset = true) => {
             global.automatization.autoE[6] = [];
         }
     } else {
-        if (fullReset) { player.ASR[6] = 0; }
         infoB.maxActive[6] = 1;
         infoU.maxActive = 0;
         infoR.maxActive = 0;
@@ -3275,7 +3274,7 @@ export const enterExitChallengeUser = (index: number | null) => {
 
         if (index === 2) {
             player.darkness.active = false;
-            prepareDarkness();
+            prepareDarkness(true);
             stageFullReset();
             Notify(`Deactivated the ${global.challengesInfo[2].name}`);
         } else {

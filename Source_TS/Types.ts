@@ -587,10 +587,11 @@ export interface Quantum {
     auto: boolean[]
 }
 
-export type hotkeysList = 'makeAll' | 'toggleAll' | 'createAll' | 'toggleUpgrades' |
+export type hotkeysList = 'makeAll' | 'galaxy' | 'verses' | 'createAll' | 'strangeness' |
+    'toggleAll' | 'toggleUpgrades' | 'toggleStrangeness' |
     'discharge' | 'vaporization' | 'rank' | 'collapse' | 'nucleation' | 'merge' | 'stage' | 'end' |
     'toggleDischarge' | 'toggleVaporization' | 'toggleRank' | 'toggleCollapse' | 'toggleMerge' | 'toggleNucleation' | 'toggleStage' |
-    'galaxy' | 'verses' | 'exitChallenge' | 'supervoid' | 'warp' | 'pause' |
+    'exitChallenge' | 'supervoid' | 'warp' | 'pause' |
     'tabRight' | 'tabLeft' | 'subtabUp' | 'subtabDown' | 'stageRight' | 'stageLeft';
 
 export type numbersList = 'makeStructure' | 'toggleStructure' | 'enterChallenge';

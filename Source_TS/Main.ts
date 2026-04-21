@@ -2,7 +2,7 @@ import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumS
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
 import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
-import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, toggleAll } from './Hotkeys';
+import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, offlineWarp, strangenessAll, toggleAll } from './Hotkeys';
 import { checkUpgrade } from './Check';
 import type { hotkeysList } from './Types';
 import Overlimit from './Limit';
@@ -1498,19 +1498,9 @@ try { //Start everything
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
     } {
         const button = getId('createAllStrangeness');
-        const clickFunc = () => {
-            if (globalSave.MDSettings[0]) {
-                const s = global.debug.MDStrangePage;
-                for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
-            } else {
-                for (let s = 1; s < global.strangenessInfo.length; s++) {
-                    for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
-                }
-            }
-        };
-        button.addEventListener('click', clickFunc);
-        if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
-        if (MD) { button.addEventListener('touchstart', () => repeatFunction(clickFunc)); }
+        button.addEventListener('click', strangenessAll);
+        if (PC) { button.addEventListener('mousedown', () => repeatFunction(strangenessAll)); }
+        if (MD) { button.addEventListener('touchstart', () => repeatFunction(strangenessAll)); }
     }
     getId('strangenessVisibility').addEventListener('click', () => {
         global.sessionToggles[1] = !global.sessionToggles[1];

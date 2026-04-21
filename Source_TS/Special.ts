@@ -16,6 +16,8 @@ export const globalSave: globalSaveType = {
         toggleAll: ['Shift A', 'Shift A'],
         createAll: ['U', 'U'],
         toggleUpgrades: ['None', 'None'],
+        strangeness: ['None', 'None'],
+        toggleStrangeness: ['None', 'None'],
         discharge: ['D', 'D'],
         toggleDischarge: ['None', 'None'],
         vaporization: ['V', 'V'],
@@ -1857,6 +1859,7 @@ export const openHotkeys = () => {
         <p id="exitChallengeHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">exit out of the current Challenge</span></label></p>
         <div>
             <label id="createAllHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Upgrades</span></label>
+            <label id="strangenessHotkey" class="greenText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Strangeness</span></label>
             <label id="dischargeHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
             <label id="vaporizationHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
             <label id="rankHotkey" class="darkorchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>
@@ -1878,6 +1881,7 @@ export const openHotkeys = () => {
         <p id="toggleAllHotkey"><span></span> <span class="whiteText">or</span> <label><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">toggle all auto Structures</span></label></p>
         <div>
             <label id="toggleUpgradesHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Upgrades</span></label>
+            <label id="toggleStrangenessHotkey" class="greenText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Strangeness</span></label>
             <label id="toggleDischargeHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
             <label id="toggleVaporizationHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
             <label id="toggleRankHotkey" class="darkorchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>

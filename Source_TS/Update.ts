@@ -1402,8 +1402,10 @@ export const visualProgressUnlocks = () => {
         getId('stageLeftHotkey').style.display = highest >= 9 ? '' : 'none';
         getId('enterChallengeHotkey').style.display = highest >= 17 ? '' : 'none';
         getId('exitChallengeHotkey').style.display = highest >= 17 ? '' : 'none';
-        getId('createAllHotkey').style.display = highest >= 1 ? '' : 'none';
         getId('versesHotkey').style.display = highest >= 18 ? '' : 'none';
+        getId('createAllHotkey').style.display = highest >= 1 ? '' : 'none';
+        getId('strangenessHotkey').style.display = highest >= 11 ? '' : 'none';
+        getId('toggleStrangenessHotkey').style.display = highest >= 19 ? '' : 'none';
         getId('stageHotkey').style.display = highest >= 16 || (!vacuum && highest >= 2) ? '' : 'none';
         getId('supervoidHotkey').style.display = highest >= 20 ? '' : 'none';
         getId('endHotkey').style.display = highest >= 20 ? '' : 'none';

@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { numbersUpdate, switchTab, visualUpdate } from './Update';
-import { buyBuilding, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { buyBuilding, buyStrangenessMax, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { pauseGameUser, simulateOffline, toggleSwap } from './Main';
 import { Notify, globalSave, specialHTML } from './Special';
 import type { hotkeysList, numbersList } from './Types';
@@ -29,6 +29,12 @@ const basicFunctions: Record<hotkeysList, () => void> = {
             player.toggles.auto[i] = !anyOn;
             toggleSwap(i, 'auto');
         }
+    },
+    strangeness: () => strangenessAll(),
+    toggleStrangeness: () => {
+        if (global.hotkeys.last === 'toggle11') { return; }
+        global.hotkeys.last = 'toggle11';
+        toggleSwap(11, 'auto', true);
     },
     discharge: () => void dischargeResetUser(),
     toggleDischarge: () => {
@@ -284,6 +290,16 @@ export const createAll = () => {
     for (let i = 0; i < global.researchesExtraInfo[active].maxActive; i++) { buyUpgrades(i, active, 'researchesExtra'); }
     if (active === 4 || active === 5) {
         for (let i = 1; i < global.elementsInfo.maxActive; i++) { buyUpgrades(i, 4, 'elements'); }
+    }
+};
+export const strangenessAll = () => {
+    if (globalSave.MDSettings[0]) {
+        const s = global.debug.MDStrangePage;
+        for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
+    } else {
+        for (let s = 1; s < global.strangenessInfo.length; s++) {
+            for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
+        }
     }
 };
 export const toggleAll = () => {
