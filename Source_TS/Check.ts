@@ -1,4 +1,3 @@
-import Overlimit from './Limit';
 import { global, player } from './Player';
 import { calculateEffects } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
@@ -97,14 +96,13 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 5) { return player.strangeness[5][10] >= 4 && player.upgrades[4][4] === 1; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueUniverses() < global.mergeInfo.unlockU[upgrade]) { return false; }
+                if (calculateEffects.trueVerses() < global.mergeInfo.unlockU[upgrade]) { return false; }
                 if (upgrade === 0) { return player.inflation.vacuum || player.milestones[2][0] >= 7; }
                 if (upgrade === 1) { return player.inflation.vacuum || player.milestones[3][0] >= 7; }
                 if (upgrade === 2) { return player.buildings[5][3].true >= 1; }
                 if (upgrade === 3) { return player.inflation.vacuum ? player.accretion.rank >= 7 : player.milestones[5][1] >= 8; }
                 return player.inflation.vacuum ? player.accretion.rank >= 7 : player.tree[0][5] >= 1;
             } else if (stageIndex === 6) {
-                if (upgrade === 1) { return false; } //player.inflation.vacuum
                 return true;
             }
             break;
@@ -125,7 +123,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 5) { return (galaxy || player.collapse.stars[2] > 0) && player.strangeness[4][9] >= 3; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueUniverses() < global.mergeInfo.unlockR[upgrade]) { return false; }
+                if (calculateEffects.trueVerses() < global.mergeInfo.unlockR[upgrade]) { return false; }
                 if (upgrade === 0) { return player.inflation.vacuum || player.milestones[2][0] >= 7; }
                 if (upgrade === 1) { return player.inflation.vacuum || player.milestones[3][0] >= 7; }
                 return player.inflation.vacuum ? player.accretion.rank >= 7 : player.tree[0][5] >= 1;
@@ -157,7 +155,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 4) { return (player.collapse.stars[2] > 0 || player.researchesExtra[5][0] >= 1) && player.strangeness[5][10] >= 4; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueUniverses() < global.mergeInfo.unlockE[upgrade]) { return false; }
+                if (calculateEffects.trueVerses() < global.mergeInfo.unlockE[upgrade]) { return false; }
                 if (upgrade === 0) { return (player.inflation.vacuum || player.milestones[4][1] >= 8) && player.strangeness[5][3] >= 1; }
                 return player.inflation.vacuum ? player.accretion.rank >= 7 : (player.tree[0][5] >= 1 && player.challenges.active !== 1);
             } else if (stageIndex === 6) {
@@ -178,7 +176,7 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
         case 'elements':
             if (upgrade >= 29) {
                 if (player.upgrades[4][4] !== 1) { return false; }
-                return 1 + calculateEffects.trueUniverses() >= upgrade - 28;
+                return 1 + calculateEffects.trueVerses() >= upgrade - 28;
             }
             if (upgrade >= 27) { return player.upgrades[4][3] === 1; }
             if (upgrade >= 11) { return player.upgrades[4][2] === 1 && (player.collapse.stars[1] > 0 || player.researchesExtra[5][0] >= 1); }
@@ -300,29 +298,6 @@ export const allowedToEnter = (challenge: number): boolean => {
     return false;
 };
 
-export const milestoneGetValue = (index: number, stageIndex: number): number | Overlimit => {
-    if (stageIndex === 1) {
-        if (index === 0) { return player.buildings[1][player.inflation.vacuum ? 1 : 0].total; }
-        if (index === 1) { return player.discharge.energy; }
-    } else if (stageIndex === 2) {
-        if (index === 0) { return player.buildings[2][1].total; }
-        if (index === 1) { return player.inflation.vacuum ? player.vaporization.clouds : player.buildings[2][2].current; }
-    } else if (stageIndex === 3) {
-        if (index === 0) { return player.buildings[3][0].total; }
-        if (index === 1) { return player.buildings[3][4].true + player.buildings[3][5].true; }
-    } else if (stageIndex === 4) {
-        if (index === 0) { return player.buildings[4][0].total; }
-        if (index === 1) { return player.inflation.vacuum ? player.collapse.stars[2] : global.collapseInfo.newMass; }
-    } else if (stageIndex === 5) {
-        if (index === 0) {
-            if (!player.inflation.vacuum) { return global.collapseInfo.trueStars; }
-            const stars = player.buildings[4];
-            return new Overlimit(stars[1].total).allPlus(stars[2].total, stars[3].total, stars[4].total, stars[5].total);
-        }
-        if (index === 1) { return player.buildings[5][3].true; }
-    }
-    return 0;
-};
 export const milestoneCheck = (index: number, stageIndex: number): boolean => {
     const pointer = global.milestonesInfo[stageIndex];
     if (player.inflation.vacuum) {
@@ -332,5 +307,5 @@ export const milestoneCheck = (index: number, stageIndex: number): boolean => {
         player.progress.main < 11 || (stageIndex === 5 && player.milestones[4][index] < 8) ||
         (player.tree[0][4] < 1 && pointer.reward[index] < player.time.stage)
     ) { return false; }
-    return pointer.need[index].lessOrEqual(milestoneGetValue(index, stageIndex));
+    return pointer.need[index].lessOrEqual(pointer.progress[index]());
 };
