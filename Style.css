@@ -161,6 +161,7 @@ img {
     object-fit: none;
     width: 32px;
     height: 32px;
+    flex-shrink: 0; /* Non loaded images for whatever reason shrink without it */
     border-radius: 2px;
     image-rendering: pixelated;
 
@@ -206,7 +207,6 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     display: inline-block;
     background-color: var(--main-text);
     clip-path: polygon(0 0, 50% 100%, 100% 0, 50% 25%);
-    pointer-events: none;
     width: 0.8em;
     height: 0.8em;
 }
@@ -304,6 +304,8 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     right: 0;
     top: 1vh;
     z-index: 10;
+    text-align: center;
+    width: clamp(20vw, 32rem, 95vw);
     pointer-events: none;
 }
 
@@ -315,9 +317,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
     border-right: none;
     border-radius: 6px 0 0 6px;
     padding: 0.2em 0.4em;
-    text-align: center;
     white-space: pre-line;
-    width: clamp(20vw, 32rem, 95vw);
     overflow-wrap: break-word;
     pointer-events: auto;
     cursor: pointer !important;
@@ -329,6 +329,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 label { cursor: pointer !important; }
 label:has(input[type = "number"], input[type = "text"]) { cursor: text !important; }
 button, input { appearance: none; }
+button > * { pointer-events: none; }
 
 #load, button {
     height: 2.08em;
@@ -817,7 +818,7 @@ input:-webkit-autofill { /* Chrome related pain */
     flex-direction: column;
     align-items: center;
     text-align: center;
-    max-width: 90vw;
+    width: 90vw;
     row-gap: 0.3em;
     white-space: pre-line;
 }

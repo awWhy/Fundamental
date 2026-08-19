@@ -52,16 +52,15 @@ export const globalSave: globalSaveType = {
 };
 
 export const saveGlobalSettings = (noSaving = false): string => {
-    const hotkeysClone = deepClone(globalSave.hotkeys);
+    const clone = { ...globalSave };
+    clone.hotkeys = deepClone(globalSave.hotkeys);
     const encoder = new TextEncoder();
     for (let i = 0; i < 2; i++) {
-        const pointer = hotkeysClone[i];
+        const pointer = clone.hotkeys[i];
         for (const key in pointer) {
             pointer[key as hotkeysList] = String.fromCharCode(...encoder.encode(pointer[key as hotkeysList]));
         }
     }
-    const clone = { ...globalSave };
-    clone.hotkeys = hotkeysClone;
     const save = btoa(JSON.stringify(clone));
     if (!noSaving) { localStorage.setItem(specialHTML.localStorage.settings, save); }
     return save;
@@ -183,8 +182,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG6.png',
             'UpgradeG7.png'
         ], [
-            'UpgradeD1.png',
-            'Missing.png'
+            'UpgradeD1.png'
         ]
     ],
     lastResearch: 9, //Starting value has to be biggest length
@@ -376,7 +374,7 @@ export const preventImageUnload = () => {
     for (const text of global.accretionInfo.rankImage) { //Already cached in Accretion stats, this only refreshes it
         images += `<img src="Used_art/${text}" loading="lazy">`;
     }
-    for (const text of ['Red%20giant', 'White%20dwarf', 'Neutron%20star', 'Quark%20star', 'Galaxy%20group']) { //Galaxy%20cluster
+    for (const text of ['Red%20giant', 'White%20dwarf', 'Neutron%20star', 'Quark%20star', 'Galaxy%20group', 'Galaxy%20cluster']) {
         images += `<img src="Used_art/${text}.png" loading="lazy">`;
     }
     specialHTML.cache.imagesDiv.innerHTML = images;
@@ -402,6 +400,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null, firstLo
 
     const upgradeTypes = ['upgrade', 'element'];
     const properties = {
+        '--transition-all': '500ms',
         '--background-color': '#030012',
         '--window-color': '#12121c',
         '--window-border': 'cornflowerblue',
@@ -615,7 +614,6 @@ export const setTheme = (theme = 'current' as 'current' | number | null, firstLo
     }
 
     const bodyStyle = document.documentElement.style;
-    bodyStyle.setProperty('--transition-all', '500ms');
     for (const property in properties) { bodyStyle.setProperty(property, properties[property as keyof typeof properties]); }
 
     setTimeout(() => { bodyStyle.setProperty('--transition-all', '0ms'); }, 500);
@@ -658,8 +656,10 @@ export const Alert = async(text: string, priority = 0): Promise<void> => {
             const shift = detectShift(event);
             if (shift === null) { return; }
             const code = event.code;
-            if (code === 'Escape' || code === 'Enter' || code === 'Space') {
+            if (code === 'Escape') {
                 if (shift) { return; }
+                close();
+            } else if (code === 'Enter' || code === 'Space') {
                 close();
             } else if (code === 'Tab') {
                 confirm.focus();
@@ -718,7 +718,7 @@ export const Confirm = async(text: string, priority = 0): Promise<boolean> => {
                 if (shift) { return; }
                 close();
             } else if (code === 'Enter' || code === 'Space') {
-                if (shift || document.activeElement === cancel) { return; }
+                if (document.activeElement === cancel) { return; }
                 result = true;
                 close();
             } else if (code === 'Tab') {
@@ -784,7 +784,7 @@ export const Prompt = async(text: string, placeholder = '', priority = 0): Promi
                 close();
             } else if (code === 'Enter' || code === 'Space') {
                 const active = document.activeElement;
-                if (shift || (code === 'Space' && active === input) || active === cancel) { return; }
+                if ((code === 'Space' && active === input) || active === cancel) { return; }
                 result = input.value === '' ? input.placeholder : input.value;
                 close();
             } else if (code === 'Tab') {
@@ -854,27 +854,6 @@ export const errorNotify = (text: string) => {
     setTimeout(() => { errorCooldowns.delete(text); }, 2e4);
 };
 
-export const resetMinSizes = (full = true) => {
-    for (let i = 1; i <= 3; i++) {
-        const element = getQuery(`#special${i} > p`);
-        specialHTML.cache.innerHTML.set(element, [0, 0]);
-        element.style.minWidth = '';
-    }
-    for (let i = 0; i < global.researchesInfo[player.stage.active].maxActive; i++) {
-        specialHTML.cache.innerHTML.set(`#research${i + 1}`, 0);
-        getQuery(`#research${i + 1} span`).style.minWidth = '';
-    }
-    for (let i = 0; i < global.researchesExtraInfo[player.stage.active].maxActive; i++) {
-        specialHTML.cache.innerHTML.set(`#researchExtra${i + 1}`, 0);
-        getQuery(`#researchExtra${i + 1} span`).style.minWidth = '';
-    }
-
-    if (!full) { return; }
-    const mile = getId('milestonesMultiline').parentElement as HTMLElement;
-    specialHTML.cache.innerHTML.set(mile, 0);
-    mile.style.minHeight = '';
-};
-
 export const changeFontSize = (initial = false) => {
     const input = getId('customFontSize') as HTMLInputElement;
     let size = Math.min(Math.max(initial ? globalSave.fontSize : (input.value === '' ? 16 : Math.floor(Number(input.value) * 100) / 100), 12), 24);
@@ -882,7 +861,6 @@ export const changeFontSize = (initial = false) => {
     if (!initial) {
         globalSave.fontSize = size;
         saveGlobalSettings();
-        resetMinSizes();
     }
 
     document.documentElement.style.fontSize = size === 16 ? '' : `${size}px`;
@@ -984,7 +962,9 @@ export const enableLightness = () => {
     for (let i = 0; i < darknessInfo.rewardText.length; i++) {
         darknessInfo.rewardText[i] = darknessInfo.rewardText[i].replace(Dark, Light);
     }
-    (getId('challenge3') as HTMLInputElement).alt = darknessInfo.name;
+    const challengeHTML = getId('challenge3') as HTMLInputElement;
+    challengeHTML.src = `Used_art/${active ? 'Light' : 'Dark'}ness.png`;
+    challengeHTML.alt = darknessInfo.name;
     global.strangenessInfo[6].name[3] = darknessInfo.name;
     (getId('strange4Stage6') as HTMLInputElement).alt = darknessInfo.name;
     specialHTML.buildingHTML[6][0] = `${Light}%20planet.png`;
@@ -1025,10 +1005,11 @@ export const enterQuantum = () => {
     pauseGame();
     const html = document.documentElement;
     html.style.backgroundColor = 'black';
-    getId('body').style.display = 'none';
+    getQuery('main').style.display = 'none';
     getId('notifications').style.display = 'none';
     const continuation = player.progress.quantum !== undefined;
     let finished = false;
+    const observers = [] as ResizeObserver[];
     setTimeout(() => {
         const oldTheme = globalSave.theme;
         const control = new AbortController();
@@ -1041,14 +1022,13 @@ export const enterQuantum = () => {
         document.body.append(main);
         document.head.append(styleSheet);
         getId('leaveQuantum').addEventListener('click', () => {
-            for (let i = 0; i < intervalsID.length; i++) {
-                clearInterval(intervalsID[i]);
-            }
+            for (let i = 0; i < intervalsID.length; i++) { clearInterval(intervalsID[i]); }
+            for (let i = 0; i < observers.length; i++) { observers[i].disconnect(); }
             control.abort();
             main.remove();
             styleSheet.remove();
             html.style.backgroundColor = '';
-            getId('body').style.display = '';
+            getQuery('main').style.display = '';
             getId('notifications').style.display = '';
             global.hotkeys.disabled = false;
             globalSave.theme = oldTheme;
@@ -1079,7 +1059,6 @@ export const enterQuantum = () => {
                         const data: Quantum = {
                             active: null,
                             sliderTypes: ['foam', 'particles', 'quasiparts', 'gravitons', 'chronons'],
-                            widthCache: [0, 0, 0],
                             lastTick: Date.now(),
                             offline: 0,
                             upgradesInfo: {
@@ -1226,9 +1205,12 @@ export const enterQuantum = () => {
                         }
                         upgrades.innerHTML = upgradesHTML;
                         main.append(sliders, upgrades);
-                        styleSheet.textContent += ` #sliders { display: flex; flex-direction: column; row-gap: 0.6em; }
+                        styleSheet.textContent += ` html { --left-slider-width: 0; --right-slider-width: 0; }
+                        #sliders { display: flex; flex-direction: column; row-gap: 0.6em; }
                         #sliders button { display: flex; align-items: center; column-gap: 0.6em; padding: 0 0.6em; font-size: 0.88em; }
                         #sliders button > span:nth-of-type(2) { display: flex; align-items: center; border: 2px solid; border-color: inherit; border-top: none; border-bottom: none; height: 100%; width: max-content; padding: 0 0.6em; }
+                        #sliders button > span:first-of-type { min-width: var(--left-slider-width); }
+                        #sliders button > span:last-of-type { min-width: var(--right-slider-width); }
                         #upgradesQ { display: flex; flex-direction: column; padding-top: 2px; }
                         #upgradesQ button { display: flex; flex-direction: column; align-items: center; height: unset; padding: 0.2em 0.6em 0.25em; margin-top: -2px; background-color: var(--window-color); }
                         #upgradesQ button:focus-visible { z-index: 1; }
@@ -1331,6 +1313,23 @@ export const enterQuantum = () => {
                                 if (i === 4 || i === 10 || data.upgrades[i] >= max) { update2(); }
                             });
                         }
+                        observers.push(new ResizeObserver(() => {
+                            const widths = [0, 0];
+                            for (const type of data.sliderTypes) {
+                                const width1 = getQuery(`#${type}Main > span`).getBoundingClientRect().width;
+                                if (widths[0] < width1) { widths[0] = width1; }
+                                const width2 = getQuery(`#${type}Main > span:last-of-type`).getBoundingClientRect().width;
+                                if (widths[1] < width2) { widths[1] = width2; }
+                            }
+                            const htmlStyle = document.documentElement.style;
+                            htmlStyle.setProperty('--left-slider-width', `${widths[0]}px`);
+                            htmlStyle.setProperty('--right-slider-width', `${widths[1]}px`);
+                        }), new ResizeObserver(() => {
+                            const target = getId('upgradesQ');
+                            target.style.minWidth = `${target.getBoundingClientRect().width}px`;
+                        }));
+                        observers[0].observe(getId('sliders'));
+                        observers[1].observe(getId('upgradesQ'));
                         const update1 = () => {
                             const autoFoam = data.upgrades[8] >= 1;
                             const autoParts = data.upgrades[12] >= 1 && data.auto[0];
@@ -1339,7 +1338,6 @@ export const enterQuantum = () => {
                             if (autoParts) { totalAutos++; }
                             if (autoQuasi) { totalAutos++; }
                             getId('quantize').textContent = data.foam >= data.requirement[data.quantization] ? 'Ready to Quantize' : `${format(data.requirement[data.quantization])} Quantum foam`;
-                            let changed = false;
                             for (const type of data.sliderTypes) {
                                 getQuery(`#${type}Main > span > span`).textContent = format(data[type], { padding: true });
                                 let base = calculate[type]();
@@ -1375,27 +1373,10 @@ export const enterQuantum = () => {
                                         base -= calculate.gravitonsUse();
                                     }
                                 }
-                                const last = getQuery(`#${type}Main > span:last-of-type`);
-                                last.textContent = format(base, { type: 'income' });
-                                const widthTest1 = getQuery(`#${type}Main > span`).getBoundingClientRect().width;
-                                if (data.widthCache[0] < widthTest1) {
-                                    data.widthCache[0] = widthTest1;
-                                    changed = true;
-                                }
-                                const widthTest2 = last.getBoundingClientRect().width;
-                                if (data.widthCache[1] < widthTest2) {
-                                    data.widthCache[1] = widthTest2;
-                                    changed = true;
-                                }
+                                getQuery(`#${type}Main > span:last-of-type`).textContent = format(base, { type: 'income' });
                                 const button = getQuery(`#${type}Main > span:nth-of-type(2)`);
                                 const next = `var(--${data.active === type ? 'green' : 'red'}-text)`;
                                 if (button.style.color !== next) { button.style.color = next; }
-                            }
-                            if (changed) {
-                                for (const type of data.sliderTypes) {
-                                    getQuery(`#${type}Main > span`).style.minWidth = `${data.widthCache[0]}px`;
-                                    getQuery(`#${type}Main > span:last-of-type`).style.minWidth = `${data.widthCache[1]}px`;
-                                }
                             }
                             for (let i = 0; i < data.upgradesInfo.cost.length; i++) {
                                 getQuery(`#upgradeQ${i + 1} > span:last-of-type`).textContent = `${format(calculate.upgradeCost(i))} Quantum foam`;
@@ -1411,15 +1392,9 @@ export const enterQuantum = () => {
                             getId('chrononsMain').style.display = quantization > 10 ? '' : 'none';
                             getId('autoVP').style.display = data.upgrades[12] >= 1 ? '' : 'none';
                             getId('autoQP').style.display = data.upgrades[19] >= 1 ? '' : 'none';
-                            const upgradesID = getId('upgradesQ');
-                            upgradesID.style.display = quantization > 2 ? '' : 'none';
+                            getId('upgradesQ').style.display = quantization > 2 ? '' : 'none';
                             for (let i = 0; i < data.upgradesInfo.max.length; i++) {
                                 getId(`upgradeQ${i + 1}`).style.display = data.upgradesInfo.max[i]() > data.upgrades[i] ? '' : 'none';
-                            }
-                            const widthTest = upgradesID.getBoundingClientRect().width;
-                            if (widthTest > data.widthCache[2]) {
-                                upgradesID.style.minWidth = `${widthTest}px`;
-                                data.widthCache[2] = widthTest;
                             }
                         };
                         const calculate = {
@@ -1558,56 +1533,56 @@ export const checkProgress = () => {
 };
 const progressMain = () => {
     const progress = player.progress.main;
-    if (progress >= 25 || global.offline.active) { return; }
+    if (progress === 25 || global.offline.active) { return; }
     if (player.verses[0].other[2] >= 1 || player.verses[0].other[0] >= 1) { return progressUp(25); }
-    if (progress >= 24 || global.offline.active) { return; }
+    if (progress === 24 || global.offline.active) { return; }
     if (player.inflation.ends[1] >= 1) { return progressUp(24); }
-    if (progress >= 23) { return; }
+    if (progress === 23) { return; }
     if (player.darkness.energy >= 1000) { return progressUp(23, 12); }
-    if (progress >= 22) { return; }
+    if (progress === 22) { return; }
     if (player.verses[0].true >= 5) { return progressUp(22, 11); }
-    if (progress >= 21) { return; }
+    if (progress === 21) { return; }
     if (player.cosmon[1].total > 0) { return progressUp(21); }
-    if (progress >= 20) { return; }
+    if (progress === 20) { return; }
     if (player.inflation.vacuum) {
         if (player.verses[0].total >= 1) { return progressUp(20, 10); }
-        if (progress >= 18) { return; }
+        if (progress === 18) { return; }
         if (player.merge.resets >= 1) { return progressUp(18, 8); }
-        if (progress >= 17) { return; }
+        if (progress === 17) { return; }
         if (player.strange[0].total > 0) { return progressUp(17, 7); }
-        if (progress >= 16) { return; }
+        if (progress === 16) { return; }
         if (player.stage.current >= 5) { return progressUp(16); }
-        if (progress >= 15) { return; }
+        if (progress === 15) { return; }
         progressUp(15, 6);
     } else if (progress < 19) {
         if (player.verses[0].total >= 1) { return progressUp(19, 9); }
-        if (progress >= 14) { return; }
+        if (progress === 14) { return; }
         if (player.stage.resets >= 7) { return progressUp(14); }
-        if (progress >= 13) { return; }
+        if (progress === 13) { return; }
         if (player.stage.resets >= 6) { return progressUp(13); }
-        if (progress >= 12) { return; }
+        if (progress === 12) { return; }
         if (player.stage.resets >= 5) { return progressUp(12); }
-        if (progress >= 11) { return; }
+        if (progress === 11) { return; }
         if (player.strange[0].total > 0) { return progressUp(11); }
-        if (progress >= 10) { return; }
+        if (progress === 10) { return; }
         if (player.stage.active >= 5) { return progressUp(10, 5); }
-        if (progress >= 9) { return; }
+        if (progress === 9) { return; }
         if (player.stage.current >= 5) { return progressUp(9); }
-        if (progress >= 8) { return; }
+        if (progress === 8) { return; }
         if (player.collapse.stars[1] >= 1) { return progressUp(8, 4); }
-        if (progress >= 7) { return; }
+        if (progress === 7) { return; }
         if (player.stage.current >= 4) { return progressUp(7); }
-        if (progress >= 6) { return; }
+        if (progress === 6) { return; }
         if (player.buildings[3][0].current.moreOrEqual(5e29)) { return progressUp(6, 3); }
-        if (progress >= 5) { return; }
+        if (progress === 5) { return; }
         if (player.stage.current >= 3) { return progressUp(5); }
-        if (progress >= 4) { return; }
+        if (progress === 4) { return; }
         if (assignResetInformation.newClouds() + player.vaporization.clouds > 1e4) { return progressUp(4, 2); }
-        if (progress >= 3) { return; }
+        if (progress === 3) { return; }
         if (player.stage.current >= 2) { return progressUp(3); }
-        if (progress >= 2) { return; }
+        if (progress === 2) { return; }
         if (player.upgrades[1][9] === 1) { return progressUp(2, 1); }
-        if (progress >= 1) { return; }
+        if (progress === 1) { return; }
         if (player.buildings[1][1].true >= 12) { progressUp(1); }
     }
 };
@@ -1675,7 +1650,7 @@ export const replayEvent = async() => {
 
 /** Sets player.event to true if replay is false */
 const playEvent = (event: number, replay = true) => {
-    let text = 'No such event.';
+    let text = `Event ${event} doesn't exist`;
     if (event === 1) {
         text = 'A new reset tier has been unlocked. It will allow the creation of higher tier Structures, but for the price of everything else.';
     } else if (event === 2) {
@@ -1695,11 +1670,11 @@ const playEvent = (event: number, replay = true) => {
     } else if (event === 9) {
         text = "Now that current Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab.\n(Universes only use specialized hotkeys. Also 'Nucleosynthesis' unlocks more Elements based on self-made Universes)";
     } else if (event === 10) {
-        text = "Unlocked ability to End current Universes through basic End reset ‒ 'Big Crunch', also unlocked harder version of Void ‒ 'Supervoid' which is immune to End resets.\n(Base for End resets reward is increased by +1 while inside true Vacuum, not affected by multipliers)";
+        text = "Unlocked ability to End current Universes through basic End reset ‒ 'Big Crunch', also unlocked harder version of Void ‒ 'Supervoid' which is immune to End resets.\n(Base for End resets reward is increased by +1 while inside true Vacuum)";
     } else if (event === 11) {
-        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.";
+        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.\n(Also improves 'Strange gain' Inflation)";
     } else if (event === 12) {
-        text = `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy allows to do a more advanced End reset ‒ 'Big Rip', this one just adds non-self-made Universes into Cosmons gain base.\n(Doing it for the first time will also unlock new Inflation, false Vacuum Strangeness and allow creation of new types of self-made Universes)`;
+        text = `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy allows to do a more advanced End reset ‒ 'Big Rip', this one increases rewards base by +1 per bonus Universe.\n(Doing it for the first time also unlocks new Inflation, false Vacuum Strangeness and allow creation of new types of self-made Universes)`;
     }
     if (!replay) {
         text += "\n\n(Can be viewed again with 'Events' button in Settings tab)";
@@ -1727,22 +1702,29 @@ const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTML
     const closeButton = getId('closeBigWindow');
     const windowHMTL = getId('bigWindow');
     const control = new AbortController();
+    const oldFocus = document.activeElement as HTMLElement | null;
     if (firstTargetHTML === null) { firstTargetHTML = closeButton; }
     const close = () => {
         control.abort();
         specialHTML.bigWindow = null;
         windowHMTL.style.display = 'none';
         sectionHTML.style.display = 'none';
+        oldFocus?.focus();
     };
     closeButton.addEventListener('click', close, { signal: control.signal });
     body.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (specialHTML.alert[0] !== null || detectShift(event) !== false) { return; }
+        const shift = detectShift(event);
+        if (specialHTML.alert[0] !== null || shift === null) { return; }
         const code = event.code;
-        if (firstTargetHTML === closeButton ? (code === 'Escape' || code === 'Enter' || code === 'Space') :
-            ((!global.hotkeys.disabled && code === 'Escape') || ((code === 'Enter' || code === 'Space') && document.activeElement === closeButton))) {
-            event.preventDefault();
+        if (code === 'Escape') {
+            if (shift || global.hotkeys.disabled) { return; } //If hotkeys are disabled, then we are currently changing hotkey
             close();
-        }
+        } else if (code === 'Enter' || code === 'Space') {
+            const active = document.activeElement;
+            if (active !== closeButton && active !== document.body) { return; }
+            close();
+        } else { return; }
+        event.preventDefault();
     }, { signal: control.signal });
     sectionHTML.style.display = '';
     windowHMTL.style.display = '';
@@ -1790,7 +1772,7 @@ export const openVersionInfo = () => {
     }
 
     specialHTML.bigWindow = 'version';
-    addCloseEvents(getId('versionHTML'));
+    addCloseEvents(getId('versionHTML'), getQuery('#versionHTML a'));
     getQuery('#bigWindow > article').ariaLabel = 'Versions menu';
 };
 

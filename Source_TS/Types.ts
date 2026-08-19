@@ -40,6 +40,14 @@ type researchAlt = {
     cost: number[]
     firstCost: number[]
 } & Omit<research, 'cost' | 'firstCost'>;
+type challengeBase = {
+    name: string
+    description: () => string
+    effectText: () => string
+    resetType: 'stage' | 'vacuum' | 'universe'
+    time: number
+    color: string
+};
 
 export interface playerType {
     version: string
@@ -158,8 +166,8 @@ export interface playerType {
         stability: number
     }
     toggles: {
-        /** Stay till time out[0], Auto disable Vaporization[1], Auto disable Stage[2], Automatic leave[3],
-         * Stay till no Merges[4], Allow Vacuum change[5], Reset Abyss[6] */
+        /** Auto change active Stage[0], Auto disable Vaporization[1], No auto Stage if not maxed Milestones[2], Automatic Challenge exit[3],
+         * No auto Stage if not at max Merges[4], Allow Vacuum change[5], Auto reset Abyss[6] */
         normal: boolean[]
         /** Stage[0], Discharge[1], Vaporization[2], Rank[3], Collapse[4], Merge[5], End[6], Nucleation[7] */
         confirm: Array<'All' | 'Safe' | 'None'>
@@ -234,6 +242,8 @@ export interface globalType {
         historyStage: number | null
         /** How many resets on last update */
         historyEnd: number | null
+        /** Inflatons on last Supervoid reminder */
+        supervoid: number
         /** Which tabs were visited since last Stage update call */
         visited: {
             upgrade: boolean
@@ -445,6 +455,7 @@ export interface globalType {
         name: string[]
         needText: Array<() => string>
         rewardText: Array<() => string>
+        progress: Array<() => number | Overlimit>
         need: Overlimit[]
         /** In the false Vacuum used as time */
         reward: number[]
@@ -452,34 +463,16 @@ export interface globalType {
         scaling: number[][]
         recent: number[]
     }>
-    challengesInfo: [{
-        name: string
-        description: () => string
-        effectText: () => string
+    challengesInfo: [challengeBase & {
         needText: Array<Array<() => string | null>>
         /** [Void, Supervoid] */
         rewardText: string[][][]
-        resetType: 'stage' | 'vacuum'
-        time: number
-        color: string
-    }, {
-        name: string
-        description: () => string
-        effectText: () => string
+    }, challengeBase & {
         needText: string[][]
         rewardText: string[][]
-        resetType: 'vacuum'
-        time: number
-        color: string
-    }, {
-        name: string
-        description: () => string
-        effectText: () => string
+    }, challengeBase & {
         /** Unlocks are in reverse */
         rewardText: string[]
-        resetType: 'universe'
-        time: number
-        color: string
     }]
     historyStorage: {
         /** [time, quarks, strangelets, peak, peaked at] */
@@ -513,7 +506,6 @@ interface vacuumTemplate {
     researchesS1Cost: number[]
     researchesS1Scale: number[]
     ASRS1: number[]
-    ASR3S3: number
     /** First 26 Elements are skipped (first index is 27) */
     elements: Overlimit[]
     strangenessS1Cost: number[]
@@ -532,6 +524,7 @@ interface vacuumTemplate {
      * [0] ‒ Upgrade cost [2][0];
      * [1] ‒ Research scale [2][2];
      * [2] ‒ Research scale [2][3];
+     * [3] - ASR cost [3][3]
      */
     rest: [Overlimit, ...number[]]
 }
@@ -565,8 +558,6 @@ export interface Quantum {
     active: null | Quantum['sliderTypes'][0]
     /** Must have same order as appear in HTML */
     sliderTypes: Array<'foam' | 'particles' | 'quasiparts' | 'gravitons' | 'chronons'>
-    /** 1 per Slider, plus 1 for Upgrades */
-    widthCache: number[]
     lastTick: number
     offline: number
     upgradesInfo: {
@@ -672,9 +663,10 @@ export interface calculateEffectsType {
     darkFluid: (post?: boolean) => number
     S6Upgrade0: () => number
     S2Strange9: (unlocked?: boolean) => number
-    trueUniversesAll: () => number
+    /** Self-made Universes */
+    trueVersesAll: () => number
     /** Self-made Universes, but only for the current Challenge */
-    trueUniverses: () => number
+    trueVerses: () => number
     T0Inflation0: () => number
     TOInflation1_softcap: () => number
     T0Inflation1: () => number

@@ -53,7 +53,7 @@ export const reset = (type: 'discharge' | 'vaporization' | 'rank' | 'collapse' |
             if (!allowedToBeReset(i, s, 'structures')) {
                 if (!player.inflation.vacuum) { continue; }
                 const selfmade = building[i as 1].true;
-                if (s === 1) {
+                if (s !== 5) {
                     building[1].current.setValue(selfmade);
                     building[1].total.setValue(selfmade);
                 }

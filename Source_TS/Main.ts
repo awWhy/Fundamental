@@ -1,11 +1,12 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
-import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
-import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness, resetMinSizes } from './Special';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
 import type { hotkeysList } from './Types';
 import Overlimit from './Limit';
+import { resetVacuum } from './Reset';
 
 /** Not for the deep copy, works on Overlimit, but not prefered */
 export const cloneArray = <ArrayClone extends Array<number | string | boolean | null | undefined>>(array: ArrayClone) => array.slice(0) as ArrayClone;
@@ -259,7 +260,8 @@ const saveGame = (noSaving = false, manual = false): string | null => {
 
         const clone = { ...player };
         clone.fileName = String.fromCharCode(...new TextEncoder().encode(clone.fileName));
-        clone.inflation = deepClone(clone.inflation);
+        clone.inflation = { ...player.inflation };
+        clone.inflation.loadouts = deepClone(player.inflation.loadouts);
         for (let i = 0; i < clone.inflation.loadouts.length; i++) {
             clone.inflation.loadouts[i][0] = String.fromCharCode(...new TextEncoder().encode(clone.inflation.loadouts[i][0]));
         }
@@ -443,9 +445,8 @@ const showAndFix = (element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     if (rect.left < 0) {
         element.style.right = `calc(50% - ${-rect.left}px)`;
-    } else {
-        const width = document.documentElement.clientWidth;
-        if (rect.right > width) { element.style.right = `calc(50% + ${rect.right - width}px)`; }
+    } else if (rect.right > document.documentElement.clientWidth) {
+        element.style.right = `calc(50% + ${rect.right - document.documentElement.clientWidth}px)`;
     }
 };
 
@@ -757,7 +758,7 @@ try { //Start everything
         getQuery('#footer > div:first-child').style.display = 'none';
         const fake2 = document.createElement('div');
         fake2.style.height = 'max(calc(6.08em + 32px), 7.92em)';
-        getId('body').prepend(getId('footer'), fake2);
+        getQuery('main').prepend(getId('footer'), fake2);
         getId('fakeFooter').after(getId('shortcuts'));
         const div = document.createElement('div');
         div.append(getId('footerStats'), getQuery('#footerMain > nav'), getId('stageSelect'));
@@ -775,6 +776,11 @@ try { //Start everything
             #globalStats { bottom: 3.04em; right: calc(50vw - 6.325em); }
             #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
             #fakeFooter { height: 3.04em; }`;
+    } else {
+        const observer = new ResizeObserver(() => {
+            getId('fakeFooter').style.height = `${getId('footer').offsetHeight + globalSave.fontSize * 2}px`;
+        });
+        observer.observe(getId('footer'));
     }
     if (globalSave.toggles[2]) { body.classList.remove('noTextSelection'); }
     if (globalSave.toggles[1]) {
@@ -907,6 +913,24 @@ try { //Start everything
         }
     }
 
+    const observerX = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            const target = entry.target as HTMLElement;
+            target.style.minWidth = `${target.getBoundingClientRect().width}px`;
+        }
+    });
+    for (let i = 1; i <= 3; i++) { observerX.observe(getQuery(`#special${i} > p`)); }
+    observerX.observe(getQuery('#research1 > span'));
+    observerX.observe(getQuery('#research2 > span'));
+    observerX.observe(getQuery('#researchExtra1 > span'));
+    const observerY = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            const target = entry.target as HTMLElement;
+            target.style.minHeight = `${target.getBoundingClientRect().height}px`;
+        }
+    });
+    observerY.observe(getId('milestonesMultiline').parentElement as HTMLElement);
+
     /* Global */
     assignHotkeys();
     const MD = globalSave.MDSettings[0];
@@ -965,7 +989,7 @@ try { //Start everything
             specialHTML.hoverText();
             window.style.display = '';
             const position = (event: MouseEvent) => {
-                window.style.left = `${Math.min(event.clientX + 10, document.documentElement.clientWidth - window.getBoundingClientRect().width)}px`;
+                window.style.left = `${Math.min(event.clientX + 10, document.documentElement.clientWidth - window.offsetWidth - 1)}px`;
                 window.style.top = `${event.clientY + 10}px`;
             };
             position(event);
@@ -1137,39 +1161,42 @@ try { //Start everything
         }
     }
     getId('toggleAll').addEventListener('click', toggleAll);
-    getId('buyAnyInput').addEventListener('focus', () => {
-        const window = getQuery('#buyAnyMain > label');
-        showAndFix(window);
+    {
         const input = getId('buyAnyInput') as HTMLInputElement;
-        const change = () => {
-            let value = input.value === '' ? playerStart.toggles.shop.input : Math.max(Math.trunc(Number(input.value)), 0);
-            if (!isFinite(value)) { value = playerStart.toggles.shop.input; }
-            player.toggles.shop.input = value;
-            input.value = format(value, { type: 'input' });
-            numbersUpdate();
-        };
-        input.addEventListener('change', change);
-        input.addEventListener('blur', () => {
-            window.style.display = 'none';
-            input.removeEventListener('change', change);
-        }, { once: true });
-    });
-    getId('autoWaitInput').addEventListener('focus', () => {
-        const window = getQuery('#autoWaitMain > label');
-        showAndFix(window);
+        input.addEventListener('focus', () => {
+            const window = getQuery('#buyAnyMain > label');
+            showAndFix(window);
+            const change = () => {
+                let value = input.value === '' ? playerStart.toggles.shop.input : Math.max(Math.trunc(Number(input.value)), 0);
+                if (!isFinite(value)) { value = playerStart.toggles.shop.input; }
+                player.toggles.shop.input = value;
+                input.value = format(value, { type: 'input' });
+                numbersUpdate();
+            };
+            input.addEventListener('change', change);
+            input.addEventListener('blur', () => {
+                window.style.display = 'none';
+                input.removeEventListener('change', change);
+            }, { once: true });
+        });
+    } {
         const input = getId('autoWaitInput') as HTMLInputElement;
-        const change = () => {
-            let value = input.value === '' ? 2 : Math.max(Number(input.value), 1);
-            if (!isFinite(value)) { value = 2; }
-            player.toggles.shop.wait[player.stage.active] = value;
-            input.value = format(value, { type: 'input' });
-        };
-        input.addEventListener('change', change);
-        input.addEventListener('blur', () => {
-            window.style.display = 'none';
-            input.removeEventListener('change', change);
-        }, { once: true });
-    });
+        input.addEventListener('focus', () => {
+            const window = getQuery('#autoWaitMain > label');
+            showAndFix(window);
+            const change = () => {
+                let value = input.value === '' ? 2 : Math.max(Number(input.value), 1);
+                if (!isFinite(value)) { value = 2; }
+                player.toggles.shop.wait[player.stage.active] = value;
+                input.value = format(value, { type: 'input' });
+            };
+            input.addEventListener('change', change);
+            input.addEventListener('blur', () => {
+                window.style.display = 'none';
+                input.removeEventListener('change', change);
+            }, { once: true });
+        });
+    }
 
     getId('exitFooter').addEventListener('click', () => enterExitChallengeUser(null));
     for (let i = 0; i < global.challengesInfo.length; i++) {
@@ -1408,7 +1435,8 @@ try { //Start everything
     }
 
     {
-        const button = getId('element0');
+        const button = getId('element0') as HTMLInputElement;
+        button.alt = global.elementsInfo.name[0];
         const dblclickFunc = () => {
             global.lastElement = 0;
             getUpgradeDescription('elements');
@@ -1416,20 +1444,18 @@ try { //Start everything
         if (SR) {
             getId('element1').addEventListener('keydown', (event) => {
                 if (event.code !== 'Tab' || detectShift(event) !== true) { return; }
-                const element = getId('element0');
-                element.tabIndex = 0;
-                element.ariaHidden = 'false';
+                button.tabIndex = 0;
+                button.ariaHidden = 'false';
             });
             button.addEventListener('keydown', (event) => {
-                if (event.code === 'Enter' && detectShift(event) === false) {
+                if (event.code === 'Enter' && detectShift(event) === true) {
                     event.preventDefault();
                     dblclickFunc();
                 }
             });
             button.addEventListener('blur', () => {
-                const element = getId('element0');
-                element.tabIndex = -1;
-                element.ariaHidden = 'true';
+                button.tabIndex = -1;
+                button.ariaHidden = 'true';
             });
         }
         if (PC) { button.addEventListener('dblclick', dblclickFunc); }
@@ -1441,7 +1467,8 @@ try { //Start everything
         }
     }
     for (let i = 1; i < playerStart.elements.length; i++) {
-        const image = getId(`element${i}`);
+        const image = getId(`element${i}`) as HTMLInputElement;
+        image.alt = global.elementsInfo.name[i];
         const clickFunc = () => buyUpgrades(i, 4, 'elements');
         const hoverFunc = () => hoverUpgrades(i, 'elements');
         if (PC) {
@@ -1472,22 +1499,21 @@ try { //Start everything
         const button = getId(`strange${i}`);
         const open = (focus = false) => {
             if (player.progress.main < 15 && player.milestones[4][0] < 8) { return; }
-            const html = getId(`strange${i}EffectsMain`);
-            if (html.dataset.focus === 'true') { return; }
-            const button = getId(`strange${i}`);
+            const window = getId(`strange${i}EffectsMain`);
+            if (window.dataset.focus === 'true') { return; }
             if (focus) {
-                html.dataset.focus = 'true';
+                window.dataset.focus = 'true';
                 button.addEventListener('blur', () => {
-                    html.style.display = 'none';
-                    html.dataset.focus = '';
+                    window.style.display = 'none';
+                    window.dataset.focus = '';
                 }, { once: true });
             } else {
                 button.addEventListener('mouseleave', () => {
-                    if (html.dataset.focus === 'true') { return; }
-                    html.style.display = 'none';
+                    if (window.dataset.focus === 'true') { return; }
+                    window.style.display = 'none';
                 }, { once: true });
             }
-            html.style.display = '';
+            window.style.display = '';
             numbersUpdate();
             visualUpdate();
         };
@@ -1498,7 +1524,8 @@ try { //Start everything
         if (MD) { getId(`strangenessPage${s}`).addEventListener('click', () => MDStrangenessPage(s)); }
         for (let i = 0; i < playerStart.strangeness[s].length; i++) {
             const label = getId(`strange${i + 1}Stage${s}`);
-            const image = getQuery(`#strange${i + 1}Stage${s} > input`);
+            const image = getQuery(`#strange${i + 1}Stage${s} > input`) as HTMLInputElement;
+            image.alt = global.strangenessInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'strangeness');
             const clickFunc = () => buyStrangenessMax(i, s, 'strangeness');
             if (PC) {
@@ -1551,7 +1578,8 @@ try { //Start everything
 
     for (let s = 1; s < playerStart.milestones.length; s++) {
         for (let i = 0; i < playerStart.milestones[s].length; i++) {
-            const image = getQuery(`#milestone${i + 1}Stage${s}Div > input`);
+            const image = getQuery(`#milestone${i + 1}Stage${s}Div > input`) as HTMLInputElement;
+            image.alt = global.milestonesInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'milestones');
             if (PC) { image.addEventListener('mouseenter', hoverFunc); }
             if (MD) { image.addEventListener('touchstart', hoverFunc); }
@@ -1565,10 +1593,11 @@ try { //Start everything
     }
 
     /* Inflation tab */
-    for (let s = 0; s <= 1; s++) {
+    for (let s = 0; s < playerStart.tree.length; s++) {
         for (let i = 0; i < playerStart.tree[s].length; i++) {
             const label = getId(`inflation${i + 1}Tree${s + 1}`);
-            const image = getQuery(`#inflation${i + 1}Tree${s + 1} > input`);
+            const image = getQuery(`#inflation${i + 1}Tree${s + 1} > input`) as HTMLInputElement;
+            image.alt = global.treeInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'inflation');
             const clickFunc = () => buyStrangenessMax(i, s, 'inflation');
             if (PC) {
@@ -1598,13 +1627,10 @@ try { //Start everything
             }
         }
     } {
-        const button = getId('loadoutsName');
-        button.addEventListener('change', () => {
-            const input = getId('loadoutsName') as HTMLInputElement;
-            input.value = input.value.trim();
-        });
-        button.addEventListener('keydown', (event) => {
-            if (detectShift(event) === false && event.code === 'Enter') {
+        const input = getId('loadoutsName') as HTMLInputElement;
+        input.addEventListener('change', () => { input.value = input.value.trim(); });
+        input.addEventListener('keydown', (event) => {
+            if (event.code === 'Enter' && detectShift(event) !== null) {
                 event.preventDefault();
                 loadoutsSave();
             }
@@ -1695,7 +1721,6 @@ try { //Start everything
         const open = (hover = false) => {
             const html = getId(`toggleAuto${number}Menu`);
             if (html.dataset.click === 'true') { return; }
-            const button = getId(`toggleAuto${number}Info`);
             const body = document.documentElement;
             if (hover) {
                 button.addEventListener('mouseleave', () => {
@@ -1720,110 +1745,120 @@ try { //Start everything
         button.addEventListener('click', () => open());
         if (PC) { button.addEventListener('mouseenter', () => open(true)); }
     }
-    getId('stageInput').addEventListener('change', () => {
-        const input = getId('stageInput') as HTMLInputElement;
-        let value = Number(input.value);
-        if (!isFinite(value)) { value = 0; }
-        player.stage.input[stageResetType(player.stage.input[0])] = value;
-        input.value = format(value, { type: 'input' });
-    });
     {
-        const input = getId('stageInputType');
+        const input = getId('stageInput') as HTMLInputElement;
+        input.addEventListener('change', () => {
+            let value = Number(input.value);
+            if (!isFinite(value)) { value = 0; }
+            player.stage.input[stageResetType(player.stage.input[0])] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
+        const input = getId('stageInputType') as HTMLInputElement;
         input.addEventListener('input', () => visualUpdate());
         input.addEventListener('change', () => {
-            const input = getId('stageInputType') as HTMLInputElement;
             const value = Math.trunc(Number(input.value));
             player.stage.input[0] = Math.min(Math.max(1, !isFinite(value) ? 1 : value), playerStart.stage.input.length - 1);
             input.value = `${player.stage.input[0]}`;
             visualUpdate();
         });
-    }
-    getId('vaporizationInput').addEventListener('change', () => {
+    } {
         const input = getId('vaporizationInput') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.vaporization.input[0] : Number(input.value);
-        if (!isFinite(value) || value <= 1) { value = playerStart.vaporization.input[0]; }
-        player.vaporization.input[0] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('vaporizationInputMax').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.vaporization.input[0] : Number(input.value);
+            if (!isFinite(value) || value <= 1) { value = playerStart.vaporization.input[0]; }
+            player.vaporization.input[0] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('vaporizationInputMax') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.vaporization.input[1] : Number(input.value);
-        if (!isFinite(value)) { value = playerStart.vaporization.input[1]; }
-        player.vaporization.input[1] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('collapseInput').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.vaporization.input[1] : Number(input.value);
+            if (!isFinite(value)) { value = playerStart.vaporization.input[1]; }
+            player.vaporization.input[1] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('collapseInput') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.collapse.input[0] : Number(input.value);
-        if (!isFinite(value) || value <= 1) { value = playerStart.collapse.input[0]; }
-        player.collapse.input[0] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('collapseInputWait').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.collapse.input[0] : Number(input.value);
+            if (!isFinite(value) || value <= 1) { value = playerStart.collapse.input[0]; }
+            player.collapse.input[0] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('collapseInputWait') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.collapse.input[1] : Number(input.value);
-        if (!isFinite(value)) { value = playerStart.collapse.input[1]; }
-        player.collapse.input[1] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('collapseAddNewPoint').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.collapse.input[1] : Number(input.value);
+            if (!isFinite(value)) { value = playerStart.collapse.input[1]; }
+            player.collapse.input[1] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('collapseAddNewPoint') as HTMLInputElement;
-        if (input.value === '') { return; }
-        const value = Number(input.value);
-        input.value = '';
-        if (!isFinite(value)) { return; }
-        if (value === 0) {
-            player.collapse.points = [];
-        } else {
-            const points = player.collapse.points;
-            const index = points.indexOf(Math.abs(value));
-            if (value > 0 && index === -1) {
-                points.push(value);
-                points.sort((a, b) => a - b);
-            } else if (value < 0 && index !== -1) {
-                points.splice(index, 1);
-                points.sort((a, b) => a - b);
+        input.addEventListener('change', () => {
+            if (input.value === '') { return; }
+            const value = Number(input.value);
+            input.value = '';
+            if (!isFinite(value)) { return; }
+            if (value === 0) {
+                player.collapse.points = [];
+            } else {
+                const points = player.collapse.points;
+                const index = points.indexOf(Math.abs(value));
+                if (value > 0 && index === -1) {
+                    points.push(value);
+                    points.sort((a, b) => a - b);
+                } else if (value < 0 && index !== -1) {
+                    points.splice(index, 1);
+                    points.sort((a, b) => a - b);
+                }
             }
-        }
-        global.collapseInfo.pointsLoop = 0;
-        updateCollapsePoints();
-    });
-    getId('mergeInput').addEventListener('change', () => {
+            global.collapseInfo.pointsLoop = 0;
+            updateCollapsePoints();
+        });
+    } {
         const input = getId('mergeInput') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.merge.input[0] : Math.trunc(Number(input.value));
-        if (!isFinite(value)) { value = playerStart.merge.input[0]; }
-        player.merge.input[0] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('mergeInputSince').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.merge.input[0] : Math.trunc(Number(input.value));
+            if (!isFinite(value)) { value = playerStart.merge.input[0]; }
+            player.merge.input[0] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('mergeInputSince') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.merge.input[1] : Number(input.value);
-        if (!isFinite(value)) { value = playerStart.merge.input[1]; }
-        player.merge.input[1] = value;
-        input.value = format(value, { type: 'input' });
-    });
-    getId('nucleationInput').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.merge.input[1] : Number(input.value);
+            if (!isFinite(value)) { value = playerStart.merge.input[1]; }
+            player.merge.input[1] = value;
+            input.value = format(value, { type: 'input' });
+        });
+    } {
         const input = getId('nucleationInput') as HTMLInputElement;
-        let value = input.value === '' ? playerStart.darkness.input : Number(input.value);
-        if (!isFinite(value) || value <= 1) { value = playerStart.darkness.input; }
-        player.darkness.input = value;
-        input.value = format(value, { type: 'input' });
-    });
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? playerStart.darkness.input : Number(input.value);
+            if (!isFinite(value) || value <= 1) { value = playerStart.darkness.input; }
+            player.darkness.input = value;
+            input.value = format(value, { type: 'input' });
+        });
+    }
     getId('versionButton').addEventListener('click', openVersionInfo);
     getId('hotkeysButton').addEventListener('click', openHotkeys);
     getId('save').addEventListener('click', () => { saveGame(false, true); });
-    getId('file').addEventListener('change', async() => {
-        const id = getId('file') as HTMLInputElement;
-        try {
-            loadGame(await (id.files as FileList)[0].text());
-        } catch (error) {
-            Notify('Failed to import');
-            console.error(`Full import error\n${error}`);
-        } finally { id.value = ''; }
-    });
-    const exportReward = () => {
+    {
+        const button = getId('file') as HTMLInputElement;
+        button.addEventListener('change', async() => {
+            try {
+                loadGame(await (button.files as FileList)[0].text());
+            } catch (error) {
+                Notify('Failed to import');
+                console.error(`Full import error\n${error}`);
+            } finally { button.value = ''; }
+        });
+    }
+    const exportReward = (force = false) => {
         if (player.progress.main < 17 && (player.inflation.vacuum || player.progress.main < 11)) { return; }
-        if (globalSave.developerMode) { return Notify("Export reward is not disabled when using 'devMode'\nDisable it by writting that string exactly into the advanced save options"); }
+        if (globalSave.developerMode && !force) { return Notify('Export reward is disabled when using developer mode'); }
 
         const exportReward = player.time.export;
         if (exportReward[0] <= 0) { return; }
@@ -1870,13 +1905,19 @@ try { //Start everything
         a.click();
     });
     getId('saveConsole').addEventListener('click', async() => {
-        let value = await Prompt(`Available options:\n'Copy' ‒ copy save file to the clipboard${localStorage.getItem('save') !== null ? "\n'Legacy' ‒ copy legacy save file" : ''}\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it`);
+        let value = await Prompt(`Available options:\n'Copy' ‒ copy save file to the clipboard${localStorage.getItem('save') !== null ? "\n'Legacy' ‒ copy legacy save file" : ''}\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n'Dev' ‒ open developer settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it`);
         if (value === null || value === '') { return; }
         let lower = value.trim().toLowerCase();
         if (lower === 'global') {
-            value = await Prompt("Available options:\n'Reset' ‒ reset global settings\n'Copy' ‒ copy global settings to the clipboard\nOr insert global settings text here to load it");
-            if (value === null || value === '') { return; }
-            lower = `global_${value.trim().toLowerCase()}`;
+            const check = await Prompt("Available options:\n'Reset' ‒ reset global settings\n'Copy' ‒ copy global settings to the clipboard\nOr insert global settings text here to load it");
+            if (check === null || check === '') { return; }
+            value += `_${check}`;
+            lower = value.trim().toLowerCase();
+        } else if (lower === 'dev') {
+            const check = await Prompt(`Available options: (shame on you if you are using it to cheat)${globalSave.developerMode ? "\n'Toggle' ‒ disable developer mode\n'Edit' ‒ edit current player values" : ''}\n'Console' ‒ console all relevant values\n'Reset' ‒ simulate selected tier reset\n'Refund' ‒ refund selected tier Upgrades\n'Export' ‒ claim current export rewards`);
+            if (check === null || check === '') { return; }
+            value += `_${check}`;
+            lower = value.trim().toLowerCase();
         }
 
         if (lower === 'copy' || lower === 'global_copy' || lower === 'legacy') {
@@ -1904,11 +1945,73 @@ try { //Start everything
             } else { localStorage.clear(); }
             window.location.reload();
             void Alert('Awaiting game reload');
-        } else if (value === 'devMode') {
+        } else if (lower === 'dev_toggle' && (value === 'deV_Toggle' || globalSave.developerMode)) {
             Notify(`Developer mode is ${((globalSave.developerMode = !globalSave.developerMode)) ? 'now' : 'no longer'} active`);
             saveGlobalSettings();
-        } else if (lower === 'console' && globalSave.developerMode) {
+        } else if (lower.includes('dev_edit') && globalSave.developerMode) {
+            value = lower[8] === '_' ? value.substring(9) :
+                await Prompt("Format for save file edit [property 'value' reloadSave?], example to create first Microworld Upgrade [upgrades.1.0 1]\nProperties are always separated by dots, final one must be primitive\nValue has to be of correct primitive type, there is no safety\nAny value for save reload that isn't 'false' interpreted as 'true'\nEverything is case sensitive, no brackets");
+            if (value === null || value === '') { return; }
+            const check = value.split(' ');
+            if (check.length < 2 || check[1] === '') { return Notify('Wrong value format'); }
+            const lookup = check[0].split('.');
+            let pointer = player as any;
+            let last = lookup[0];
+            for (let i = 0; i < lookup.length; i++) {
+                if (i !== 0) {
+                    pointer = pointer[last];
+                    last = lookup[i];
+                }
+                if (typeof pointer !== 'object' || pointer === null) { return Notify(`Property '${last}' cannot be added to a non object`); }
+            }
+
+            const parsed = JSON.parse(check[1]);
+            if (typeof pointer[last] === 'object' && pointer[last] !== null) {
+                if (!(pointer[last] instanceof Overlimit)) { return Notify("Selected property isn't primitive"); }
+                pointer[last].setValue(parsed);
+            } else { pointer[last] = parsed; }
+            if (check[2] !== 'false') { updatePlayer(player, false); }
+        } else if (lower === 'dev_console') {
             console.log(deepClone(player), deepClone(globalSave), deepClone(global));
+        } else if (lower.includes('dev_reset')) {
+            if (player.challenges.active !== null) { return Notify('Must be done outside of Challenges'); }
+            value = lower[9] === '_' ? value.substring(10) :
+                await Prompt("Which reset tier to simulate, no rewards:\n'Stage', 'Vacuum' (resets Universe age), 'Universe' (removes true Vacuum Inflaton)");
+            if (value === null) { return; }
+            value = value.trim().toLowerCase();
+            if (value === 'stage') {
+                stageFullReset(true);
+            } else if (value === 'vacuum' || value === 'universe') {
+                if (player.stage.active < 6) { setActiveStage(1); }
+                player.time.export[1] = 0;
+                player.time.export[2] = 0;
+                if (value === 'universe' && player.inflation.vacuum) {
+                    if (player.cosmon[0].total > 0) {
+                        player.cosmon[0].current--;
+                        player.cosmon[0].total--;
+                    }
+                    player.inflation.vacuum = false;
+                    prepareVacuum(false);
+                }
+                resetVacuum(1);
+            }
+        } else if (lower.includes('dev_refund')) {
+            value = lower[10] === '_' ? value.substring(11) :
+                await Prompt("Which reset tier Upgrades to refund:\n(Free Upgrades are not re_rewarded, doesn't adjust any extra values, forces save file reload)\n'Strangeness', 'Inflations'");
+            if (value === null) { return; }
+            value = value.trim().toLowerCase();
+            if (value === 'strangeness') {
+                player.strangeness = deepClone(playerStart.strangeness);
+                player.strange[0].current = player.strange[0].total;
+            } else if (value === 'inflations') {
+                player.tree = deepClone(playerStart.tree);
+                player.cosmon[0].current = player.cosmon[0].total;
+                player.cosmon[1].current = player.cosmon[1].total;
+                player.cosmon[2].current = player.cosmon[2].total;
+            } else { return; }
+            updatePlayer(player, false);
+        } else if (value === 'dev_export') {
+            exportReward(true);
         } else if (lower === 'achievement' || lower === 'secret_achievement') {
             Notify(`Unlocked a new ${lower === 'achievement' ? '' : 'super secret'} Achievement! (If there were any)`);
         } else if (lower === 'slow' || lower === 'free' || lower === 'boost' || lower === 'speedup') {
@@ -1929,7 +2032,7 @@ try { //Start everything
             if (value.length < 20) { return void Alert(`Input '${value}' doesn't match anything`); }
             if (lower.includes('global_')) {
                 if (!await Confirm("Press 'Confirm' to load input as a new global settings, this will reload the page\n(Input is too long to be displayed)")) { return; }
-                localStorage.setItem(specialHTML.localStorage.settings, value[6] === '_' ? value.substring(7) : value);
+                localStorage.setItem(specialHTML.localStorage.settings, value.substring(7));
                 window.location.reload();
                 void Alert('Awaiting game reload');
             } else {
@@ -1941,61 +2044,65 @@ try { //Start everything
     getId('switchTheme0').addEventListener('click', () => setTheme(null));
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
-    }
-    getId('saveFileNameInput').addEventListener('focus', () => {
-        const window = getId('saveFileNameLabel');
+    } {
         const input = getId('saveFileNameInput') as HTMLInputElement;
-        const control = new AbortController();
-        const changePreview = () => {
-            const value = input.value.trim();
-            getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length === 0 ? playerStart.fileName : value);
-        };
-        showAndFix(window);
-        changePreview();
-        input.addEventListener('change', () => {
-            let testValue = input.value.trim();
-            if (testValue === '') {
-                testValue = playerStart.fileName;
-                input.value = testValue;
-            }
-            player.fileName = testValue;
-        }, { signal: control.signal });
-        input.addEventListener('input', changePreview, { signal: control.signal });
-        input.addEventListener('blur', () => {
-            control.abort();
-            window.style.display = 'none';
-        }, { once: true });
-    });
-    getId('numbersInterval').addEventListener('change', () => {
+        input.addEventListener('focus', () => {
+            const window = getId('saveFileNameLabel');
+            const control = new AbortController();
+            const changePreview = () => {
+                const value = input.value.trim();
+                getId('saveFileNamePreview').textContent = replaceSaveFileSpecials(value.length === 0 ? playerStart.fileName : value);
+            };
+            showAndFix(window);
+            changePreview();
+            input.addEventListener('change', () => {
+                let testValue = input.value.trim();
+                if (testValue === '') {
+                    testValue = playerStart.fileName;
+                    input.value = testValue;
+                }
+                player.fileName = testValue;
+            }, { signal: control.signal });
+            input.addEventListener('input', changePreview, { signal: control.signal });
+            input.addEventListener('blur', () => {
+                control.abort();
+                window.style.display = 'none';
+            }, { once: true });
+        });
+    } {
         const input = getId('numbersInterval') as HTMLInputElement;
-        let value = input.value === '' ? globalSaveStart.intervals.numbers : Math.min(Math.max(Math.trunc(Number(input.value)), 40), 200);
-        if (!isFinite(value)) { value = globalSaveStart.intervals.numbers; }
-        globalSave.intervals.numbers = value;
-        input.value = `${value}`;
-        saveGlobalSettings();
-        changeIntervals();
-    });
-    getId('visualInterval').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? globalSaveStart.intervals.numbers : Math.min(Math.max(Math.trunc(Number(input.value)), 40), 200);
+            if (!isFinite(value)) { value = globalSaveStart.intervals.numbers; }
+            globalSave.intervals.numbers = value;
+            input.value = `${value}`;
+            saveGlobalSettings();
+            changeIntervals();
+        });
+    } {
         const input = getId('visualInterval') as HTMLInputElement;
-        let value = input.value === '' ? globalSaveStart.intervals.visual : Math.min(Math.max(Math.trunc(Number(input.value)), 200), 2000);
-        if (!isFinite(value)) { value = globalSaveStart.intervals.visual; }
-        globalSave.intervals.visual = value;
-        input.value = `${value}`;
-        saveGlobalSettings();
-        changeIntervals();
-    });
-    getId('autoSaveInterval').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? globalSaveStart.intervals.visual : Math.min(Math.max(Math.trunc(Number(input.value)), 200), 2000);
+            if (!isFinite(value)) { value = globalSaveStart.intervals.visual; }
+            globalSave.intervals.visual = value;
+            input.value = `${value}`;
+            saveGlobalSettings();
+            changeIntervals();
+        });
+    } {
         const input = getId('autoSaveInterval') as HTMLInputElement;
-        let value = input.value === '' ? globalSaveStart.intervals.autoSave : Math.min(Math.max(Math.trunc(Number(input.value)), 5), 9999) * 1000;
-        if (!isFinite(value)) { value = globalSaveStart.intervals.autoSave; }
-        globalSave.intervals.autoSave = value;
-        input.value = `${value / 1000}`;
-        saveGlobalSettings();
-        if (!global.paused) {
-            clearInterval(global.intervalsId.autoSave);
-            global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
-        }
-    });
+        input.addEventListener('change', () => {
+            let value = input.value === '' ? globalSaveStart.intervals.autoSave : Math.min(Math.max(Math.trunc(Number(input.value)), 5), 9999) * 1000;
+            if (!isFinite(value)) { value = globalSaveStart.intervals.autoSave; }
+            globalSave.intervals.autoSave = value;
+            input.value = `${value / 1000}`;
+            saveGlobalSettings();
+            if (!global.paused) {
+                clearInterval(global.intervalsId.autoSave);
+                global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+            }
+        });
+    }
     getId('thousandSeparator').addEventListener('change', () => changeFormat(false));
     getId('decimalPoint').addEventListener('change', () => changeFormat(true));
     getId('MDToggle0').addEventListener('click', () => toggleSpecial(0, 'mobile', true, true));
@@ -2015,30 +2122,35 @@ try { //Start everything
     }
     getId('customFontSize').addEventListener('change', () => changeFontSize());
 
-    getId('stageHistorySave').addEventListener('change', () => {
-        const inputID = getId('stageHistorySave') as HTMLInputElement;
-        player.history.stage.input[0] = Math.min(Math.max(Math.trunc(Number(inputID.value)), 0), 20);
-        inputID.value = `${player.history.stage.input[0]}`;
-    });
-    getId('stageHistoryShow').addEventListener('change', () => {
+    {
+        const input = getId('stageHistorySave') as HTMLInputElement;
+        input.addEventListener('change', () => {
+            player.history.stage.input[0] = Math.min(Math.max(Math.trunc(Number(input.value)), 0), 20);
+            input.value = `${player.history.stage.input[0]}`;
+        });
+    } {
         const input = getId('stageHistoryShow') as HTMLInputElement;
-        player.history.stage.input[1] = Math.min(Math.max(Math.trunc(Number(input.value)), 10), 100);
-        input.value = `${player.history.stage.input[1]}`;
-        global.debug.historyStage = null;
-        visualUpdate();
-    });
-    getId('endHistorySave').addEventListener('change', () => {
-        const inputID = getId('endHistorySave') as HTMLInputElement;
-        player.history.end.input[0] = Math.min(Math.max(Math.trunc(Number(inputID.value)), 0), 20);
-        inputID.value = `${player.history.end.input[0]}`;
-    });
-    getId('endHistoryShow').addEventListener('change', () => {
+        input.addEventListener('change', () => {
+            player.history.stage.input[1] = Math.min(Math.max(Math.trunc(Number(input.value)), 10), 100);
+            input.value = `${player.history.stage.input[1]}`;
+            global.debug.historyStage = null;
+            visualUpdate();
+        });
+    } {
+        const input = getId('endHistorySave') as HTMLInputElement;
+        input.addEventListener('change', () => {
+            player.history.end.input[0] = Math.min(Math.max(Math.trunc(Number(input.value)), 0), 20);
+            input.value = `${player.history.end.input[0]}`;
+        });
+    } {
         const input = getId('endHistoryShow') as HTMLInputElement;
-        player.history.end.input[1] = Math.min(Math.max(Math.trunc(Number(input.value)), 10), 100);
-        input.value = `${player.history.end.input[1]}`;
-        global.debug.historyEnd = null;
-        visualUpdate();
-    });
+        input.addEventListener('change', () => {
+            player.history.end.input[1] = Math.min(Math.max(Math.trunc(Number(input.value)), 10), 100);
+            input.value = `${player.history.end.input[1]}`;
+            global.debug.historyEnd = null;
+            visualUpdate();
+        });
+    }
 
     /* Footer */
     {
@@ -2093,7 +2205,6 @@ try { //Start everything
 
     /* Post */
     document.head.append(specialHTML.styleSheet);
-    resetMinSizes(); //Sets default values
     stageUpdate(true, true);
     if (globalSave.theme !== null) {
         getId('switchTheme0').style.textDecoration = '';
@@ -2117,8 +2228,8 @@ try { //Start everything
             `);
         })();
     } else { pauseGame(false); }
-    getId('body').style.display = '';
-    getId('loading').style.display = 'none';
+    getId('loading').remove();
+    getQuery('main').style.display = '';
     document.title = `Fundamental ${playerStart.version}`;
     specialHTML.cache.idMap.clear();
     specialHTML.cache.queryMap.clear();
