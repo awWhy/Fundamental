@@ -1357,7 +1357,7 @@ export const global: globalType = {
                 () => `${player.inflation.vacuum ? 'Vaporize to' : 'Have'} at least ${format(global.milestonesInfo[2].need[1])} ${player.inflation.vacuum ? 'Clouds' : 'Puddles at the same time'}.`
             ],
             rewardText: [
-                () => player.inflation.vacuum ? `Puddles strength increased by ${format(global.milestonesInfo[2].reward[0], { padding: true })}.` : 'First Intergalactic Structure. (Nebula)',
+                () => player.inflation.vacuum ? `Puddles strength increased by ${format(global.milestonesInfo[2].reward[0], { padding: true })}.` : "First Intergalactic Structure. (Nebula)\n(Half of the requirement to over-extend 'Remnants of past' time limit)",
                 () => player.inflation.vacuum ? `Decrease Drops requirement to get a Cloud by ${format(global.milestonesInfo[2].reward[1], { padding: true })}.` : 'Permanent Submerged Stage.'
             ],
             progress: [
@@ -1381,7 +1381,7 @@ export const global: globalType = {
                 () => `Have more or equal to ${format(global.milestonesInfo[3].need[1])} Satellites${player.inflation.vacuum ? ' and Subsatellites' : ''}.`
             ],
             rewardText: [
-                () => player.inflation.vacuum ? `Cosmic dust strength increased by ${format(global.milestonesInfo[3].reward[0], { padding: true })}.` : 'Second Intergalactic Structure. (Star cluster)',
+                () => player.inflation.vacuum ? `Cosmic dust strength increased by ${format(global.milestonesInfo[3].reward[0], { padding: true })}.` : "Second Intergalactic Structure. (Star cluster)\n(Half of the requirement to over-extend 'Remnants of past' time limit)",
                 () => player.inflation.vacuum ? `Increase effective Rank by +${format(global.milestonesInfo[3].reward[1])}.` : 'Permanent Accretion Stage.'
             ],
             progress: [
@@ -1524,7 +1524,7 @@ export const global: globalType = {
         needText: [['1 Completion', '2 Completions', '3 Completions', '4 Completions (WIP)', '5 Completions (WIP)', '6 Completions (WIP)', '7 Completions (WIP)', '8 Completions (WIP)', '9 Completions (WIP)'],
             ['Stabilize false Vacuum', '1 false Universe', '2 false Universe (WIP)']],
         rewardText: [[
-            "Improve level 2 of 'Overboost' Inflation", //1
+            "Improve level 2 of 'Overboost' Inflation\n(Remove boost decay and make it work in false Vacuum)", //1
             "Make 'Instability' Inflation immune to resets", //2
             'Start true Vacuum with Void equal to Supervoid', //3
             'Microworld Milestones no longer reset (WIP)', //4

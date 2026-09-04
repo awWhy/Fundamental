@@ -1451,7 +1451,9 @@ export const visualProgressUnlocks = () => {
     getId('universeTimeReal').style.display = highest >= 19 ? '' : 'none';
     getId('globalSpeed').style.display = highest >= 19 ? '' : 'none';
     getId('challenge1').style.display = highest >= 17 ? '' : 'none';
-    getId('challenge2').style.cursor = highest >= 22 ? '' : 'help';
+    const challenge2Img = getId('challenge2') as HTMLInputElement;
+    challenge2Img.style.cursor = highest >= 22 ? '' : 'help';
+    challenge2Img.alt = highest >= 22 ? global.challengesInfo[1].name : 'Vacuum information';
     (getId('voidRewardsHead') as HTMLButtonElement).disabled = highest < 20;
     (getId('stabilityRewardsHead') as HTMLButtonElement).disabled = highest < 24;
     getId('researchAuto3').style.display = highest >= 19 ? '' : 'none';

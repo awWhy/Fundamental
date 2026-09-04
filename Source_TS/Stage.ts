@@ -3193,6 +3193,7 @@ export const assignMilestoneInformation = (index: number, stageIndex: number) =>
                 time = 43200 / (percentage * (index === 1 ? 35 : 11) + 1) ** percentage;
             } else if (stageIndex === 4) {
                 time = 57600 / (percentage * (index === 1 ? 47 : 15) + 1) ** percentage;
+                if (index === 0 && player.milestones[2][0] >= 7 && player.milestones[3][0] >= 7) { time = 31556952; }
             } else if (stageIndex === 5) {
                 time = index === 0 ? (3600 / (percentage * 2 + 1)) : 1200;
             }
@@ -3217,7 +3218,13 @@ const awardMilestone = (index: number, stageIndex: number) => {
         player.strange[0].current++;
         player.strange[0].total++;
         assignBuildingsProduction.strange0();
-        if (maxed && (stageIndex === 4 || stageIndex === 5) && index === 0) { assignMaxLevel(6, stageIndex, 'strangeness', true); }
+        if (maxed && index === 0) {
+            if (stageIndex === 2 || stageIndex === 3) {
+                assignMilestoneInformation(0, 4);
+            } else if (stageIndex === 4 || stageIndex === 5) {
+                assignMaxLevel(6, stageIndex, 'strangeness', true);
+            }
+        }
     } else if (stageIndex === 3 && index === 1) {
         global.accretionInfo.effective = calculateEffects.effectiveRank();
         global.dischargeInfo.total = calculateEffects.effectiveGoals();
