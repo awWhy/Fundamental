@@ -409,6 +409,7 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
         toggleHTML.style.borderColor = 'forestgreen';
         toggleHTML.textContent = `${extraText}ON`;
     }
+    toggleHTML.setAttribute('aria-pressed', `${toggles[number]}`);
 };
 
 export const toggleConfirm = (number: number, change = false) => {
@@ -424,6 +425,7 @@ export const toggleConfirm = (number: number, change = false) => {
         toggleHTML.style.color = '';
         toggleHTML.style.borderColor = '';
     }
+    toggleHTML.setAttribute('aria-pressed', toggles[number] === 'All' ? 'true' : toggles[number] === 'None' ? 'false' : 'mixed');
 };
 
 const repeatFunction = (repeat: () => any) => {
@@ -2109,11 +2111,24 @@ try { //Start everything
     getId('SRToggle0').addEventListener('click', () => toggleSpecial(0, 'reader', true, true));
     getId('pauseButton').addEventListener('click', pauseGameUser);
     getId('reviewEvents').addEventListener('click', replayEvent);
-    getId('fullscreenButton').addEventListener('click', () => {
-        if (document.fullscreenElement === null) {
-            void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
-        } else { void document.exitFullscreen(); }
-    });
+    {
+        const button = getId('fullscreenButton');
+        const syncFullscreenButton = (announce: boolean) => {
+            const active = document.fullscreenElement !== null;
+            button.setAttribute('aria-pressed', `${active}`);
+            button.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
+            button.style.color = active ? 'var(--green-text)' : '';
+            button.style.borderColor = active ? 'forestgreen' : '';
+            if (announce && globalSave.SRSettings[0]) { getId('SRMain').textContent = active ? 'Entered fullscreen' : 'Exited fullscreen'; }
+        };
+        document.addEventListener('fullscreenchange', () => syncFullscreenButton(true));
+        syncFullscreenButton(false);
+        button.addEventListener('click', () => {
+            if (document.fullscreenElement === null) {
+                void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+            } else { void document.exitFullscreen(); }
+        });
+    }
     {
         const button = getId('warpButton');
         button.addEventListener('click', offlineWarp);

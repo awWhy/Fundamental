@@ -46,7 +46,7 @@ export const globalSave: globalSaveType = {
     theme: null,
     fontSize: 16,
     MDSettings: [false, false, false, false],
-    SRSettings: [false, false],
+    SRSettings: [true, false],
     developerMode: false,
     version: 0
 };
@@ -110,6 +110,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
         toggleHTML.style.borderColor = '';
         toggleHTML.textContent = 'ON';
     }
+    toggleHTML.setAttribute('aria-pressed', `${toggles[number]}`);
 };
 
 export const specialHTML = { //Images here are from true vacuum for easier cache
