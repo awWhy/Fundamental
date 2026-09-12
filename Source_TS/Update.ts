@@ -7,11 +7,27 @@ import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, special
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 
-/** Delays moving aria-current from the old button to the new one so it doesn't land in the same instant as the focus/activation event and (where applicable) a live-region message on the same interaction - confirmed with real screen readers to fix an intermittent double "current" read. Shared by every tab/subtab/Stage/theme selection button. */
-let ariaCurrentTimeout: number | undefined;
-export const scheduleAriaCurrent = (oldId: string | null, newId: string | null) => {
-    clearTimeout(ariaCurrentTimeout);
-    ariaCurrentTimeout = setTimeout(() => {
+/**
+ * Delays moving aria-current from the old button to the new one so it doesn't land in the same
+ * instant as the focus/activation event and (where applicable) a live-region message on the same
+ * interaction - confirmed with real screen readers to fix an intermittent double "current" read.
+ * Used by every tab/subtab/Stage/theme/challenge/mobile-pagination selection button.
+ *
+ * `group` keys the pending timeout per selector family (tab/subtab/stage/theme/challenge/
+ * strangenessPage) rather than sharing one timeout across all of them. A single shared timeout
+ * was the original design, and it silently dropped unrelated updates: some upgrades and other
+ * processes can force a tab/subtab change as a side effect of something else entirely (e.g.
+ * setActiveStage() redirecting off the Elements subtab when a Stage change makes it unavailable) -
+ * that forced switchTab() call's own scheduleAriaCurrent() would cancel a completely unrelated
+ * pending update (e.g. the Stage selector's own aria-current move) before it ever applied, since
+ * both shared the same timeout variable. Keying by group keeps genuinely-independent selectors
+ * from cancelling each other while still debouncing repeated calls to the *same* selector exactly
+ * as before (e.g. rapidly switching Stages still only commits the last one).
+ */
+const ariaCurrentTimeouts: Partial<Record<string, number>> = {};
+export const scheduleAriaCurrent = (group: string, oldId: string | null, newId: string | null) => {
+    clearTimeout(ariaCurrentTimeouts[group]);
+    ariaCurrentTimeouts[group] = setTimeout(() => {
         if (oldId !== null) { getId(oldId).ariaCurrent = null; }
         if (newId !== null) { getId(newId).ariaCurrent = 'true'; }
     }, 150);
@@ -43,7 +59,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         global.tabs.current = tab;
         getId(`${tab}Tab`).style.display = '';
         getId(`${tab}TabBtn`).classList.add('tabActive');
-        scheduleAriaCurrent(`${oldTab}TabBtn`, `${tab}TabBtn`);
+        scheduleAriaCurrent('tab', `${oldTab}TabBtn`, `${tab}TabBtn`);
 
         let subtabAmount = 0;
         for (const inside of global.tabs[oldTab].list) {
@@ -67,7 +83,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         global.tabs[tab].current = subtab;
         getId(`${tab}Subtab${subtab}`).style.display = '';
         getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
-        scheduleAriaCurrent(`${tab}SubtabBtn${oldSubtab}`, `${tab}SubtabBtn${subtab}`);
+        scheduleAriaCurrent('subtab', `${tab}SubtabBtn${oldSubtab}`, `${tab}SubtabBtn${subtab}`);
         if (oldTab !== tab) { return; }
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${subtab} subtab, part of ${tab} tab`; }
     }

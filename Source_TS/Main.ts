@@ -574,7 +574,7 @@ const scheduleAriaPressed = (id: string, value: boolean) => {
 const selectChallenge = (index: number) => {
     const oldIndex = global.lastChallenge[0];
     global.lastChallenge[0] = index;
-    scheduleAriaCurrent(`challenge${oldIndex + 1}`, `challenge${index + 1}`);
+    scheduleAriaCurrent('challenge', `challenge${oldIndex + 1}`, `challenge${index + 1}`);
     scheduleChallengeDescription();
     getChallengeRewards(false); //Silent: only voidReward/voidRewardsHead focus should announce the reward block
     visualUpdate();

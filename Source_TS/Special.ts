@@ -405,7 +405,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null, firstLo
             getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
             newThemeId = `switchTheme${theme ?? 0}`;
         }
-        if (oldThemeId !== null || newThemeId !== null) { scheduleAriaCurrent(oldThemeId, newThemeId); }
+        if (oldThemeId !== null || newThemeId !== null) { scheduleAriaCurrent('theme', oldThemeId, newThemeId); }
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];
@@ -1536,7 +1536,7 @@ export const MDStrangenessPage = (stageIndex: number) => {
     getId(`strangenessPage${oldIndex}`).classList.remove('tabActive');
     getId(`strangenessSection${stageIndex}`).style.display = '';
     getId(`strangenessPage${stageIndex}`).classList.add('tabActive');
-    scheduleAriaCurrent(`strangenessPage${oldIndex}`, `strangenessPage${stageIndex}`);
+    scheduleAriaCurrent('strangenessPage', `strangenessPage${oldIndex}`, `strangenessPage${stageIndex}`);
     if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now viewing ${global.stageInfo.word[stageIndex]}'s Strangeness, part of Matter subtab`; }
     global.debug.MDStrangePage = stageIndex;
 };

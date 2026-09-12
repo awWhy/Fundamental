@@ -2667,7 +2667,7 @@ export const setActiveStage = (stage: number, active = stage) => {
         return;
     }
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
-    scheduleAriaCurrent(oldStageBtnId, `stageSwitch${stage}`);
+    scheduleAriaCurrent('stage', oldStageBtnId, `stageSwitch${stage}`);
 
     if (global.tabs.current === 'upgrade') {
         if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades'); }
