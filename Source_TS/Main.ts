@@ -943,7 +943,12 @@ try { //Start everything
     if (globalSave.SRSettings[0]) {
         const message = getId('SRMessage1');
         message.textContent = 'Screen reader support is enabled, disable it if its not required';
-        message.className = 'greenText';
+        //Deliberately left hidden (not reassigning className to 'greenText' as this used to) now
+        //that screen reader support defaults on: investigated whether defaulting it on has any
+        //meaningful visible/behavioral impact on sighted players, and this reveal - a green
+        //banner on the very first screen of a fresh save - was the only thing found. It's also
+        //aria-hidden regardless, so it was never meant for screen reader users either; showing
+        //it to sighted players who never asked about screen reader support isn't worth it.
         message.ariaHidden = 'true';
         for (let i = 0; i < playerStart.strange.length; i++) { getId(`strange${i}`).tabIndex = 0; }
 
