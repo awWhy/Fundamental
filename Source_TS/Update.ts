@@ -1811,6 +1811,7 @@ export const getChallengeDescription = () => {
 
     const unlocked = index !== 1 || player.progress.main >= 22;
     (nameID.parentElement as HTMLElement).style.display = unlocked ? '' : 'none';
+    getId('challengeEnterExit').style.display = unlocked ? '' : 'none';
     let text = !unlocked ? '' : `<p class="whiteText">${info.description()}</p>
     <article><h4 class="${info.color}Text bigWord">Effects:</h4>
     <div>${info.effectText()}</div></article>`;
