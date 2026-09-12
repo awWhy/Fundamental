@@ -4,3 +4,6 @@ node_modules/
 eslintconifg.txt
 Code.js.map
 Code.js
+
+# Exported save files (personal gameplay saves, not project data)
+Fundamental, *.txt
