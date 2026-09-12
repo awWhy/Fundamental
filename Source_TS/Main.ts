@@ -901,6 +901,10 @@ try { //Start everything
         specialHTML.styleSheet.textContent += ` #strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
             #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }`;
         getId('strangenessResearch').append(pages);
+        //The visible '1'-'6' is a compact label only meant to fit the tiny pagination button, not
+        //an accessible name - each page maps 1:1 to a fixed Stage (global.stageInfo.word), so give
+        //it that Stage's actual name instead, same as stageSwitch's own buttons use for their name
+        for (let s = 1; s <= 6; s++) { getId(`strangenessPage${s}`).ariaLabel = global.stageInfo.word[s]; }
         //Immediate here: this is init, not a discrete click, so there's no adjacent focus/live-region announcement to race (same reasoning as the stageSwitch/challenge initial sync)
         getId('strangenessPage1').classList.add('tabActive');
         getId('strangenessPage1').ariaCurrent = 'true';
