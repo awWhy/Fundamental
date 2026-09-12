@@ -506,7 +506,7 @@ const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
     if (oldIndex !== index) { scheduleAriaCurrent(`challenge${oldIndex + 1}`, `challenge${index + 1}`); }
     scheduleChallengeDescription();
-    scheduleChallengeRewards();
+    getChallengeRewards(false); //Silent: only voidReward/voidRewardsHead focus should announce the reward block
     visualUpdate();
 };
 /** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */

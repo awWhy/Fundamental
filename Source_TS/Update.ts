@@ -1829,7 +1829,8 @@ export const getChallengeDescription = () => {
     assignInnerHTML('#challengeMultiline', text);
 };
 
-export const getChallengeRewards = () => {
+/** announce false silences the live region for this update - used when the reward block only changed as a side effect of switching which challenge is previewed, rather than the user actually focusing one of the reward buttons themselves */
+export const getChallengeRewards = (announce = true) => {
     let text = '<p class="greenText center">'; //Need to be closed
     if (global.lastChallenge[0] === 0) {
         const info = global.challengesInfo[0];
@@ -1898,7 +1899,16 @@ export const getChallengeRewards = () => {
             <p><span class="${unlocked ? 'greenText' : 'redText'}">Reward: </span>${unlocked ? info.rewardText[i] : 'Effect is not yet known'}</p></div>`;
         }
     }
-    assignInnerHTML('#challengeRewardsMultiline', text);
+    const rewardsID = getId('challengeRewardsMultiline');
+    if (!announce) {
+        rewardsID.removeAttribute('aria-live');
+        rewardsID.removeAttribute('aria-atomic');
+    }
+    assignInnerHTML(rewardsID, text);
+    if (!announce) {
+        rewardsID.setAttribute('aria-live', 'polite');
+        rewardsID.setAttribute('aria-atomic', 'true');
+    }
 };
 
 const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades' | 'elements') => {
