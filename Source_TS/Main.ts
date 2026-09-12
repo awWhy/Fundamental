@@ -459,11 +459,62 @@ const onRealHover = (callback: () => void) => () => {
     if (Date.now() - lastRealMouseMove < 100) { callback(); }
 };
 
-/** A screen reader can announce a live-region description update before the newly focused button's own name if both change in the same tick; delaying the write lets the name announcement land first. Rescheduled on every call so only the last settled item's description is ever committed. */
+/**
+ * Effect/Cost span ids and the cost line's actual visible label, per description-panel type -
+ * every type except milestones (handled separately below) follows this same "Effect: X {label}:
+ * Y" shape, just with different spans/wording. upgrades/researches/researchesExtra/
+ * researchesAuto/ASR all share the same upgradeEffect/upgradeCost spans (one panel, five types).
+ */
+const descriptionSRTextConfig: Partial<Record<Parameters<typeof getUpgradeDescription>[0], { effectId: string, costId: string, costLabel: string }>> = {
+    upgrades: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researches: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researchesExtra: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researchesAuto: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    ASR: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    elements: { effectId: 'elementEffect', costId: 'elementCost', costLabel: 'Unlock' },
+    strangeness: { effectId: 'strangenessEffect', costId: 'strangenessCost', costLabel: 'Need' },
+    inflation: { effectId: 'inflationEffect', costId: 'inflationCost', costLabel: 'Requirement' }
+};
+
+/**
+ * A screen reader can announce a live-region description update before the newly focused button's
+ * own name if both change in the same tick; delaying the write lets the name announcement land
+ * first. Rescheduled on every call so only the last settled item's description is ever committed.
+ *
+ * Rather than the description panel itself being a live region (which ticks also write into,
+ * causing the tick-vs-focus announcement bug that took several failed attempts to properly track
+ * down), this reads back the plain text getUpgradeDescription() just wrote and pushes it once to a
+ * dedicated, tick-free live node (SRDescription) - mirroring how SRMain already announces one-shot
+ * events. numbersUpdate()'s tick-triggered calls never reach this function at all, so there's
+ * nothing for a tick to race. Confirmed against real NVDA on elements/strangeness/milestones
+ * before rolling out to the remaining six types this same way.
+ *
+ * The item's own name/stage is deliberately excluded from this text everywhere - the browser
+ * already announces it via the focused input's own alt attribute, so including it here would read
+ * it twice. Cost/Effect labels ("Effect: ", "Next: ", etc.) are added back explicitly for the
+ * descriptionSRTextConfig-driven types because they're plain sibling text next to the Effect/Cost
+ * spans in the DOM, not part of those spans' own textContent - reading the spans alone silently
+ * drops those words.
+ */
 let descriptionUpdateTimeout: number | undefined;
 const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation') => {
     clearTimeout(descriptionUpdateTimeout);
-    descriptionUpdateTimeout = setTimeout(() => getUpgradeDescription(type), 150);
+    descriptionUpdateTimeout = setTimeout(() => {
+        getUpgradeDescription(type);
+        if (type === 'milestones') {
+            //milestonesMultiline is rebuilt as a block of multi-line HTML each render
+            //(Requirement/Time limit/Effect-or-Unlock <p>s, wording varies with vacuum/maxed
+            //state) rather than a fixed set of known spans - so reading the wrapper's own
+            //textContent picks up all its labels for free, in DOM order, without hardcoding label
+            //wording here that could drift from the HTML.
+            getId('SRDescription').textContent = getId('milestonesMultiline').textContent;
+        } else {
+            const config = descriptionSRTextConfig[type];
+            const effect = getId(config.effectId).textContent;
+            const cost = getId(config.costId).textContent;
+            getId('SRDescription').textContent = `Effect: ${effect} ${config.costLabel}: ${cost}`;
+        }
+    }, 150);
 };
 
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
@@ -953,7 +1004,7 @@ try { //Start everything
         for (let i = 0; i < playerStart.strange.length; i++) { getId(`strange${i}`).tabIndex = 0; }
 
         const SRMainDiv = document.createElement('article');
-        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
+        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p><p id="SRDescription" aria-live="polite"></p>';
         SRMainDiv.className = 'reader';
         getId('fakeFooter').before(SRMainDiv);
 
