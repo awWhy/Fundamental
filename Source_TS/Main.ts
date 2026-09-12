@@ -452,6 +452,20 @@ const showAndFix = (element: HTMLElement) => {
     }
 };
 
+/** The browser can synthesize a 'mouseenter' for whatever now sits under an unmoved cursor after a layout change (e.g. switching tabs), which would otherwise misreport as the user hovering that item. Wrap a hover callback with this to only let through hovers that follow a genuine, recent pointer movement. */
+let lastRealMouseMove = 0;
+document.addEventListener('mousemove', () => { lastRealMouseMove = Date.now(); }, { passive: true });
+const onRealHover = (callback: () => void) => () => {
+    if (Date.now() - lastRealMouseMove < 100) { callback(); }
+};
+
+/** A screen reader can announce a live-region description update before the newly focused button's own name if both change in the same tick; delaying the write lets the name announcement land first. Rescheduled on every call so only the last settled item's description is ever committed. */
+let descriptionUpdateTimeout: number | undefined;
+const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation') => {
+    clearTimeout(descriptionUpdateTimeout);
+    descriptionUpdateTimeout = setTimeout(() => getUpgradeDescription(type), 150);
+};
+
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
     if (type === 'elements') {
         global.lastElement = index;
@@ -459,7 +473,7 @@ const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researc
         if ((type === 'upgrades' || type === 'researches' || type === 'researchesExtra') && global[`${type}Info`][player.stage.active].maxActive <= index) { return; }
         global.lastUpgrade[player.stage.active] = [index, type];
     }
-    getUpgradeDescription(type);
+    scheduleDescriptionUpdate(type);
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflation') => {
     if (type === 'inflation') {
@@ -467,7 +481,7 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
     } else if (type === 'strangeness') {
         global.lastStrangeness = [index, stageIndex];
     } else { global.lastMilestone = [index, stageIndex]; }
-    getUpgradeDescription(type);
+    scheduleDescriptionUpdate(type);
 };
 const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
@@ -1260,10 +1274,10 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'upgrades');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'upgrades');
         if (PC) {
-            image.addEventListener('mouseenter', () => {
+            image.addEventListener('mouseenter', onRealHover(() => {
                 hoverFunc();
                 if (player.toggles.hover[0]) { clickFunc(); }
-            });
+            }));
         }
         if (MD) {
             image.addEventListener('touchstart', () => {
@@ -1291,7 +1305,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researches');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'researches');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1322,7 +1336,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researchesExtra');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'researchesExtra');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1353,7 +1367,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researchesAuto');
         const clickFunc = () => handleAutoResearchCreation(i);
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { buyUpgrades(i, player.stage.active, 'researchesAuto'); }
             });
@@ -1383,7 +1397,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(0, 'ASR');
         const clickFunc = () => buyUpgrades(0, player.stage.active, 'ASR');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1474,10 +1488,10 @@ try { //Start everything
         const clickFunc = () => buyUpgrades(i, 4, 'elements');
         const hoverFunc = () => hoverUpgrades(i, 'elements');
         if (PC) {
-            image.addEventListener('mouseenter', () => {
+            image.addEventListener('mouseenter', onRealHover(() => {
                 hoverFunc();
                 if (player.toggles.hover[0]) { clickFunc(); }
-            });
+            }));
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
         if (MD) {
@@ -1531,7 +1545,7 @@ try { //Start everything
             const hoverFunc = () => hoverStrangeness(i, s, 'strangeness');
             const clickFunc = () => buyStrangenessMax(i, s, 'strangeness');
             if (PC) {
-                label.addEventListener('mouseenter', hoverFunc);
+                label.addEventListener('mouseenter', onRealHover(hoverFunc));
                 image.addEventListener('mouseenter', () => {
                     if (player.toggles.hover[1]) { clickFunc(); }
                 });
@@ -1583,7 +1597,7 @@ try { //Start everything
             const image = getQuery(`#milestone${i + 1}Stage${s}Div > input`) as HTMLInputElement;
             image.alt = global.milestonesInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'milestones');
-            if (PC) { image.addEventListener('mouseenter', hoverFunc); }
+            if (PC) { image.addEventListener('mouseenter', onRealHover(hoverFunc)); }
             if (MD) { image.addEventListener('touchstart', hoverFunc); }
             if (PC || SR) {
                 image.addEventListener('focus', () => {
@@ -1603,7 +1617,7 @@ try { //Start everything
             const hoverFunc = () => hoverStrangeness(i, s, 'inflation');
             const clickFunc = () => buyStrangenessMax(i, s, 'inflation');
             if (PC) {
-                label.addEventListener('mouseenter', hoverFunc);
+                label.addEventListener('mouseenter', onRealHover(hoverFunc));
                 image.addEventListener('mouseenter', () => {
                     if (player.toggles.hover[2]) { clickFunc(); }
                 });
