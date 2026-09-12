@@ -264,24 +264,26 @@
                 <section id="stageSubtabAdvanced" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div id="challengesMain">
                         <article aria-label="Challenges">
-                            <input type="image" src="Used_art/Void.png" alt="Void" draggable="false" id="challenge1" aria-controls="challengeMultiline challengeTimeLimit">
-                            <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum information" draggable="false" id="challenge2" aria-controls="challengeMultiline challengeTimeLimit">
-                            <input type="image" src="Used_art/Darkness.png" alt="Darkness" draggable="false" id="challenge3" aria-controls="challengeMultiline challengeTimeLimit">
+                            <input type="image" src="Used_art/Void.png" alt="Void" draggable="false" id="challenge1">
+                            <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum information" draggable="false" id="challenge2">
+                            <input type="image" src="Used_art/Darkness.png" alt="Darkness" draggable="false" id="challenge3">
                         </article>
                         <div>
                             <section>
                                 <h3 class="bigWord"><button type="button" id="challengeName" class="selectBtn" disabled>Missing</button><span id="challengeActive" class="greenText" style="display: none;">, active</span></h3>
-                                <div id="challengeMultiline"></div>
-                                <p id="challengeTimeLimit" class="blueText"><span>Time limit</span> is <span class="cyanText">1 eons</span></p>
+                                <div aria-live="polite" aria-atomic="true">
+                                    <div id="challengeMultiline"></div>
+                                    <p id="challengeTimeLimit" class="blueText"><span>Time limit</span> is <span class="cyanText">1 eons</span></p>
+                                </div>
                             </section>
                             <article id="challengeRewards" aria-labelledby="voidRewardsHead stabilityRewardsHead darknessTier">
                                 <button type="button" id="voidRewardsHead" class="selectBtn darkvioletText bigWord" style="display: none;">Void rewards:</button>
                                 <div id="voidRewards" style="display: none;">
-                                    <button type="button" id="voidReward1" class="hollowButton stage1borderButton cyanText" aria-controls="challengeRewardsMultiline">Microworld</button>
-                                    <button type="button" id="voidReward2" class="hollowButton stage2borderButton blueText" aria-controls="challengeRewardsMultiline">Submerged</button>
-                                    <button type="button" id="voidReward3" class="hollowButton stage3borderButton grayText" aria-controls="challengeRewardsMultiline">Accretion</button>
-                                    <button type="button" id="voidReward4" class="hollowButton stage4borderButton orangeText" aria-controls="challengeRewardsMultiline">Interstellar</button>
-                                    <button type="button" id="voidReward5" class="hollowButton stage5borderButton darkorchidText" aria-controls="challengeRewardsMultiline">Intergalactic</button>
+                                    <button type="button" id="voidReward1" class="hollowButton stage1borderButton cyanText">Microworld</button>
+                                    <button type="button" id="voidReward2" class="hollowButton stage2borderButton blueText">Submerged</button>
+                                    <button type="button" id="voidReward3" class="hollowButton stage3borderButton grayText">Accretion</button>
+                                    <button type="button" id="voidReward4" class="hollowButton stage4borderButton orangeText">Interstellar</button>
+                                    <button type="button" id="voidReward5" class="hollowButton stage5borderButton darkorchidText">Intergalactic</button>
                                 </div>
                                 <button type="button" id="stabilityRewardsHead" class="selectBtn darkorchidText bigWord" style="display: none;">Completions rewards:</button>
                                 <div id="darknessTierMain" class="bigWord" style="display: none;">
@@ -289,7 +291,7 @@
                                     <h3 id="darknessTier" class="grayText">Tier: <span class="whiteText">1</span>/<span class="whiteText">1</span></h3>
                                     <button type="button" id="darknessTierPlus" class="hollowButton">+</button>
                                 </div>
-                                <div id="challengeRewardsMultiline" class="whiteText"></div>
+                                <div id="challengeRewardsMultiline" class="whiteText" aria-live="polite" aria-atomic="true"></div>
                             </article>
                         </div>
                     </div>

@@ -1802,6 +1802,7 @@ export const getChallengeDescription = () => {
     const nameID = getId('challengeName');
     nameID.textContent = info.name;
     nameID.style.color = `var(--${info.color}-text)`;
+    nameID.ariaPressed = index === 0 ? `${player.toggles.supervoid}` : null;
     getId('challengeActive').style.display = isActive ? '' : 'none';
 
     const unlocked = index !== 1 || player.progress.main >= 22;

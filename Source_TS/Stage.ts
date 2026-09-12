@@ -3254,6 +3254,8 @@ export const toggleChallengeType = (change = false): boolean => {
     const info = global.challengesInfo[0];
     info.name = player.toggles.supervoid ? 'Supervoid' : 'Void';
     info.resetType = player.toggles.supervoid ? 'vacuum' : 'stage';
+    getId('voidSwitchFall').ariaPressed = `${player.toggles.supervoid}`;
+    if (global.lastChallenge[0] === 0) { getId('challengeName').ariaPressed = `${player.toggles.supervoid}`; }
     if (change) {
         assignChallengeInformation(0);
         if (reEnter) {
@@ -3417,6 +3419,13 @@ export const prepareDarkness = (enterExit = false as boolean | null, fullReset =
     }
 };
 
+/** Keeps the challenge1/2/3 icons' aria-pressed in sync with whichever challenge (if any) is actually active, reading current state directly rather than tracking transitions */
+export const syncChallengeAriaPressed = () => {
+    for (let i = 0; i < global.challengesInfo.length; i++) {
+        getId(`challenge${i + 1}`).ariaPressed = (i === 2 ? player.darkness.active : player.challenges.active === i) ? 'true' : 'false';
+    }
+};
+
 /** Null means exit if possible, nothing if isn't. Entering same challenge will exit out of it */
 export const enterExitChallengeUser = (index: number | null) => {
     const old = index === 2 && player.darkness.active ? 2 : player.challenges.active;
@@ -3448,6 +3457,7 @@ export const enterExitChallengeUser = (index: number | null) => {
             Notify(`Entered the ${global.challengesInfo[index].name}`);
         }
     }
+    syncChallengeAriaPressed();
 };
 const exitChallengeAuto = () => {
     const old = player.challenges.active;
@@ -3497,4 +3507,5 @@ const challengeReset = (next = null as number | null) => {
             }
         }
     }
+    syncChallengeAriaPressed();
 };

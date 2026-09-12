@@ -1,5 +1,5 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
-import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
+import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards, scheduleAriaCurrent } from './Update';
 import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
@@ -483,10 +483,30 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
     } else { global.lastMilestone = [index, stageIndex]; }
     scheduleDescriptionUpdate(type);
 };
+/** Same reasoning as scheduleDescriptionUpdate: delays the live-region write so it doesn't land in the same instant as the focus/activation event. */
+let challengeDescriptionTimeout: number | undefined;
+const scheduleChallengeDescription = () => {
+    clearTimeout(challengeDescriptionTimeout);
+    challengeDescriptionTimeout = setTimeout(getChallengeDescription, 150);
+};
+let challengeRewardsTimeout: number | undefined;
+const scheduleChallengeRewards = () => {
+    clearTimeout(challengeRewardsTimeout);
+    challengeRewardsTimeout = setTimeout(getChallengeRewards, 150);
+};
+/** Same idea as scheduleAriaCurrent, for a single button's own aria-pressed instead of an old/new pair. */
+let ariaPressedTimeout: number | undefined;
+const scheduleAriaPressed = (id: string, value: boolean) => {
+    clearTimeout(ariaPressedTimeout);
+    ariaPressedTimeout = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 150);
+};
+
 const hoverChallenge = (index: number) => {
+    const oldIndex = global.lastChallenge[0];
     global.lastChallenge[0] = index;
-    getChallengeDescription();
-    getChallengeRewards();
+    if (oldIndex !== index) { scheduleAriaCurrent(`challenge${oldIndex + 1}`, `challenge${index + 1}`); }
+    scheduleChallengeDescription();
+    scheduleChallengeRewards();
     visualUpdate();
 };
 /** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */
@@ -1217,8 +1237,14 @@ try { //Start everything
     getId('exitFooter').addEventListener('click', () => enterExitChallengeUser(null));
     for (let i = 0; i < global.challengesInfo.length; i++) {
         const image = getId(`challenge${i + 1}`);
-        if (!MD) { image.addEventListener('mouseenter', () => hoverChallenge(i)); }
+        if (!MD) { image.addEventListener('mouseenter', onRealHover(() => hoverChallenge(i))); }
         image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
+        if (PC || SR) {
+            image.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                hoverChallenge(i);
+            });
+        }
     }
     getId('challengeName').addEventListener('click', () => {
         if (global.lastChallenge[0] === 0) {
@@ -1247,19 +1273,21 @@ try { //Start everything
     });
     getId('voidRewardsHead').addEventListener('click', () => {
         global.sessionToggles[0] = !global.sessionToggles[0];
-        getChallengeRewards();
+        scheduleAriaPressed('voidRewardsHead', global.sessionToggles[0]);
+        scheduleChallengeRewards();
     });
     getId('stabilityRewardsHead').addEventListener('click', () => {
         global.sessionToggles[2] = !global.sessionToggles[2];
-        getChallengeRewards();
+        scheduleAriaPressed('stabilityRewardsHead', global.sessionToggles[2]);
+        scheduleChallengeRewards();
     });
     for (let s = 1; s <= 5; s++) {
         const image = getId(`voidReward${s}`);
         const clickFunc = () => {
             global.lastChallenge[1] = s;
-            getChallengeRewards();
+            scheduleChallengeRewards();
         };
-        image.addEventListener('mouseenter', clickFunc);
+        image.addEventListener('mouseenter', onRealHover(clickFunc));
         if (PC || SR) {
             image.addEventListener('focus', () => {
                 if (!global.hotkeys.tab) { return; }
