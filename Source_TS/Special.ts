@@ -3,7 +3,7 @@ import { deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playe
 import { global, player, prepareVacuum, updatePlayer } from './Player';
 import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
 import type { Quantum, globalSaveType, hotkeysList, numbersList } from './Types';
-import { format, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
+import { format, scheduleAriaCurrent, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
@@ -389,20 +389,23 @@ export const preventImageUnload = () => {
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
 export const setTheme = (theme = 'current' as 'current' | number | null, firstLoad = false) => {
     if (theme !== 'current') {
+        let oldThemeId: string | null = null;
         if (!firstLoad) {
             if (globalSave.theme === null || globalSave.theme > 0) {
                 getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
-                getId(`switchTheme${globalSave.theme ?? 0}`).ariaCurrent = null;
+                oldThemeId = `switchTheme${globalSave.theme ?? 0}`;
             }
 
             globalSave.theme = theme;
             saveGlobalSettings();
         }
         getId('currentTheme').textContent = theme === null ? 'Default' : theme === -1 ? 'Quantum' : global.stageInfo.word[theme];
+        let newThemeId: string | null = null;
         if (theme === null || theme > 0) {
             getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
-            getId(`switchTheme${theme ?? 0}`).ariaCurrent = 'true';
+            newThemeId = `switchTheme${theme ?? 0}`;
         }
+        if (oldThemeId !== null || newThemeId !== null) { scheduleAriaCurrent(oldThemeId, newThemeId); }
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];

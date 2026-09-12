@@ -2067,7 +2067,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
         global.automatization.autoE[s] = [];
 
         getId(`stageSwitch${s}`).style.textDecoration = global.trueActive === s ? 'underline' : '';
-        getId(`stageSwitch${s}`).ariaCurrent = global.trueActive === s ? 'true' : null;
+        getId(`stageSwitch${s}`).ariaCurrent = global.trueActive === s ? 'true' : null; //Immediate here: this is a bulk resync (load/import/reset), not a discrete click, so there's no adjacent focus/live-region announcement to race
         global.lastUpgrade[s][0] = null;
     }
     for (let i = 0; i < global.elementsInfo.firstCost.length; i++) { assignUpgradeCost(i, 4, 'elements'); }

@@ -2237,6 +2237,7 @@ try { //Start everything
     stageUpdate(true, true);
     if (globalSave.theme !== null) {
         getId('switchTheme0').style.textDecoration = '';
+        getId('switchTheme0').ariaCurrent = null;
         setTheme(globalSave.theme, true);
     }
     if (save !== null) {

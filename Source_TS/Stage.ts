@@ -5,7 +5,7 @@ import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, enterQuantum, enterUltravoid, errorNotify, globalSave, specialHTML } from './Special';
 import type { calculateEffectsType } from './Types';
-import { format, numbersUpdate, stageUpdate, switchTab, visualUpdate } from './Update';
+import { format, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
 
 /** Normal game tick, everything calculated in milliseconds */
 export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
@@ -2658,10 +2658,8 @@ export const switchStage = (stage: number, active = stage) => {
 
 /** Doesn't check for Stage being unlocked, requires stageUpdate() call afterwards */
 export const setActiveStage = (stage: number, active = stage) => {
-    if (!global.offline.active) {
-        getId(`stageSwitch${player.stage.active}`).style.textDecoration = '';
-        getId(`stageSwitch${player.stage.active}`).ariaCurrent = null;
-    }
+    const oldStageBtnId = `stageSwitch${player.stage.active}`;
+    if (!global.offline.active) { getId(oldStageBtnId).style.textDecoration = ''; }
     player.stage.active = stage;
     global.trueActive = active;
     if (global.offline.active) {
@@ -2669,7 +2667,7 @@ export const setActiveStage = (stage: number, active = stage) => {
         return;
     }
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
-    getId(`stageSwitch${stage}`).ariaCurrent = 'true';
+    scheduleAriaCurrent(oldStageBtnId, `stageSwitch${stage}`);
 
     if (global.tabs.current === 'upgrade') {
         if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades'); }
