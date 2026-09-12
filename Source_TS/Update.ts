@@ -49,7 +49,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
             }
         }
         getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
-        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current tab is ${tab}${subtabAmount > 1 ? ` and subtab is ${global.tabs[tab].current}` : ''}`; }
+        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${tab} tab${subtabAmount > 1 ? ` and subtab ${global.tabs[tab].current}` : ''}`; }
     } else {
         const oldSubtab = global.tabs[tab].current;
         getId(`${tab}Subtab${oldSubtab}`).style.display = 'none';
@@ -61,7 +61,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
         getId(`${tab}SubtabBtn${subtab}`).ariaCurrent = 'true';
         if (oldTab !== tab) { return; }
-        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current subtab is ${subtab}, part of ${tab} tab`; }
+        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${subtab} subtab, part of ${tab} tab`; }
     }
 
     const active = player.stage.active;
@@ -2238,7 +2238,7 @@ export const stageUpdate = (changed = true, ignoreOffline = false) => {
         numbersUpdate(ignoreOffline);
         return;
     }
-    if (globalSave.SRSettings[0]) { getId('SRStage').textContent = `Current active Stage is ${stageInfo.word[active]}${active !== global.trueActive ? `, will be changed to ${stageInfo.word[global.trueActive]} after changing tab` : ''}`; }
+    if (globalSave.SRSettings[0]) { getId('SRStage').textContent = `Active Stage is ${stageInfo.word[active]}${active !== global.trueActive ? `, will be changed to ${stageInfo.word[global.trueActive]} after changing tab` : ''}`; }
     global.debug.visited.upgrade = false;
 
     const footerStatsHTML = specialHTML.footerStatsHTML[active];
