@@ -1,7 +1,7 @@
 import Overlimit from './Limit';
 import { assignInnerHTML, cloneArray, deepClone, getId, getQuery, playerStart, toggleConfirm, toggleSwap } from './Main';
 import { globalSave, specialHTML } from './Special';
-import { assignMaxLevel, assignMilestoneInformation, calculateEffects, assignBuildingsProduction, assignResetInformation, assignChallengeInformation, logAny, toggleChallengeType, prepareDarkness, assignUpgradeCost, syncChallengeAriaPressed } from './Stage';
+import { assignMaxLevel, assignMilestoneInformation, calculateEffects, assignBuildingsProduction, assignResetInformation, assignChallengeInformation, logAny, toggleChallengeType, prepareDarkness, assignUpgradeCost, syncChallengeEnterExit } from './Stage';
 import type { globalType, playerType, vacuumStartType } from './Types';
 import { format, switchTab, updateCollapsePoints, visualProgressUnlocks } from './Update';
 
@@ -2086,7 +2086,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
     global.lastMilestone = [null, 0];
     global.lastChallenge[0] = player.challenges.active !== null ? player.challenges.active : player.darkness.active ? 2 : 1;
     for (let i = 0; i < global.challengesInfo.length; i++) { getId(`challenge${i + 1}`).ariaCurrent = global.lastChallenge[0] === i ? 'true' : null; }
-    syncChallengeAriaPressed();
+    syncChallengeEnterExit();
     global.sessionToggles[0] = player.toggles.supervoid;
     global.sessionToggles[2] = false;
     getId('voidRewardsHead').ariaPressed = `${global.sessionToggles[0]}`;

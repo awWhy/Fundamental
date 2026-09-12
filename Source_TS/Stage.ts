@@ -3419,11 +3419,32 @@ export const prepareDarkness = (enterExit = false as boolean | null, fullReset =
     }
 };
 
-/** Keeps the challenge1/2/3 icons' aria-pressed in sync with whichever challenge (if any) is actually active, reading current state directly rather than tracking transitions */
-export const syncChallengeAriaPressed = () => {
-    for (let i = 0; i < global.challengesInfo.length; i++) {
-        getId(`challenge${i + 1}`).ariaPressed = (i === 2 ? player.darkness.active : player.challenges.active === i) ? 'true' : 'false';
-    }
+/**
+ * Keeps the dedicated Enter/Exit button (#challengeEnterExit) in sync with whether the
+ * challenge currently shown in the Advanced subtab's panel (global.lastChallenge[0]) is the
+ * one actually active, reading ground truth directly rather than tracking transitions.
+ *
+ * This button exists to separate two previously-conflated ideas:
+ *   - "which challenge is being VIEWED" (challenge1/2/3, now plain click-to-switch tabs, see
+ *     selectChallenge() in Main.ts and the aria-current wiring there)
+ *   - "is the VIEWED challenge actually ENTERED" (this button, aria-pressed + Enter/Exit text)
+ * Previously challenge1/2/3 did both jobs on the same element (hover/focus to preview, click
+ * again while already previewed to enter/exit), which is exactly the ambiguity a keyboard or
+ * screen reader user can't resolve without already knowing the convention. Splitting it into a
+ * view-selector (plain tab semantics) and a separate, always-explicit action button removes
+ * that ambiguity for every user, not just assistive-tech ones - see the tab-bar redesign commit
+ * for the fuller rationale.
+ *
+ * Called after any state-changing action (enterExitChallengeUser, challengeReset - which also
+ * covers the automatic time-limit exit) and whenever the viewed challenge changes
+ * (selectChallenge), so it can never drift out of sync with either dimension.
+ */
+export const syncChallengeEnterExit = () => {
+    const index = global.lastChallenge[0];
+    const isActive = index === 2 ? player.darkness.active : player.challenges.active === index;
+    const button = getId('challengeEnterExit');
+    button.textContent = isActive ? 'Exit' : 'Enter';
+    button.ariaPressed = isActive ? 'true' : 'false';
 };
 
 /** Null means exit if possible, nothing if isn't. Entering same challenge will exit out of it */
@@ -3457,7 +3478,7 @@ export const enterExitChallengeUser = (index: number | null) => {
             Notify(`Entered the ${global.challengesInfo[index].name}`);
         }
     }
-    syncChallengeAriaPressed();
+    syncChallengeEnterExit();
 };
 const exitChallengeAuto = () => {
     const old = player.challenges.active;
@@ -3507,5 +3528,5 @@ const challengeReset = (next = null as number | null) => {
             }
         }
     }
-    syncChallengeAriaPressed();
+    syncChallengeEnterExit();
 };

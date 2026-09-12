@@ -1,6 +1,6 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards, scheduleAriaCurrent } from './Update';
-import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, syncChallengeEnterExit, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
@@ -483,11 +483,22 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
     } else { global.lastMilestone = [index, stageIndex]; }
     scheduleDescriptionUpdate(type);
 };
-/** Same reasoning as scheduleDescriptionUpdate: delays the live-region write so it doesn't land in the same instant as the focus/activation event. */
+/**
+ * Delays the challenge description panel's refresh (name/effect/time-limit text and the
+ * Enter/Exit button) so it settles at the same ~150ms mark as scheduleAriaCurrent, rather than
+ * showing the newly-current tab's aria-current state a beat before its actual content catches
+ * up. challengeMultiline/challengeTimeLimit are plain content, not a live region (see the
+ * "Revert challenge description live region" commit - they contain live countdowns that made a
+ * live region re-fire every tick), so this delay is purely for visual consistency now, not an
+ * assistive-tech race mitigation.
+ */
 let challengeDescriptionTimeout: number | undefined;
 const scheduleChallengeDescription = () => {
     clearTimeout(challengeDescriptionTimeout);
-    challengeDescriptionTimeout = setTimeout(getChallengeDescription, 150);
+    challengeDescriptionTimeout = setTimeout(() => {
+        getChallengeDescription();
+        syncChallengeEnterExit();
+    }, 150);
 };
 let challengeRewardsTimeout: number | undefined;
 const scheduleChallengeRewards = () => {
@@ -501,13 +512,22 @@ const scheduleAriaPressed = (id: string, value: boolean) => {
     ariaPressedTimeout = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 150);
 };
 
-const hoverChallenge = (index: number) => {
+/**
+ * Switches which challenge (Void/Vacuum stability/Darkness) the Advanced subtab's shared
+ * description+rewards panel shows. This is a plain, click-only tab switch - like
+ * stageSubtabBtnStructures/stageSubtabBtnAdvanced - not a hover preview and not itself an
+ * enter/exit action; see the challenge1/2/3 click-listener setup below and
+ * syncChallengeEnterExit() in Stage.ts for why those two concerns were split apart.
+ */
+const selectChallenge = (index: number) => {
     const oldIndex = global.lastChallenge[0];
     global.lastChallenge[0] = index;
-    if (oldIndex !== index) { scheduleAriaCurrent(`challenge${oldIndex + 1}`, `challenge${index + 1}`); }
+    scheduleAriaCurrent(`challenge${oldIndex + 1}`, `challenge${index + 1}`);
     scheduleChallengeDescription();
     getChallengeRewards(false); //Silent: only voidReward/voidRewardsHead focus should announce the reward block
     visualUpdate();
+    //Deliberately doesn't say "current" - see the SRTab/SRStage rewording commit for why that collides with aria-current's own announcement
+    if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now viewing ${global.challengesInfo[index].name}, part of Advanced subtab`; }
 };
 /** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */
 const handleAutoResearchCreation = (index: number) => {
@@ -1235,17 +1255,16 @@ try { //Start everything
     }
 
     getId('exitFooter').addEventListener('click', () => enterExitChallengeUser(null));
+    //challenge1/2/3 are plain view-selector tabs now (click/Enter/Space only, no hover-preview and no focus auto-switch) - see selectChallenge() above
     for (let i = 0; i < global.challengesInfo.length; i++) {
-        const image = getId(`challenge${i + 1}`);
-        if (!MD) { image.addEventListener('mouseenter', onRealHover(() => hoverChallenge(i))); }
-        image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
-        if (PC || SR) {
-            image.addEventListener('focus', () => {
-                if (!global.hotkeys.tab) { return; }
-                hoverChallenge(i);
-            });
-        }
+        getId(`challenge${i + 1}`).addEventListener('click', () => selectChallenge(i));
     }
+    //Dedicated Enter/Exit action, decoupled from which challenge is merely being viewed - see syncChallengeEnterExit() in Stage.ts
+    getId('challengeEnterExit').addEventListener('click', () => {
+        enterExitChallengeUser(global.lastChallenge[0]);
+        getChallengeDescription();
+        syncChallengeEnterExit();
+    });
     getId('challengeName').addEventListener('click', () => {
         if (global.lastChallenge[0] === 0) {
             toggleChallengeType(true);
