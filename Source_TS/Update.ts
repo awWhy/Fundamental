@@ -1928,46 +1928,54 @@ const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades
 const visualUpdateResearches = (index: number, stageIndex: number, type: 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'strangeness' | 'inflation') => {
     let max: number;
     let level: number;
+    let name: string;
     let textPointer: string;
     if (type === 'researches' || type === 'researchesExtra') {
         if (stageIndex !== player.stage.active) { return; }
-        max = global[`${type}Info`][stageIndex].max[index];
+        const pointer = global[`${type}Info`][stageIndex];
+        max = pointer.max[index];
         level = player[type][stageIndex][index];
+        name = pointer.name[index];
 
         textPointer = `#research${type === 'researches' ? '' : 'Extra'}${index + 1}`;
     } else if (type === 'researchesAuto') {
         max = global.researchesAutoInfo.max[index];
         level = player.researchesAuto[index];
+        name = global.researchesAutoInfo.name[index];
 
         textPointer = `#researchAuto${index + 1}`;
     } else if (type === 'ASR') {
         if (stageIndex !== player.stage.active) { return; }
         max = global.ASRInfo.max[stageIndex];
         level = player.ASR[stageIndex];
+        name = global.ASRInfo.name;
 
         textPointer = '#ASR';
     } else if (type === 'strangeness') {
         max = global.strangenessInfo[stageIndex].max[index];
         level = player.strangeness[stageIndex][index];
+        name = global.strangenessInfo[stageIndex].name[index];
 
         textPointer = `#strange${index + 1}Stage${stageIndex}`;
     } else /*if (type === 'inflation')*/ {
         max = global.treeInfo[stageIndex].max[index];
         level = player.tree[stageIndex][index];
+        name = global.treeInfo[stageIndex].name[index];
 
         textPointer = `#inflation${index + 1}Tree${stageIndex + 1}`;
     }
 
+    const inputHTML = getQuery(`${textPointer} > input`);
     let text = '<span class="';
     if (level >= max) {
         text += 'greenText';
-        getQuery(`${textPointer} > input`).tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
+        inputHTML.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
     } else if (level === 0) {
         text += 'redText';
-        getQuery(`${textPointer} > input`).tabIndex = 0;
+        inputHTML.tabIndex = 0;
     } else {
         text += 'orchidText';
-        getQuery(`${textPointer} > input`).tabIndex = 0;
+        inputHTML.tabIndex = 0;
     }
     text += `">${format(level, { padding: 'exponent' })}</span>`;
     if (max < 1e3) { text += `/<span class="greenText">${max}</span>`; }
@@ -1976,6 +1984,7 @@ const visualUpdateResearches = (index: number, stageIndex: number, type: 'resear
     if (assignInnerHTML(mainHTML, text)) {
         mainHTML.classList[max < 1e3 ? 'remove' : 'add']('noMaxLevel');
     }
+    if (globalSave.SRSettings[0]) { inputHTML.ariaLabel = `${name}. Level ${format(level, { padding: 'exponent' })}${max < 1e3 ? ` out of ${max}` : ''}`; }
 };
 
 const updateRankInfo = () => {
