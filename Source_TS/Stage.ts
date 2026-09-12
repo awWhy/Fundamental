@@ -5,7 +5,7 @@ import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, enterQuantum, enterUltravoid, errorNotify, globalSave, specialHTML } from './Special';
 import type { calculateEffectsType } from './Types';
-import { format, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
+import { format, markChallengeRewardsSilent, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
 
 /** Normal game tick, everything calculated in milliseconds */
 export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
@@ -3262,8 +3262,18 @@ export const toggleChallengeType = (change = false): boolean => {
             enterExitChallengeUser(0);
             if (player.challenges.active !== 0) { Notify(`Failed to re-enter '${info.name}'`); }
         }
+        //Void and Supervoid have different reward sets, so the numbersUpdate() call right below
+        //would otherwise announce that change and bury the Notify above under a reward-block
+        //announcement - see markChallengeRewardsSilent's doc comment for why this is a one-shot
+        //flag consumed by that same call rather than a separate render here
+        if (global.lastChallenge[0] === 0) { markChallengeRewardsSilent(); }
         numbersUpdate();
         visualUpdate();
+        //Flipping Void<->Supervoid changes allowedToEnter(0)'s result, so the dedicated Enter/Exit
+        //button needs refreshing even when this didn't go through enterExitChallengeUser/
+        //challengeReset (those already call this themselves) - e.g. toggling while not currently
+        //inside challenge 0, whether via challengeName, voidSwitchFall, or the Shift+S hotkey
+        syncChallengeEnterExit();
     }
     return true;
 };
@@ -3419,11 +3429,75 @@ export const prepareDarkness = (enterExit = false as boolean | null, fullReset =
     }
 };
 
-/** Keeps the challenge1/2/3 icons' aria-pressed in sync with whichever challenge (if any) is actually active, reading current state directly rather than tracking transitions */
-export const syncChallengeAriaPressed = () => {
-    for (let i = 0; i < global.challengesInfo.length; i++) {
-        getId(`challenge${i + 1}`).ariaPressed = (i === 2 ? player.darkness.active : player.challenges.active === i) ? 'true' : 'false';
+/**
+ * Human-readable reason `index` can't be entered right now, or null if it currently can be.
+ * Deliberately does NOT duplicate allowedToEnter()'s conditions - it's called only after
+ * allowedToEnter() has already returned false, and only has to explain the branch that's
+ * actually reachable at that point in the UI (see the comments below for what's excluded, and
+ * why). If allowedToEnter() ever grows a new failure case, this needs a matching branch or it
+ * will fall through to the generic message.
+ */
+const challengeUnavailableReason = (index: number): string => {
+    if (index === 0) {
+        //allowedToEnter(0) also requires progress.main >= 17, but challenge1 itself stays
+        //hidden (Update.ts) until that same threshold, so by the time this button is reachable
+        //the only way to still fail is the Vacuum/Supervoid half of the condition
+        return 'False Vacuum';
     }
+    if (index === 2) {
+        //Same reasoning as index 0: allowedToEnter(2)'s only practically-reachable failure once
+        //challenge3 is visible is the Strangeness requirement - phrasing matches the existing
+        //hint for this exact requirement elsewhere (Player.ts, Abyss automatization description)
+        return `Requires '${global.strangenessInfo[6].name[3]}' Strangeness`;
+    }
+    //index 1 (Vacuum stability) has no reachable failure case: allowedToEnter(1) and the
+    //panel's own unlock check are the same threshold (progress.main >= 22), so the panel is
+    //hidden entirely below it and always enterable once shown. This fallback exists only so a
+    //future change to either condition fails loud (a vague label) instead of silently wrong.
+    return 'not currently possible';
+};
+
+/**
+ * Keeps the dedicated Enter/Exit button (#challengeEnterExit) in sync with whether the
+ * challenge currently shown in the Advanced subtab's panel (global.lastChallenge[0]) is the
+ * one actually active, reading ground truth directly rather than tracking transitions.
+ *
+ * This button exists to separate two previously-conflated ideas:
+ *   - "which challenge is being VIEWED" (challenge1/2/3, now plain click-to-switch tabs, see
+ *     selectChallenge() in Main.ts and the aria-current wiring there)
+ *   - "is the VIEWED challenge actually ENTERED" (this button, aria-pressed + Enter/Exit text)
+ * Previously challenge1/2/3 did both jobs on the same element (hover/focus to preview, click
+ * again while already previewed to enter/exit), which is exactly the ambiguity a keyboard or
+ * screen reader user can't resolve without already knowing the convention. Splitting it into a
+ * view-selector (plain tab semantics) and a separate, always-explicit action button removes
+ * that ambiguity for every user, not just assistive-tech ones - see the tab-bar redesign commit
+ * for the fuller rationale.
+ *
+ * Also disables the button (with an "Unavailable: <reason>" label) when the viewed challenge
+ * isn't currently active AND allowedToEnter() says it can't be entered - previously clicking
+ * Enter in that state was a silent no-op with no feedback at all (true for both the old
+ * click-again-to-enter icon and this button, until now). Exiting is never gated this way:
+ * allowedToEnter() only governs entry, so an active challenge can always be exited.
+ *
+ * Called after any state-changing action (enterExitChallengeUser, challengeReset - which also
+ * covers the automatic time-limit exit) and whenever the viewed challenge changes
+ * (selectChallenge), so it can never drift out of sync with either dimension.
+ */
+export const syncChallengeEnterExit = () => {
+    const index = global.lastChallenge[0];
+    const isActive = index === 2 ? player.darkness.active : player.challenges.active === index;
+    const button = getId('challengeEnterExit') as HTMLButtonElement;
+    if (isActive) {
+        button.textContent = 'Exit';
+        button.disabled = false;
+    } else if (allowedToEnter(index)) {
+        button.textContent = 'Enter';
+        button.disabled = false;
+    } else {
+        button.textContent = `Unavailable: ${challengeUnavailableReason(index)}`;
+        button.disabled = true;
+    }
+    button.ariaPressed = isActive ? 'true' : 'false';
 };
 
 /** Null means exit if possible, nothing if isn't. Entering same challenge will exit out of it */
@@ -3457,7 +3531,7 @@ export const enterExitChallengeUser = (index: number | null) => {
             Notify(`Entered the ${global.challengesInfo[index].name}`);
         }
     }
-    syncChallengeAriaPressed();
+    syncChallengeEnterExit();
 };
 const exitChallengeAuto = () => {
     const old = player.challenges.active;
@@ -3507,5 +3581,5 @@ const challengeReset = (next = null as number | null) => {
             }
         }
     }
-    syncChallengeAriaPressed();
+    syncChallengeEnterExit();
 };
