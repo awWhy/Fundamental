@@ -2645,6 +2645,7 @@ export const switchStage = (stage: number, active = stage) => {
         if (player.stage.active === stage && global.trueActive !== stage) {
             global.trueActive = stage;
             getId(`stageSwitch${stage}`).style.textDecoration = 'underline';
+            getId(`stageSwitch${stage}`).ariaCurrent = 'true';
         }
         visualUpdate();
         numbersUpdate();
@@ -2657,7 +2658,10 @@ export const switchStage = (stage: number, active = stage) => {
 
 /** Doesn't check for Stage being unlocked, requires stageUpdate() call afterwards */
 export const setActiveStage = (stage: number, active = stage) => {
-    if (!global.offline.active) { getId(`stageSwitch${player.stage.active}`).style.textDecoration = ''; }
+    if (!global.offline.active) {
+        getId(`stageSwitch${player.stage.active}`).style.textDecoration = '';
+        getId(`stageSwitch${player.stage.active}`).ariaCurrent = null;
+    }
     player.stage.active = stage;
     global.trueActive = active;
     if (global.offline.active) {
@@ -2665,6 +2669,7 @@ export const setActiveStage = (stage: number, active = stage) => {
         return;
     }
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
+    getId(`stageSwitch${stage}`).ariaCurrent = 'true';
 
     if (global.tabs.current === 'upgrade') {
         if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades'); }

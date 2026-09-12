@@ -29,10 +29,12 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         if (oldTab === tab) { return changeSubtab('up'); }
         getId(`${oldTab}Tab`).style.display = 'none';
         getId(`${oldTab}TabBtn`).classList.remove('tabActive');
+        getId(`${oldTab}TabBtn`).ariaCurrent = null;
 
         global.tabs.current = tab;
         getId(`${tab}Tab`).style.display = '';
         getId(`${tab}TabBtn`).classList.add('tabActive');
+        getId(`${tab}TabBtn`).ariaCurrent = 'true';
 
         let subtabAmount = 0;
         for (const inside of global.tabs[oldTab].list) {
@@ -52,10 +54,12 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         const oldSubtab = global.tabs[tab].current;
         getId(`${tab}Subtab${oldSubtab}`).style.display = 'none';
         getId(`${tab}SubtabBtn${oldSubtab}`).classList.remove('tabActive');
+        getId(`${tab}SubtabBtn${oldSubtab}`).ariaCurrent = null;
 
         global.tabs[tab].current = subtab;
         getId(`${tab}Subtab${subtab}`).style.display = '';
         getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
+        getId(`${tab}SubtabBtn${subtab}`).ariaCurrent = 'true';
         if (oldTab !== tab) { return; }
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current subtab is ${subtab}, part of ${tab} tab`; }
     }

@@ -390,13 +390,19 @@ export const preventImageUnload = () => {
 export const setTheme = (theme = 'current' as 'current' | number | null, firstLoad = false) => {
     if (theme !== 'current') {
         if (!firstLoad) {
-            if (globalSave.theme === null || globalSave.theme > 0) { getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = ''; }
+            if (globalSave.theme === null || globalSave.theme > 0) {
+                getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
+                getId(`switchTheme${globalSave.theme ?? 0}`).ariaCurrent = null;
+            }
 
             globalSave.theme = theme;
             saveGlobalSettings();
         }
         getId('currentTheme').textContent = theme === null ? 'Default' : theme === -1 ? 'Quantum' : global.stageInfo.word[theme];
-        if (theme === null || theme > 0) { getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline'; }
+        if (theme === null || theme > 0) {
+            getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
+            getId(`switchTheme${theme ?? 0}`).ariaCurrent = 'true';
+        }
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];
