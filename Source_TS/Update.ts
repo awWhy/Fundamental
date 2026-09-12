@@ -686,7 +686,7 @@ export const visualUpdate = (ignoreOffline = false) => {
         }
         if (highest >= 15 && player.challenges.supervoid[1] < 1 && global.debug.supervoid !== player.cosmon[0].total) {
             global.debug.supervoid = player.cosmon[0].total;
-            if (global.debug.supervoid >= 2) { Notify("Click the underlined 'Void' button in the 'Advanced' subtab to toggle the 'Supervoid'"); }
+            if (global.debug.supervoid >= 2) { Notify("Click the underlined 'Void' button in the 'Advanced' subtab to toggle the 'Supervoid', then use the Enter button to begin it"); }
         }
     }
     if (specialHTML.bigWindow === 'hotkeys') {
