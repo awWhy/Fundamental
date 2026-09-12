@@ -5,7 +5,7 @@ import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, enterQuantum, enterUltravoid, errorNotify, globalSave, specialHTML } from './Special';
 import type { calculateEffectsType } from './Types';
-import { format, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
+import { format, markChallengeRewardsSilent, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
 
 /** Normal game tick, everything calculated in milliseconds */
 export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
@@ -3262,6 +3262,11 @@ export const toggleChallengeType = (change = false): boolean => {
             enterExitChallengeUser(0);
             if (player.challenges.active !== 0) { Notify(`Failed to re-enter '${info.name}'`); }
         }
+        //Void and Supervoid have different reward sets, so the numbersUpdate() call right below
+        //would otherwise announce that change and bury the Notify above under a reward-block
+        //announcement - see markChallengeRewardsSilent's doc comment for why this is a one-shot
+        //flag consumed by that same call rather than a separate render here
+        if (global.lastChallenge[0] === 0) { markChallengeRewardsSilent(); }
         numbersUpdate();
         visualUpdate();
         //Flipping Void<->Supervoid changes allowedToEnter(0)'s result, so the dedicated Enter/Exit

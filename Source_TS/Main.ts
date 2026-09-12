@@ -500,6 +500,7 @@ const scheduleChallengeDescription = () => {
         syncChallengeEnterExit();
     }, 150);
 };
+/** Same reasoning as scheduleAriaCurrent/scheduleChallengeDescription: delays the write so it doesn't land in the same instant as the focus/activation event on whichever reward button triggered it. */
 let challengeRewardsTimeout: number | undefined;
 const scheduleChallengeRewards = () => {
     clearTimeout(challengeRewardsTimeout);
