@@ -901,6 +901,9 @@ try { //Start everything
         specialHTML.styleSheet.textContent += ` #strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
             #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }`;
         getId('strangenessResearch').append(pages);
+        //Immediate here: this is init, not a discrete click, so there's no adjacent focus/live-region announcement to race (same reasoning as the stageSwitch/challenge initial sync)
+        getId('strangenessPage1').classList.add('tabActive');
+        getId('strangenessPage1').ariaCurrent = 'true';
         const createStrButton = document.createElement('button');
         createStrButton.className = 'hollowButton';
         createStrButton.textContent = 'Create';

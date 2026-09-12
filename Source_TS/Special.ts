@@ -1520,9 +1520,24 @@ export const enterQuantum = () => {
     }, continuation ? 0 : 6_000); //Adds exit button
 };
 
+/**
+ * Mobile-only pagination for the Strangeness 'Matter' subtab: desktop shows every Stage's
+ * Strangeness section at once, but that doesn't fit a phone screen, so mobile shows one Stage at
+ * a time via strangenessPage1-6 (Main.ts). This only ever swapped which section was visible -
+ * the page buttons themselves never got any current-page indication, visual or otherwise, so a
+ * screen reader (or a sighted user, for that matter) had no way to tell which page was selected
+ * without checking which section happened to be showing. Brought in line with every other
+ * tab-like selector in the game (aria-current + the shared 'tabActive' highlight class, same
+ * SRTab announcement convention as switchTab()'s subtab case and selectChallenge()).
+ */
 export const MDStrangenessPage = (stageIndex: number) => {
-    getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
+    const oldIndex = global.debug.MDStrangePage;
+    getId(`strangenessSection${oldIndex}`).style.display = 'none';
+    getId(`strangenessPage${oldIndex}`).classList.remove('tabActive');
     getId(`strangenessSection${stageIndex}`).style.display = '';
+    getId(`strangenessPage${stageIndex}`).classList.add('tabActive');
+    scheduleAriaCurrent(`strangenessPage${oldIndex}`, `strangenessPage${stageIndex}`);
+    if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now viewing ${global.stageInfo.word[stageIndex]}'s Strangeness, part of Matter subtab`; }
     global.debug.MDStrangePage = stageIndex;
 };
 

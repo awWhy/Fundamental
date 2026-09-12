@@ -306,6 +306,13 @@ export const toggleAll = () => {
     visualUpdate();
 };
 
+/**
+ * Reviewed during an accessibility sweep and deliberately left without aria-pressed, unlike
+ * every other toggle-style button in the game. shiftFooter is tabindex="-1" (not reachable via
+ * Tab at all) and its purpose/intended audience wasn't clear enough to confidently design an
+ * accessible treatment for - flagging this for a developer who knows its intent to decide on,
+ * rather than guessing.
+ */
 export const toggleShift = (value: boolean) => {
     const button = getId('shiftFooter');
     button.style.borderColor = value ? 'forestgreen' : '';
