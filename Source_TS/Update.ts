@@ -1992,19 +1992,36 @@ const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades
             } else if (stageIndex === 6) {
                 color = '#660000'; //Darker maroon
             }
-            image.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
-        } else { image.tabIndex = 0; }
+            //Same condition already used to hide maxed items from the Tab order (skipped unless
+            //Screen reader support and "Keep tab index on created Upgrades" are both on) - on
+            //mobile, hiding from the swipe order isn't reliable the way it is for Tab, so
+            //aria-disabled announces the same "already maxed" status instead, without touching
+            //the item's own hover/touch preview.
+            const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+            image.tabIndex = hideMaxed ? -1 : 0;
+            if (globalSave.MDSettings[0]) { image.ariaDisabled = hideMaxed ? 'true' : null; }
+        } else {
+            image.tabIndex = 0;
+            if (globalSave.MDSettings[0]) { image.ariaDisabled = null; }
+        }
         image.style.backgroundColor = color;
     } else if (type === 'elements') {
         const image = getId(`element${index}`);
         if (player.elements[index] >= 1) {
             image.classList.remove('awaiting');
             image.classList.add('created');
-            if (index > 0) { image.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1; }
+            if (index > 0) {
+                const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+                image.tabIndex = hideMaxed ? -1 : 0;
+                if (globalSave.MDSettings[0]) { image.ariaDisabled = hideMaxed ? 'true' : null; }
+            }
         } else {
             image.classList[player.elements[index] > 0 ? 'add' : 'remove']('awaiting');
             image.classList.remove('created');
-            if (index > 0) { image.tabIndex = 0; }
+            if (index > 0) {
+                image.tabIndex = 0;
+                if (globalSave.MDSettings[0]) { image.ariaDisabled = null; }
+            }
         }
     }
 };
@@ -2053,13 +2070,23 @@ const visualUpdateResearches = (index: number, stageIndex: number, type: 'resear
     let text = '<span class="';
     if (level >= max) {
         text += 'greenText';
-        inputHTML.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
+        //Same condition already used to hide maxed items from the Tab order (skipped unless
+        //Screen reader support and "Keep tab index on created Upgrades" are both on) - on mobile,
+        //hiding from the swipe order isn't reliable the way it is for Tab, so aria-disabled
+        //announces the same "already maxed" status instead, without touching the item's own
+        //hover/touch preview. Shared by researches/researchesExtra/researchesAuto/ASR/strangeness/
+        //inflation, so it applies identically to all of them, not just one type.
+        const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+        inputHTML.tabIndex = hideMaxed ? -1 : 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = hideMaxed ? 'true' : null; }
     } else if (level === 0) {
         text += 'redText';
         inputHTML.tabIndex = 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = null; }
     } else {
         text += 'orchidText';
         inputHTML.tabIndex = 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = null; }
     }
     text += `">${format(level, { padding: 'exponent' })}</span>`;
     if (max < 1e3) { text += `/<span class="greenText">${max}</span>`; }
