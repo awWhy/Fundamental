@@ -7,3 +7,6 @@ Code.js
 
 # Exported save files (personal gameplay saves, not project data)
 Fundamental, *.txt
+
+# Portable test build (packaged copy of the runnable game, rebuilt as needed - not source)
+fundamental.zip
