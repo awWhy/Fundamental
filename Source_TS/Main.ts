@@ -553,7 +553,7 @@ const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researches
 };
 
 /** DOM id for an upgrade-family item - used to move aria-current onto whatever's currently selected */
-const upgradeElementId = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR'): string => {
+export const upgradeElementId = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR'): string => {
     if (type === 'ASR') { return 'ASR'; }
     if (type === 'researchesAuto') { return `researchAuto${index + 1}`; }
     if (type === 'researchesExtra') { return `researchExtra${index + 1}`; }

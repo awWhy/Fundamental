@@ -1,7 +1,7 @@
 import { checkTab, stageResetType } from './Check';
 import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
-import { assignInnerHTML, getClass, getId, getQuery, toggleSwap } from './Main';
+import { assignInnerHTML, getClass, getId, getQuery, toggleSwap, upgradeElementId } from './Main';
 import { effectsCache, global, player, universeName } from './Player';
 import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, specialHTML } from './Special';
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost, syncCreateButton } from './Stage';
@@ -910,6 +910,13 @@ export const visualUpdate = (ignoreOffline = false) => {
                 const researchesInfo = global.researchesInfo[active];
                 const researchesExtraInfo = global.researchesExtraInfo[active];
                 const researchExtraDivHTML = specialHTML.researchExtraDivHTML[active];
+                //Captured before specialHTML.last* get reassigned below (to the new Stage's own,
+                //possibly smaller, counts) - needed so the aria-current clear further down covers
+                //every slot that could have been visible under the *previous* Stage, not just
+                //however many the new one happens to have.
+                const previousLastUpgrade = specialHTML.lastUpgrade;
+                const previousLastResearch = specialHTML.lastResearch;
+                const previousLastResearchExtra = specialHTML.lastResearchExtra;
                 for (let i = upgradesInfo.maxActive; i < specialHTML.lastUpgrade; i++) { getId(`upgrade${i + 1}`).style.display = 'none'; }
                 for (let i = researchesInfo.maxActive; i < specialHTML.lastResearch; i++) { getId(`research${i + 1}`).style.display = 'none'; }
                 for (let i = researchesExtraInfo.maxActive; i < specialHTML.lastResearchExtra; i++) { getId(`researchExtra${i + 1}`).style.display = 'none'; }
@@ -993,6 +1000,23 @@ export const visualUpdate = (ignoreOffline = false) => {
                 const extraImgId = getQuery('#extraResearches > img') as HTMLImageElement;
                 extraImgId.src = `Used_art/${researchExtraDivHTML[0]}`;
                 extraImgId.dataset.title = `${researchExtraDivHTML[2]} Researches (Special)`;
+
+                //These DOM slots get rewritten with a different Stage's items above, so any
+                //aria-current left over from before this Stage change would now be sitting on a
+                //slot showing completely different content - actively claiming the wrong item is
+                //selected, not just stale. Clear it everywhere it could be, then reapply only if
+                //this new Stage actually has its own remembered selection (mirrors the visible
+                //description panel, which likewise only ever reflects the active Stage's own
+                //global.lastUpgrade entry - see getUpgradeDescription).
+                if (globalSave.MDSettings[0]) {
+                    for (let i = 0; i < previousLastUpgrade; i++) { getId(`upgrade${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < previousLastResearch; i++) { getId(`research${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < previousLastResearchExtra; i++) { getId(`researchExtra${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < global.researchesAutoInfo.name.length; i++) { getId(`researchAuto${i + 1}`).ariaCurrent = null; }
+                    getId('ASR').ariaCurrent = null;
+                    const [selectedIndex, selectedType] = global.lastUpgrade[active];
+                    if (selectedIndex !== null) { getId(upgradeElementId(selectedIndex, selectedType)).ariaCurrent = 'true'; }
+                }
 
                 global.debug.visited.upgrade = true;
                 if (highest < 17) { getId('researches').style.display = ''; }
