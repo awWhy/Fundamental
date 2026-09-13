@@ -1407,6 +1407,11 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            //TalkBack's plain double-tap never reaches touchstart (it's consumed for exploration/
+            //activation and only a real click is synthesized) - only "double-tap and hold" passes
+            //a real touchstart through. This lets a plain double-tap announce the item without
+            //buying it; buying still only happens via the existing hold gesture above.
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
@@ -1438,6 +1443,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1469,6 +1475,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1500,6 +1507,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1530,6 +1538,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1620,6 +1629,7 @@ try { //Start everything
                 if (player.toggles.hover[0]) { clickFunc(); }
                 repeatFunction(clickFunc);
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else { image.addEventListener('click', clickFunc); }
         if (PC || SR) {
             image.addEventListener('focus', () => {
@@ -1678,6 +1688,7 @@ try { //Start everything
                         repeatFunction(clickFunc);
                     }
                 });
+                if (SR) { image.addEventListener('click', hoverFunc); }
             } else {
                 label.addEventListener('mousedown', () => repeatFunction(clickFunc));
                 image.addEventListener('click', clickFunc);
@@ -1718,7 +1729,10 @@ try { //Start everything
             image.alt = global.milestonesInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'milestones');
             if (PC) { image.addEventListener('mouseenter', onRealHover(hoverFunc)); }
-            if (MD) { image.addEventListener('touchstart', hoverFunc); }
+            if (MD) {
+                image.addEventListener('touchstart', hoverFunc);
+                if (SR) { image.addEventListener('click', hoverFunc); }
+            }
             if (PC || SR) {
                 image.addEventListener('focus', () => {
                     if (!global.hotkeys.tab) { return; }
@@ -1750,6 +1764,7 @@ try { //Start everything
                         repeatFunction(clickFunc);
                     }
                 });
+                if (SR) { image.addEventListener('click', hoverFunc); }
             } else {
                 label.addEventListener('mousedown', () => repeatFunction(clickFunc));
                 image.addEventListener('click', clickFunc);
