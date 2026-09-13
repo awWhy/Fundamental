@@ -1,5 +1,6 @@
+import { checkTheme } from './Check';
 import { assignHotkeys, detectShift, hotkeys } from './Hotkeys';
-import { deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playerStart } from './Main';
+import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playerStart } from './Main';
 import { global, player, prepareVacuum, updatePlayer } from './Player';
 import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
 import type { Quantum, globalSaveType, hotkeysList, numbersList } from './Types';
@@ -48,22 +49,31 @@ export const globalSave: globalSaveType = {
     MDSettings: [false, false, false, false],
     SRSettings: [false, false],
     developerMode: false,
-    version: 0
+    version: 1
 };
 
 export const saveGlobalSettings = (noSaving = false): string => {
-    const clone = { ...globalSave };
-    clone.hotkeys = deepClone(globalSave.hotkeys);
-    const encoder = new TextEncoder();
-    for (let i = 0; i < 2; i++) {
-        const pointer = clone.hotkeys[i];
-        for (const key in pointer) {
-            pointer[key as hotkeysList] = String.fromCharCode(...encoder.encode(pointer[key as hotkeysList]));
+    try {
+        const clone = { ...globalSave };
+        clone.format = cloneArray(globalSave.format);
+        clone.hotkeys = deepClone(globalSave.hotkeys);
+        const encoder = new TextEncoder();
+        for (let i = 0; i < 2; i++) {
+            clone.format[i] = String.fromCharCode(...encoder.encode(clone.format[i]));
+
+            const pointer = clone.hotkeys[i];
+            for (const key in pointer) {
+                pointer[key as hotkeysList] = String.fromCharCode(...encoder.encode(pointer[key as hotkeysList]));
+            }
         }
+        const save = btoa(JSON.stringify(clone));
+        if (!noSaving) { localStorage.setItem(specialHTML.localStorage.settings, save); }
+        return save;
+    } catch (error) {
+        const stack = (error as { stack?: string }).stack;
+        void Alert(`Failed to save global setting\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
+        throw error;
     }
-    const save = btoa(JSON.stringify(clone));
-    if (!noSaving) { localStorage.setItem(specialHTML.localStorage.settings, save); }
-    return save;
 };
 
 export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reader', change = false, reload = false) => {
@@ -386,16 +396,17 @@ export const preventImageUnload = () => {
 };
 
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
-export const setTheme = (theme = 'current' as 'current' | number | null, firstLoad = false) => {
-    if (theme !== 'current') {
+export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): void => {
+    if (theme !== undefined) {
         if (!firstLoad) {
-            if (globalSave.theme === null || globalSave.theme > 0) { getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = ''; }
+            if (!checkTheme(theme)) { return; }
+            getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
 
             globalSave.theme = theme;
             saveGlobalSettings();
         }
-        getId('currentTheme').textContent = theme === null ? 'Default' : theme === -1 ? 'Quantum' : global.stageInfo.word[theme];
-        if (theme === null || theme > 0) { getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline'; }
+        getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
+        getId('currentTheme').textContent = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];
@@ -580,7 +591,7 @@ export const setTheme = (theme = 'current' as 'current' | number | null, firstLo
             properties['--red-text'] = 'red';
             properties['--yellow-text'] = 'var(--green-text)';
             break;
-        case -1:
+        case 'Quantum':
             for (const text of upgradeTypes) {
                 getId(`${text}Text`).style.color = 'var(--cyan-text)';
                 getId(`${text}Effect`).style.color = 'var(--blue-text)';
@@ -611,6 +622,9 @@ export const setTheme = (theme = 'current' as 'current' | number | null, firstLo
             properties['--brown-text'] = '#a97e4c';
             properties['--green-text'] = '#00e000';
             properties['--yellow-text'] = 'var(--cyan-text)';
+            break;
+        default:
+            return setTheme(null, true);
     }
 
     const bodyStyle = document.documentElement.style;
@@ -872,14 +886,16 @@ export const changeFontSize = (initial = false) => {
 export const changeFormat = (point: boolean) => {
     const htmlInput = (point ? getId('decimalPoint') : getId('thousandSeparator')) as HTMLInputElement;
     let value = htmlInput.value.replace(' ', ' '); //No break space
-    const allowed = ['.', '·', ',', ' ', '_', "'", '"', '`', '|'].includes(value);
-    if (!allowed || globalSave.format[point ? 1 : 0] === value) {
-        if (point && globalSave.format[1] === '.') {
+    if (point && value === '') {
+        value = '.';
+
+        if (globalSave.format[1] === '.') {
             (getId('thousandSeparator') as HTMLInputElement).value = '';
             globalSave.format[1] = '';
         }
-        value = point ? '.' : '';
-        htmlInput.value = value;
+    } else if (globalSave.format[point ? 1 : 0] === value) {
+        htmlInput.value = globalSave.format[point ? 0 : 1];
+        return;
     }
     globalSave.format[point ? 0 : 1] = value;
     saveGlobalSettings();
@@ -1011,7 +1027,6 @@ export const enterQuantum = () => {
     let finished = false;
     const observers = [] as ResizeObserver[];
     setTimeout(() => {
-        const oldTheme = globalSave.theme;
         const control = new AbortController();
         const styleSheet = document.createElement('style');
         const main = document.createElement('div');
@@ -1031,8 +1046,7 @@ export const enterQuantum = () => {
             getQuery('main').style.display = '';
             getId('notifications').style.display = '';
             global.hotkeys.disabled = false;
-            globalSave.theme = oldTheme;
-            setTheme(finished ? -1 : undefined);
+            setTheme(finished ? 'Quantum' : undefined);
             pauseGame(false);
             specialHTML.cache.idMap.clear();
             specialHTML.cache.queryMap.clear();
@@ -1045,8 +1059,10 @@ export const enterQuantum = () => {
                 html.style.background = '#041004';
                 getId('leaveQuantum').style.cursor = '';
                 intervalsID[0] = setTimeout(() => {
-                    globalSave.theme = -1;
+                    const oldTheme = globalSave.theme;
+                    globalSave.theme = 'Quantum';
                     setTheme();
+                    globalSave.theme = oldTheme;
 
                     const div = document.createElement('div');
                     div.innerHTML = `<button type="button" id="quantize" style="opacity: 0; transition: opacity ${continuation ? 4 : 30}s;">Ready to Quantize</button>`;
@@ -1278,6 +1294,7 @@ export const enterQuantum = () => {
                                 if (force === null) {
                                     data.quantization--;
                                     if (player.progress.quantum as number > data.quantization) { player.progress.quantum = data.quantization; }
+                                    if (data.quantization === -1) { finished = true; }
                                 } else { data.quantization = force; }
                                 data.foam = 0;
                                 data.particles = 0;
@@ -1286,7 +1303,6 @@ export const enterQuantum = () => {
                                 data.chronons = 0;
                                 data.upgradesInfo.totalLevels = 0;
                                 for (let i = 0; i < data.upgrades.length; i++) { data.upgrades[i] = 0; }
-                                if (data.quantization < 0) { finished = true; }
                                 if (replay) { (getId('quantizeInput') as HTMLInputElement).value = `${data.quantization}`; }
                                 update1();
                                 update2();

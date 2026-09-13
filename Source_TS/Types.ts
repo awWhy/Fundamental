@@ -544,7 +544,7 @@ export interface globalSaveType {
     toggles: boolean[]
     /** Point[0], Separator[1] */
     format: [string, string]
-    theme: null | number
+    theme: null | number | string
     fontSize: number
     /** Status[0], Mouse events[1], Enable zoom[2], Fix inputs[3] */
     MDSettings: boolean[]

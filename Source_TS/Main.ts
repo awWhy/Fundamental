@@ -278,7 +278,7 @@ const saveGame = (noSaving = false, manual = false): string | null => {
         return save;
     } catch (error) {
         const stack = (error as { stack?: string }).stack;
-        void Alert(`Failed to save the game\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`, 1);
+        Notify(`Failed to save the game\n${typeof stack === 'string' ? stack.replaceAll(`${window.location.origin}/`, '') : error}`);
         throw error;
     }
 };
@@ -710,20 +710,26 @@ try { //Start everything
             const parsed = JSON.parse(atob(globalSettings)) as typeof globalSave;
             const oldVersion = parsed.version;
             Object.assign(globalSave, parsed);
-            if (oldVersion === undefined) {
-                globalSave.version = 0;
-                globalSave.hotkeys = deepClone(globalSaveStart.hotkeys);
-                for (const key in globalSave.numbers) {
-                    if (globalSave.numbers[key as keyof unknown] === 'None') {
-                        delete globalSave.numbers[key as keyof unknown];
-                    }
+            if (globalSaveStart.version !== oldVersion) {
+                if (oldVersion === undefined) {
+                    globalSave.version = 0;
+                    globalSave.hotkeys = deepClone(globalSaveStart.hotkeys);
+                    globalSave.numbers = deepClone(globalSaveStart.numbers);
+                    delete globalSave.intervals['offline' as keyof unknown];
                 }
-
-                delete globalSave.intervals['offline' as keyof unknown];
-                Notify('Hotkeys have been reset');
+                if (globalSave.version === 0) {
+                    globalSave.version = 1;
+                    const encoder = new TextEncoder();
+                    globalSave.format[0] = String.fromCharCode(...encoder.encode(globalSave.format[0]));
+                    globalSave.format[1] = String.fromCharCode(...encoder.encode(globalSave.format[1]));
+                    if (globalSave.theme === -1) { globalSave.theme = 'Quantum'; }
+                }
+                if (globalSaveStart.version !== globalSave.version) { throw new ReferenceError("Global settings version doesn't match"); }
             }
             const decoder = new TextDecoder();
             for (let i = 0; i < 2; i++) {
+                globalSave.format[i] = decoder.decode(Uint8Array.from(globalSave.format[i], (c) => c.codePointAt(0) as number));
+
                 const pointer = globalSave.hotkeys[i];
                 for (const key in pointer) { //Restore decoded data
                     pointer[key as hotkeysList] = decoder.decode(Uint8Array.from(pointer[key as hotkeysList], (c) => c.codePointAt(0) as number));
@@ -734,8 +740,9 @@ try { //Start everything
             fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings, false);
             if (oldVersion !== globalSave.version) { saveGlobalSettings(); }
         } catch (error) {
-            Notify('Global settings failed to parse, default ones will be used instead');
-            console.log(`(Full parse error) ${error}`);
+            Notify(`Failed to load global settings, default ones used instead\n${error}`);
+            console.warn(`Global settings load error, ${error}`);
+            Object.assign(globalSave, deepClone(globalSaveStart));
         }
     }
     (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
@@ -803,7 +810,9 @@ try { //Start everything
     toggleSpecial(0, 'mobile');
     toggleSpecial(0, 'reader');
 
-    if (globalSave.MDSettings[0]) {
+    const MD = globalSave.MDSettings[0];
+    const SR = globalSave.SRSettings[0];
+    if (MD) {
         specialHTML.styleSheet.textContent += ` html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
             #themeArea > div > div { position: unset; display: flex; width: 15em; }
             #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */`;
@@ -876,7 +885,7 @@ try { //Start everything
             (getId('collapseInputWait') as HTMLInputElement).type = 'text';
         }
     }
-    if (globalSave.SRSettings[0]) {
+    if (SR) {
         const message = getId('SRMessage1');
         message.textContent = 'Screen reader support is enabled, disable it if its not required';
         message.className = 'greenText';
@@ -933,8 +942,6 @@ try { //Start everything
 
     /* Global */
     assignHotkeys();
-    const MD = globalSave.MDSettings[0];
-    const SR = globalSave.SRSettings[0];
     const PC = !MD || globalSave.MDSettings[1];
     const releaseHotkey = (event: KeyboardEvent | null) => {
         const hotkeys = global.hotkeys;
@@ -1851,8 +1858,8 @@ try { //Start everything
             try {
                 loadGame(await (button.files as FileList)[0].text());
             } catch (error) {
-                Notify('Failed to import');
-                console.error(`Full import error\n${error}`);
+                Notify(`Failed to import\n${error}`);
+                throw error;
             } finally { button.value = ''; }
         });
     }
@@ -2042,6 +2049,10 @@ try { //Start everything
         }
     });
     getId('switchTheme0').addEventListener('click', () => setTheme(null));
+    getId('switchThemeQuantum').addEventListener('click', () => {
+        setTheme('Quantum');
+        if (globalSave.theme !== 'Quantum') { Notify('Secret theme, hint to unlock:\n"Enter through alternative means and look for it"'); }
+    });
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     } {
@@ -2207,8 +2218,12 @@ try { //Start everything
     document.head.append(specialHTML.styleSheet);
     stageUpdate(true, true);
     if (globalSave.theme !== null) {
-        getId('switchTheme0').style.textDecoration = '';
-        setTheme(globalSave.theme, true);
+        if (getId(`switchTheme${globalSave.theme}`, true) === null) {
+            globalSave.theme = null;
+        } else {
+            getId('switchTheme0').style.textDecoration = '';
+            setTheme(globalSave.theme, true);
+        }
     }
     if (save !== null) {
         global.lastSave = handleOfflineTime();
