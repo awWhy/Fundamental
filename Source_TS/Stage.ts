@@ -1126,7 +1126,7 @@ export const buyBuilding = (index: number, stageIndex: number, howMany = player.
             numbersUpdate();
             if (globalSave.SRSettings[0]) {
                 if (bulkGroup !== undefined) {
-                    recordBulkQuantity(bulkGroup, `building-${stageIndex}-${index}`, global.buildingsInfo.name[stageIndex][index], afford, false);
+                    recordBulkQuantity(bulkGroup, `building-${stageIndex}-${index}`, global.buildingsInfo.name[stageIndex][index], afford, false, false);
                 } else {
                     getId('SRMain').textContent = `Made ${format(afford)} '${global.buildingsInfo.name[stageIndex][index]}'`;
                 }
@@ -1475,7 +1475,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
             global.automatization[type === 'researches' ? 'autoR' : 'autoE'][stageIndex] = [];
             if (globalSave.SRSettings[0]) {
                 if (bulkGroup !== undefined) {
-                    recordBulkQuantity(bulkGroup, `${type}-${stageIndex}-${upgrade}`, pointer.name[upgrade], newLevels, level[upgrade] >= pointer.max[upgrade]);
+                    recordBulkQuantity(bulkGroup, `${type}-${stageIndex}-${upgrade}`, pointer.name[upgrade], level[upgrade], level[upgrade] >= pointer.max[upgrade], true);
                 } else {
                     markDescriptionSilentOnce();
                     getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`;
@@ -1523,7 +1523,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         }
         if (!auto && globalSave.SRSettings[0]) {
             if (bulkGroup !== undefined) {
-                recordBulkQuantity(bulkGroup, `${type}-${upgrade}`, type === 'ASR' ? pointer.name : pointer.name[upgrade], 1, level[upgrade] >= pointer.max[upgrade]);
+                recordBulkQuantity(bulkGroup, `${type}-${upgrade}`, type === 'ASR' ? pointer.name : pointer.name[upgrade], level[upgrade], level[upgrade] >= pointer.max[upgrade], true);
             } else {
                 markDescriptionSilentOnce();
                 getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`;
@@ -1783,7 +1783,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
             global.automatization.autoS = [];
             if (globalSave.SRSettings[0]) {
                 if (bulkGroup !== undefined) {
-                    recordBulkQuantity(bulkGroup, `strangeness-${stageIndex}-${upgrade}`, pointer.name[upgrade], 1, strangeness[upgrade] >= pointer.max[upgrade]);
+                    recordBulkQuantity(bulkGroup, `strangeness-${stageIndex}-${upgrade}`, pointer.name[upgrade], strangeness[upgrade], strangeness[upgrade] >= pointer.max[upgrade], true);
                 } else {
                     markDescriptionSilentOnce();
                     getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`;
@@ -1858,7 +1858,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         if (!auto) {
             if (globalSave.SRSettings[0]) {
                 if (bulkGroup !== undefined) {
-                    recordBulkQuantity(bulkGroup, `inflation-${stageIndex}-${upgrade}`, pointer.name[upgrade], 1, tree[upgrade] >= pointer.max[upgrade]);
+                    recordBulkQuantity(bulkGroup, `inflation-${stageIndex}-${upgrade}`, pointer.name[upgrade], tree[upgrade], tree[upgrade] >= pointer.max[upgrade], true);
                 } else {
                     markDescriptionSilentOnce();
                     getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`;
@@ -3582,10 +3582,10 @@ const joinList = (parts: string[]): string => {
     if (parts.length <= 1) { return parts[0] ?? ''; }
     return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
 };
-const bulkFlushWording: Partial<Record<string, { quantityVerb: string, nothing: string }>> = {
-    createAll: { quantityVerb: 'Leveled up', nothing: 'Nothing to create' },
-    strangenessAll: { quantityVerb: 'Leveled up', nothing: 'Nothing to create' },
-    buyAll: { quantityVerb: 'Made', nothing: 'Nothing to make' }
+const bulkFlushWording: Partial<Record<string, { quantityVerb: string, nothing: string, quantityStyle: 'level' | 'count' }>> = {
+    createAll: { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' },
+    strangenessAll: { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' },
+    buyAll: { quantityVerb: 'Made', nothing: 'Nothing to make', quantityStyle: 'count' }
 };
 const flushBulkSession = (bulkGroup: string) => {
     const session = bulkSessions[bulkGroup];
@@ -3593,8 +3593,13 @@ const flushBulkSession = (bulkGroup: string) => {
     delete bulkSessions[bulkGroup];
     if (!globalSave.SRSettings[0]) { return; }
 
-    const wording = bulkFlushWording[bulkGroup] ?? { quantityVerb: 'Leveled up', nothing: 'Nothing to create' };
-    const quantityParts = Array.from(session.quantities.values()).map(({ name, amount, maxed }) => `${format(amount)} ${name}${maxed ? ' (maxed)' : ''}`);
+    const wording = bulkFlushWording[bulkGroup] ?? { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' as const };
+    //"level" items (researches and friends, strangeness, inflation) report the absolute level
+    //they ended up at - "name to N", or "name to max" once capped, matching how a single
+    //purchase's own message already phrases it ("Level increased to N"/"and maxed at N"). "count"
+    //items (buildings) have no level/cap concept, so they keep the amount-first phrasing instead.
+    const quantityParts = Array.from(session.quantities.values()).map(({ name, amount, maxed }) =>
+        wording.quantityStyle === 'level' ? `${name} to ${maxed ? 'max' : format(amount)}` : `${format(amount)} ${name}${maxed ? ' (maxed)' : ''}`);
     const oneOffParts = Array.from(session.oneOffs.values());
     const elementParts = Array.from(session.elements.values());
 
@@ -3643,20 +3648,28 @@ export const beginBulkPurchase = (bulkGroup: string) => {
  * scheduleDescriptionUpdate/scheduleAriaCurrent, just applied to an announcement instead of a
  * DOM write.
  *
- * Quantity items (buildings, researches, researchesExtra, researchesAuto, ASR, strangeness) are
- * summed per item across every call in the burst - a single message like "Level increased to N"
- * would only reflect whichever call happened to run last, not the true total gained across a
- * long, uneven hold (e.g. Structures ramping up then trickling down as currency use rebalances) -
- * and only formatted into text once, at flush. Whether an item is now maxed is re-checked at
- * flush time from its final state, not tracked historically. An item that's never actually bought
- * is never added to the map at all - deliberately no "bought 0" entries.
+ * Quantity items come in two shapes, and each bulk group is uniformly one or the other (buyAll
+ * only ever touches buildings, createAll/strangenessAll only ever touch leveled items - never
+ * mixed within one group), so the shape is a per-group setting (bulkFlushWording's
+ * quantityStyle), not tracked per item:
+ * - "count" (buildings): each call reports how many were bought *in that call*, not a running
+ *   total, so these are summed across every call in the burst - a single message like "Made X"
+ *   would only reflect whichever call happened to run last, not the true total gained across a
+ *   long, uneven hold (e.g. Structures ramping up then trickling down as currency use rebalances).
+ * - "level" (researches/researchesExtra/researchesAuto/ASR/strangeness/inflation): each call
+ *   already reports the item's new absolute level, so summing would be wrong (double-counts
+ *   levels the item already had before this burst) - the latest call's value is kept as-is
+ *   instead, taking whichever level the item settles at once activity stops.
+ * Whether an item is now maxed is re-checked at flush time from its final state, not tracked
+ * historically. An item that's never actually bought is never added to the map at all -
+ * deliberately no "bought 0" entries.
  */
-const recordBulkQuantity = (bulkGroup: string, key: string, name: string, amount: number, maxed: boolean) => {
+const recordBulkQuantity = (bulkGroup: string, key: string, name: string, amount: number, maxed: boolean, absolute: boolean) => {
     if (amount <= 0) { return; }
     const session = getBulkSession(bulkGroup);
     const existing = session.quantities.get(key);
     if (existing !== undefined) {
-        existing.amount += amount;
+        existing.amount = absolute ? amount : existing.amount + amount;
         existing.maxed = maxed;
     } else {
         session.quantities.set(key, { name, amount, maxed });
