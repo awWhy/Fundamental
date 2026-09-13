@@ -1,6 +1,6 @@
 import { allowedToEnter, checkBuilding, checkUpgrade, checkVerse, milestoneCheck, stageResetType } from './Check';
 import Overlimit, { compareFunc } from './Limit';
-import { cloneArray, getId, loadoutsFinal, playerStart, simulateOffline } from './Main';
+import { cloneArray, getId, loadoutsFinal, markDescriptionSilentOnce, playerStart, simulateOffline } from './Main';
 import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, enterQuantum, enterUltravoid, errorNotify, globalSave, specialHTML } from './Special';
@@ -1364,7 +1364,10 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         } else if (stageIndex === 4 && upgrade === 1 && global.tabs.current === 'upgrade') { switchTab(); }
         if (!auto) {
             global.automatization.autoU[stageIndex] = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`; }
+            if (globalSave.SRSettings[0]) {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`;
+            }
         }
     } else if (type === 'researches' || type === 'researchesExtra') {
         const pointer = global[`${type}Info`][stageIndex];
@@ -1458,7 +1461,10 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         assignUpgradeCost(upgrade, stageIndex, type);
         if (!auto) {
             global.automatization[type === 'researches' ? 'autoR' : 'autoE'][stageIndex] = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`; }
+            if (globalSave.SRSettings[0]) {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`;
+            }
         }
     } else if (type === 'researchesAuto' || type === 'ASR') {
         if (type === 'ASR') { upgrade = stageIndex; }
@@ -1498,7 +1504,10 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                 }
             }
         }
-        if (!auto && globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`; }
+        if (!auto && globalSave.SRSettings[0]) {
+            markDescriptionSilentOnce();
+            getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`;
+        }
     } else if (type === 'elements') {
         let level = player.elements[upgrade];
 
@@ -1537,7 +1546,10 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                 assignMaxLevel(5, 4, 'researches', true);
             }
         }
-        if (!auto && globalSave.SRSettings[0]) { getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`; }
+        if (!auto && globalSave.SRSettings[0]) {
+            markDescriptionSilentOnce();
+            getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`;
+        }
     }
 
     if (!free) {
@@ -1743,7 +1755,10 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         if (player.verses[0].current < 13) { assignBuildingsProduction.strange0(); }
         if (!auto) {
             global.automatization.autoS = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`; }
+            if (globalSave.SRSettings[0]) {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`;
+            }
         }
     } else if (type === 'inflation') {
         const pointer = global.treeInfo[stageIndex];
@@ -1810,7 +1825,10 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         }
         assignUpgradeCost(upgrade, stageIndex, 'inflation');
         if (!auto) {
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`; }
+            if (globalSave.SRSettings[0]) {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`;
+            }
         }
     }
 

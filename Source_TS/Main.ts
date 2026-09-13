@@ -505,11 +505,37 @@ const descriptionSRTextConfig: Partial<Record<Parameters<typeof getUpgradeDescri
  * spans in the DOM, not part of those spans' own textContent - reading the spans alone silently
  * drops those words.
  */
+let silenceNextDescriptionAnnounce = false;
+let silenceNextDescriptionAnnounceTimeout: number | undefined;
+/**
+ * One-shot flag (same shape as markChallengeRewardsSilent) - a purchase's own SRMain message
+ * already conveys the relevant info, so the next scheduled SRDescription write is skipped when
+ * the same gesture also triggered one (MD's touchstart, or PC's hover-to-buy toggle both call
+ * hoverFunc() and clickFunc() together). Confirmed necessary on real TalkBack: unlike NVDA/JAWS,
+ * where the assertive SRMain message appeared to naturally take priority, TalkBack was announcing
+ * both, with the polite SRDescription text landing before the assertive purchase message.
+ * Self-clears shortly after being set so a purchase with no accompanying hover (a plain desktop
+ * click, which never calls scheduleDescriptionUpdate at all) can't leave a stale flag around to
+ * wrongly silence some unrelated, much-later hover.
+ */
+export const markDescriptionSilentOnce = () => {
+    silenceNextDescriptionAnnounce = true;
+    clearTimeout(silenceNextDescriptionAnnounceTimeout);
+    silenceNextDescriptionAnnounceTimeout = setTimeout(() => { silenceNextDescriptionAnnounce = false; }, 200);
+};
 let descriptionUpdateTimeout: number | undefined;
 const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation') => {
     clearTimeout(descriptionUpdateTimeout);
     descriptionUpdateTimeout = setTimeout(() => {
+        //getUpgradeDescription still runs unconditionally - it updates the ordinary, visible
+        //Effect/Cost text that sighted players see, which should stay current regardless of
+        //whether the SR-only announcement below gets silenced.
         getUpgradeDescription(type);
+        if (silenceNextDescriptionAnnounce) {
+            silenceNextDescriptionAnnounce = false;
+            clearTimeout(silenceNextDescriptionAnnounceTimeout);
+            return;
+        }
         if (type === 'milestones') {
             //milestonesMultiline is rebuilt as a block of multi-line HTML each render
             //(Requirement/Time limit/Effect-or-Unlock <p>s, wording varies with vacuum/maxed
