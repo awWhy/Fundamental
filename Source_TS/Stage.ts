@@ -1569,7 +1569,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         }
         if (!auto && globalSave.SRSettings[0]) {
             if (bulkGroup !== undefined) {
-                recordBulkOneOff(bulkGroup, `elements-${upgrade}`, global.elementsInfo.name[upgrade]);
+                recordBulkElement(bulkGroup, `elements-${upgrade}`, global.elementsInfo.name[upgrade], player.elements[upgrade] < 1);
             } else {
                 markDescriptionSilentOnce();
                 getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`;
@@ -3568,12 +3568,12 @@ export const syncChallengeEnterExit = () => {
  * (numbersUpdate), so affordability updates as currency accumulates even without a new selection.
  */
 type BulkQuantityEntry = { name: string, amount: number, maxed: boolean };
-type BulkSession = { quantities: Map<string, BulkQuantityEntry>, oneOffs: Map<string, string>, timeout: number | undefined };
+type BulkSession = { quantities: Map<string, BulkQuantityEntry>, oneOffs: Map<string, string>, elements: Map<string, string>, elementsAwaiting: boolean, timeout: number | undefined };
 const bulkSessions: Partial<Record<string, BulkSession>> = {};
 const getBulkSession = (bulkGroup: string): BulkSession => {
     let session = bulkSessions[bulkGroup];
     if (session === undefined) {
-        session = { quantities: new Map(), oneOffs: new Map(), timeout: undefined };
+        session = { quantities: new Map(), oneOffs: new Map(), elements: new Map(), elementsAwaiting: false, timeout: undefined };
         bulkSessions[bulkGroup] = session;
     }
     return session;
@@ -3596,15 +3596,21 @@ const flushBulkSession = (bulkGroup: string) => {
     const wording = bulkFlushWording[bulkGroup] ?? { quantityVerb: 'Leveled up', nothing: 'Nothing to create' };
     const quantityParts = Array.from(session.quantities.values()).map(({ name, amount, maxed }) => `${format(amount)} ${name}${maxed ? ' (maxed)' : ''}`);
     const oneOffParts = Array.from(session.oneOffs.values());
+    const elementParts = Array.from(session.elements.values());
 
     markDescriptionSilentOnce();
-    if (quantityParts.length === 0 && oneOffParts.length === 0) {
+    if (quantityParts.length === 0 && oneOffParts.length === 0 && elementParts.length === 0) {
         getId('SRMain').textContent = wording.nothing;
         return;
     }
     const sentences: string[] = [];
     if (quantityParts.length > 0) { sentences.push(`${wording.quantityVerb} ${joinList(quantityParts)}`); }
     if (oneOffParts.length > 0) { sentences.push(`Created ${joinList(oneOffParts)}`); }
+    //Whether Elements land as obtained or awaiting activation depends on a single game-wide
+    //condition (Element automatization), never a per-element one - every Element touched in the
+    //same bulk purchase always ends up in the same state, so this is said once for the whole
+    //list rather than repeated on each item.
+    if (elementParts.length > 0) { sentences.push(`Obtained ${joinList(elementParts)}${session.elementsAwaiting ? ' (awaiting activation)' : ''}`); }
     getId('SRMain').textContent = `${sentences.join('. ')}.`;
 };
 const scheduleBulkFlush = (bulkGroup: string) => {
@@ -3659,6 +3665,12 @@ const recordBulkQuantity = (bulkGroup: string, key: string, name: string, amount
 };
 const recordBulkOneOff = (bulkGroup: string, key: string, name: string) => {
     getBulkSession(bulkGroup).oneOffs.set(key, name);
+    scheduleBulkFlush(bulkGroup);
+};
+const recordBulkElement = (bulkGroup: string, key: string, name: string, awaiting: boolean) => {
+    const session = getBulkSession(bulkGroup);
+    session.elements.set(key, name);
+    session.elementsAwaiting = awaiting;
     scheduleBulkFlush(bulkGroup);
 };
 
