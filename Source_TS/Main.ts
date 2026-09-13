@@ -481,6 +481,15 @@ const descriptionSRTextConfig: Partial<Record<Parameters<typeof getUpgradeDescri
  * own name if both change in the same tick; delaying the write lets the name announcement land
  * first. Rescheduled on every call so only the last settled item's description is ever committed.
  *
+ * 150ms (the original empirical value from this mechanism's initial testing) was narrowed to
+ * 100ms after a real user reported an occasional collision: a fast keyboard user tabbing to the
+ * next item just as the previous item's debounce fired, so the previous item's stale
+ * effect/cost announcement overwrote the new item's own name announcement. There's no published
+ * minimum for this delay - the DOM-mutation-to-announcement pipeline (browser AX scheduling, OS
+ * accessibility API, screen reader speech queue) has no documented timing guarantee either way -
+ * so 100ms is itself empirical, confirmed against real NVDA/JAWS on the strangeness panel before
+ * applying it to every panel type here.
+ *
  * Rather than the description panel itself being a live region (which ticks also write into,
  * causing the tick-vs-focus announcement bug that took several failed attempts to properly track
  * down), this reads back the plain text getUpgradeDescription() just wrote and pushes it once to a
@@ -514,7 +523,7 @@ const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researches
             const cost = getId(config.costId).textContent;
             getId('SRDescription').textContent = `Effect: ${effect} ${config.costLabel}: ${cost}`;
         }
-    }, 150);
+    }, 100);
 };
 
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
