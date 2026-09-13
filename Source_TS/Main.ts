@@ -981,12 +981,18 @@ try { //Start everything
         global.debug.MDStrangePage = 1;
 
         for (let i = 0; i <= 2; i++) {
+            const main = getId(`reset${i}Main`);
             const arrow = document.createElement('button');
             arrow.innerHTML = '<span class="downArrow"></span>';
             arrow.type = 'button';
-            getId(`reset${i}Main`).append(arrow);
-            arrow.addEventListener('click', () => getId(`reset${i}Main`).classList.toggle('open'));
-            arrow.addEventListener('blur', () => getId(`reset${i}Main`).classList.remove('open'));
+            arrow.setAttribute('aria-label', `${main.getAttribute('aria-label') ?? ''} description`);
+            arrow.setAttribute('aria-expanded', 'false');
+            main.append(arrow);
+            arrow.addEventListener('click', () => arrow.setAttribute('aria-expanded', String(main.classList.toggle('open'))));
+            arrow.addEventListener('blur', () => {
+                main.classList.remove('open');
+                arrow.setAttribute('aria-expanded', 'false');
+            });
         }
         specialHTML.styleSheet.textContent += ` #resets { row-gap: 1em; }
             #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
