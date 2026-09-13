@@ -4,7 +4,7 @@ import Overlimit from './Limit';
 import { assignInnerHTML, getClass, getId, getQuery, toggleSwap } from './Main';
 import { effectsCache, global, player, universeName } from './Player';
 import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, specialHTML } from './Special';
-import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost } from './Stage';
+import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost, syncCreateButton } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 
 /**
@@ -116,6 +116,13 @@ export const numbersUpdate = (ignoreOffline = false) => {
     const buildings = player.buildings[active];
     const challenge = player.challenges.active;
     const vacuum = player.inflation.vacuum;
+
+    //Affordability (not just selection) can change every tick as currency accumulates, so these
+    //need rechecking here too, not just when the selection itself changes (syncCreateButton is a
+    //no-op on desktop, so this is a single cheap boolean check there).
+    syncCreateButton('upgrade');
+    syncCreateButton('strangeness');
+    syncCreateButton('inflation');
 
     if (!global.debug.timeLimit) {
         let noTime = null as boolean | null;

@@ -1,6 +1,6 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards, scheduleAriaCurrent } from './Update';
-import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, syncChallengeEnterExit, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, syncChallengeEnterExit, syncCreateButton, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
@@ -552,20 +552,48 @@ const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researches
     }, 100);
 };
 
+/** DOM id for an upgrade-family item - used to move aria-current onto whatever's currently selected */
+const upgradeElementId = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR'): string => {
+    if (type === 'ASR') { return 'ASR'; }
+    if (type === 'researchesAuto') { return `researchAuto${index + 1}`; }
+    if (type === 'researchesExtra') { return `researchExtra${index + 1}`; }
+    if (type === 'researches') { return `research${index + 1}`; }
+    return `upgrade${index + 1}`;
+};
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
     if (type === 'elements') {
         global.lastElement = index;
     } else {
         if ((type === 'upgrades' || type === 'researches' || type === 'researchesExtra') && global[`${type}Info`][player.stage.active].maxActive <= index) { return; }
+        //Only mobile has a separate "select now, Create later" step (desktop clicks buy directly),
+        //so aria-current confirming which item is selected is only meaningful there.
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastUpgrade[player.stage.active];
+            const oldId = previous[0] !== null ? upgradeElementId(previous[0], previous[1]) : null;
+            scheduleAriaCurrent('lastUpgrade', oldId, upgradeElementId(index, type));
+        }
         global.lastUpgrade[player.stage.active] = [index, type];
+        syncCreateButton('upgrade');
     }
     scheduleDescriptionUpdate(type);
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflation') => {
     if (type === 'inflation') {
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastInflation;
+            const oldId = previous[0] !== null ? `inflation${previous[0] + 1}Tree${previous[1] + 1}` : null;
+            scheduleAriaCurrent('lastInflation', oldId, `inflation${index + 1}Tree${stageIndex + 1}`);
+        }
         global.lastInflation = [index, stageIndex];
+        syncCreateButton('inflation');
     } else if (type === 'strangeness') {
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastStrangeness;
+            const oldId = previous[0] !== null ? `strange${previous[0] + 1}Stage${previous[1]}` : null;
+            scheduleAriaCurrent('lastStrangeness', oldId, `strange${index + 1}Stage${stageIndex}`);
+        }
         global.lastStrangeness = [index, stageIndex];
+        syncCreateButton('strangeness');
     } else { global.lastMilestone = [index, stageIndex]; }
     scheduleDescriptionUpdate(type);
 };

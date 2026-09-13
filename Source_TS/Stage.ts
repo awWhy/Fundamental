@@ -1325,7 +1325,7 @@ const gainStrange = (get: 0 | 1, time: number) => {
     assignBuildingsProduction[`strange${get}`]();
 };
 
-export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false): boolean => {
+export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false, dryRun = false): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; } //Auto should had already checked
 
     let free = false;
@@ -1351,6 +1351,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         const pointer = global.upgradesInfo[stageIndex];
 
         if (player.upgrades[stageIndex][upgrade] === 1 || currency.lessThan(pointer.cost[upgrade])) { return false; }
+        if (dryRun) { return true; }
         player.upgrades[stageIndex][upgrade] = 1;
         if (!free) { currency.minus(pointer.cost[upgrade]); }
 
@@ -1377,6 +1378,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         if (tillMax <= 0) { return false; }
         let cost = pointer.cost[upgrade];
         if (currency.lessThan(cost)) { return false; }
+        if (dryRun) { return true; }
 
         let newLevels = 1;
         if (tillMax > 1 && (auto || (player.toggles.max[0] !== global.hotkeys.shift))) {
@@ -1486,6 +1488,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         }
         const cost = pointer.costRange[upgrade][Math.max(effective, 0)];
         if (currency.lessThan(cost)) { return false; }
+        if (dryRun) { return true; }
 
         level[upgrade]++;
         if (!free) { currency.minus(cost); }
@@ -1577,7 +1580,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
     return true;
 };
 
-export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false): boolean => {
+export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false, dryRun = false): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; }
 
     if (type === 'strangeness') {
@@ -1585,6 +1588,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         const strangeness = player.strangeness[stageIndex];
 
         if (strangeness[upgrade] >= pointer.max[upgrade] || player.strange[0].current < pointer.cost[upgrade]) { return false; }
+        if (dryRun) { return true; }
         strangeness[upgrade]++;
         player.strange[0].current -= pointer.cost[upgrade];
 
@@ -1766,6 +1770,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         const currency = player.cosmon[stageIndex];
 
         if (tree[upgrade] >= pointer.max[upgrade] || currency.current < pointer.cost[upgrade]) { return false; }
+        if (dryRun) { return true; }
         tree[upgrade]++;
         currency.current -= pointer.cost[upgrade];
 
@@ -3516,6 +3521,58 @@ export const syncChallengeEnterExit = () => {
         button.disabled = true;
     }
     button.ariaPressed = isActive ? 'true' : 'false';
+};
+
+/**
+ * Mobile-only: the separate Create/Activate button (acts on whatever's currently selected via
+ * hoverUpgrades/hoverStrangeness, since mobile's tap-to-select-then-Create flow is a distinct
+ * step from purchasing, unlike desktop's direct click-to-buy) previously stayed enabled and
+ * silently did nothing when nothing was selected or the selected item couldn't be afforded.
+ * Mirrors syncChallengeEnterExit's existing "disable with a stated reason" pattern instead of
+ * adding a separate notification - the reason is already spoken the moment TalkBack reaches the
+ * button, no press needed to find out. dryRun reuses buyUpgrades/buyStrangeness's own real
+ * affordability check rather than duplicating it, so this can never drift out of sync with what
+ * an actual purchase attempt would do.
+ *
+ * Called whenever selection changes (hoverUpgrades/hoverStrangeness in Main.ts) and once per tick
+ * (numbersUpdate), so affordability updates as currency accumulates even without a new selection.
+ */
+export const syncCreateButton = (kind: 'upgrade' | 'strangeness' | 'inflation') => {
+    if (!globalSave.MDSettings[0]) { return; }
+    let index: number | null;
+    let ready: boolean;
+    let buttonId: string;
+    let readyText: string;
+    if (kind === 'upgrade') {
+        const [selected, type] = global.lastUpgrade[player.stage.active];
+        index = selected;
+        ready = index !== null && buyUpgrades(index, player.stage.active, type, false, true);
+        buttonId = 'upgradeCreate';
+        readyText = 'Create';
+    } else if (kind === 'strangeness') {
+        const [selected, stageIndex] = global.lastStrangeness;
+        index = selected;
+        ready = index !== null && buyStrangeness(index, stageIndex, 'strangeness', false, true);
+        buttonId = 'strangenessCreate';
+        readyText = 'Create';
+    } else {
+        const [selected, stageIndex] = global.lastInflation;
+        index = selected;
+        ready = index !== null && buyStrangeness(index, stageIndex, 'inflation', false, true);
+        buttonId = 'inflationActivate';
+        readyText = 'Activate';
+    }
+    const button = getId(buttonId) as HTMLButtonElement;
+    if (index === null) {
+        button.textContent = 'Nothing selected';
+        button.disabled = true;
+    } else if (!ready) {
+        button.textContent = "Can't afford";
+        button.disabled = true;
+    } else {
+        button.textContent = readyText;
+        button.disabled = false;
+    }
 };
 
 /** Null means exit if possible, nothing if isn't. Entering same challenge will exit out of it */
