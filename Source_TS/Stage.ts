@@ -1014,7 +1014,7 @@ export const assignResetInformation = {
     }
 };
 
-export const buyBuilding = (index: number, stageIndex: number, howMany = player.toggles.shop.input, auto = false) => {
+export const buyBuilding = (index: number, stageIndex: number, howMany = player.toggles.shop.input, auto = false, bulkGroup?: string) => {
     if (!checkBuilding(index, stageIndex)) { return; }
     const building = player.buildings[stageIndex][index as 1];
 
@@ -1124,7 +1124,13 @@ export const buyBuilding = (index: number, stageIndex: number, howMany = player.
 
         if (!auto) {
             numbersUpdate();
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Made ${format(afford)} '${global.buildingsInfo.name[stageIndex][index]}'`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `building-${stageIndex}-${index}`, global.buildingsInfo.name[stageIndex][index], afford, false);
+                } else {
+                    getId('SRMain').textContent = `Made ${format(afford)} '${global.buildingsInfo.name[stageIndex][index]}'`;
+                }
+            }
         }
     } else if (stageIndex === 5 && index === 3) {
         global.mergeInfo.galaxies += afford;
@@ -1325,7 +1331,7 @@ const gainStrange = (get: 0 | 1, time: number) => {
     assignBuildingsProduction[`strange${get}`]();
 };
 
-export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false, dryRun = false): boolean => {
+export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false, dryRun = false, bulkGroup?: string): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; } //Auto should had already checked
 
     let free = false;
@@ -1366,8 +1372,12 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         if (!auto) {
             global.automatization.autoU[stageIndex] = [];
             if (globalSave.SRSettings[0]) {
-                markDescriptionSilentOnce();
-                getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`;
+                if (bulkGroup !== undefined) {
+                    recordBulkOneOff(bulkGroup, `upgrades-${stageIndex}-${upgrade}`, pointer.name[upgrade]);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`;
+                }
             }
         }
     } else if (type === 'researches' || type === 'researchesExtra') {
@@ -1464,8 +1474,12 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         if (!auto) {
             global.automatization[type === 'researches' ? 'autoR' : 'autoE'][stageIndex] = [];
             if (globalSave.SRSettings[0]) {
-                markDescriptionSilentOnce();
-                getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`;
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `${type}-${stageIndex}-${upgrade}`, pointer.name[upgrade], newLevels, level[upgrade] >= pointer.max[upgrade]);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`;
+                }
             }
         }
     } else if (type === 'researchesAuto' || type === 'ASR') {
@@ -1508,8 +1522,12 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
             }
         }
         if (!auto && globalSave.SRSettings[0]) {
-            markDescriptionSilentOnce();
-            getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`;
+            if (bulkGroup !== undefined) {
+                recordBulkQuantity(bulkGroup, `${type}-${upgrade}`, type === 'ASR' ? pointer.name : pointer.name[upgrade], 1, level[upgrade] >= pointer.max[upgrade]);
+            } else {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`;
+            }
         }
     } else if (type === 'elements') {
         let level = player.elements[upgrade];
@@ -1550,8 +1568,12 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
             }
         }
         if (!auto && globalSave.SRSettings[0]) {
-            markDescriptionSilentOnce();
-            getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`;
+            if (bulkGroup !== undefined) {
+                recordBulkOneOff(bulkGroup, `elements-${upgrade}`, global.elementsInfo.name[upgrade]);
+            } else {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`;
+            }
         }
     }
 
@@ -1580,7 +1602,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
     return true;
 };
 
-export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false, dryRun = false): boolean => {
+export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false, dryRun = false, bulkGroup?: string): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; }
 
     if (type === 'strangeness') {
@@ -1760,8 +1782,12 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         if (!auto) {
             global.automatization.autoS = [];
             if (globalSave.SRSettings[0]) {
-                markDescriptionSilentOnce();
-                getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`;
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `strangeness-${stageIndex}-${upgrade}`, pointer.name[upgrade], 1, strangeness[upgrade] >= pointer.max[upgrade]);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`;
+                }
             }
         }
     } else if (type === 'inflation') {
@@ -1831,8 +1857,12 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         assignUpgradeCost(upgrade, stageIndex, 'inflation');
         if (!auto) {
             if (globalSave.SRSettings[0]) {
-                markDescriptionSilentOnce();
-                getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`;
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `inflation-${stageIndex}-${upgrade}`, pointer.name[upgrade], 1, tree[upgrade] >= pointer.max[upgrade]);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`;
+                }
             }
         }
     }
@@ -1842,9 +1872,9 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
 };
 
 /** User only, lazy way to remove extra checks from auto */
-export const buyStrangenessMax = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation') => {
+export const buyStrangenessMax = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', bulkGroup?: string) => {
     const max = player.toggles.max[type === 'strangeness' ? 1 : 2] !== global.hotkeys.shift;
-    while (buyStrangeness(upgrade, stageIndex, type) && max) { continue; }
+    while (buyStrangeness(upgrade, stageIndex, type, false, false, bulkGroup) && max) { continue; }
 };
 
 /** Returns true if refund successfull or nothing to refund */
@@ -3537,6 +3567,101 @@ export const syncChallengeEnterExit = () => {
  * Called whenever selection changes (hoverUpgrades/hoverStrangeness in Main.ts) and once per tick
  * (numbersUpdate), so affordability updates as currency accumulates even without a new selection.
  */
+type BulkQuantityEntry = { name: string, amount: number, maxed: boolean };
+type BulkSession = { quantities: Map<string, BulkQuantityEntry>, oneOffs: Map<string, string>, timeout: number | undefined };
+const bulkSessions: Partial<Record<string, BulkSession>> = {};
+const getBulkSession = (bulkGroup: string): BulkSession => {
+    let session = bulkSessions[bulkGroup];
+    if (session === undefined) {
+        session = { quantities: new Map(), oneOffs: new Map(), timeout: undefined };
+        bulkSessions[bulkGroup] = session;
+    }
+    return session;
+};
+const joinList = (parts: string[]): string => {
+    if (parts.length <= 1) { return parts[0] ?? ''; }
+    return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+};
+const bulkFlushWording: Partial<Record<string, { quantityVerb: string, nothing: string }>> = {
+    createAll: { quantityVerb: 'Leveled up', nothing: 'Nothing to create' },
+    strangenessAll: { quantityVerb: 'Leveled up', nothing: 'Nothing to create' },
+    buyAll: { quantityVerb: 'Made', nothing: 'Nothing to make' }
+};
+const flushBulkSession = (bulkGroup: string) => {
+    const session = bulkSessions[bulkGroup];
+    if (session === undefined) { return; }
+    delete bulkSessions[bulkGroup];
+    if (!globalSave.SRSettings[0]) { return; }
+
+    const wording = bulkFlushWording[bulkGroup] ?? { quantityVerb: 'Leveled up', nothing: 'Nothing to create' };
+    const quantityParts = Array.from(session.quantities.values()).map(({ name, amount, maxed }) => `${format(amount)} ${name}${maxed ? ' (maxed)' : ''}`);
+    const oneOffParts = Array.from(session.oneOffs.values());
+
+    markDescriptionSilentOnce();
+    if (quantityParts.length === 0 && oneOffParts.length === 0) {
+        getId('SRMain').textContent = wording.nothing;
+        return;
+    }
+    const sentences: string[] = [];
+    if (quantityParts.length > 0) { sentences.push(`${wording.quantityVerb} ${joinList(quantityParts)}`); }
+    if (oneOffParts.length > 0) { sentences.push(`Created ${joinList(oneOffParts)}`); }
+    getId('SRMain').textContent = `${sentences.join('. ')}.`;
+};
+const scheduleBulkFlush = (bulkGroup: string) => {
+    const session = bulkSessions[bulkGroup];
+    if (session === undefined) { return; }
+    clearTimeout(session.timeout);
+    session.timeout = setTimeout(() => flushBulkSession(bulkGroup), 400);
+};
+/**
+ * Called once at the very start of each "all" action (buyAll/createAll/strangenessAll), before
+ * any purchase is attempted - ensures a session exists and a flush is scheduled even if this
+ * particular press ends up buying nothing at all (e.g. everything already maxed, or nothing
+ * currently affordable). Without this, a press/hold that never reaches a single successful
+ * purchase would never create a session at all, and "Nothing to create" would silently never
+ * fire - the same silent-no-op this whole feature exists to avoid.
+ */
+export const beginBulkPurchase = (bulkGroup: string) => {
+    getBulkSession(bulkGroup);
+    scheduleBulkFlush(bulkGroup);
+};
+/**
+ * "Create all"/"Make all" (Upgrades, Strangeness, Structures) loop through every purchasable item,
+ * and each individual purchase would otherwise write its own SRMain message - fine for a single
+ * item, but these buttons are also held-to-repeat at 20 times a second (repeatFunction, 50ms), so
+ * a naive per-item announcement turns into a flood while held. A purchase made with a bulkGroup
+ * (a name unique per "all" button) is recorded here instead of announced immediately; a single
+ * combined summary is spoken once activity actually settles, collapsing an entire press-and-hold
+ * into one announcement no matter how many individual purchases happened inside it - the same
+ * "debounce a noisy stream into one clean signal" idea already used for
+ * scheduleDescriptionUpdate/scheduleAriaCurrent, just applied to an announcement instead of a
+ * DOM write.
+ *
+ * Quantity items (buildings, researches, researchesExtra, researchesAuto, ASR, strangeness) are
+ * summed per item across every call in the burst - a single message like "Level increased to N"
+ * would only reflect whichever call happened to run last, not the true total gained across a
+ * long, uneven hold (e.g. Structures ramping up then trickling down as currency use rebalances) -
+ * and only formatted into text once, at flush. Whether an item is now maxed is re-checked at
+ * flush time from its final state, not tracked historically. An item that's never actually bought
+ * is never added to the map at all - deliberately no "bought 0" entries.
+ */
+const recordBulkQuantity = (bulkGroup: string, key: string, name: string, amount: number, maxed: boolean) => {
+    if (amount <= 0) { return; }
+    const session = getBulkSession(bulkGroup);
+    const existing = session.quantities.get(key);
+    if (existing !== undefined) {
+        existing.amount += amount;
+        existing.maxed = maxed;
+    } else {
+        session.quantities.set(key, { name, amount, maxed });
+    }
+    scheduleBulkFlush(bulkGroup);
+};
+const recordBulkOneOff = (bulkGroup: string, key: string, name: string) => {
+    getBulkSession(bulkGroup).oneOffs.set(key, name);
+    scheduleBulkFlush(bulkGroup);
+};
+
 export const syncCreateButton = (kind: 'upgrade' | 'strangeness' | 'inflation') => {
     if (!globalSave.MDSettings[0]) { return; }
     let index: number | null;

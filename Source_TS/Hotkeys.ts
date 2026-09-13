@@ -1,7 +1,7 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { numbersUpdate, switchTab, visualUpdate } from './Update';
-import { buyBuilding, buyStrangenessMax, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { beginBulkPurchase, buyBuilding, buyStrangenessMax, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { getId, pauseGameUser, simulateOffline, toggleSwap } from './Main';
 import { Notify, globalSave, specialHTML } from './Special';
 import type { hotkeysList, numbersList } from './Types';
@@ -261,32 +261,41 @@ export const detectHotkey = (check: KeyboardEvent) => {
     }
 };
 
+/**
+ * These three "buy everything" actions are also held-to-repeat (repeatFunction, 50ms) - passing a
+ * bulkGroup name means every purchase inside the loop is collected into one combined summary
+ * (see recordBulkQuantity/recordBulkOneOff, Stage.ts) instead of each writing its own SRMain
+ * message, which would otherwise flood while held.
+ */
 export const buyAll = () => {
+    beginBulkPurchase('buyAll');
     const active = player.stage.active;
     const max = global.buildingsInfo.maxActive[active];
     const howMany = global.hotkeys.shift ? (global.hotkeys.ctrl ? 100 : 1) : global.hotkeys.ctrl ? 10 : 0;
     if (active === 3) {
-        for (let i = 1; i < max; i++) { buyBuilding(i, active, howMany); }
+        for (let i = 1; i < max; i++) { buyBuilding(i, active, howMany, false, 'buyAll'); }
     } else {
-        for (let i = max - 1; i >= 1; i--) { buyBuilding(i, active, howMany); }
+        for (let i = max - 1; i >= 1; i--) { buyBuilding(i, active, howMany, false, 'buyAll'); }
     }
 };
 export const createAll = () => {
+    beginBulkPurchase('createAll');
     const active = player.stage.active;
-    for (let i = 0; i < global.upgradesInfo[active].maxActive; i++) { buyUpgrades(i, active, 'upgrades'); }
-    for (let i = 0; i < global.researchesInfo[active].maxActive; i++) { buyUpgrades(i, active, 'researches'); }
-    for (let i = 0; i < global.researchesExtraInfo[active].maxActive; i++) { buyUpgrades(i, active, 'researchesExtra'); }
+    for (let i = 0; i < global.upgradesInfo[active].maxActive; i++) { buyUpgrades(i, active, 'upgrades', false, false, 'createAll'); }
+    for (let i = 0; i < global.researchesInfo[active].maxActive; i++) { buyUpgrades(i, active, 'researches', false, false, 'createAll'); }
+    for (let i = 0; i < global.researchesExtraInfo[active].maxActive; i++) { buyUpgrades(i, active, 'researchesExtra', false, false, 'createAll'); }
     if (active === 4 || active === 5) {
-        for (let i = 1; i < global.elementsInfo.cost.length; i++) { buyUpgrades(i, 4, 'elements'); }
+        for (let i = 1; i < global.elementsInfo.cost.length; i++) { buyUpgrades(i, 4, 'elements', false, false, 'createAll'); }
     }
 };
 export const strangenessAll = () => {
+    beginBulkPurchase('strangenessAll');
     if (globalSave.MDSettings[0]) {
         const s = global.debug.MDStrangePage;
-        for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
+        for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness', 'strangenessAll'); }
     } else {
         for (let s = 1; s < global.strangenessInfo.length; s++) {
-            for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
+            for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness', 'strangenessAll'); }
         }
     }
 };
