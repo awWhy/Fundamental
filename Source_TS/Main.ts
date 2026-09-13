@@ -1,8 +1,8 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
 import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
-import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
-import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
-import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, randomValue, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeTypeUser, vaporizationResetUser } from './Stage';
+import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness, openGlobalStats, createGlobalStatsWindow } from './Special';
+import { assignHotkeys, buyAll, buyStrangenessMax, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
 import type { hotkeysList } from './Types';
 import Overlimit from './Limit';
@@ -215,7 +215,7 @@ export const pauseGame = (pause = true) => {
         global.paused = false;
         if (globalSave.SRSettings[0]) { getId('SRMain').textContent = 'Game unpaused'; }
 
-        global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+        global.intervalsId.autoSave = globalSave.intervals.autoSave > 0 ? setInterval(saveGame, globalSave.intervals.autoSave) : undefined;
     }
     global.hotkeys.disabled = pause;
     global.offline.active = pause;
@@ -230,7 +230,7 @@ export const pauseGameUser = () => {
     if (global.offline.active) { return; }
     if (!global.paused) {
         const button = getId('pauseButton');
-        button.style.borderColor = 'forestgreen';
+        button.style.borderColor = '#228b22';
         button.style.color = 'var(--green-text)';
         getId('gamePaused').style.display = '';
         global.paused = true;
@@ -267,12 +267,12 @@ const saveGame = (noSaving = false, manual = false): string | null => {
         }
         const save = btoa(JSON.stringify(clone));
         if (!noSaving) {
-            localStorage.setItem(specialHTML.localStorage.main, save);
+            localStorage.setItem(specialHTML.localStorage.selected, save);
             getId('isSaved').textContent = 'Saved';
             global.lastSave = 0;
             if (manual && !global.paused) {
                 clearInterval(global.intervalsId.autoSave);
-                global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+                global.intervalsId.autoSave = globalSave.intervals.autoSave > 0 ? setInterval(saveGame, globalSave.intervals.autoSave) : undefined;
             }
         }
         return save;
@@ -285,6 +285,7 @@ const saveGame = (noSaving = false, manual = false): string | null => {
 const loadGame = (save: string) => {
     if (global.offline.active || global.april.ultravoid === true) { return; }
     pauseGame();
+    clearInterval(global.intervalsId.autoSave);
     try {
         const versionCheck = updatePlayer(JSON.parse(atob(save)));
 
@@ -299,7 +300,7 @@ const loadGame = (save: string) => {
 
         void Alert(`Incorrect save file format\n${error}`);
         throw error;
-    }
+    } finally { global.intervalsId.autoSave = globalSave.intervals.autoSave > 0 ? setInterval(saveGame, globalSave.intervals.autoSave) : undefined; }
 };
 
 const replaceSaveFileSpecials = (name = player.fileName): string => {
@@ -308,7 +309,7 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
     if (dateIndex >= 0) {
         const endIndex = name.indexOf(']', dateIndex + 5);
         if (endIndex >= 0) {
-            let replaced = name.substring(dateIndex + 5, endIndex);
+            let replaced = name.slice(dateIndex + 5, endIndex);
             const special = [
                 'Y',
                 'M',
@@ -322,14 +323,14 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
             for (let i = 0; i < special.length; i++) {
                 replaced = replaced.replace(special[i], replaceWith[i]);
             }
-            name = name.replace(name.substring(dateIndex, endIndex + 1), replaced);
+            name = name.replace(name.slice(dateIndex, endIndex + 1), replaced);
         }
     }
     const timeIndex = name.indexOf('[time');
     if (timeIndex >= 0) {
         const endIndex = name.indexOf(']', timeIndex + 5);
         if (endIndex >= 0) {
-            let replaced = name.substring(timeIndex + 5, endIndex);
+            let replaced = name.slice(timeIndex + 5, endIndex);
             const special = [
                 'H',
                 'M',
@@ -343,7 +344,7 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
             for (let i = 0; i < special.length; i++) {
                 replaced = replaced.replace(special[i], replaceWith[i]);
             }
-            name = name.replace(name.substring(timeIndex, endIndex + 1), replaced);
+            name = name.replace(name.slice(timeIndex, endIndex + 1), replaced);
         }
     }
 
@@ -365,7 +366,7 @@ const replaceSaveFileSpecials = (name = player.fileName): string => {
         format(player.cosmon[1].total, { type: 'input', padding: true }),
         `${player.inflation.vacuum}`,
         `${format(player.buildings[5][3].current, { type: 'input', padding: 'exponent' })} [${format(player.buildings[5][3].true, { type: 'input', padding: 'exponent' })}]`,
-        `${format(player.verses[0].current, { type: 'input', padding: 'exponent' })} [${format(global.inflationInfo.trueUniverses, { type: 'input', padding: 'exponent' })}]`
+        `${format(player.verses[0].current, { type: 'input', padding: 'exponent' })} [${format(global.versesInfo.true, { type: 'input', padding: 'exponent' })}]`
     ];
     for (let i = 0; i < special.length; i++) {
         name = name.replace(special[i], replaceWith[i]);
@@ -406,7 +407,7 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
         toggleHTML.textContent = `${extraText}OFF`;
     } else {
         toggleHTML.style.color = 'var(--green-text)';
-        toggleHTML.style.borderColor = 'forestgreen';
+        toggleHTML.style.borderColor = '#228b22';
         toggleHTML.textContent = `${extraText}ON`;
     }
 };
@@ -419,7 +420,7 @@ export const toggleConfirm = (number: number, change = false) => {
     toggleHTML.textContent = toggles[number];
     if (toggles[number] !== 'None') {
         toggleHTML.style.color = 'var(--green-text)';
-        toggleHTML.style.borderColor = 'forestgreen';
+        toggleHTML.style.borderColor = '#228b22';
     } else {
         toggleHTML.style.color = '';
         toggleHTML.style.borderColor = '';
@@ -449,6 +450,24 @@ const showAndFix = (element: HTMLElement) => {
         element.style.right = `calc(50% + ${rect.right - document.documentElement.clientWidth}px)`;
     }
 };
+export const showHoverTitle = (event: MouseEvent) => {
+    const element = event.currentTarget as HTMLElement;
+    const window = getId('hoverWindow');
+    specialHTML.hoverText = () => { window.textContent = element.dataset.title as string; };
+    specialHTML.hoverText();
+    window.style.display = '';
+    const position = (event: MouseEvent) => {
+        window.style.left = `${Math.min(event.clientX + 10, document.documentElement.clientWidth - window.offsetWidth - 1)}px`;
+        window.style.top = `${event.clientY + 10}px`;
+    };
+    position(event);
+    element.addEventListener('mousemove', position);
+    element.addEventListener('mouseleave', () => {
+        specialHTML.hoverText = null;
+        window.style.display = 'none';
+        element.removeEventListener('mousemove', position);
+    }, { once: true });
+};
 
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
     if (type === 'elements') {
@@ -458,10 +477,7 @@ const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researc
         global.lastUpgrade[player.stage.active] = [index, type];
     }
     getUpgradeDescription(type);
-    if (globalSave.SRSettings[0]) {
-        const htmlType = type === 'elements' ? 'element' : 'upgrade';
-        getId('SRMain').textContent = `${getId(`${htmlType}Text`).textContent}\n${getId(`${htmlType}Effect`).textContent}\n${getId(`${htmlType}Cost`).textContent}`;
-    }
+    if (globalSave.SRSettings[0]) { getId('SRMain').textContent = getId(`${type === 'elements' ? type : 'upgrades'}Text`).innerText.replace('Type: ', '').replaceAll('\n\n', ' '); }
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflation') => {
     if (type === 'inflation') {
@@ -470,10 +486,7 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
         global.lastStrangeness = [index, stageIndex];
     } else { global.lastMilestone = [index, stageIndex]; }
     getUpgradeDescription(type);
-    if (globalSave.SRSettings[0]) {
-        const htmlType = type === 'strangeness' ? 'strangeness' : type === 'milestones' ? 'milestones' : 'inflation';
-        getId('SRMain').textContent = `${type !== 'inflation' ? `${getId(`${htmlType}Stage`).textContent}\n` : ''}${getId(`${htmlType}Text`).textContent}\n${type === 'milestones' ? `${getId('milestonesMultiline').innerText}` : `${getId(`${htmlType}Effect`).textContent}\n${getId(`${htmlType}Cost`).textContent}`}`;
-    }
+    if (globalSave.SRSettings[0]) { getId('SRMain').textContent = getId(`${type}Text`).innerText.replace('Type: ', '').replaceAll('\n\n', ' '); }
 };
 const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
@@ -498,8 +511,7 @@ const handleAutoResearchCreation = (index: number) => {
 
 /** Sets selected loadout to provided */
 export const loadoutsFinal = (load: number[]) => {
-    if (!global.loadouts.open) { return; }
-    const max = global.treeInfo[0].max;
+    if (!global.loadoutsInfo.open) { return; }
     const appeared = {} as Record<number, number>;
 
     let cost = 0;
@@ -507,22 +519,15 @@ export const loadoutsFinal = (load: number[]) => {
     for (let i = 0, dupes = 0; i < load.length; i += dupes, dupes = 0) {
         const current = load[i];
         appeared[current] ??= 0;
-        const unlocked = checkUpgrade(current, 0, 'inflation');
         do {
-            if (appeared[current] >= 20) {
-                load.splice(i + dupes, 1);
-                continue;
-            }
-            if (unlocked && appeared[current] < max[current]) {
-                cost += calculateTreeCost(current, 0, appeared[current]);
-            }
+            cost += calculateTreeCost(current, 0, appeared[current]);
             appeared[current] += 1;
             dupes++;
         } while (load[i + dupes] === current);
         if (dupes < 1) { continue; }
         string += `${i > 0 ? ', ' : ''}${current + 1}${dupes !== 1 ? `x${dupes}` : ''}`;
     }
-    global.loadouts.input = load;
+    global.loadoutsInfo.input = load;
     getQuery('#loadoutsEditLabel > span').textContent = format(cost, { padding: 'exponent' });
     (getId('loadoutsEdit') as HTMLInputElement).value = string;
 };
@@ -543,7 +548,11 @@ const loadoutsRecreate = () => {
         });
     }
 };
-const loadoutsSave = () => {
+const loadoutsSave = (saveDefault = false) => {
+    if (saveDefault) {
+        player.inflation.default = cloneArray(global.loadoutsInfo.input);
+        return Notify('Setting selected loadout as default');
+    }
     const name = (getId('loadoutsName') as HTMLInputElement).value;
     if (name.length === 0) { return; }
     const loadouts = player.inflation.loadouts;
@@ -554,14 +563,13 @@ const loadoutsSave = () => {
             break;
         }
     }
-    loadouts[index] = [name, cloneArray(global.loadouts.input)];
+    loadouts[index] = [name, cloneArray(global.loadoutsInfo.input)];
     loadoutsRecreate();
     Notify(`Saved loadout as '${name}'`);
 };
-const loadoutsLoad = async(loadout = null as null | number[]) => {
-    if (!await inflationRefund(global.hotkeys.shift, true)) { return; }
+export const loadoutsLoad = async(loadout: number[], noConfirmation = true) => {
+    if (!await inflationRefund(noConfirmation, true)) { return; }
 
-    if (loadout === null) { loadout = global.loadouts.input; }
     for (let i = 0; i < loadout.length; i++) {
         if (!checkUpgrade(loadout[i], 0, 'inflation')) { continue; }
         buyStrangeness(loadout[i], 0, 'inflation', true);
@@ -662,6 +670,7 @@ const loadoutsLoadAuto = () => {
             pointer[3].maxActive = pointer[3].firstCost.length;
         }
         pointer[5].maxActive = pointer[5].firstCost.length;
+        pointer[6].maxActive = pointer[6].firstCost.length;
     }
     player.researchesAuto = createArray(global.researchesAutoInfo.costRange.length, 0);
     player.ASR = createArray(global.ASRInfo.costRange.length, 0);
@@ -709,7 +718,9 @@ export const globalSaveStart = deepClone(globalSave);
 
 try { //Start everything
     const date = new Date();
-    if (date.getMonth() === 3 && date.getDate() < 8) { enableApril(); }
+    global.april.natural = date.getMonth() === 3 && date.getDate() < 8;
+    if (global.april.natural || randomValue(1, 32) === 1) { enableApril(true); }
+    if (global.april.natural || randomValue(1, 64) === 1) { enableLightness(true); }
 
     const body = document.documentElement;
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
@@ -747,12 +758,14 @@ try { //Start everything
             fillMissingValues(globalSave.MDSettings, globalSaveStart.MDSettings, false);
             fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings, false);
             if (oldVersion !== globalSave.version) { saveGlobalSettings(); }
+            if (globalSave.slot !== 0) { specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${globalSave.slot}`; }
         } catch (error) {
             Notify(`Failed to load global settings, default ones used instead\n${error}`);
             console.warn(`Global settings load error, ${error}`);
             Object.assign(globalSave, deepClone(globalSaveStart));
         }
     }
+    createGlobalStatsWindow(true);
     (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
     (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
     (getId('numbersInterval') as HTMLInputElement).value = `${globalSave.intervals.numbers}`;
@@ -772,6 +785,7 @@ try { //Start everything
     if (globalSave.toggles[3]) {
         getQuery('#footer > div:first-child').style.display = 'none';
         const fake2 = document.createElement('div');
+        fake2.id = 'fakeFooter2';
         fake2.style.height = 'max(calc(6.08em + 32px), 7.92em)';
         getQuery('main').prepend(getId('footer'), fake2);
         getId('fakeFooter').after(getId('shortcuts'));
@@ -783,19 +797,38 @@ try { //Start everything
             #footerMain { flex-direction: row; padding: 0.6em 0; gap: 0.6em; }
             #footerMain > div { display: flex; flex-direction: column; row-gap: 0.6em; margin: 0 0 0 auto; }
             #footerMain > div > nav { display: flex; flex-flow: row nowrap; justify-content: center; column-gap: 0.4em; }
-            #footerStats { justify-content: center; column-gap: 0.6em; margin: 0; }
+            #footerMain > div > article { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6em; margin: 0; }
             #stageSelect { position: unset; margin: 0; max-width: unset; }
             #subtabs { flex-flow: column-reverse wrap; gap: 0.6em !important; align-self: end; margin: 0 auto 0 0 !important; max-height: 6.72em; width: 0; /* min-width: 7em; */ }
             #footerMain button, #shortcuts button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
             #subtabs button { width: 100%; min-width: 7em; }
-            #globalStats { bottom: 3.04em; right: calc(50vw - 6.325em); }
-            #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }
-            #fakeFooter { height: 3.04em; }`;
+            ${globalSave.toggles[10] ? '' : '#globalStats { bottom: 3.04em; right: calc(50vw - 6.325em); }'}
+            #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }`;
+        const fakeObserver = new ResizeObserver(() => {
+            getId('fakeFooter').style.height = `${getId('shortcuts').offsetHeight + globalSave.fontSize * 1.2}px`;
+        });
+        fakeObserver.observe(getId('shortcuts'));
+        const fake2Observer = new ResizeObserver(() => {
+            getId('fakeFooter2').style.height = `${getId('footer').offsetHeight}px`;
+        });
+        fake2Observer.observe(getId('footer'));
     } else {
         const observer = new ResizeObserver(() => {
             getId('fakeFooter').style.height = `${getId('footer').offsetHeight + globalSave.fontSize * 2}px`;
         });
         observer.observe(getId('footer'));
+    }
+    if (globalSave.toggles[10]) { //Must be after [3]
+        getId('footerStats').after(getId('globalStats'));
+        specialHTML.styleSheet.textContent += ' #globalStats { bottom: unset; right: unset; }';
+    } else {
+        specialHTML.styleSheet.textContent += ` #globalStats { display: flex; flex-direction: column; position: fixed; background-color: var(--window-color); border: 2px solid var(--window-border); border-radius: 8px; padding: 0.4em; row-gap: 0.4em; cursor: move; z-index: 7; }
+            #globalStats:hover { opacity: 0.2; }
+            #globalStats p { border-radius: 0 4px 4px 0; width: 100%; }
+            #globalStats span { margin-left: auto; width: 4.4em; }`;
+        const window = getId('globalStats');
+        window.style.right = globalSave.resourcesXY[0];
+        window.style.bottom = globalSave.resourcesXY[1];
     }
     if (globalSave.toggles[2]) { body.classList.remove('noTextSelection'); }
     if (globalSave.toggles[1]) {
@@ -821,23 +854,26 @@ try { //Start everything
     const MD = globalSave.MDSettings[0];
     const SR = globalSave.SRSettings[0];
     if (MD) {
-        specialHTML.styleSheet.textContent += ` html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p, #globalStats { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
+        specialHTML.styleSheet.textContent += ` html.noTextSelection, img, input[type = "image"], button, #load, a, #notifications > p${globalSave.toggles[10] ? '' : ', #globalStats'} { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; } /* Safari junk to disable image hold menu and text selection */
             #themeArea > div > div { position: unset; display: flex; width: 15em; }
             #themeArea > div > button { display: none; } /* More Safari junk to make windows work without focus */`;
-        global.debug.MDStrangePage = 1;
 
         for (let i = 0; i <= 2; i++) {
             const arrow = document.createElement('button');
             arrow.innerHTML = '<span class="downArrow"></span>';
             arrow.type = 'button';
-            getId(`reset${i}Main`).append(arrow);
+            if (i !== 0) {
+                const div = document.createElement('div');
+                getId(`reset${i}Main`).append(div);
+                div.append(getId(`reset${i}Button`));
+            }
+            getQuery(`#reset${i}Main div`).append(arrow);
             arrow.addEventListener('click', () => getId(`reset${i}Main`).classList.toggle('open'));
             arrow.addEventListener('blur', () => getId(`reset${i}Main`).classList.remove('open'));
         }
         specialHTML.styleSheet.textContent += ` #resets { row-gap: 1em; }
-            #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
+            #resets > section { position: relative; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
             #resets > section:not(.open) > p { display: none !important; }
-            #resets > section > button:last-of-type { display: flex; justify-content: center; align-items: center; width: 2.2em; margin-left: -2px; }
             #resets .downArrow { width: 1.24em; height: 1.24em; }
             #resets p { position: absolute; width: 17.4em; padding: 0.5em 0.6em 0.6em; background-color: var(--window-color); border: 2px solid var(--window-border); top: calc(100% - 2px); z-index: 2; box-sizing: content-box; }`;
 
@@ -857,7 +893,10 @@ try { //Start everything
 
         const pages = document.createElement('div');
         pages.id = 'strangenessPages';
-        pages.innerHTML = '<button type="button" id="strangenessPage1" class="stage1borderImage hollowButton">1</button><button type="button" id="strangenessPage2" class="stage2borderImage hollowButton">2</button><button type="button" id="strangenessPage3" class="stage3borderImage hollowButton">3</button><button type="button" id="strangenessPage4" class="stage4borderImage hollowButton">4</button><button type="button" id="strangenessPage5" class="stage5borderImage hollowButton">5</button><button type="button" id="strangenessPage6" class="stage6borderImage hollowButton">6</button>';
+        let pagesInner = '';
+        for (let i = 1; i <= 6; i++) { pagesInner += `<button type="button" id="strangenessPage${i}" class="stage${i}borderImage hollowButton">${i}</button>`; }
+        pagesInner += '<button type="button" id="strangenessPageAll" class="stageAllborderImage hollowButton">All</button>';
+        pages.innerHTML = pagesInner;
         specialHTML.styleSheet.textContent += ` #strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
             #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }`;
         getId('strangenessResearch').append(pages);
@@ -916,18 +955,12 @@ try { //Start everything
     }
 
     let oldVersion = player.version;
-    const save = localStorage.getItem(specialHTML.localStorage.main);
+    const save = localStorage.getItem(specialHTML.localStorage.selected);
     if (save !== null) {
         oldVersion = updatePlayer(JSON.parse(atob(save)));
     } else {
-        const oldSave = localStorage.getItem('save');
-        if (oldSave !== null) {
-            oldVersion = updatePlayer(JSON.parse(atob(oldSave)));
-            Notify('Save file has been updated to newest version\nOld save can be retrieved in the advanced save settings');
-        } else {
-            prepareVacuum(false); //Set buildings values
-            updatePlayer(deepClone(playerStart), false);
-        }
+        prepareVacuum(false); //Set buildings values
+        updatePlayer(deepClone(playerStart), false);
     }
 
     const observerX = new ResizeObserver((entries) => {
@@ -978,16 +1011,18 @@ try { //Start everything
         body.addEventListener('touchstart', (event) => {
             specialHTML.mobileDevice.start = [event.touches[0].clientX, event.touches[0].clientY];
         });
+        const notAllowed = [getId('footerMain')];
+        const globalStats = getId('globalStats');
+        if (!globalSave.toggles[10]) { notAllowed.push(globalStats); }
         body.addEventListener('touchend', (event) => {
             cancelRepeat();
-            const notAllowed = [getId('globalStats'), getId('footerMain')]; //[0] Shouldn't be changed
             for (let target = event.target as HTMLElement; target != null; target = target.parentElement as HTMLElement) {
                 if (notAllowed.includes(target)) {
-                    if (target !== notAllowed[0]) { notAllowed[0].style.opacity = '1'; }
+                    if (!globalSave.toggles[10] && target !== globalStats) { globalStats.style.opacity = '1'; }
                     return;
                 }
             }
-            notAllowed[0].style.opacity = '1';
+            if (!globalSave.toggles[10]) { globalStats.style.opacity = '1'; }
             handleTouchHotkeys(event);
         });
         body.addEventListener('touchcancel', () => {
@@ -996,29 +1031,10 @@ try { //Start everything
         });
     } else {
         body.addEventListener('touchstart', () => Notify('Touch events require mobile device support enabled in settings'), { once: true });
-    } {
-        const hoverEvent = (event: MouseEvent) => {
-            const element = event.currentTarget as HTMLElement;
-            const window = getId('hoverWindow');
-            specialHTML.hoverText = () => { window.textContent = element.dataset.title as string; };
-            specialHTML.hoverText();
-            window.style.display = '';
-            const position = (event: MouseEvent) => {
-                window.style.left = `${Math.min(event.clientX + 10, document.documentElement.clientWidth - window.offsetWidth - 1)}px`;
-                window.style.top = `${event.clientY + 10}px`;
-            };
-            position(event);
-            element.addEventListener('mousemove', position);
-            element.addEventListener('mouseleave', () => {
-                specialHTML.hoverText = null;
-                window.style.display = 'none';
-                element.removeEventListener('mousemove', position);
-            }, { once: true });
-        };
-        for (const element of getClass('hasTitle')) { element.addEventListener('mouseenter', hoverEvent); }
     }
+    for (const element of getClass('hasTitle')) { element.addEventListener('mouseenter', showHoverTitle); }
+    const refreshOnThese = [1, 3, 5, 7, 10];
     for (let i = 0; i < globalSaveStart.toggles.length; i++) {
-        const refreshOnThese = [1, 3, 5, 7];
         getId(`globalToggle${i}`).addEventListener('click', () => {
             toggleSpecial(i, 'global', true, refreshOnThese.includes(i));
             if (i === 0) {
@@ -1064,9 +1080,10 @@ try { //Start everything
     {
         const button = getId('reset2Button');
         const footer = getId('reset2Footer');
-        const repeatFunc = () => repeatFunction(endResetUser);
-        button.addEventListener('click', endResetUser);
-        footer.addEventListener('click', endResetUser);
+        const clickFunc = () => void endResetUser();
+        const repeatFunc = () => repeatFunction(clickFunc);
+        button.addEventListener('click', clickFunc);
+        footer.addEventListener('click', clickFunc);
         if (PC) {
             button.addEventListener('mousedown', repeatFunc);
             footer.addEventListener('mousedown', repeatFunc);
@@ -1112,7 +1129,7 @@ try { //Start everything
             }
         };
         const repeatFunc = () => repeatFunction(() => {
-            if (player.stage.active !== 1 && player.stage.active !== 3) { return; }
+            if (player.stage.active !== 1 && player.stage.active !== 3 && (player.stage.active !== 6 || global.dischargeInfo.energyStage[6] <= player.darkness.energy)) { return; }
             clickFunc();
         });
         button.addEventListener('click', clickFunc);
@@ -1147,6 +1164,11 @@ try { //Start everything
         if (PC) { button.addEventListener('mousedown', repeatFunc); }
         if (MD) { button.addEventListener('touchstart', repeatFunc); }
     }
+    getId('mergeSwap').addEventListener('click', () => {
+        global.sessionToggles[2] = !global.sessionToggles[2];
+        visualUpdate();
+        numbersUpdate();
+    });
     const getMakeCount = () => global.hotkeys.shift ? (global.hotkeys.ctrl ? 100 : 1) : global.hotkeys.ctrl ? 10 : undefined;
     for (let i = 1; i < specialHTML.lastBuilding; i++) {
         const button = getId(`building${i}Btn`);
@@ -1155,9 +1177,9 @@ try { //Start everything
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
         if (MD) { button.addEventListener('touchstart', () => repeatFunction(clickFunc)); }
     }
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < playerStart.verses.length; i++) {
         const button = getId(`verse${i}Btn`);
-        const clickFunc = () => buyVerse();
+        const clickFunc = i === 1 ? () => void endResetUser(true) : () => buyVerse(i);
         button.addEventListener('click', clickFunc);
         if (PC) { button.addEventListener('mousedown', () => repeatFunction(clickFunc)); }
         if (MD) { button.addEventListener('touchstart', () => repeatFunction(clickFunc)); }
@@ -1182,7 +1204,7 @@ try { //Start everything
             const window = getQuery('#buyAnyMain > label');
             showAndFix(window);
             const change = () => {
-                let value = input.value === '' ? playerStart.toggles.shop.input : Math.max(Math.trunc(Number(input.value)), 0);
+                let value = input.value === '' ? playerStart.toggles.shop.input : Math.trunc(Number(input.value));
                 if (!isFinite(value)) { value = playerStart.toggles.shop.input; }
                 player.toggles.shop.input = value;
                 input.value = format(value, { type: 'input' });
@@ -1221,11 +1243,10 @@ try { //Start everything
     }
     getId('challengeName').addEventListener('click', () => {
         if (global.lastChallenge[0] === 0) {
-            toggleChallengeType(true);
+            toggleChallengeTypeUser();
         } else if (global.lastChallenge[0] === 1) {
             if (player.challenges.active === 1) { return Notify(`Can't be toggled while inside ${global.challengesInfo[1].name}`); }
             global.april.quantum = !global.april.quantum;
-            global.challengesInfo[1].name = global.april.quantum ? 'Quantum Vacuum' : 'Vacuum stability';
             numbersUpdate();
             visualUpdate();
         } else if (global.lastChallenge[0] === 2) {
@@ -1236,20 +1257,13 @@ try { //Start everything
         if (global.hotkeys.shift && global.april.ultravoid === null) {
             if (player.challenges.active === 0) { return Notify(`Can't be toggled while inside ${global.challengesInfo[0].name}`); }
             global.april.ultravoid = false;
-            global.challengesInfo[0].name = 'Ultravoid';
-            global.challengesInfo[0].time = 30;
-            numbersUpdate();
             visualUpdate();
             return;
         }
-        toggleChallengeType(true);
+        toggleChallengeTypeUser();
     });
     getId('voidRewardsHead').addEventListener('click', () => {
         global.sessionToggles[0] = !global.sessionToggles[0];
-        getChallengeRewards();
-    });
-    getId('stabilityRewardsHead').addEventListener('click', () => {
-        global.sessionToggles[2] = !global.sessionToggles[2];
         getChallengeRewards();
     });
     for (let s = 1; s <= 5; s++) {
@@ -1568,6 +1582,7 @@ try { //Start everything
         }
     }
     if (MD) {
+        getId('strangenessPageAll').addEventListener('click', () => MDStrangenessPage(null));
         const button = getId('strangenessCreate');
         const clickFunc = () => {
             const last = global.lastStrangeness;
@@ -1605,6 +1620,29 @@ try { //Start everything
     }
 
     /* Inflation tab */
+    {
+        const button = getId('cosmon2');
+        const open = (focus = false) => {
+            const window = getId('cosmon2InfoMain');
+            if (window.dataset.focus === 'true') { return; }
+            if (focus) {
+                window.dataset.focus = 'true';
+                button.addEventListener('blur', () => {
+                    window.style.display = 'none';
+                    window.dataset.focus = '';
+                }, { once: true });
+            } else {
+                button.addEventListener('mouseleave', () => {
+                    if (window.dataset.focus === 'true') { return; }
+                    window.style.display = 'none';
+                }, { once: true });
+            }
+            window.style.display = '';
+            numbersUpdate();
+        };
+        button.addEventListener('mouseenter', () => open());
+        if (SR) { button.addEventListener('focus', () => open(true)); }
+    }
     for (let s = 0; s < playerStart.tree.length; s++) {
         for (let i = 0; i < playerStart.tree[s].length; i++) {
             const label = getId(`inflation${i + 1}Tree${s + 1}`);
@@ -1642,7 +1680,7 @@ try { //Start everything
         const input = getId('loadoutsName') as HTMLInputElement;
         input.addEventListener('change', () => { input.value = input.value.trim(); });
         input.addEventListener('keydown', (event) => {
-            if (event.code === 'Enter' && detectShift(event) !== null) {
+            if (event.code === 'Enter' && detectShift(event) === false) {
                 event.preventDefault();
                 loadoutsSave();
             }
@@ -1650,34 +1688,38 @@ try { //Start everything
     }
     getId('inflationRefund').addEventListener('click', () => void inflationRefund(global.hotkeys.shift));
     getId('inflationLoadouts').addEventListener('click', () => {
-        if ((global.loadouts.open = !global.loadouts.open)) {
+        if ((global.loadoutsInfo.open = !global.loadoutsInfo.open)) {
             getId('loadoutsMain').style.display = '';
             (getId('loadoutsName') as HTMLInputElement).value = 'Current';
             loadoutsLoadAuto();
             loadoutsRecreate();
         } else { getId('loadoutsMain').style.display = 'none'; }
-        if (globalSave.SRSettings[0]) { getId('inflationLoadouts').ariaExpanded = `${global.loadouts.open}`; }
+        if (globalSave.SRSettings[0]) { getId('inflationLoadouts').ariaExpanded = `${global.loadoutsInfo.open}`; }
     });
     getId('loadoutsEdit').addEventListener('change', () => {
-        const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(/[,\\/_ |]+/);
+        const first = (getId('loadoutsEdit') as HTMLInputElement).value.split(/[., ]+/);
         const final = [];
+        const max = global.treeInfo[0].max;
+        const left = {} as Record<number, number>;
         for (let i = 0; i < first.length; i++) {
             const index = first[i].indexOf('x');
             let repeat = 1;
             if (index !== -1) {
-                repeat = Math.min(Math.max(Number(first[i].slice(index + 1)), 0), 20);
+                repeat = Math.max(Number(first[i].slice(index + 1)), 0);
                 if (isNaN(repeat)) { repeat = 1; }
                 first[i] = first[i].slice(0, index);
             }
             const number = Math.trunc(Number(first[i]) - 1);
-            if (number < 0 || !isFinite(number)) { continue; }
+            if (!checkUpgrade(number, 0, 'inflation')) { continue; }
+            left[number] ??= max[number];
+            if (repeat > left[number]) { repeat = left[number]; }
+            left[number] -= repeat;
             for (let r = 0; r < repeat; r++) { final.push(number); }
         }
         loadoutsFinal(final);
     });
-    getId('loadoutsLoadAuto').addEventListener('click', loadoutsLoadAuto);
-    getId('loadoutsSave').addEventListener('click', loadoutsSave);
-    getId('loadoutsLoad').addEventListener('click', () => void loadoutsLoad());
+    getId('loadoutsSave').addEventListener('click', () => loadoutsSave(global.hotkeys.shift));
+    getId('loadoutsLoad').addEventListener('click', () => void loadoutsLoad(global.loadoutsInfo.input, global.hotkeys.shift));
     getId('loadoutsMove').addEventListener('click', () => {
         const name = (getId('loadoutsName') as HTMLInputElement).value;
         let index;
@@ -1716,6 +1758,11 @@ try { //Start everything
             loadouts.splice(index, 1);
         }
         loadoutsRecreate();
+    });
+    getId('loadoutsLoadAuto').addEventListener('click', loadoutsLoadAuto);
+    getId('loadoutsLoadDefault').addEventListener('click', () => {
+        loadoutsFinal(player.inflation.default);
+        if (global.hotkeys.shift) { void loadoutsLoad(player.inflation.default); }
     });
     if (MD) {
         const button = getId('inflationActivate');
@@ -1856,6 +1903,7 @@ try { //Start everything
     }
     getId('versionButton').addEventListener('click', openVersionInfo);
     getId('hotkeysButton').addEventListener('click', openHotkeys);
+    getId('globalStatsButton').addEventListener('click', openGlobalStats);
     getId('save').addEventListener('click', () => { saveGame(false, true); });
     {
         const button = getId('file') as HTMLInputElement;
@@ -1869,42 +1917,33 @@ try { //Start everything
         });
     }
     const exportReward = (force = false) => {
-        if (player.progress.main < 17 && (player.inflation.vacuum || player.progress.main < 11)) { return; }
+        const exportReward = player.time.export;
+        if (exportReward[0] <= 0 || player.challenges.active !== null || (player.progress.main < 17 && (player.inflation.vacuum || player.progress.main < 11))) { return; }
         if (globalSave.developerMode && !force) { return Notify('Export reward is disabled when using developer mode'); }
 
-        const exportReward = player.time.export;
-        if (exportReward[0] <= 0) { return; }
         const claimPer = player.inflation.ends[0] >= 1 ? 1 : 2.5;
         const conversion = Math.min(exportReward[0] / 43200_000, 1);
-
-        let claimed = false;
         if (player.inflation.ends[1] >= 1 && exportReward[3] > 0) {
             const value = exportReward[3] / 5 * conversion;
             player.cosmon[1].current += value;
             player.cosmon[1].total += value;
             exportReward[3] = Math.max(exportReward[3] - value, 0);
-            claimed = true;
         }
-        if (player.challenges.active === null || global.challengesInfo[player.challenges.active].resetType === 'stage') {
-            if (exportReward[2] > 0) {
-                const value = exportReward[2] / claimPer * conversion;
-                player.strange[1].current += value;
-                player.strange[1].total += value;
-                exportReward[2] = Math.max(exportReward[2] - value, 0);
-                assignBuildingsProduction.strange1();
-            } {
-                const value = (exportReward[1] / claimPer + 1) * conversion;
-                player.strange[0].current += value;
-                player.strange[0].total += value;
-                exportReward[1] = Math.max(exportReward[1] - value, 0);
-                assignBuildingsProduction.strange0();
-            }
-            claimed = true;
+        if (exportReward[2] > 0) {
+            const value = exportReward[2] / claimPer * conversion;
+            player.strange[1].current += value;
+            player.strange[1].total += value;
+            exportReward[2] = Math.max(exportReward[2] - value, 0);
+            assignBuildingsProduction.strange1();
+        } {
+            const value = (exportReward[1] / claimPer + 1) * conversion;
+            player.strange[0].current += value;
+            player.strange[0].total += value;
+            exportReward[1] = Math.max(exportReward[1] - value, 0);
+            assignBuildingsProduction.strange0();
         }
-        if (claimed) {
-            exportReward[0] = 0;
-            numbersUpdate();
-        }
+        exportReward[0] = 0;
+        numbersUpdate();
     };
     getId('export').addEventListener('click', () => {
         exportReward();
@@ -1917,7 +1956,7 @@ try { //Start everything
         a.click();
     });
     getId('saveConsole').addEventListener('click', async() => {
-        let value = await Prompt(`Available options:\n'Copy' ‒ copy save file to the clipboard${localStorage.getItem('save') !== null ? "\n'Legacy' ‒ copy legacy save file" : ''}\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n'Dev' ‒ open developer settings\n(Adding '_' will skip options menu)\nOr insert save file text here to load it`);
+        let value = await Prompt(`Available options:\n'Copy' ‒ copy save file to the clipboard\n'Slot' ‒ change current save slot\n'Delete' ‒ delete your save file\n'Clear' ‒ clear all the domain data\n'Global' ‒ open options for global settings\n'Dev' ‒ open developer settings${global.april.antimatter || global.april.lightness ? "\n'April' ‒ disable April mode related gags" : ''}\n(Can skip menus by adding spacebars)\nOr insert save file text here to load it`);
         if (value === null || value === '') { return; }
         let lower = value.trim().toLowerCase();
         if (lower === 'global') {
@@ -1931,9 +1970,10 @@ try { //Start everything
             value += `_${check}`;
             lower = value.trim().toLowerCase();
         }
+        lower = lower.replaceAll('_', ' ');
 
-        if (lower === 'copy' || lower === 'global_copy' || lower === 'legacy') {
-            const save = lower === 'global_copy' ? saveGlobalSettings(true) : lower === 'copy' ? saveGame(true) : localStorage.getItem('save');
+        if (lower === 'copy' || lower === 'global copy') {
+            const save = lower === 'global copy' ? saveGlobalSettings(true) : saveGame(true);
             if (save === null) { return Notify('Could not copy text into the clipboard'); }
             try {
                 await navigator.clipboard.writeText(save);
@@ -1943,25 +1983,41 @@ try { //Start everything
                 if (await Confirm("Could not copy text into the clipboard, press 'Confrim' to save it as a file instead")) {
                     const a = document.createElement('a');
                     a.href = `data:text/plain,${save}`;
-                    a.download = `Fundamental ${lower === 'global_copy' ? 'settings' : `${lower === 'legacy' ? 'legacy ' : ''}save`} clipboard`;
+                    a.download = `Fundamental ${lower === 'global copy' ? 'settings' : 'save'} clipboard`;
                     a.click();
                 }
             }
-        } else if (lower === 'delete' || lower === 'clear' || lower === 'global_reset') {
+        } else if (lower === 'slot' || lower.includes('slot ')) {
+            const available = [];
+            if (localStorage.getItem(specialHTML.localStorage.main) !== null) { available.push(0); }
+            for (let i = 1; i < 10; i++) {
+                if (localStorage.getItem(`${specialHTML.localStorage.main}${i}`) !== null) { available.push(i); }
+            }
+            value = lower[4] === ' ' ? value.slice(5) :
+                await Prompt(`Which save slot to load and change into from 0 to 9. Current slot is ${globalSave.slot} and following exist:\n${available.length === 0 ? 'None' : available.join(', ')}\n(Only loads slot if it exist, adding 'Delete' before selected slot will delete it)`);
+            if (value === null || value === '') { return; }
+            const slot = Math.trunc(Number(value[value.length - 1]));
+            if (isNaN(slot) || slot < 0 || slot > 9) { return Notify(`Selected slot (${slot}) is not a number from 0 to 9`); }
+            specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${slot !== 0 ? slot : ''}`;
+            if (value.toLowerCase().includes('delete')) { return localStorage.removeItem(specialHTML.localStorage.selected); }
+            globalSave.slot = slot;
+            saveGlobalSettings();
+            const save = localStorage.getItem(specialHTML.localStorage.selected);
+            if (save !== null) { return loadGame(save); }
+        } else if (lower === 'delete' || lower === 'clear' || lower === 'global reset') {
             pauseGame();
             if (lower === 'delete') {
-                localStorage.removeItem('save');
-                localStorage.removeItem(specialHTML.localStorage.main);
-            } else if (lower === 'global_reset') {
+                localStorage.removeItem(specialHTML.localStorage.selected);
+            } else if (lower === 'global reset') {
                 localStorage.removeItem(specialHTML.localStorage.settings);
             } else { localStorage.clear(); }
             window.location.reload();
             void Alert('Awaiting game reload');
-        } else if (lower === 'dev_toggle' && (value === 'deV_Toggle' || globalSave.developerMode)) {
+        } else if (lower === 'dev toggle' && (value === 'deV_Toggle' || globalSave.developerMode)) {
             Notify(`Developer mode is ${((globalSave.developerMode = !globalSave.developerMode)) ? 'now' : 'no longer'} active`);
             saveGlobalSettings();
-        } else if (lower.includes('dev_edit') && globalSave.developerMode) {
-            value = lower[8] === '_' ? value.substring(9) :
+        } else if (lower.includes('dev edit') && globalSave.developerMode) {
+            value = lower[8] === ' ' ? value.slice(9) :
                 await Prompt("Format for save file edit [property 'value' reloadSave?], example to create first Microworld Upgrade [upgrades.1.0 1]\nProperties are always separated by dots, final one must be primitive\nValue has to be of correct primitive type, there is no safety\nAny value for save reload that isn't 'false' interpreted as 'true'\nEverything is case sensitive, no brackets");
             if (value === null || value === '') { return; }
             const check = value.split(' ');
@@ -1983,68 +2039,72 @@ try { //Start everything
                 pointer[last].setValue(parsed);
             } else { pointer[last] = parsed; }
             if (check[2] !== 'false') { updatePlayer(player, false); }
-        } else if (lower === 'dev_console') {
+        } else if (lower === 'dev console') {
             console.log(deepClone(player), deepClone(globalSave), deepClone(global));
-        } else if (lower.includes('dev_reset')) {
-            if (player.challenges.active !== null) { return Notify('Must be done outside of Challenges'); }
-            value = lower[9] === '_' ? value.substring(10) :
-                await Prompt("Which reset tier to simulate, no rewards:\n'Stage', 'Vacuum' (resets Universe age), 'Universe' (removes true Vacuum Inflaton)");
-            if (value === null) { return; }
+        } else if (lower.includes('dev reset')) {
+            value = lower[9] === ' ' ? value.slice(10) :
+                await Prompt("Which reset tier to simulate, no rewards:\n'Stage', 'Vacuum' (resets Universe age), 'Universe' (removes true Vacuum Inflaton), 'Multiverse'\nDue to bug related reasons must be done outside of Challenges");
+            if (value === null || player.challenges.active !== null) { return; }
             value = value.trim().toLowerCase();
             if (value === 'stage') {
                 stageFullReset(true);
-            } else if (value === 'vacuum' || value === 'universe') {
+            } else if (value === 'vacuum' || value === 'universe' || value === 'multiverse') {
                 if (player.stage.active < 6) { setActiveStage(1); }
                 player.time.export[1] = 0;
                 player.time.export[2] = 0;
-                if (value === 'universe' && player.inflation.vacuum) {
-                    if (player.cosmon[0].total > 0) {
-                        player.cosmon[0].current--;
-                        player.cosmon[0].total--;
-                    }
+                if (value === 'multiverse') {
+                    player.verses[0].current -= global.versesInfo.true;
                     player.inflation.vacuum = false;
                     prepareVacuum(false);
+                    resetVacuum(2);
+                } else {
+                    if (value === 'universe' && player.inflation.vacuum) {
+                        if (player.cosmon[0].total > 0) {
+                            player.cosmon[0].current--;
+                            player.cosmon[0].total--;
+                        }
+                        player.inflation.vacuum = false;
+                        prepareVacuum(false);
+                    }
+                    resetVacuum(1);
                 }
-                resetVacuum(1);
-            }
-        } else if (lower.includes('dev_refund')) {
-            value = lower[10] === '_' ? value.substring(11) :
-                await Prompt("Which reset tier Upgrades to refund:\n(Free Upgrades are not re_rewarded, doesn't adjust any extra values, forces save file reload)\n'Strangeness', 'Inflations'");
+            } else { return void Alert(`Input '${value}' doesn't match anything`); }
+        } else if (lower.includes('dev refund')) {
+            value = lower[10] === ' ' ? value.slice(11) :
+                await Prompt("Which reset tier Upgrades to refund:\n(Free Upgrades are not re-rewarded, doesn't adjust any extra values, forces save file reload)\n'Strange quarks', 'Cosmons'");
             if (value === null) { return; }
             value = value.trim().toLowerCase();
-            if (value === 'strangeness') {
-                player.strangeness = deepClone(playerStart.strangeness);
+            if (value === 'strange quarks' || value === 'quarks') {
+                for (let i = 1; i < (player.inflation.vacuum ? 6 : 5); i++) {
+                    player.strangeness[i] = cloneArray(playerStart.strangeness[i]);
+                }
+                if (!player.inflation.vacuum) { player.strangeness[6][3] = 0; }
                 player.strange[0].current = player.strange[0].total;
-            } else if (value === 'inflations') {
-                player.tree = deepClone(playerStart.tree);
-                player.cosmon[0].current = player.cosmon[0].total;
+            } else if (value === 'cosmons') {
+                player.tree[1] = cloneArray(playerStart.tree[1]);
                 player.cosmon[1].current = player.cosmon[1].total;
-                player.cosmon[2].current = player.cosmon[2].total;
-            } else { return; }
+            } else { return void Alert(`Input '${value}' doesn't match anything`); }
             updatePlayer(player, false);
-        } else if (value === 'dev_export') {
+        } else if (value === 'dev export') {
             exportReward(true);
-        } else if (lower === 'achievement' || lower === 'secret_achievement') {
-            Notify(`Unlocked a new ${lower === 'achievement' ? '' : 'super secret'} Achievement! (If there were any)`);
+        } else if (lower === 'achievement' || lower === 'secret achievement') {
+            Notify(`Unlocked a new ${lower === 'secret achievement' ? 'super secret' : ''} Achievement! (If there were any)`);
         } else if (lower === 'slow' || lower === 'free' || lower === 'boost' || lower === 'speedup') {
             Notify('Game speed was increased by 1x');
-        } else if (lower === 'secret' || lower === 'global_secret' || lower === 'secret_secret') {
-            Notify(`Found ${lower === 'secret_secret' ? "an ultra rare secret, but it doesn't proof anything" : `a ${lower === 'global_secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
-        } else if (lower === 'secret_proof') {
-            Notify('Found a proof that you were looking for!');
-        } else if (lower === 'april') {
-            if (global.april.active) {
-                enableApril();
-                Notify('April mode is now disabled');
-            } else { Notify('April mode is already disabled'); }
-        } else if (lower === (global.april.light ? 'dark' : 'light')) {
+        } else if (lower === 'secret' || lower === 'global secret' || lower === 'secret secret') {
+            Notify(`Found ${lower === 'secret secret' ? "an ultra rare secret, but it doesn't proof anything" : `a ${lower === 'global secret' ? 'global' : 'rare'} secret, don't share it with anybody`}`);
+        } else if (lower === 'secret proof') {
+            Notify('Found the proof that you were looking for!');
+        } else if (lower === 'light') {
             enableLightness();
-            Notify(`${global.april.light ? 'Lightness' : 'Darkness'} has returned`);
+        } else if (lower === 'april' && (global.april.antimatter || global.april.lightness)) {
+            if (global.april.antimatter) { enableApril(); }
+            if (global.april.lightness) { enableLightness(); }
         } else {
-            if (value.length < 20) { return void Alert(`Input '${value}' doesn't match anything`); }
-            if (lower.includes('global_')) {
+            if (value.length < 40) { return void Alert(`Input '${value}' doesn't match anything`); }
+            if (lower.includes('global ')) {
                 if (!await Confirm("Press 'Confirm' to load input as a new global settings, this will reload the page\n(Input is too long to be displayed)")) { return; }
-                localStorage.setItem(specialHTML.localStorage.settings, value.substring(7));
+                localStorage.setItem(specialHTML.localStorage.settings, value.slice(7));
                 window.location.reload();
                 void Alert('Awaiting game reload');
             } else {
@@ -2056,7 +2116,18 @@ try { //Start everything
     getId('switchTheme0').addEventListener('click', () => setTheme(null));
     getId('switchThemeQuantum').addEventListener('click', () => {
         setTheme('Quantum');
-        if (globalSave.theme !== 'Quantum') { Notify('Secret theme, hint to unlock:\n"Enter through alternative means and look for it"'); }
+        if (globalSave.theme !== 'Quantum' && !global.april.clickedQ) {
+            const button = getId('switchThemeQuantum') as HTMLButtonElement;
+            global.april.clickedQ = true;
+            button.style.transition = 'opacity 1s';
+            button.style.opacity = '0';
+            setTimeout(() => {
+                if (document.activeElement === button) { getId('switchTheme0').focus(); }
+                button.style.display = 'none';
+                button.style.transition = '';
+                button.style.opacity = '';
+            }, 1000);
+        }
     });
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
@@ -2108,14 +2179,19 @@ try { //Start everything
     } {
         const input = getId('autoSaveInterval') as HTMLInputElement;
         input.addEventListener('change', () => {
-            let value = input.value === '' ? globalSaveStart.intervals.autoSave : Math.min(Math.max(Math.trunc(Number(input.value)), 5), 9999) * 1000;
-            if (!isFinite(value)) { value = globalSaveStart.intervals.autoSave; }
+            let value = Math.trunc(Number(input.value));
+            if (input.value !== '') {
+                const negative = value < 0;
+                value = Math.min(Math.max(Math.abs(value), 4), 3600) * 1000;
+                if (negative) { value *= -1; }
+                if (!isFinite(value)) { value = globalSaveStart.intervals.autoSave; }
+            } else { value = globalSaveStart.intervals.autoSave; }
             globalSave.intervals.autoSave = value;
             input.value = `${value / 1000}`;
             saveGlobalSettings();
             if (!global.paused) {
                 clearInterval(global.intervalsId.autoSave);
-                global.intervalsId.autoSave = setInterval(saveGame, globalSave.intervals.autoSave);
+                global.intervalsId.autoSave = value > 0 ? setInterval(saveGame, value) : undefined;
             }
         });
     }
@@ -2169,7 +2245,7 @@ try { //Start everything
     }
 
     /* Footer */
-    {
+    if (!globalSave.toggles[10]) {
         const startEvent = (event: MouseEvent | TouchEvent) => {
             const mouse = event instanceof MouseEvent;
             const body = document.documentElement;
@@ -2237,12 +2313,12 @@ try { //Start everything
         void simulateOffline(global.lastSave);
 
         void (async() => {
-            const result = await fetch('./last_build.txt');
+            const result = await fetch('./last_build.txt', { cache: 'no-store' });
             if (result.ok) {
-                global.lastUpdate = Number((await result.text()).replace('\n', ''));
-                if (global.lastUpdate === 0 || isNaN(global.lastUpdate)) { global.lastUpdate = null; }
+                global.lastUpdate = Number(await result.text());
+                if (isNaN(global.lastUpdate)) { global.lastUpdate = 0; }
             }
-            Notify(`Welcome back, you were away for ${format(offline / 1000, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${global.lastUpdate !== null ?
+            Notify(`Welcome back, you were away for ${format(offline / 1000, { type: 'time', padding: false })}${oldVersion !== player.version ? `\nGame has been updated from ${oldVersion} to ${player.version}` : ''}${global.lastUpdate !== 0 ?
                 `\nLast update was ${format((timeAtLoad - global.lastUpdate) / 1000, { type: 'time', padding: false })} ago` : ''}${globalSave.developerMode ?
                 `\nGame loaded after ${format((timeAtLoad - playerStart.time.started) / 1000, { type: 'time', padding: false })}` : ''}
             `);
@@ -2264,7 +2340,7 @@ try { //Start everything
     let exported = false;
     getId('exportError').addEventListener('click', () => {
         exported = true;
-        const save = localStorage.getItem(specialHTML.localStorage.main);
+        const save = localStorage.getItem(specialHTML.localStorage.selected);
         if (save === null) { return void Alert("Couldn't find any save files"); }
         const a = document.createElement('a');
         a.href = `data:text/plain,${save}`;
@@ -2273,7 +2349,7 @@ try { //Start everything
     });
     getId('deleteError').addEventListener('click', async() => {
         if (!globalSave.developerMode && !exported && !await Confirm("It's recommended to export save file first\nPress 'Confirm' to confirm and delete your save file")) { return; }
-        localStorage.removeItem(specialHTML.localStorage.main);
+        localStorage.removeItem(specialHTML.localStorage.selected);
         window.location.reload();
         void Alert('Awaiting game reload');
     });

@@ -1,5 +1,4 @@
 import { global, player } from './Player';
-import { calculateEffects } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 
 export const checkTab = (tab: gameTab, subtab = null as null | gameSubtab): boolean => {
@@ -46,22 +45,21 @@ export const checkBuilding = (index: number, stageIndex: number): boolean => {
         if (index === 2) { return player.researchesExtra[4][0] >= 1; }
         if (index === 3) { return player.researchesExtra[4][0] >= 2; }
         if (index === 4) { return player.researchesExtra[4][0] >= 3; }
-        if (index === 5) { return player.elements[26] >= 1 && (player.challenges.active !== 0 || player.tree[0][5] >= 1); }
+        if (index === 5) { return player.elements[26] >= 1 && (player.tree[1][9] >= 1 || player.challenges.active !== 0); }
     } else if (stageIndex === 5) {
         if (index === 1) { return player.inflation.vacuum || player.milestones[2][0] >= 7; }
         if (index === 2) { return player.inflation.vacuum || player.milestones[3][0] >= 7; }
         if (index === 3) { return player.researchesExtra[5][0] >= 1; }
     } else if (stageIndex === 6) {
-        if (index === 1) { return player.upgrades[6][0] === 1 || player.researches[6][0] >= 6; }
+        if (index === 1) { return player.strangeness[6][3] >= 1 && (player.upgrades[6][0] === 1 || player.researches[6][0] >= 6); }
     }
 
     return false;
 };
 
-export const checkVerse = (): boolean => {
-    const challenge = player.challenges.active;
-    return challenge === null ? (player.inflation.vacuum || player.tree[0][5] >= 1) :
-        (challenge === 0 && global.challengesInfo[0].time >= player.time[global.challengesInfo[0].resetType]);
+export const checkVerse = (index: number): boolean => {
+    if (index === 0) { return player.challenges.active === null ? (player.inflation.vacuum || player.tree[0][4] >= 1) : (player.challenges.active === 0 && global.challengesInfo[0].time >= player.time[global.challengesInfo[0].resetType]); }
+    return index === 1;
 };
 
 export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'inflation'): boolean => {
@@ -93,17 +91,17 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 2) { return player.upgrades[4][1] === 1; }
                 if (upgrade === 3) { return player.strangeness[4][2] >= 3 && player.upgrades[4][2] === 1 && (galaxy || player.collapse.stars[1] > 0); }
                 if (upgrade === 4) { return player.strangeness[4][9] >= 1 && player.upgrades[4][3] === 1; }
-                if (upgrade === 5) { return player.strangeness[5][10] >= 4 && player.upgrades[4][4] === 1; }
+                if (upgrade === 5) { return player.strangeness[5][10] >= 4 && player.tree[1][7] >= 3 && player.upgrades[4][4] === 1; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueVerses() < global.mergeInfo.unlockU[upgrade]) { return false; }
+                if (player.verses[0].true[player.inflation.vacuum ? 0 : 1] < global.mergeInfo.unlockU[upgrade]) { return false; }
                 if (upgrade === 0) { return player.inflation.vacuum || player.milestones[2][0] >= 7; }
                 if (upgrade === 1) { return player.inflation.vacuum || player.milestones[3][0] >= 7; }
                 if (upgrade === 2) { return player.buildings[5][3].true >= 1; }
                 if (upgrade === 3) { return player.inflation.vacuum ? player.accretion.rank >= 7 : player.milestones[5][1] >= 8; }
-                return player.inflation.vacuum ? player.accretion.rank >= 7 : player.tree[0][5] >= 1;
+                return player.accretion.rank >= 7 || !player.inflation.vacuum;
             } else if (stageIndex === 6) {
-                return true;
+                return player.strangeness[6][3] >= 1;
             }
             break;
         case 'researches':
@@ -123,12 +121,12 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 5) { return (galaxy || player.collapse.stars[2] > 0) && player.strangeness[4][9] >= 3; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueVerses() < global.mergeInfo.unlockR[upgrade]) { return false; }
+                if (player.verses[0].true[player.inflation.vacuum ? 0 : 1] < global.mergeInfo.unlockR[upgrade]) { return false; }
                 if (upgrade === 0) { return player.inflation.vacuum || player.milestones[2][0] >= 7; }
                 if (upgrade === 1) { return player.inflation.vacuum || player.milestones[3][0] >= 7; }
-                return player.inflation.vacuum ? player.accretion.rank >= 7 : player.tree[0][5] >= 1;
+                return player.accretion.rank >= 7 || !player.inflation.vacuum;
             } else if (stageIndex === 6) {
-                return true;
+                return player.strangeness[6][3] >= 1;
             }
             break;
         case 'researchesExtra':
@@ -152,14 +150,14 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                 if (upgrade === 1) { return player.collapse.stars[0] > 0 || player.researchesExtra[5][0] >= 1; }
                 if (upgrade === 2) { return (player.collapse.stars[0] > 0 || player.researchesExtra[5][0] >= 1) && player.strangeness[4][2] >= 2; }
                 if (upgrade === 3) { return (player.collapse.stars[1] > 0 || player.researchesExtra[5][0] >= 1) && player.strangeness[4][9] >= 2; }
-                if (upgrade === 4) { return (player.collapse.stars[2] > 0 || player.researchesExtra[5][0] >= 1) && player.strangeness[5][10] >= 4; }
+                if (upgrade === 4) { return (player.collapse.stars[2] > 0 || player.researchesExtra[5][0] >= 1) && player.strangeness[5][10] >= 4 && player.tree[1][7] >= 3; }
                 return true;
             } else if (stageIndex === 5) {
-                if (calculateEffects.trueVerses() < global.mergeInfo.unlockE[upgrade]) { return false; }
+                if (player.verses[0].true[player.inflation.vacuum ? 0 : 1] < global.mergeInfo.unlockE[upgrade]) { return false; }
                 if (upgrade === 0) { return (player.inflation.vacuum || player.milestones[4][1] >= 8) && player.strangeness[5][3] >= 1; }
-                return player.inflation.vacuum ? player.accretion.rank >= 7 : (player.tree[0][5] >= 1 && player.challenges.active !== 1);
+                return player.inflation.vacuum ? player.accretion.rank >= 7 : (player.tree[0][4] >= 1 && player.challenges.active !== 1);
             } else if (stageIndex === 6) {
-                return true;
+                return player.strangeness[6][3] >= 1;
             }
             break;
         case 'researchesAuto': {
@@ -171,12 +169,13 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
         }
         case 'ASR':
             if (stageIndex === 1) { return player.upgrades[1][5] >= 1; }
-            if (stageIndex === 3) { return player.accretion.rank !== 0; }
             return true;
         case 'elements':
             if (upgrade >= 29) {
                 if (player.upgrades[4][4] !== 1) { return false; }
-                return 1 + calculateEffects.trueVerses() >= upgrade - 28;
+                const verses = 1 + player.verses[0].true[player.inflation.vacuum ? 0 : 1];
+                //if (player.upgrades[4][5] === 1) { verses += 1 + player.verses[1].true; }
+                return verses >= upgrade - 28;
             }
             if (upgrade >= 27) { return player.upgrades[4][3] === 1; }
             if (upgrade >= 11) { return player.upgrades[4][2] === 1 && (player.collapse.stars[1] > 0 || player.researchesExtra[5][0] >= 1); }
@@ -205,7 +204,6 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                     if (upgrade === 10) { return player.challenges.void[2] >= 3; }
                     if ([0, 1, 5, 7].includes(upgrade)) { return player.strangeness[5][3] >= 1; }
                 } else if (stageIndex === 6) {
-                    if (upgrade === 4) { return false; }
                     return player.challenges.void[5] >= 2;
                 }
             } else {
@@ -220,38 +218,39 @@ export const checkUpgrade = (upgrade: number, stageIndex: number, type: 'upgrade
                     if (player.challenges.active === 1 && player.milestones[3][1] >= 7) { return false; }
                     if (upgrade === 7) { return player.milestones[4][0] >= 8; }
                 } else if (stageIndex === 4) {
-                    if (upgrade === 7) { return player.milestones[4][0] >= 8; }
+                    if (upgrade >= 7 && player.milestones[4][0] < 8) { return false; }
                     if (upgrade === 8) { return false; }
-                    if (upgrade === 9) { return player.progress.main >= 24; }
+                    if (upgrade === 9) { return player.tree[1][9] >= 1; }
                 } else if (stageIndex === 5) {
                     if (player.milestones[4][0] < 8) { return false; }
                     if (upgrade === 2) { return player.milestones[5][0] >= 8; }
                     if (upgrade === 4) { return player.milestones[4][1] >= 8; }
                     if ([0, 1, 3, 5].includes(upgrade)) { return player.milestones[2][0] >= 7 || player.milestones[3][0] >= 7; }
-                    if (upgrade === 8) { return false; }
-                    if (upgrade === 9) { return player.progress.main >= 24; }
+                    if (upgrade === 8) { return player.strangeness[6][3] >= 1; }
+                    if (upgrade === 9) { return player.tree[1][9] >= 1; }
                 } else if (stageIndex === 6) {
-                    if (upgrade === 3 || upgrade === 4) { return player.verses[0].other[2] >= 1; }
-                    return false;
+                    if (upgrade === 3) { return player.tree[1][9] >= 1; }
+                    return player.strangeness[6][3] >= 1;
                 }
             }
             return true;
         case 'inflation':
             if (stageIndex === 0) {
                 if (player.progress.main < 19) { return false; }
-                if (upgrade === 5) { return player.progress.main >= 24; }
-                if (upgrade === 6) { return player.challenges.supervoid[3] >= 4; }
-                return upgrade >= 0 || upgrade <= 5;
-            } else {
-                if (upgrade === 2) { return player.challenges.supervoid[3] >= 3; }
-                if (upgrade === 3) { return false; }
+                if (upgrade === 5) { return player.challenges.supervoid[3] >= 4; }
+                if (upgrade === 6) { return player.challenges.supervoid[4] >= 3; }
+                if (upgrade === 7) { return player.challenges.supervoid[2] >= 2; }
+                return upgrade >= 0 && upgrade <= 4;
+            } else if (stageIndex === 1) {
+                if (upgrade === 2) { return player.challenges.supervoid[4] >= 2; }
+                if (upgrade === 3) { return player.challenges.supervoid[3] >= 3; }
                 if (upgrade === 4) { return player.challenges.supervoid[1] >= 1; }
                 if (upgrade === 5) { return player.challenges.supervoid[2] >= 1; }
                 if (upgrade === 6) { return player.challenges.supervoid[3] >= 1; }
                 if (upgrade === 7) { return player.challenges.supervoid[4] >= 1; }
                 if (upgrade === 8) { return player.challenges.supervoid[1] >= 3; }
-                return true;
             }
+            return true;
     }
 
     return false;
@@ -282,7 +281,7 @@ export const allowedToBeReset = (check: number, stageIndex: number, type: 'struc
             if (stageIndex === 6) { return false; }
             break;
         case 'elements':
-            return ![26, 29, 30].includes(check);
+            return ![26, 29, 30, 36].includes(check);
     }
 
     return true;
@@ -294,7 +293,6 @@ export const stageResetType = (type = player.stage.input[0]): number => type ===
 export const allowedToEnter = (challenge: number): boolean => {
     if (challenge === 0) { return ((player.clone.inflation?.vacuum as boolean ?? player.inflation.vacuum) || player.toggles.supervoid) && player.progress.main >= 17; }
     if (challenge === 1) { return player.progress.main >= 22; }
-    if (challenge === 2) { return player.strangeness[6][3] >= 1; }
     return false;
 };
 
@@ -305,7 +303,7 @@ export const milestoneCheck = (index: number, stageIndex: number): boolean => {
             global.challengesInfo[0].time < player.time[player.toggles.supervoid ? 'vacuum' : 'stage']) { return false; }
     } else if (pointer.scaling[index].length <= player.milestones[stageIndex][index] ||
         player.progress.main < 11 || (stageIndex === 5 && player.milestones[4][index] < 8) ||
-        (player.tree[0][4] < 1 && pointer.reward[index] < player.time.stage)
+        ((index === 2 || stageIndex === 6) ? player.strangeness[6][4] < 1 || player.tree[0][4] < 1 : player.tree[0][4] < 1 && pointer.reward[index] < player.time.stage)
     ) { return false; }
     return pointer.need[index].lessOrEqual(pointer.progress[index]());
 };
@@ -317,5 +315,5 @@ export const checkTheme = (theme: any): boolean => {
     if (theme === 5) { return player.progress.main >= 10; }
     if (theme === 6) { return player.progress.main >= 18; }
     if (theme === 'Quantum') { return player.progress.quantum === -1; }
-    return theme === null || theme === 1;
+    return theme === null || theme === 1 || theme === 'Light';
 };

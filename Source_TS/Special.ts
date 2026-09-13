@@ -1,10 +1,10 @@
 import { checkTheme } from './Check';
 import { assignHotkeys, detectShift, hotkeys } from './Hotkeys';
-import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playerStart } from './Main';
+import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, pauseGame, playerStart, showHoverTitle } from './Main';
 import { global, player, prepareVacuum, updatePlayer } from './Player';
-import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
-import type { Quantum, globalSaveType, hotkeysList, numbersList } from './Types';
-import { format, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
+import { assignResetInformation, setActiveStage } from './Stage';
+import type { Quantum, globalSaveType, hotkeysList, numbersList, specialHTMLType } from './Types';
+import { format, numbersUpdate, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
@@ -42,9 +42,12 @@ export const globalSave: globalSaveType = {
         toggleStructure: 'Numpad',
         enterChallenge: 'Shift Numbers'
     } as globalSaveType['numbers'],
-    toggles: [false, false, false, false, false, false, true, false, false, false],
+    resources: ['energy', 'drops', 'accretion_mass', 'stardust'],
+    resourcesXY: ['', ''],
+    toggles: [false, false, false, false, false, false, true, false, false, false, false],
     format: ['.', ''],
     theme: null,
+    slot: 0,
     fontSize: 16,
     MDSettings: [false, false, false, false],
     SRSettings: [false, false],
@@ -113,7 +116,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
 
     if (!toggles[number]) {
         toggleHTML.style.color = 'var(--green-text)';
-        toggleHTML.style.borderColor = 'forestgreen';
+        toggleHTML.style.borderColor = '#228b22';
         toggleHTML.textContent = 'OFF';
     } else {
         toggleHTML.style.color = '';
@@ -122,11 +125,9 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
     }
 };
 
-export const specialHTML = { //Images here are from true vacuum for easier cache
-    /** [textContent] */
+export const specialHTML: specialHTMLType = { //Images here are from true vacuum for easier cache
     resetHTML: ['', 'Discharge', 'Vaporization', 'Rank', 'Collapse', 'Merge', 'Nucleation'],
     lastBuilding: 7, //+1, starting value has to be biggest length
-    /** [src] */
     buildingHTML: [
         [],
         ['Preon.png', 'Quarks.png', 'Particle.png', 'Atom.png', 'Molecule.png'],
@@ -137,7 +138,6 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Dark%20planet.png']
     ],
     lastUpgrade: 14, //Starting value has to be biggest length
-    /** [src] */
     upgradeHTML: [
         [], [
             'UpgradeQ1.png',
@@ -192,11 +192,11 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             'UpgradeG6.png',
             'UpgradeG7.png'
         ], [
-            'UpgradeD1.png'
+            'UpgradeD1.png',
+            'Merge%20score.png'
         ]
     ],
     lastResearch: 9, //Starting value has to be biggest length
-    /** [src, className] */
     researchHTML: [
         [], [
             ['ResearchQ1.png', 'stage1borderImage'],
@@ -212,7 +212,7 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['ResearchW4.png', 'stage2borderImage'],
             ['ResearchW5.png', 'stage2borderImage'],
             ['ResearchW6.png', 'stage2borderImage'],
-            ['Missing.png', 'stage2borderImage']
+            ['ResearchW7.png', 'stage2borderImage']
         ], [
             ['ResearchA1.png', 'stage3borderImage'],
             ['ResearchA2.png', 'stage2borderImage'],
@@ -244,9 +244,8 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ]
     ],
     lastResearchExtra: 6, //Starting value has to be biggest length
-    /** [src, className, hoverText] */
     researchExtraDivHTML: [
-        [],
+        [] as unknown as specialHTMLType['researchExtraDivHTML'][0],
         ['Energy%20Researches.png', 'stage4borderImage', 'Energy'],
         ['Cloud%20Researches.png', 'stage2borderImage', 'Clouds'],
         ['Rank%20Researches.png', 'stage6borderImage', 'Rank'],
@@ -254,7 +253,6 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ['Galaxy%20Researches.png', 'stage3borderImage', 'Galaxy'],
         ['Dark%20energy%20Researches.png', 'stage3borderImage', 'Dark energy']
     ],
-    /** [src, className] */
     researchExtraHTML: [
         [], [
             ['ResearchEnergy1.png', 'stage1borderImage'],
@@ -298,7 +296,6 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
         ]
     ],
     lastFooterStat: 3, //Starting value has to be biggest length
-    /** [src, className, textcontent] */
     footerStatsHTML: [
         [], [
             ['Energy%20mass.png', 'stage1borderImage cyanText', 'Mass'],
@@ -322,32 +319,126 @@ export const specialHTML = { //Images here are from true vacuum for easier cache
             ['Dark%20fluid.png', 'stage6borderImage darkvioletText', 'Fluid']
         ]
     ],
+    globalResources: {
+        molecules: {
+            info: ['Molecule.png', 'stage1borderImage cyanText', 'Molecules'],
+            unlock: () => !player.inflation.vacuum && global.stageInfo.activeAll.includes(1) && player.buildings[1][2].trueTotal.moreOrEqual(2),
+            resource: () => format(player.buildings[1][3].current, { padding: true })
+        },
+        energy: {
+            info: ['Energy.png', 'stage4borderImage orangeText', 'Energy'],
+            unlock: () => global.stageInfo.activeAll.includes(1),
+            resource: () => format(player.discharge.energy, { padding: 'exponent' })
+        },
+        drops: {
+            info: ['Drop.png', 'stage2borderImage blueText', 'Drops'],
+            unlock: () => global.stageInfo.activeAll.includes(2),
+            resource: () => format(player.buildings[2][1].current, { padding: true })
+        },
+        clouds: {
+            info: ['Clouds.png', 'stage3borderImage grayText', 'Clouds'],
+            unlock: () => global.stageInfo.activeAll.includes(2) && player.upgrades[2][2] === 1,
+            resource: () => format(player.vaporization.clouds, { padding: true })
+        },
+        accretion_mass: {
+            info: ['Mass.png', 'stage3borderImage grayText', 'A. Mass'],
+            unlock: () => global.stageInfo.activeAll.includes(3),
+            resource: () => format(player.accretion.rank !== 0 ? player.buildings[3][0].current : global.accretionInfo.rankCost[0], { padding: true })
+        },
+        stardust: {
+            info: ['Elements.png', 'stage4borderImage orangeText', 'Stardust'],
+            unlock: () => global.stageInfo.activeAll.includes(4),
+            resource: () => format(player.buildings[4][0].current, { padding: true })
+        },
+        solar_mass: {
+            info: ['Main_sequence%20mass.png', 'stage1borderImage cyanText', 'S. Mass'],
+            unlock: () => global.stageInfo.activeAll.includes(4),
+            resource: () => format(player.collapse.mass, { padding: true })
+        },
+        merge_score: {
+            info: ['Merge%20score.png', 'stage6borderImage darkvioletText', 'M. Score'],
+            unlock: () => global.stageInfo.activeAll.includes(5) && player.researchesExtra[5][0] >= 1 && (player.inflation.vacuum || (player.tree[0][4] >= 1 && player.tree[1][9] >= 1 && player.challenges.active !== 1)),
+            resource: () => format(global.mergeInfo.score, { padding: 'exponent' })
+        },
+        dark_matter: {
+            info: ['Dark%20matter.png', 'stage3borderImage grayText', 'D. Matter'],
+            unlock: () => global.stageInfo.activeAll.includes(6),
+            resource: () => format(player.buildings[6][0].current, { padding: true })
+        },
+        dark_energy: {
+            info: ['Dark%20energy.png', 'stage3borderImage grayText', 'D. Energy'],
+            unlock: () => global.stageInfo.activeAll.includes(6) && player.upgrades[6][0] === 1,
+            resource: () => format(player.darkness.energy, { padding: 'exponent' })
+        },
+        strange_quarks: {
+            info: ['Strange%20Quarks.png', 'greenBorderImage greenText', 'S. Quarks'],
+            unlock: () => true,
+            resource: () => format(player.strange[0].current, { padding: true })
+        },
+        tachyons: {
+            info: ['Tachyon.png', 'stage6borderImage darkvioletText', 'Tachyons'],
+            unlock: () => player.verses[1].current > 0,
+            resource: () => format(player.cosmon[2].current, { padding: true })
+        },
+        time_left: {
+            info: ['Time%20limit.png', 'stage6borderImage darkvioletText', 'T. Left'],
+            unlock: () => {
+                if (player.challenges.active !== null) { return true; }
+                if (!player.inflation.vacuum && player.tree[0][4] < 1) {
+                    const s = Math.min(player.stage.current, 4);
+                    for (let i = 0; i < 2; i++) {
+                        if (player.milestones[s][i] >= global.milestonesInfo[s].scaling[i].length) {
+                            if (s === 4 && player.milestones[5][i] < global.milestonesInfo[5].scaling[i].length) { return true; }
+                        } else { return true; }
+                    }
+                }
+                return false;
+            },
+            resource: () => {
+                const list = [];
+                const challenge = player.challenges.active;
+                if (challenge !== null) {
+                    list.push(global.challengesInfo[challenge].time - player.time[global.challengesInfo[challenge].resetType]);
+                    if (challenge === 1 && list[0] > 0) { list.push(600 - player.time.stage); }
+                } else if (!player.inflation.vacuum && player.tree[0][4] < 1) {
+                    const s = Math.min(player.stage.current, 4);
+                    const info = global.milestonesInfo;
+                    for (let i = 0; i < 2; i++) {
+                        if (player.milestones[s][i] >= info[s].scaling[i].length) {
+                            if (s === 4 && player.milestones[5][i] < info[5].scaling[i].length) {
+                                list.push(info[5].reward[i] - player.time.stage);
+                            }
+                        } else { list.push(info[s].reward[i] - player.time.stage); }
+                    }
+                }
+                let relevant = list[0];
+                for (let i = 1; i < list.length; i++) {
+                    relevant = Math[list[i - 1] < 0 || list[i] < 0 ? 'max' : 'min'](list[i - 1], list[i]);
+                }
+                return format(relevant, { padding: true });
+            }
+        }
+    },
     mobileDevice: { //All browsers that I tested didn't properly detected more than 1 touch
-        /** [X, Y] */
         start: [0, 0]
     },
     localStorage: {
-        /** Index for game's primary save slot */
         main: 'fundamentalSave',
-        /** Index for global game settings */
+        selected: 'fundamentalSave', //Starting value has to be same as main
         settings: 'fundamentalSettings'
     },
     cache: {
         imagesDiv: document.createElement('div'), //Saved just in case
-        /** Lazy way to optimize HTML, without it can't properly detect changes */
-        innerHTML: new Map<string | HTMLElement, any>(),
-        idMap: new Map<string, HTMLElement>(),
-        classMap: new Map<string, HTMLCollectionOf<HTMLElement>>(),
-        queryMap: new Map<string, HTMLElement>()
+        innerHTML: new Map(),
+        idMap: new Map(),
+        classMap: new Map(),
+        queryMap: new Map()
     },
-    errorCooldowns: new Set<string>(),
-    /** [text, true ? incrementFunc : closeFunc] */
-    notifications: new Map<string, (close?: boolean) => void>(),
-    /** [priority, closeFunc] */
-    alert: [null, null] as [number | null, (() => void) | null],
-    /** Function to update current hover text */
-    hoverText: null as null | (() => void),
-    bigWindow: null as 'version' | 'hotkeys' | null,
+    errorCooldowns: new Set(),
+    notifications: new Map(),
+    alert: [null, null],
+    hoverText: null,
+    bigWindow: null,
     styleSheet: document.createElement('style') //Secondary
 };
 
@@ -409,15 +500,15 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
         getId('currentTheme').textContent = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
     } else { theme = globalSave.theme; }
 
-    const upgradeTypes = ['upgrade', 'element'];
+    const upgradeTypes = ['upgrades', 'elements'];
     const properties = {
         '--transition-all': '500ms',
         '--background-color': '#030012',
         '--window-color': '#12121c',
-        '--window-border': 'cornflowerblue',
-        '--footer-color': 'darkblue',
-        '--button-color': 'mediumblue',
-        '--button-border': 'darkcyan',
+        '--window-border': '#6495ed',
+        '--footer-color': '#00008b',
+        '--button-color': '#0000cd',
+        '--button-border': '#008b8b',
         '--button-hover': '#2626ff',
         '--building-afford': '#a90000',
         '--tab-active': '#8b00c5',
@@ -430,10 +521,10 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
         '--input-text': '#cf71ff',
         '--button-text': '#e3e3e3',
         '--main-text': 'var(--cyan-text)',
-        '--white-text': 'white',
+        '--white-text': '#ffffff',
         //'--cyan-text': '#00d6d6',
-        '--blue-text': 'dodgerblue',
-        '--orange-text': 'darkorange',
+        '--blue-text': '#1e90ff',
+        '--orange-text': '#ff8c00',
         '--gray-text': '#8f8f8f',
         '--orchid-text': '#e14bdb',
         '--darkorchid-text': '#bd24ef',
@@ -448,7 +539,7 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
     switch (theme ?? player.stage.active) {
         case 1:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--darkorchid-text)';
+                getId(`${text}Name`).style.color = 'var(--darkorchid-text)';
                 getId(`${text}Effect`).style.color = 'var(--blue-text)';
                 getId(`${text}Cost`).style.color = 'var(--orange-text)';
             }
@@ -456,13 +547,13 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             break;
         case 2:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--white-text)';
+                getId(`${text}Name`).style.color = 'var(--white-text)';
                 getId(`${text}Effect`).style.color = 'var(--green-text)';
                 getId(`${text}Cost`).style.color = 'var(--cyan-text)';
             }
             properties['--background-color'] = '#070026';
             properties['--window-color'] = '#000052';
-            properties['--window-border'] = 'blue';
+            properties['--window-border'] = '#0000ff';
             properties['--footer-color'] = '#0000db';
             properties['--button-color'] = '#0000eb';
             properties['--button-border'] = '#386cc7';
@@ -471,7 +562,7 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             properties['--tab-active'] = '#990000';
             properties['--hollow-hover'] = '#2400d7';
             properties['--input-border'] = '#4747ff';
-            properties['--input-text'] = 'dodgerblue';
+            properties['--input-text'] = '#1e90ff';
             properties['--main-text'] = 'var(--blue-text)';
             properties['--gray-text'] = '#9b9b9b';
             properties['--darkorchid-text'] = '#c71bff';
@@ -481,7 +572,7 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             break;
         case 3:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--orange-text)';
+                getId(`${text}Name`).style.color = 'var(--orange-text)';
                 getId(`${text}Effect`).style.color = 'var(--blue-text)';
                 getId(`${text}Cost`).style.color = 'var(--green-text)';
             }
@@ -506,7 +597,7 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             break;
         case 4:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--blue-text)';
+                getId(`${text}Name`).style.color = 'var(--blue-text)';
                 getId(`${text}Effect`).style.color = 'var(--green-text)';
                 getId(`${text}Cost`).style.color = 'var(--cyan-text)';
             }
@@ -532,13 +623,13 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             properties['--gray-text'] = '#8b8b8b';
             properties['--darkorchid-text'] = '#c71bff';
             properties['--darkviolet-text'] = '#9457ff';
-            properties['--red-text'] = 'red';
+            properties['--red-text'] = '#ff0000';
             properties['--green-text'] = '#00e600';
             properties['--yellow-text'] = 'var(--green-text)';
             break;
         case 5:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--orange-text)';
+                getId(`${text}Name`).style.color = 'var(--orange-text)';
                 getId(`${text}Effect`).style.color = 'var(--green-text)';
                 getId(`${text}Cost`).style.color = 'var(--red-text)';
             }
@@ -566,11 +657,11 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             break;
         case 6:
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--orchid-text)';
+                getId(`${text}Name`).style.color = 'var(--orchid-text)';
                 getId(`${text}Effect`).style.color = 'var(--orange-text)';
                 getId(`${text}Cost`).style.color = 'var(--red-text)';
             }
-            properties['--background-color'] = 'black';
+            properties['--background-color'] = '#000000';
             properties['--window-color'] = '#01003c';
             properties['--window-border'] = '#6500e0';
             properties['--footer-color'] = '#00007a';
@@ -582,18 +673,18 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
             properties['--tab-inflation'] = 'var(--tab-active)';
             properties['--hollow-hover'] = '#490070';
             properties['--input-border'] = '#a50000';
-            properties['--input-text'] = 'red';
+            properties['--input-text'] = '#ff0000';
             properties['--button-text'] = '#bfbdff';
             properties['--main-text'] = 'var(--darkviolet-text)';
             properties['--white-text'] = '#aba8ff';
             properties['--gray-text'] = '#95979d';
             properties['--darkviolet-text'] = '#8157ff';
-            properties['--red-text'] = 'red';
+            properties['--red-text'] = '#ff0000';
             properties['--yellow-text'] = 'var(--green-text)';
             break;
         case 'Quantum':
             for (const text of upgradeTypes) {
-                getId(`${text}Text`).style.color = 'var(--cyan-text)';
+                getId(`${text}Name`).style.color = 'var(--cyan-text)';
                 getId(`${text}Effect`).style.color = 'var(--blue-text)';
                 getId(`${text}Cost`).style.color = 'var(--brown-text)';
             }
@@ -902,61 +993,34 @@ export const changeFormat = (point: boolean) => {
 };
 
 export const enableApril = (firstLoad = false) => {
-    const active = !global.april.active;
-    global.april.active = active;
-    const names1U = global.upgradesInfo[1].name;
-    names1U[2] = active ? 'Positrons' : 'Electrons';
-    for (let i = 3; i < 9; i++) {
-        if (i === 5) { continue; }
-        names1U[i] = active ? `Anti${names1U[i][0].toLowerCase()}${names1U[i].slice(1)}` :
-            `${names1U[i][4].toUpperCase()}${names1U[i].slice(5)}`;
-    }
-    specialHTML.upgradeHTML[1][2] = `UpgradeQ3${active ? '_A' : ''}.png`;
-    specialHTML.upgradeHTML[1][3] = `UpgradeQ4${active ? '_A' : ''}.png`;
-    specialHTML.upgradeHTML[1][4] = `UpgradeQ5${active ? '_A' : ''}.png`;
-    for (const ID of getClass('newAntiName')) {
-        const current = ID.textContent as string;
-        ID.textContent = active ? `Anti${current[0].toLowerCase()}${current.slice(1)}` :
-            `${current[4].toUpperCase()}${current.slice(5)}`;
-    }
-    const names4U = global.upgradesInfo[4].name;
-    names4U[1] = `${active ? 'Antiproton-Antiproton' : 'Proton-Proton'} chain`;
-    names4U[2] = `${active ? 'Anticarbon-Antinitrogen-Antioxygen' : 'Carbon-Nitrogen-Oxygen'} cycle`;
-    names4U[3] = `${active ? 'Antihelium' : 'Helium'} fusion`;
-    names4U[5] = `${active ? 'Antiproton' : 'Proton'} capture`;
-    global.researchesInfo[1].name[0] = `Stronger ${names1U[6]}`;
-    global.researchesInfo[1].name[1] = `Better ${names1U[7]}`;
-    global.researchesInfo[1].name[2] = `Improved ${names1U[8]}`;
-    const namesE = global.elementsInfo.name;
-    for (let i = 0; i < namesE.length; i++) {
-        const index = namesE[i].indexOf(' ') + 1;
-        namesE[i] = active ? `${namesE[i].slice(0, index)}Anti${namesE[i][index].toLowerCase()}${namesE[i].slice(index + 1)}` :
-            `${namesE[i].slice(0, index)}${namesE[i][index + 4].toUpperCase()}${namesE[i].slice(index + 5)}`;
-        (getId(`element${i}`) as HTMLInputElement).alt = namesE[i];
-    }
-    global.strangenessInfo[4].name[8] = active ? 'Antineutronium' : 'Neutronium';
-    global.challengesInfo[0].rewardText[0][4][2] = `'${global.strangenessInfo[4].name[8]}' (Interstellar)`;
-    (getQuery('#strange9Stage4 > input') as HTMLInputElement).alt = global.strangenessInfo[4].name[8];
+    const active = !global.april.antimatter;
+    global.april.antimatter = active;
+    const folder = active ? 'April/' : '';
+    global.upgradesInfo[1].name[2] = `${active ? 'Posi' : 'Elec'}trons`;
+    global.upgradesInfo[1].name[3] = `${active ? 'Nega' : 'Pro'}tons`;
+    specialHTML.upgradeHTML[1][2] = `${folder}UpgradeQ3.png`;
+    specialHTML.upgradeHTML[1][3] = `${folder}UpgradeQ4.png`;
+    specialHTML.upgradeHTML[1][4] = `${folder}UpgradeQ5.png`;
+    global.upgradesInfo[4].name[1] = `${active ? 'Negaton-Negaton' : 'Proton-Proton'} chain`;
+    global.upgradesInfo[4].name[5] = `${active ? 'Nega' : 'Pro'}ton capture`;
+    for (let i = 0; i < global.elementsInfo.name.length; i++) { (getId(`element${i}`) as HTMLInputElement).src = `Used_art/${folder}Element${i}.png`; }
 
     if (firstLoad) { return; }
-    if (!active) {
-        if (global.april.ultravoid === false) { toggleChallengeType(true); }
-        if (global.april.quantum) {
-            global.april.quantum = false;
-            global.challengesInfo[1].name = 'Vacuum stability';
-        }
-        if (global.april.light) { enableLightness(); }
-    }
+    if (!active && global.april.ultravoid === false) { global.april.ultravoid = null; }
     stageUpdate();
     global.offline.cacheUpdate = false;
     preventImageUnload();
 };
-export const enableLightness = () => {
-    const active = !global.april.light;
-    global.april.light = active;
+export const enableLightness = (firstLoad = false) => {
+    const active = !global.april.lightness;
+    global.april.lightness = active;
+    const Dark = global.april.dark;
     const Light = active ? 'Light' : 'Dark';
-    const Dark = active ? 'Dark' : 'Light';
-    for (const ID of getClass('newLightName')) { ID.textContent = Light; }
+    global.april.dark = Light;
+    const darknessInfo = global.challengesInfo[2];
+    darknessInfo.name = `${Light}ness`;
+    for (const ID of getClass('aprilLight')) { ID.textContent = Light; }
+    for (const ID of getClass('aprilLightness')) { ID.textContent = darknessInfo.name; }
     const nameS6 = global.buildingsInfo.name[6];
     for (let i = 0; i < nameS6.length; i++) { nameS6[i] = nameS6[i].replace(Dark, Light); }
     for (const type of ['upgradesInfo', 'researchesInfo', 'researchesExtraInfo'] as const) {
@@ -965,35 +1029,38 @@ export const enableLightness = () => {
             names[i] = names[i].replace(Dark, Light);
         }
     }
-    global.upgradesInfo[6].name[0] = global.upgradesInfo[6].name[0].replace(Dark, Light);
-    global.researchesInfo[6].name[0] = global.researchesInfo[6].name[0].replace(Dark, Light);
     global.buildingsInfo.hoverText[6][0] = `${nameS6[0]} softcap`;
     global.stageInfo.costName[6] = nameS6[0];
 
+    const folder = active ? 'April/' : '';
     specialHTML.researchExtraDivHTML[6][2] = `${Light} energy`;
     getQuery('#verse0 > div > p:last-of-type').dataset.title = nameS6[0];
     getId('energyGainStage6').ariaLabel = `${Light} energy gain`;
-    const darknessInfo = global.challengesInfo[2];
-    darknessInfo.name = active ? 'Lightness' : 'Darkness';
     for (let i = 0; i < darknessInfo.rewardText.length; i++) {
         darknessInfo.rewardText[i] = darknessInfo.rewardText[i].replace(Dark, Light);
     }
-    const challengeHTML = getId('challenge3') as HTMLInputElement;
-    challengeHTML.src = `Used_art/${active ? 'Light' : 'Dark'}ness.png`;
-    challengeHTML.alt = darknessInfo.name;
+    (getId('challenge3') as HTMLInputElement).alt = darknessInfo.name;
+    getQuery('#darknessTier > span').textContent = darknessInfo.name;
     global.strangenessInfo[6].name[3] = darknessInfo.name;
     (getId('strange4Stage6') as HTMLInputElement).alt = darknessInfo.name;
-    specialHTML.buildingHTML[6][0] = `${Light}%20planet.png`;
-    specialHTML.footerStatsHTML[6][0][0] = `${Light}%20matter.png`;
-    (getQuery('#globalStat5 img') as HTMLImageElement).src = `Used_art/${specialHTML.footerStatsHTML[6][0][0]}`;
-    specialHTML.upgradeHTML[6][0] = `UpgradeD1${active ? '_L' : ''}.png`;
-    specialHTML.researchHTML[6][0][0] = `ResearchD1${active ? '_L' : ''}.png`;
-    specialHTML.researchHTML[6][2][0] = `ResearchD3${active ? '_L' : ''}.png`;
-    specialHTML.researchExtraHTML[6][0][0] = `ResearchDark1${active ? '_L' : ''}.png`;
-    specialHTML.researchExtraHTML[6][3][0] = `ResearchDark4${active ? '_L' : ''}.png`;
+    specialHTML.buildingHTML[6][0] = `${folder}Dark%20planet.png`;
+    specialHTML.footerStatsHTML[6][0][0] = `${folder}Dark%20matter.png`;
+    specialHTML.upgradeHTML[6][0] = `${folder}UpgradeD1.png`;
+    specialHTML.researchHTML[6][0][0] = `${folder}ResearchD1.png`;
+    specialHTML.researchHTML[6][2][0] = `${folder}ResearchD3.png`;
+    specialHTML.researchExtraHTML[6][0][0] = `${folder}ResearchDark1.png`;
+    specialHTML.researchExtraHTML[6][3][0] = `${folder}ResearchDark4.png`;
+    specialHTML.globalResources.dark_matter.info[0] = specialHTML.footerStatsHTML[6][0][0];
+    specialHTML.globalResources.dark_matter.info[2] = `${active ? 'L' : 'D'}. Matter`;
+    specialHTML.globalResources.dark_energy.info[2] = `${active ? 'L' : 'D'}. Energy`;
+    global.milestonesInfo[6].name[0] = `${Light}est flow`;
+    getQuery('#milestonesStage6Main span').textContent = global.milestonesInfo[6].name[0];
+    (getQuery('#nucleationToggleReset img') as HTMLImageElement).src = `Used_art/${folder}Nucleation%20toggle.png`;
 
+    if (firstLoad) { return; }
     stageUpdate();
     global.offline.cacheUpdate = false;
+    createGlobalStatsWindow();
     preventImageUnload();
 };
 export const enterUltravoid = () => {
@@ -1007,9 +1074,10 @@ export const enterUltravoid = () => {
     const time = Date.now();
     player.time.started = time;
     player.time.updated = time;
+    for (const notification of specialHTML.notifications.values()) { notification(true); }
     setTimeout(() => {
         if (specialHTML.alert[0] !== null) { (specialHTML.alert[1] as () => undefined)(); }
-        global.april.ultravoid = false;
+        global.april.ultravoid = null;
         enableApril();
         updatePlayer(currentSave, false);
         stageUpdate(true, true);
@@ -1020,7 +1088,7 @@ export const enterUltravoid = () => {
 export const enterQuantum = () => {
     pauseGame();
     const html = document.documentElement;
-    html.style.backgroundColor = 'black';
+    html.style.backgroundColor = '#000000';
     getQuery('main').style.display = 'none';
     getId('notifications').style.display = 'none';
     const continuation = player.progress.quantum !== undefined;
@@ -1046,7 +1114,10 @@ export const enterQuantum = () => {
             getQuery('main').style.display = '';
             getId('notifications').style.display = '';
             global.hotkeys.disabled = false;
-            setTheme(finished ? 'Quantum' : undefined);
+            if (finished) {
+                setTheme('Quantum');
+                getId('switchThemeQuantum').style.display = '';
+            } else { setTheme(); }
             pauseGame(false);
             specialHTML.cache.idMap.clear();
             specialHTML.cache.queryMap.clear();
@@ -1526,37 +1597,37 @@ export const enterQuantum = () => {
     }, continuation ? 0 : 6_000); //Adds exit button
 };
 
-export const MDStrangenessPage = (stageIndex: number) => {
-    getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
+export const MDStrangenessPage = (stageIndex: number | null) => {
+    if (stageIndex === null) {
+        for (let s = 1; s < 6; s++) {
+            if (s === 5 || player.progress.main >= s + 10) { getId(`strangenessSection${s}`).style.display = ''; }
+        }
+        global.debug.MDStrangePage = stageIndex;
+        visualUpdate(); //Shows/hides 5th and 6th
+        return;
+    } else if (global.debug.MDStrangePage === null) {
+        for (let s = 1; s <= 6; s++) { getId(`strangenessSection${s}`).style.display = 'none'; }
+    } else { getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none'; }
     getId(`strangenessSection${stageIndex}`).style.display = '';
     global.debug.MDStrangePage = stageIndex;
 };
 
 export const checkProgress = () => {
-    progressMain();
-
-    if (player.verses[0].true > player.progress.universes[1]) { player.progress.universes[1] = player.verses[0].true; }
-    if (player.verses[0].other[2] > player.progress.universes[0]) { player.progress.universes[0] = player.verses[0].other[2]; }
-    const index = player.inflation.vacuum ? 1 : 0;
+    const index = player.inflation.vacuum ? 0 : 1;
     for (let i = player.progress.element[index] + 1; i < global.elementsInfo.cost.length; i++) {
         if (player.elements[i] === 0) { break; }
         player.progress.element[index] = i;
     }
-    for (let i = player.progress.results; i < 2; i++) {
-        if (player.merge.rewards[i] < 1) { break; }
-        player.progress.results = i + 1;
-    }
-};
-const progressMain = () => {
+
     const progress = player.progress.main;
     if (progress === 25 || global.offline.active) { return; }
-    if (player.verses[0].other[2] >= 1 || player.verses[0].other[0] >= 1) { return progressUp(25); }
-    if (progress === 24 || global.offline.active) { return; }
+    if (global.versesInfo.types > 1 || player.verses[1].total >= 1) { return progressUp(25, 13); }
+    if (progress === 24) { return; }
     if (player.inflation.ends[1] >= 1) { return progressUp(24); }
     if (progress === 23) { return; }
     if (player.darkness.energy >= 1000) { return progressUp(23, 12); }
     if (progress === 22) { return; }
-    if (player.verses[0].true >= 5) { return progressUp(22, 11); }
+    if (player.verses[0].true[0] >= 5) { return progressUp(22, 11); }
     if (progress === 21) { return; }
     if (player.cosmon[1].total > 0) { return progressUp(21); }
     if (progress === 20) { return; }
@@ -1631,7 +1702,8 @@ const progressUp = (newValue: number, event = null as null | number) => {
 
 export const replayEvent = async() => {
     const progress = player.progress.main;
-    const last = progress >= 23 ? 12 :
+    const last = progress >= 25 ? 13 :
+        progress >= 23 ? 12 :
         progress >= 22 ? 11 :
         progress >= 20 ? 10 :
         progress >= 19 ? 9 :
@@ -1657,6 +1729,7 @@ export const replayEvent = async() => {
     if (last >= 10) { text += '\nEvent 10: Universal End'; }
     if (last >= 11) { text += '\nEvent 11: Stability unlocked'; }
     if (last >= 12) { text += '\nEvent 12: Better End'; }
+    if (last >= 13) { text += '\nEvent 13: Multiverse'; }
 
     const event = Number(await Prompt(text, `${last}`));
     if (event <= 0 || !isFinite(event)) { return; }
@@ -1676,7 +1749,7 @@ const playEvent = (event: number, replay = true) => {
     } else if (event === 4) {
         text = 'That last explosion not only created the first Neutron stars, but also unlocked new Elements through Supernova nucleosynthesis.';
     } else if (event === 5) {
-        text = `There are no Structures in Intergalactic yet, but knowledge for their creation can be found within the previous Stages. Stage resets and exports will now award Strange quarks, and '${global.elementsInfo.name[26]}' will improve Stage reset reward based on total produced Stardust.\n(Intergalactic Stars are combined Interstellar Stars. Export rewards are based on highest reset value, that stored value will decrease by claimed amount)`;
+        text = "There are no Structures in Intergalactic yet, but knowledge for their creation can be found within the previous Stages. Stage resets and exports will now award Strange quarks, and '[26] Iron' will improve Stage reset reward based on total produced Stardust.\n(Intergalactic Stars are combined Interstellar Stars. Export rewards are based on highest reset value, that stored value will decrease by claimed amount)";
     } else if (event === 6) {
         text = 'As Galaxies began to Merge, their combined Gravity pushed Vacuum out of its local minimum into a more stable global minimum. New forces and Structures are expected within this new and true Vacuum state.';
     } else if (event === 7) {
@@ -1684,13 +1757,15 @@ const playEvent = (event: number, replay = true) => {
     } else if (event === 8) {
         text = "As Galaxies began to Merge, their combined Gravity started forming an even bigger Structure ‒ 'Universe'. Will need to maximize Galaxies before every Merge to get enough Score to create it.\n(Merge reset can only be done a limited amount of times per Stage reset)";
     } else if (event === 9) {
-        text = "Now that current Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab.\n(Universes only use specialized hotkeys. Also 'Nucleosynthesis' unlocks more Elements based on self-made Universes)";
+        text = "Now that current Universe is finished, it's time to Inflate a new one and so to unlock the Inflation tab.\n(Universes only use specialized hotkeys. Also 'Nucleosynthesis' now unlocks more Elements based on self-made Universes)";
     } else if (event === 10) {
         text = "Unlocked ability to End current Universes through basic End reset ‒ 'Big Crunch', also unlocked harder version of Void ‒ 'Supervoid' which is immune to End resets.\n(Base for End resets reward is increased by +1 while inside true Vacuum)";
     } else if (event === 11) {
-        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.\n(Also improves 'Strange gain' Inflation)";
+        text = "After so many Universe resets, false Vacuum had became at the same time more and less stable, this had unlocked a new Challenge ‒ 'Vacuum stability'.\n(Also improved 'Strange gain' Inflation)";
     } else if (event === 12) {
-        text = `${format(1000)} ${global.april.light ? 'Light' : 'Dark'} energy allows to do a more advanced End reset ‒ 'Big Rip', this one increases rewards base by +1 per bonus Universe.\n(Doing it for the first time also unlocks new Inflation, false Vacuum Strangeness and allow creation of new types of self-made Universes)`;
+        text = `${format(1000)} ${global.april.dark} energy allows to do a more advanced End reset ‒ 'Big Rip', this one increases rewards base by +1 per bonus Universe.\n(Doing it for the first time will also unlock new Inflation that helps with creation of new types of self-made Universes)`;
+    } else if (event === 13) {
+        text = "Unlocked a new Verse ‒ 'Multiverse' and also another row of Inflations ‒ Tachyon. Creating Multiverse forces Big Crunch, but keeps bonus Universes.\n(Multiverses are not immune to End resets and do not produce anything inside Challenges)";
     }
     if (!replay) {
         text += "\n\n(Can be viewed again with 'Events' button in Settings tab)";
@@ -1713,13 +1788,12 @@ const buildBigWindow = (subWindow: string): null | HTMLElement => {
     mainHTML.id = subWindow;
     return mainHTML;
 };
-const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = null as HTMLElement | null) => {
+const addCloseEvents = (sectionHTML: HTMLElement, firstTargetHTML = getId('closeBigWindow')) => {
     const body = document.documentElement;
     const closeButton = getId('closeBigWindow');
     const windowHMTL = getId('bigWindow');
     const control = new AbortController();
     const oldFocus = document.activeElement as HTMLElement | null;
-    if (firstTargetHTML === null) { firstTargetHTML = closeButton; }
     const close = () => {
         control.abort();
         specialHTML.bigWindow = null;
@@ -1751,21 +1825,18 @@ export const openVersionInfo = () => {
     if (specialHTML.bigWindow !== null) { return; }
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
-        mainHTML.innerHTML = `${global.lastUpdate !== null ? `<h5><span class="bigWord">Last update:</span> <span class="whiteText">${new Date(global.lastUpdate).toLocaleString()}</span></h5><br>` : ''}
-        <h6>v0.2.9</h6><p>- Minor balancing and new content for Abyss\n<a href="https://docs.google.com/document/d/1HsAhoa31UsRFGK3BULeXMKHN9exUIIQ_UveKwj2EuMY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
-        <h6>v0.2.8</h6><p>- Abyss full rebalance and End reset rework\n- Auto Stage now has different modes\n- Max export rewards is now 12 hours\n- Removed log</p>
+        mainHTML.innerHTML = `<h5><span class="bigWord">Last update:</span> <span id="versionLast" class="whiteText">${global.lastUpdate === 0 ? 'failed to fetch' : new Date(global.lastUpdate).toLocaleString()}</span> <button type="button" id="versionCheck" class="hollowButton">Check</button></h5>
+        <h6>v0.3.0</h6><p>-New content (Multiverse)\n- Rebalances in later parts of game\n- Improved global resources tracker\n- Added default loadout\n- Added save slots\n<a href="https://docs.google.com/document/d/1gCskWPNxLX08npSHQW8u86VvXNhXzNchCdJ9Pec8Rvk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.8 | v0.2.9</h6><p>- Abyss full rebalance and End reset rework\n- Auto Stage now has different modes\n- Max export rewards is now 12 hours\n\n- Minor balancing and new content for Abyss\n<a href="https://docs.google.com/document/d/1HsAhoa31UsRFGK3BULeXMKHN9exUIIQ_UveKwj2EuMY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.7</h6><p>- Small speed up to Universes\n- Stage resets now save peak Strange quarks</p>
-        <h6>v0.2.6</h6><p>- New content (End)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos</p>
-        <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones</p>
-        <h6>v0.2.4</h6><p>- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Added the log\n- Minor Strangeness rebalance</p>
-        <h6>v0.2.3</h6><p>- Supervoid rework\n- Abyss small rebalance</p>
-        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Entering Void now saves the game to load it after exiting</p>
-        <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n- Many small changes and additions</p>
-        <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Many quality of life additions\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support</p>
-        <h6>v0.1.9</h6><p>- More true Vacuum balance\n- Reworked time related formats\n- Offline time reworked</p>
-        <h6>v0.1.8</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Copy to the clipboard, load from string save file options</p>
-        <h6>v0.1.7</h6><p>- New content (Void)\n- Further balance changes</p>
-        <h6>v0.1.6</h6><p>- Massive rebalance and reworks for all Stages</p>
+        <h6>v0.2.6</h6><p>- New content (End)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.5</h6><p>- Abyss rework\n- New (second) Challenge\n- Global footer stats\n- Small visual improvements\n- Improved swiping hotkeys for Phones\n<a href="https://docs.google.com/document/d/1O8Zz1f7Ez2HsfTVAxG_V2t9-yC77-mJuEru15HeDy0U/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.3 | v0.2.4</h6><p>- Supervoid rework\n- Abyss small rebalance\n\n- Offline ticks are now as effective as Online\n- Inflation loadouts\n\n- Minor Strangeness rebalance\n<a href="https://docs.google.com/document/d/1oFlo82k9H11nQ9R7YvcTSZaz9c-Nj-N5b38gNmIvDO0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.2</h6><p>- New content (Supervoid)\n- Challenges now reload save file on exit\n<a href="https://docs.google.com/document/d/1x8zHjxB6mPQGwpZT3DV_bAyatFIB3SOlxp9TvzbrUds/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.1</h6><p>- New content (Abyss)\n- Full game rebalance\n- Custom hotkeys\n- Updated supports\n<a href="https://docs.google.com/document/d/1o6rk6mG-fCG7Xi1BpA4w4g_5_h9A87wrCv7bODweBWA/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.2.0</h6><p>- Reworked balance for all Stages past first reset cycle\n- Most of settings are now saved separate from save file\n- Some more work on Mobile device support\n<a href="https://docs.google.com/document/d/1Kwy-NhKUx3cnfv04I5wwbr-WKyg3yZAZ4t-GA2AAm0k/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.1.8 | v0.1.9</h6><p>- True Vacuum small balance changes\n- Upgrades and Researches merged\n- Copy to the clipboard, load from string save file options\n\n- More true Vacuum balance\n- Reworked time related formats\n- Offline time reworked\n<a href="https://docs.google.com/document/d/1_xylzRuG3Dzrbe5ojYWH8uNwhOimqtFoiDPUsAz6drM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.1.6 | v0.1.7</h6><p>- Massive rebalance and reworks for all Stages\n\n- New content (Void)\n- Further balance changes\n<a href="https://docs.google.com/document/d/1f0M6vn0xhnf62MOnAcJaZLNr39IS0tsaGE4p0aI16ho/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.1.5</h6><p>- True Vacuum minor balance\n- Images no longer unload\n- Screen reader support reworked</p>
         <h6>v0.1.4</h6><p>- Custom scrolls\n- Notifications</p>
         <h6>v0.1.3</h6><p>- True Vacuum balance changes\n- Submerged Stage minor balance\n- Replay event button\n\n- History for Stage resets</p>
@@ -1783,12 +1854,36 @@ export const openVersionInfo = () => {
         <h6>v0.0.1</h6><p>- Submerged Stage rework\n\n- Mobile device support</p>
         <h6>v0.0.0</h6><p>- First published version\n\n- Submerged Stage placeholder</p>`;
         specialHTML.styleSheet.textContent += ` #versionHTML h6 { font-size: 1.18em; }
+            #versionHTML h5 { margin-bottom: 1.2em; }
+            #versionCheck { height: 1.85em; border-radius: 4px; padding: 0 0.4em; }
             #versionHTML p { line-height: 1.3em; white-space: pre-line; color: var(--white-text); margin-top: 0.2em; margin-bottom: 1.4em; }
             #versionHTML p:last-of-type { margin-bottom: 0; }`;
+        const checkBtn = getId('versionCheck');
+        const checkFunc = async() => {
+            checkBtn.textContent = 'Checking...';
+            const result = await fetch('./last_build.txt', { cache: 'no-store' });
+            let newValue = 0;
+            if (result.ok) { newValue = Number(await result.text()); }
+            if (newValue !== 0 && !isNaN(newValue)) {
+                if (global.lastUpdate === 0) {
+                    global.lastUpdate = newValue;
+                    getId('versionLast').textContent = new Date(newValue).toLocaleString();
+                } else if (global.lastUpdate !== newValue) {
+                    getId('versionLast').textContent = `${new Date(global.lastUpdate).toLocaleString()} (outdated)`;
+                    Notify(`More recent version (${new Date(newValue).toLocaleString()}) is available`);
+                }
+                checkBtn.textContent = 'Finished';
+            } else { checkBtn.textContent = 'Failed'; }
+            setTimeout(() => {
+                checkBtn.addEventListener('click', checkFunc, { once: true });
+                checkBtn.textContent = 'Check';
+            }, 3000);
+        };
+        checkBtn.addEventListener('click', checkFunc, { once: true });
     }
 
     specialHTML.bigWindow = 'version';
-    addCloseEvents(getId('versionHTML'), getQuery('#versionHTML a'));
+    addCloseEvents(getId('versionHTML'), getId('versionCheck'));
     getQuery('#bigWindow > article').ariaLabel = 'Versions menu';
 };
 
@@ -1813,6 +1908,7 @@ export const openHotkeys = () => {
         <div>
             <label id="createAllHotkey"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Upgrades</span></label>
             <label id="strangenessHotkey" class="greenText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Strangeness</span></label>
+            <label id="loadoutIHotkey" class="greenText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Loadout</span></label>
             <label id="dischargeHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Discharge</span></label>
             <label id="vaporizationHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Vaporization</span></label>
             <label id="rankHotkey" class="darkorchidText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Rank</span></label>
@@ -1822,6 +1918,7 @@ export const openHotkeys = () => {
             <label id="nucleationHotkey" class="orangeText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Nucleation</span></label>
             <label id="stageHotkey" class="stageText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Stage</span></label>
             <label id="universeHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Universe</span></label>
+            <label id="multiverseHotkey" class="darkvioletText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Multiverse</span></label>
             <label id="endHotkey" class="redText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">End</span></label>
             <label id="warpHotkey" class="blueText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">Warp</span></label>
             <label id="pauseHotkey" class="grayText"><button type="button" class="selectBtn"></button> ‒ <span class="whiteText">pause</span></label>
@@ -1848,10 +1945,12 @@ export const openHotkeys = () => {
         <p>Holding Enter on last selected button will repeatedly press it, also works with Mouse and Touch events on some buttons</p>
         <p>Shift clicking the hotkey will set it to the default value or remove it</p>
         <p>Numlock being ON can break Numpad hotkeys</p>
-        <label id="hotkeysToggleLabel" title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
-        <button type="button" id="restoreHotkeys" class="selectBtn">Restore default hotkeys values</button>`; //Spacebar at the end of label is required
+        <label id="hotkeysToggleLabel" class="hasTitle" data-title="Turn ON, if using non-QWERTY layout keyboard">Language dependant hotkeys </label>
+        <button type="button" id="restoreHotkeys" class="selectBtn">Restore default hotkeys values</button>`;
         const toggle = getId('globalToggle0');
-        getId('hotkeysToggleLabel').append(toggle);
+        const toggleLabel = getId('hotkeysToggleLabel');
+        toggleLabel.addEventListener('mouseenter', showHoverTitle);
+        toggleLabel.append(toggle);
         toggle.style.display = '';
         specialHTML.styleSheet.textContent += ` #hotkeysHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
             #hotkeysHTML > div { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 0.3em; }
@@ -2005,4 +2104,132 @@ export const openHotkeys = () => {
     getQuery('#bigWindow > article').ariaLabel = 'Hotkeys menu';
     visualProgressUnlocks();
     visualUpdate();
+};
+
+export const openGlobalStats = () => {
+    if (specialHTML.bigWindow !== null) { return; }
+    const mainHTML = buildBigWindow('globalStatsHTML');
+    if (mainHTML !== null) {
+        mainHTML.innerHTML = `<h3 class="bigWord">Edit global resources window</h3>
+        <p>Resources only shown when unlocked, order is kept</p>
+        <section class="cyanText">
+            <h4 class="bigWord">Microworld:</h4>
+            <div>
+                <button type="button" id="molecules" class="selectBtn hasTitle" data-title="False Vacuum only">Molecules</button>
+                <button type="button" id="energy" class="selectBtn orangeText">Energy</button>
+            </div>
+        </section>
+        <section class="blueText">
+            <h4 class="bigWord">Submerged:</h4>
+            <div>
+                <button type="button" id="drops" class="selectBtn">Drops</button>
+                <button type="button" id="clouds" class="selectBtn grayText">Clouds</button>
+            </div>
+        </section>
+        <section class="grayText">
+            <h4 class="bigWord">Accretion:</h4>
+            <div>
+                <button type="button" id="accretion_mass" class="selectBtn">Mass</button>
+            </div>
+        </section>
+        <section class="orangeText">
+            <h4 class="bigWord">Interstellar:</h4>
+            <div>
+                <button type="button" id="stardust" class="selectBtn">Stardust</button>
+                <button type="button" id="solar_mass" class="selectBtn cyanText">Mass</button>
+            </div>
+        </section>
+        <section id="globalStatsAbyssSection" class="darkvioletText">
+            <h4 class="bigWord">Abyss:</h4>
+            <div>
+                <button type="button" id="merge_score" class="selectBtn">Merge score</button>
+                <button type="button" id="dark_matter" class="selectBtn grayText">Matter</button>
+                <button type="button" id="dark_energy" class="selectBtn grayText">Energy</button>
+            </div>
+        </section>
+        <section class="greenText">
+            <h4 class="bigWord">Miscellaneous:</h4>
+            <div>
+                <button type="button" id="strange_quarks" class="selectBtn">Strange quarks</button>
+                <button type="button" id="tachyons" class="selectBtn darkvioletText">Tachyons</button>
+                <button type="button" id="time_left" class="selectBtn blueText hasTitle" data-title="Measured in seconds, shows the lowest positive time">Time left</button>
+            </div>
+        </section>
+        <input type="text" id="globalStatsInput" autocomplete="off">
+        <p id="globalStatsToggles"><label>Move into the footer </label> | <label>Hide window </label></p>
+        ${globalSave.toggles[10] ? '' : '<p><button type="button" id="saveCords" class="selectBtn">Save coordinates</button> | <button type="button" id="resetCords" class="selectBtn">Reset</button></p>'}`;
+        specialHTML.styleSheet.textContent += ` #globalStatsHTML { display: flex; flex-direction: column; align-items: center; row-gap: 0.2em; }
+            #globalStatsHTML > p:first-of-type { margin-top: -0.2em; }
+            #globalStatsHTML > section > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.3em 0.6em; margin-bottom: 0.2em; }
+            #globalStatsInput { width: 90%; margin: 0.3em; }`;
+        const toggle1 = getId('globalToggle10');
+        const toggle2 = getId('globalToggle4');
+        getQuery('#globalStatsToggles label').append(toggle1);
+        getQuery('#globalStatsToggles label:last-of-type').append(toggle2);
+        toggle1.style.display = '';
+        toggle2.style.display = '';
+        getId('molecules').addEventListener('mouseenter', showHoverTitle);
+        getId('time_left').addEventListener('mouseenter', showHoverTitle);
+        const inputID = getId('globalStatsInput') as HTMLInputElement;
+        for (const key in specialHTML.globalResources) {
+            getId(key).addEventListener('click', () => {
+                const index = globalSave.resources.indexOf(key);
+                if (index !== -1) {
+                    globalSave.resources.splice(index, 1);
+                } else { globalSave.resources.push(key); }
+                createGlobalStatsWindow();
+                saveGlobalSettings();
+                inputID.value = globalSave.resources.join(', ');
+            });
+        }
+        inputID.addEventListener('change', () => {
+            const array = inputID.value.replaceAll('light_', 'dark_').toLowerCase().split(/[., ]+/);
+            globalSave.resources = array;
+            createGlobalStatsWindow();
+            saveGlobalSettings();
+            inputID.value = array.join(', ');
+        });
+        inputID.value = globalSave.resources.join(', ');
+        if (!globalSave.toggles[10]) {
+            getId('saveCords').addEventListener('click', () => {
+                const window = getId('globalStats');
+                globalSave.resourcesXY = [window.style.right, window.style.bottom];
+                saveGlobalSettings();
+            });
+            getId('resetCords').addEventListener('click', () => {
+                const window = getId('globalStats');
+                window.style.right = '';
+                window.style.bottom = '';
+            });
+        }
+    }
+
+    specialHTML.bigWindow = 'globalStats';
+    addCloseEvents(getId('globalStatsHTML'), getId('molecules'));
+    getQuery('#bigWindow > article').ariaLabel = 'Global resources edit window';
+    visualProgressUnlocks();
+    visualUpdate();
+};
+
+export const createGlobalStatsWindow = (firstLoad = false) => {
+    let innerHTML = '';
+    for (let i = 0; i < globalSave.resources.length; i++) {
+        const pointer = specialHTML.globalResources[globalSave.resources[i] as keyof typeof specialHTML.globalResources];
+        if (pointer === undefined) {
+            globalSave.resources.splice(i, 1);
+            i--;
+            continue;
+        }
+        innerHTML += `<div id="globalStat${i + 1}">
+            <img src="Used_art/${pointer.info[0]}" alt="" loading="lazy" draggable="false">
+            <p class="${pointer.info[1]}">${pointer.info[2]}: <span>0</span></p>
+        </div>`;
+    }
+    getId('globalStats').innerHTML = innerHTML;
+    if (!firstLoad) {
+        specialHTML.cache.idMap.clear();
+        specialHTML.cache.queryMap.clear();
+        visualUpdate();
+        numbersUpdate();
+    }
 };

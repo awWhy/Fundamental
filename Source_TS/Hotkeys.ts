@@ -1,8 +1,8 @@
 import { global, player } from './Player';
 import { checkTab } from './Check';
 import { numbersUpdate, switchTab, visualUpdate } from './Update';
-import { buyBuilding, buyStrangenessMax, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeType, vaporizationResetUser } from './Stage';
-import { getId, pauseGameUser, simulateOffline, toggleSwap } from './Main';
+import { buyBuilding, buyStrangeness, buyUpgrades, buyVerse, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, mergeResetUser, nucleationResetUser, rankResetUser, stageResetUser, switchStage, toggleChallengeTypeUser, vaporizationResetUser } from './Stage';
+import { getId, loadoutsLoad, pauseGameUser, simulateOffline, toggleSwap } from './Main';
 import { Notify, globalSave, specialHTML } from './Special';
 import type { hotkeysList, numbersList } from './Types';
 
@@ -35,6 +35,7 @@ const basicFunctions: Record<hotkeysList, () => void> = {
         global.hotkeys.last = 'toggle11';
         toggleSwap(11, 'auto', true);
     },
+    loadoutI: () => void loadoutsLoad(player.inflation.default),
     discharge: () => void dischargeResetUser(),
     toggleDischarge: () => {
         if (global.hotkeys.last === 'toggle1') { return; }
@@ -79,7 +80,7 @@ const basicFunctions: Record<hotkeysList, () => void> = {
         toggleSwap(9, 'auto', true);
     },
     nucleation: () => {
-        if (global.hotkeys.last === 'reset6') { return; }
+        if (global.hotkeys.last === 'reset6' && global.dischargeInfo.energyStage[6] <= player.darkness.energy) { return; }
         global.hotkeys.last = 'reset6';
         void nucleationResetUser();
     },
@@ -100,7 +101,8 @@ const basicFunctions: Record<hotkeysList, () => void> = {
         global.hotkeys.last = 'toggle0';
         toggleSwap(0, 'auto', true);
     },
-    universe: () => buyVerse(),
+    universe: () => buyVerse(0),
+    multiverse: () => void endResetUser(true),
     toggleUniverse: () => {
         if (global.hotkeys.last === 'toggleV0') { return; }
         global.hotkeys.last = 'toggleV0';
@@ -115,7 +117,7 @@ const basicFunctions: Record<hotkeysList, () => void> = {
     supervoid: () => {
         if (global.hotkeys.last === 'super') { return; }
         global.hotkeys.last = 'super';
-        if (toggleChallengeType(true)) { Notify(`Toggled into the ${global.challengesInfo[0].name}`); }
+        toggleChallengeTypeUser(true);
     },
     warp: () => offlineWarp(),
     pause: () => {
@@ -281,7 +283,7 @@ export const createAll = () => {
     }
 };
 export const strangenessAll = () => {
-    if (globalSave.MDSettings[0]) {
+    if (global.debug.MDStrangePage !== null) {
         const s = global.debug.MDStrangePage;
         for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
     } else {
@@ -289,6 +291,10 @@ export const strangenessAll = () => {
             for (let i = 0; i < global.strangenessInfo[s].maxActive; i++) { buyStrangenessMax(i, s, 'strangeness'); }
         }
     }
+};
+export const buyStrangenessMax = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation') => {
+    const max = player.toggles.max[type === 'strangeness' ? 1 : 2] !== global.hotkeys.shift;
+    while (buyStrangeness(upgrade, stageIndex, type) && max) { continue; }
 };
 export const toggleAll = () => {
     const active = player.stage.active;
@@ -308,7 +314,7 @@ export const toggleAll = () => {
 
 export const toggleShift = (value: boolean) => {
     const button = getId('shiftFooter');
-    button.style.borderColor = value ? 'forestgreen' : '';
+    button.style.borderColor = value ? '#228b22' : '';
     button.style.color = value ? 'var(--green-text)' : '';
     global.hotkeys.shift = value;
     numbersUpdate();
@@ -316,9 +322,9 @@ export const toggleShift = (value: boolean) => {
 
 export const offlineWarp = () => {
     if (!globalSave.developerMode) {
-        const required = 60_000 * (7 - player.tree[0][6]);
+        const required = 60_000 * (7 - player.tree[0][5]);
         if (global.offline.active || player.time.offline < required) { return; }
-        if (player.tree[0][6] < 1) { return Notify("'Improved Offline' has to be at least level 1"); }
+        if (player.tree[0][5] < 1) { return Notify("'Improved Offline' has to be at least level 1"); }
         player.time.offline -= required;
     }
     void simulateOffline(60_000, true);

@@ -47,6 +47,7 @@
         "no-labels": "off",
         //Function forEach() is also banned
 
+        "@typescript-eslint/adjacent-overload-signatures": "off",
         "@typescript-eslint/indent": "off", //Buggy
         "@typescript-eslint/semi": ["error", "always"],
         "@typescript-eslint/explicit-function-return-type": "off",
