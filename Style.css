@@ -740,7 +740,7 @@ input:-webkit-autofill { /* Chrome related pain */
     margin-bottom: -0.4em;
 }
 
-#upgrades > article {
+#upgrades > section {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -751,13 +751,13 @@ input:-webkit-autofill { /* Chrome related pain */
     gap: 0.4em;
 }
 
-#researches > article {
+#researches > section {
     display: flex;
     align-items: center;
     margin-left: -32px;
 }
 
-#researches > article:not(:last-of-type) { margin-bottom: 0.4em; }
+#researches > section:not(:last-of-type) { margin-bottom: 0.4em; }
 
 #researches .researchesDiv {
     display: flex;
