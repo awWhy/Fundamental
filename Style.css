@@ -1191,7 +1191,7 @@ input.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; 
 }
 
 #logoLinks img {
-    background-color: var(--window-color);
+    background-color: #0000;
     object-fit: scale-down;
     height: 25px;
     width: initial;
@@ -1202,7 +1202,7 @@ input.elementType3.created, .elementType3.awaiting:hover { background: #0000c1; 
     margin: 3px 0;
 }
 
-#logoLinks > *:hover, #logoLinks > *:hover img { background-color: var(--hollow-hover); }
+#logoLinks > *:hover { background-color: var(--hollow-hover); }
 
 #saveButtonGroup {
     display: flex;
