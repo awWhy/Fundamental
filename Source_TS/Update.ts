@@ -2126,6 +2126,12 @@ const visualUpdateResearches = (index: number, stageIndex: number, type: 'resear
     if (assignInnerHTML(mainHTML, text)) {
         mainHTML.classList[max < 1e3 ? 'remove' : 'add']('noMaxLevel');
     }
+    //This level counter is its own swipe stop for touch screen readers, right next to the button
+    //it belongs to - doubling how many swipes it takes to get through a panel. Hidden from the
+    //accessibility tree once SR mode provides the same "Level X out of Y" text as part of the
+    //button's own name below, so nothing is lost; left alone (and visually unaffected either way)
+    //when SR is off, since nothing else exposes this information then.
+    mainHTML.ariaHidden = globalSave.SRSettings[0] ? 'true' : null;
     if (globalSave.SRSettings[0]) { inputHTML.ariaLabel = `${name}. Level ${format(level, { padding: 'exponent' })}${max < 1e3 ? ` out of ${max}` : ''}`; }
 };
 
