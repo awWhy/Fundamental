@@ -3622,7 +3622,7 @@ const scheduleBulkFlush = (bulkGroup: string) => {
     const session = bulkSessions[bulkGroup];
     if (session === undefined) { return; }
     clearTimeout(session.timeout);
-    session.timeout = setTimeout(() => flushBulkSession(bulkGroup), 400);
+    session.timeout = setTimeout(() => flushBulkSession(bulkGroup), 250);
 };
 /**
  * Called once at the very start of each "all" action (buyAll/createAll/strangenessAll), before
