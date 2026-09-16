@@ -10,3 +10,7 @@ Fundamental, *.txt
 
 # Portable test build (packaged copy of the runnable game, rebuilt as needed - not source)
 fundamental.zip
+
+# Local dev-tooling scratch space (PR/forum drafts, a local static-file server, launch config) -
+# personal workflow files, not project source
+.claude/
