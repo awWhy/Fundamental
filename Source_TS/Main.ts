@@ -620,6 +620,15 @@ const scheduleChallengeRewards = () => {
     clearTimeout(challengeRewardsTimeout);
     challengeRewardsTimeout = setTimeout(getChallengeRewards, 150);
 };
+/**
+ * Called by getChallengeRewards() itself whenever it renders silently (announce = false - see its
+ * own doc comment in Update.ts). Without this, a hover/focus that scheduled a genuine announcement
+ * just before a silent render's own strip-then-restore window opened would still fire inside that
+ * window - the write would land while aria-live is off and, since assignInnerHTML no-ops an
+ * identical later write, never get announced at all. Cancelling it here means that reward simply
+ * gets its content re-read on the next real interaction instead of being silently dropped.
+ */
+export const cancelPendingChallengeRewards = () => { clearTimeout(challengeRewardsTimeout); };
 /** Same idea as scheduleAriaCurrent, for a single button's own aria-pressed instead of an old/new pair. */
 let ariaPressedTimeout: number | undefined;
 const scheduleAriaPressed = (id: string, value: boolean) => {

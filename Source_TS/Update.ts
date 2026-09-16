@@ -1,7 +1,7 @@
 import { checkTab, stageResetType } from './Check';
 import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
-import { assignInnerHTML, getClass, getId, getQuery, toggleSwap, upgradeElementId } from './Main';
+import { assignInnerHTML, cancelPendingChallengeRewards, getClass, getId, getQuery, toggleSwap, upgradeElementId } from './Main';
 import { effectsCache, global, player, universeName } from './Player';
 import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, specialHTML } from './Special';
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost, syncCreateButton } from './Stage';
@@ -1983,6 +1983,11 @@ export const getChallengeRewards = (announce = true) => {
     }
     const rewardsID = getId('challengeRewardsMultiline');
     if (!announce) {
+        //A hover/focus-triggered announcement (scheduleChallengeRewards, Main.ts) that was already
+        //pending when this silent render started would otherwise fire inside the strip/restore
+        //window below and be silently lost (see cancelPendingChallengeRewards's own doc comment) -
+        //cancel it so that reward's content gets picked up on its next real interaction instead.
+        cancelPendingChallengeRewards();
         rewardsID.removeAttribute('aria-live');
         rewardsID.removeAttribute('aria-atomic');
     }
