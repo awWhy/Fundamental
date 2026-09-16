@@ -629,11 +629,17 @@ const scheduleChallengeRewards = () => {
  * gets its content re-read on the next real interaction instead of being silently dropped.
  */
 export const cancelPendingChallengeRewards = () => { clearTimeout(challengeRewardsTimeout); };
-/** Same idea as scheduleAriaCurrent, for a single button's own aria-pressed instead of an old/new pair. */
-let ariaPressedTimeout: number | undefined;
+/**
+ * Same idea as scheduleAriaCurrent, for a single button's own aria-pressed instead of an old/new
+ * pair. Keyed per id for the same reason scheduleAriaCurrent is keyed per group: voidRewardsHead
+ * and stabilityRewardsHead are independent buttons, so a single shared timeout would let clicking
+ * one cancel the other's still-pending aria-pressed write instead of just debouncing repeats of
+ * the same button.
+ */
+const ariaPressedTimeouts: Partial<Record<string, number>> = {};
 const scheduleAriaPressed = (id: string, value: boolean) => {
-    clearTimeout(ariaPressedTimeout);
-    ariaPressedTimeout = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 150);
+    clearTimeout(ariaPressedTimeouts[id]);
+    ariaPressedTimeouts[id] = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 150);
 };
 
 /**
