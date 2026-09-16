@@ -83,7 +83,13 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         global.tabs[tab].current = subtab;
         getId(`${tab}Subtab${subtab}`).style.display = '';
         getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
-        scheduleAriaCurrent('subtab', `${tab}SubtabBtn${oldSubtab}`, `${tab}SubtabBtn${subtab}`);
+        //Keyed per tab (not a shared 'subtab' group) - each tab remembers its own current subtab
+        //independently (e.g. upgradeSubtabBtnUpgrades and strangenessSubtabBtnMatter can both be
+        //aria-current at once), so a subtab change on one tab must not cancel a pending subtab
+        //change on another. That can happen for a tab that isn't even the one currently visible -
+        //see the Elements-subtab redirect in setActiveStage() (Stage.ts) - so it's a real, not
+        //theoretical, collision with a genuine subtab click on whichever tab the user is on.
+        scheduleAriaCurrent(`subtab-${tab}`, `${tab}SubtabBtn${oldSubtab}`, `${tab}SubtabBtn${subtab}`);
         if (oldTab !== tab) { return; }
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${subtab} subtab, part of ${tab} tab`; }
     }
