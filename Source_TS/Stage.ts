@@ -3603,11 +3603,14 @@ const flushBulkSession = (bulkGroup: string) => {
     const oneOffParts = Array.from(session.oneOffs.values());
     const elementParts = Array.from(session.elements.values());
 
-    markDescriptionSilentOnce();
     if (quantityParts.length === 0 && oneOffParts.length === 0 && elementParts.length === 0) {
+        //Nothing was actually bought this session, so there's no purchase-precedence reason to
+        //silence a pending, unrelated description announcement the way a real purchase does -
+        //see markDescriptionSilentOnce's own doc comment for the precedence case this exists for.
         getId('SRMain').textContent = wording.nothing;
         return;
     }
+    markDescriptionSilentOnce();
     const sentences: string[] = [];
     if (quantityParts.length > 0) { sentences.push(`${wording.quantityVerb} ${joinList(quantityParts)}`); }
     if (oneOffParts.length > 0) { sentences.push(`Created ${joinList(oneOffParts)}`); }
