@@ -524,13 +524,18 @@ export const markDescriptionSilentOnce = () => {
     silenceNextDescriptionAnnounceTimeout = setTimeout(() => { silenceNextDescriptionAnnounce = false; }, 200);
 };
 let descriptionUpdateTimeout: number | undefined;
-const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation') => {
+const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation' | 'strangeQuarks' | 'strangelets') => {
     clearTimeout(descriptionUpdateTimeout);
     descriptionUpdateTimeout = setTimeout(() => {
-        //getUpgradeDescription still runs unconditionally - it updates the ordinary, visible
-        //Effect/Cost text that sighted players see, which should stay current regardless of
-        //whether the SR-only announcement below gets silenced.
-        getUpgradeDescription(type);
+        //strangeQuarks/strangelets have their own visible-text render path (visualUpdate() in
+        //Update.ts, already run synchronously by the caller before this was scheduled) rather
+        //than going through getUpgradeDescription, so skip it for those two.
+        if (type !== 'strangeQuarks' && type !== 'strangelets') {
+            //getUpgradeDescription still runs unconditionally - it updates the ordinary, visible
+            //Effect/Cost text that sighted players see, which should stay current regardless of
+            //whether the SR-only announcement below gets silenced.
+            getUpgradeDescription(type);
+        }
         if (silenceNextDescriptionAnnounce) {
             silenceNextDescriptionAnnounce = false;
             clearTimeout(silenceNextDescriptionAnnounceTimeout);
@@ -543,6 +548,10 @@ const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researches
             //textContent picks up all its labels for free, in DOM order, without hardcoding label
             //wording here that could drift from the HTML.
             getId('SRDescription').textContent = getId('milestonesMultiline').textContent;
+        } else if (type === 'strangeQuarks' || type === 'strangelets') {
+            //Same reasoning as milestones above: strange{0,1}EffectsMain's <li>s are already
+            //full sentences, so read the wrapper directly instead of hardcoding labels here.
+            getId('SRDescription').textContent = getId(type === 'strangeQuarks' ? 'strange0EffectsMain' : 'strange1EffectsMain').textContent;
         } else {
             const config = descriptionSRTextConfig[type];
             const effect = getId(config.effectId).textContent;
@@ -1085,7 +1094,6 @@ try { //Start everything
         //aria-hidden regardless, so it was never meant for screen reader users either; showing
         //it to sighted players who never asked about screen reader support isn't worth it.
         message.ariaHidden = 'true';
-        for (let i = 0; i < playerStart.strange.length; i++) { getId(`strange${i}`).tabIndex = 0; }
 
         const SRMainDiv = document.createElement('article');
         SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p><p id="SRDescription" aria-live="polite"></p>';
@@ -1718,13 +1726,19 @@ try { //Start everything
     /* Strangeness tab */
     for (let i = 0; i < playerStart.strange.length; i++) {
         const button = getId(`strange${i}`);
+        //Focus lives on the heading, not the whole card - the popup div is a sibling of the
+        //heading, not a descendant of it, so focusing the heading doesn't also pull the (now
+        //visible) effects list into the same accessible-name/content read as the heading itself,
+        //which was causing NVDA/JAWS to read the effects text once as part of that focus and
+        //again from the debounced SRDescription announcement below.
+        const heading = getQuery(`#strange${i} > h3`);
         const open = (focus = false) => {
             if (player.progress.main < 15 && player.milestones[4][0] < 8) { return; }
             const window = getId(`strange${i}EffectsMain`);
             if (window.dataset.focus === 'true') { return; }
             if (focus) {
                 window.dataset.focus = 'true';
-                button.addEventListener('blur', () => {
+                heading.addEventListener('blur', () => {
                     window.style.display = 'none';
                     window.dataset.focus = '';
                 }, { once: true });
@@ -1737,9 +1751,15 @@ try { //Start everything
             window.style.display = '';
             numbersUpdate();
             visualUpdate();
+            scheduleDescriptionUpdate(i === 0 ? 'strangeQuarks' : 'strangelets');
         };
         button.addEventListener('mouseenter', () => open());
-        if (SR) { button.addEventListener('focus', () => open(true)); }
+        if (PC || SR) {
+            heading.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                open(true);
+            });
+        }
     }
     for (let s = 1; s < playerStart.strangeness.length; s++) {
         if (MD) { getId(`strangenessPage${s}`).addEventListener('click', () => MDStrangenessPage(s)); }
