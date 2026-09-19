@@ -608,7 +608,7 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
 };
 /**
  * Delays the challenge description panel's refresh (name/effect/time-limit text and the
- * Enter/Exit button) so it settles at the same ~150ms mark as scheduleAriaCurrent, rather than
+ * Enter/Exit button) so it settles at the same ~100ms mark as scheduleAriaCurrent, rather than
  * showing the newly-current tab's aria-current state a beat before its actual content catches
  * up. challengeMultiline/challengeTimeLimit are plain content, not a live region (see the
  * "Revert challenge description live region" commit - they contain live countdowns that made a
@@ -621,13 +621,13 @@ const scheduleChallengeDescription = () => {
     challengeDescriptionTimeout = setTimeout(() => {
         getChallengeDescription();
         syncChallengeEnterExit();
-    }, 150);
+    }, 100);
 };
 /** Same reasoning as scheduleAriaCurrent/scheduleChallengeDescription: delays the write so it doesn't land in the same instant as the focus/activation event on whichever reward button triggered it. */
 let challengeRewardsTimeout: number | undefined;
 const scheduleChallengeRewards = () => {
     clearTimeout(challengeRewardsTimeout);
-    challengeRewardsTimeout = setTimeout(getChallengeRewards, 150);
+    challengeRewardsTimeout = setTimeout(getChallengeRewards, 100);
 };
 /**
  * Called by getChallengeRewards() itself whenever it renders silently (announce = false - see its
@@ -648,7 +648,7 @@ export const cancelPendingChallengeRewards = () => { clearTimeout(challengeRewar
 const ariaPressedTimeouts: Partial<Record<string, number>> = {};
 const scheduleAriaPressed = (id: string, value: boolean) => {
     clearTimeout(ariaPressedTimeouts[id]);
-    ariaPressedTimeouts[id] = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 150);
+    ariaPressedTimeouts[id] = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 100);
 };
 
 /**

@@ -30,7 +30,7 @@ export const scheduleAriaCurrent = (group: string, oldId: string | null, newId: 
     ariaCurrentTimeouts[group] = setTimeout(() => {
         if (oldId !== null) { getId(oldId).ariaCurrent = null; }
         if (newId !== null) { getId(newId).ariaCurrent = 'true'; }
-    }, 150);
+    }, 100);
 };
 
 /** Tab being null will test current tab/subtab being unlocked and updates subtab list */
