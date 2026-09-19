@@ -1,11 +1,37 @@
 import { checkTab, stageResetType } from './Check';
 import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
-import { assignInnerHTML, getClass, getId, getQuery, toggleSwap } from './Main';
+import { assignInnerHTML, cancelPendingChallengeRewards, getClass, getId, getQuery, toggleSwap, upgradeElementId } from './Main';
 import { effectsCache, global, player, universeName } from './Player';
 import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, specialHTML } from './Special';
-import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost } from './Stage';
+import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost, syncCreateButton } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
+
+/**
+ * Delays moving aria-current from the old button to the new one so it doesn't land in the same
+ * instant as the focus/activation event and (where applicable) a live-region message on the same
+ * interaction - confirmed with real screen readers to fix an intermittent double "current" read.
+ * Used by every tab/subtab/Stage/theme/challenge/mobile-pagination selection button.
+ *
+ * `group` keys the pending timeout per selector family (tab/subtab/stage/theme/challenge/
+ * strangenessPage) rather than sharing one timeout across all of them. A single shared timeout
+ * was the original design, and it silently dropped unrelated updates: some upgrades and other
+ * processes can force a tab/subtab change as a side effect of something else entirely (e.g.
+ * setActiveStage() redirecting off the Elements subtab when a Stage change makes it unavailable) -
+ * that forced switchTab() call's own scheduleAriaCurrent() would cancel a completely unrelated
+ * pending update (e.g. the Stage selector's own aria-current move) before it ever applied, since
+ * both shared the same timeout variable. Keying by group keeps genuinely-independent selectors
+ * from cancelling each other while still debouncing repeated calls to the *same* selector exactly
+ * as before (e.g. rapidly switching Stages still only commits the last one).
+ */
+const ariaCurrentTimeouts: Partial<Record<string, number>> = {};
+export const scheduleAriaCurrent = (group: string, oldId: string | null, newId: string | null) => {
+    clearTimeout(ariaCurrentTimeouts[group]);
+    ariaCurrentTimeouts[group] = setTimeout(() => {
+        if (oldId !== null) { getId(oldId).ariaCurrent = null; }
+        if (newId !== null) { getId(newId).ariaCurrent = 'true'; }
+    }, 100);
+};
 
 /** Tab being null will test current tab/subtab being unlocked and updates subtab list */
 export const switchTab = (tab = null as null | gameTab, subtab = null as null | gameSubtab): void => {
@@ -33,6 +59,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         global.tabs.current = tab;
         getId(`${tab}Tab`).style.display = '';
         getId(`${tab}TabBtn`).classList.add('tabActive');
+        scheduleAriaCurrent('tab', `${oldTab}TabBtn`, `${tab}TabBtn`);
 
         let subtabAmount = 0;
         for (const inside of global.tabs[oldTab].list) {
@@ -47,7 +74,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
             }
         }
         getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
-        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current tab is ${tab}${subtabAmount > 1 ? ` and subtab is ${global.tabs[tab].current}` : ''}`; }
+        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${tab} tab${subtabAmount > 1 ? ` and subtab ${global.tabs[tab].current}` : ''}`; }
     } else {
         const oldSubtab = global.tabs[tab].current;
         getId(`${tab}Subtab${oldSubtab}`).style.display = 'none';
@@ -56,8 +83,15 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
         global.tabs[tab].current = subtab;
         getId(`${tab}Subtab${subtab}`).style.display = '';
         getId(`${tab}SubtabBtn${subtab}`).classList.add('tabActive');
+        //Keyed per tab (not a shared 'subtab' group) - each tab remembers its own current subtab
+        //independently (e.g. upgradeSubtabBtnUpgrades and strangenessSubtabBtnMatter can both be
+        //aria-current at once), so a subtab change on one tab must not cancel a pending subtab
+        //change on another. That can happen for a tab that isn't even the one currently visible -
+        //see the Elements-subtab redirect in setActiveStage() (Stage.ts) - so it's a real, not
+        //theoretical, collision with a genuine subtab click on whichever tab the user is on.
+        scheduleAriaCurrent(`subtab-${tab}`, `${tab}SubtabBtn${oldSubtab}`, `${tab}SubtabBtn${subtab}`);
         if (oldTab !== tab) { return; }
-        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current subtab is ${subtab}, part of ${tab} tab`; }
+        if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now on ${subtab} subtab, part of ${tab} tab`; }
     }
 
     const active = player.stage.active;
@@ -88,6 +122,13 @@ export const numbersUpdate = (ignoreOffline = false) => {
     const buildings = player.buildings[active];
     const challenge = player.challenges.active;
     const vacuum = player.inflation.vacuum;
+
+    //Affordability (not just selection) can change every tick as currency accumulates, so these
+    //need rechecking here too, not just when the selection itself changes (syncCreateButton is a
+    //no-op on desktop, so this is a single cheap boolean check there).
+    syncCreateButton('upgrade');
+    syncCreateButton('strangeness');
+    syncCreateButton('inflation');
 
     if (!global.debug.timeLimit) {
         let noTime = null as boolean | null;
@@ -406,7 +447,11 @@ export const numbersUpdate = (ignoreOffline = false) => {
             if (player.time.excess < 0) { getQuery('#gameDisabled > span').textContent = format(-player.time.excess / 1000, { type: 'time' }); }
         } else if (subtab === 'Advanced') {
             getChallengeDescription();
-            getChallengeRewards();
+            //silenceNextChallengeRewards is a one-shot flag (see its own comment) rather than a
+            //permanent announce=false here, so this call's normal behaviour is completely
+            //unchanged except in the one tick immediately following toggleChallengeType()
+            getChallengeRewards(!silenceNextChallengeRewards);
+            silenceNextChallengeRewards = false;
         }
     } else if (tab === 'upgrade' || tab === 'Elements') {
         if (subtab === 'Upgrades') {
@@ -670,7 +715,7 @@ export const visualUpdate = (ignoreOffline = false) => {
         }
         if (highest >= 15 && player.challenges.supervoid[1] < 1 && global.debug.supervoid !== player.cosmon[0].total) {
             global.debug.supervoid = player.cosmon[0].total;
-            if (global.debug.supervoid >= 2) { Notify("Click the underlined 'Void' button in the 'Advanced' subtab to toggle the 'Supervoid'"); }
+            if (global.debug.supervoid >= 2) { Notify("Click the underlined 'Void' button in the 'Advanced' subtab to toggle the 'Supervoid', then use the Enter button to begin it"); }
         }
     }
     if (specialHTML.bigWindow === 'hotkeys') {
@@ -871,6 +916,13 @@ export const visualUpdate = (ignoreOffline = false) => {
                 const researchesInfo = global.researchesInfo[active];
                 const researchesExtraInfo = global.researchesExtraInfo[active];
                 const researchExtraDivHTML = specialHTML.researchExtraDivHTML[active];
+                //Captured before specialHTML.last* get reassigned below (to the new Stage's own,
+                //possibly smaller, counts) - needed so the aria-current clear further down covers
+                //every slot that could have been visible under the *previous* Stage, not just
+                //however many the new one happens to have.
+                const previousLastUpgrade = specialHTML.lastUpgrade;
+                const previousLastResearch = specialHTML.lastResearch;
+                const previousLastResearchExtra = specialHTML.lastResearchExtra;
                 for (let i = upgradesInfo.maxActive; i < specialHTML.lastUpgrade; i++) { getId(`upgrade${i + 1}`).style.display = 'none'; }
                 for (let i = researchesInfo.maxActive; i < specialHTML.lastResearch; i++) { getId(`research${i + 1}`).style.display = 'none'; }
                 for (let i = researchesExtraInfo.maxActive; i < specialHTML.lastResearchExtra; i++) { getId(`researchExtra${i + 1}`).style.display = 'none'; }
@@ -954,6 +1006,23 @@ export const visualUpdate = (ignoreOffline = false) => {
                 const extraImgId = getQuery('#extraResearches > img') as HTMLImageElement;
                 extraImgId.src = `Used_art/${researchExtraDivHTML[0]}`;
                 extraImgId.dataset.title = `${researchExtraDivHTML[2]} Researches (Special)`;
+
+                //These DOM slots get rewritten with a different Stage's items above, so any
+                //aria-current left over from before this Stage change would now be sitting on a
+                //slot showing completely different content - actively claiming the wrong item is
+                //selected, not just stale. Clear it everywhere it could be, then reapply only if
+                //this new Stage actually has its own remembered selection (mirrors the visible
+                //description panel, which likewise only ever reflects the active Stage's own
+                //global.lastUpgrade entry - see getUpgradeDescription).
+                if (globalSave.MDSettings[0]) {
+                    for (let i = 0; i < previousLastUpgrade; i++) { getId(`upgrade${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < previousLastResearch; i++) { getId(`research${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < previousLastResearchExtra; i++) { getId(`researchExtra${i + 1}`).ariaCurrent = null; }
+                    for (let i = 0; i < global.researchesAutoInfo.name.length; i++) { getId(`researchAuto${i + 1}`).ariaCurrent = null; }
+                    getId('ASR').ariaCurrent = null;
+                    const [selectedIndex, selectedType] = global.lastUpgrade[active];
+                    if (selectedIndex !== null) { getId(upgradeElementId(selectedIndex, selectedType)).ariaCurrent = 'true'; }
+                }
 
                 global.debug.visited.upgrade = true;
                 if (highest < 17) { getId('researches').style.display = ''; }
@@ -1791,10 +1860,12 @@ export const getChallengeDescription = () => {
     const nameID = getId('challengeName');
     nameID.textContent = info.name;
     nameID.style.color = `var(--${info.color}-text)`;
+    nameID.ariaPressed = index === 0 ? `${player.toggles.supervoid}` : null;
     getId('challengeActive').style.display = isActive ? '' : 'none';
 
     const unlocked = index !== 1 || player.progress.main >= 22;
     (nameID.parentElement as HTMLElement).style.display = unlocked ? '' : 'none';
+    getId('challengeEnterExit').style.display = unlocked ? '' : 'none';
     let text = !unlocked ? '' : `<p class="whiteText">${info.description()}</p>
     <article><h4 class="${info.color}Text bigWord">Effects:</h4>
     <div>${info.effectText()}</div></article>`;
@@ -1817,7 +1888,38 @@ export const getChallengeDescription = () => {
     assignInnerHTML('#challengeMultiline', text);
 };
 
-export const getChallengeRewards = () => {
+/**
+ * One-shot flag consumed by numbersUpdate()'s own periodic getChallengeRewards() call (this
+ * file) to render that ONE call silently. Set by toggleChallengeType() (Stage.ts) immediately
+ * before it calls numbersUpdate(), so the very next tick - which is that synchronous call, not
+ * some later unrelated one - renders the post-toggle reward content silently, then the flag
+ * clears itself and everything after goes back to normal.
+ *
+ * This exists instead of either of two things that don't work:
+ *   - Letting numbersUpdate()'s call announce normally: the reward set differs between Void and
+ *     Supervoid, so it would announce the change and bury toggleChallengeType()'s own
+ *     Entered/Failed-to-re-enter Notify message under a reward-block announcement.
+ *   - toggleChallengeType() calling getChallengeRewards(false) itself, as a separate render
+ *     immediately before numbersUpdate()'s call, hoping the two calls produce identical output
+ *     so the second one no-ops: they don't reliably match (values inside the reward text can be
+ *     time-sensitive), so numbersUpdate()'s own call could still detect a change and announce
+ *     it anyway. Routing through the one call that actually renders the tick's content, instead
+ *     of a second guess at what it'll render, removes that risk entirely - there is only ever
+ *     one render of this content per toggle, and it's unambiguously the silent one.
+ */
+let silenceNextChallengeRewards = false;
+export const markChallengeRewardsSilent = () => { silenceNextChallengeRewards = true; };
+let restoreChallengeRewardsLiveTimeout: number | undefined;
+
+/**
+ * announce false silences the live region for this update - used by markChallengeRewardsSilent()
+ * above (toggleChallengeType()'s one-shot flag) and by selectChallenge() in Main.ts, when the
+ * reward block changes only because the viewed challenge changed rather than the user directly
+ * interacting with a reward-related control. voidReward1-5's hover/focus and
+ * voidRewardsHead/stabilityRewardsHead's click (both via scheduleChallengeRewards() in Main.ts)
+ * ARE that direct interaction, so they keep the default announce=true.
+ */
+export const getChallengeRewards = (announce = true) => {
     let text = '<p class="greenText center">'; //Need to be closed
     if (global.lastChallenge[0] === 0) {
         const info = global.challengesInfo[0];
@@ -1886,7 +1988,31 @@ export const getChallengeRewards = () => {
             <p><span class="${unlocked ? 'greenText' : 'redText'}">Reward: </span>${unlocked ? info.rewardText[i] : 'Effect is not yet known'}</p></div>`;
         }
     }
-    assignInnerHTML('#challengeRewardsMultiline', text);
+    const rewardsID = getId('challengeRewardsMultiline');
+    if (!announce) {
+        //A hover/focus-triggered announcement (scheduleChallengeRewards, Main.ts) that was already
+        //pending when this silent render started would otherwise fire inside the strip/restore
+        //window below and be silently lost (see cancelPendingChallengeRewards's own doc comment) -
+        //cancel it so that reward's content gets picked up on its next real interaction instead.
+        cancelPendingChallengeRewards();
+        rewardsID.removeAttribute('aria-live');
+        rewardsID.removeAttribute('aria-atomic');
+    }
+    assignInnerHTML(rewardsID, text);
+    if (!announce) {
+        //Restoring aria-live in the same synchronous tick as the mutation isn't good enough in
+        //practice - the browser's own accessibility-tree update apparently doesn't checkpoint
+        //fast enough to catch the region as genuinely non-live at the moment of the change, so
+        //the removal and the mutation were still both visible together by the time it got
+        //processed. Delaying the restore gives that a real window to catch up before the region
+        //becomes live again. clearTimeout/reassign so overlapping silent calls only ever restore
+        //once, at the last one's delay
+        clearTimeout(restoreChallengeRewardsLiveTimeout);
+        restoreChallengeRewardsLiveTimeout = setTimeout(() => {
+            rewardsID.setAttribute('aria-live', 'polite');
+            rewardsID.setAttribute('aria-atomic', 'true');
+        }, 150);
+    }
 };
 
 const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades' | 'elements') => {
@@ -1909,19 +2035,36 @@ const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades
             } else if (stageIndex === 6) {
                 color = '#660000'; //Darker maroon
             }
-            image.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
-        } else { image.tabIndex = 0; }
+            //Same condition already used to hide maxed items from the Tab order (skipped unless
+            //Screen reader support and "Keep tab index on created Upgrades" are both on) - on
+            //mobile, hiding from the swipe order isn't reliable the way it is for Tab, so
+            //aria-disabled announces the same "already maxed" status instead, without touching
+            //the item's own hover/touch preview.
+            const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+            image.tabIndex = hideMaxed ? -1 : 0;
+            if (globalSave.MDSettings[0]) { image.ariaDisabled = hideMaxed ? 'true' : null; }
+        } else {
+            image.tabIndex = 0;
+            if (globalSave.MDSettings[0]) { image.ariaDisabled = null; }
+        }
         image.style.backgroundColor = color;
     } else if (type === 'elements') {
         const image = getId(`element${index}`);
         if (player.elements[index] >= 1) {
             image.classList.remove('awaiting');
             image.classList.add('created');
-            if (index > 0) { image.tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1; }
+            if (index > 0) {
+                const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+                image.tabIndex = hideMaxed ? -1 : 0;
+                if (globalSave.MDSettings[0]) { image.ariaDisabled = hideMaxed ? 'true' : null; }
+            }
         } else {
             image.classList[player.elements[index] > 0 ? 'add' : 'remove']('awaiting');
             image.classList.remove('created');
-            if (index > 0) { image.tabIndex = 0; }
+            if (index > 0) {
+                image.tabIndex = 0;
+                if (globalSave.MDSettings[0]) { image.ariaDisabled = null; }
+            }
         }
     }
 };
@@ -1929,46 +2072,64 @@ const visualUpdateUpgrades = (index: number, stageIndex: number, type: 'upgrades
 const visualUpdateResearches = (index: number, stageIndex: number, type: 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'strangeness' | 'inflation') => {
     let max: number;
     let level: number;
+    let name: string;
     let textPointer: string;
     if (type === 'researches' || type === 'researchesExtra') {
         if (stageIndex !== player.stage.active) { return; }
-        max = global[`${type}Info`][stageIndex].max[index];
+        const pointer = global[`${type}Info`][stageIndex];
+        max = pointer.max[index];
         level = player[type][stageIndex][index];
+        name = pointer.name[index];
 
         textPointer = `#research${type === 'researches' ? '' : 'Extra'}${index + 1}`;
     } else if (type === 'researchesAuto') {
         max = global.researchesAutoInfo.max[index];
         level = player.researchesAuto[index];
+        name = global.researchesAutoInfo.name[index];
 
         textPointer = `#researchAuto${index + 1}`;
     } else if (type === 'ASR') {
         if (stageIndex !== player.stage.active) { return; }
         max = global.ASRInfo.max[stageIndex];
         level = player.ASR[stageIndex];
+        name = global.ASRInfo.name;
 
         textPointer = '#ASR';
     } else if (type === 'strangeness') {
         max = global.strangenessInfo[stageIndex].max[index];
         level = player.strangeness[stageIndex][index];
+        name = global.strangenessInfo[stageIndex].name[index];
 
         textPointer = `#strange${index + 1}Stage${stageIndex}`;
     } else /*if (type === 'inflation')*/ {
         max = global.treeInfo[stageIndex].max[index];
         level = player.tree[stageIndex][index];
+        name = global.treeInfo[stageIndex].name[index];
 
         textPointer = `#inflation${index + 1}Tree${stageIndex + 1}`;
     }
 
+    const inputHTML = getQuery(`${textPointer} > input`);
     let text = '<span class="';
     if (level >= max) {
         text += 'greenText';
-        getQuery(`${textPointer} > input`).tabIndex = globalSave.SRSettings[0] && globalSave.SRSettings[1] ? 0 : -1;
+        //Same condition already used to hide maxed items from the Tab order (skipped unless
+        //Screen reader support and "Keep tab index on created Upgrades" are both on) - on mobile,
+        //hiding from the swipe order isn't reliable the way it is for Tab, so aria-disabled
+        //announces the same "already maxed" status instead, without touching the item's own
+        //hover/touch preview. Shared by researches/researchesExtra/researchesAuto/ASR/strangeness/
+        //inflation, so it applies identically to all of them, not just one type.
+        const hideMaxed = !(globalSave.SRSettings[0] && globalSave.SRSettings[1]);
+        inputHTML.tabIndex = hideMaxed ? -1 : 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = hideMaxed ? 'true' : null; }
     } else if (level === 0) {
         text += 'redText';
-        getQuery(`${textPointer} > input`).tabIndex = 0;
+        inputHTML.tabIndex = 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = null; }
     } else {
         text += 'orchidText';
-        getQuery(`${textPointer} > input`).tabIndex = 0;
+        inputHTML.tabIndex = 0;
+        if (globalSave.MDSettings[0]) { inputHTML.ariaDisabled = null; }
     }
     text += `">${format(level, { padding: 'exponent' })}</span>`;
     if (max < 1e3) { text += `/<span class="greenText">${max}</span>`; }
@@ -1977,6 +2138,13 @@ const visualUpdateResearches = (index: number, stageIndex: number, type: 'resear
     if (assignInnerHTML(mainHTML, text)) {
         mainHTML.classList[max < 1e3 ? 'remove' : 'add']('noMaxLevel');
     }
+    //This level counter is its own swipe stop for touch screen readers, right next to the button
+    //it belongs to - doubling how many swipes it takes to get through a panel. Hidden from the
+    //accessibility tree once SR mode provides the same "Level X out of Y" text as part of the
+    //button's own name below, so nothing is lost; left alone (and visually unaffected either way)
+    //when SR is off, since nothing else exposes this information then.
+    mainHTML.ariaHidden = globalSave.SRSettings[0] ? 'true' : null;
+    if (globalSave.SRSettings[0]) { inputHTML.ariaLabel = `${name}. Level ${format(level, { padding: 'exponent' })}${max < 1e3 ? ` out of ${max}` : ''}`; }
 };
 
 const updateRankInfo = () => {
@@ -2226,7 +2394,7 @@ export const stageUpdate = (changed = true, ignoreOffline = false) => {
         numbersUpdate(ignoreOffline);
         return;
     }
-    if (globalSave.SRSettings[0]) { getId('SRStage').textContent = `Current active Stage is ${stageInfo.word[active]}${active !== global.trueActive ? `, will be changed to ${stageInfo.word[global.trueActive]} after changing tab` : ''}`; }
+    if (globalSave.SRSettings[0]) { getId('SRStage').textContent = `Active Stage is ${stageInfo.word[active]}${active !== global.trueActive ? `, will be changed to ${stageInfo.word[global.trueActive]} after changing tab` : ''}`; }
     global.debug.visited.upgrade = false;
 
     const footerStatsHTML = specialHTML.footerStatsHTML[active];

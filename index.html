@@ -264,32 +264,35 @@
                 <section id="stageSubtabAdvanced" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div id="challengesMain">
                         <article aria-label="Challenges">
-                            <input type="image" src="Used_art/Void.png" alt="Void" draggable="false" id="challenge1" aria-controls="challengeMultiline challengeTimeLimit">
-                            <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum information" draggable="false" id="challenge2" aria-controls="challengeMultiline challengeTimeLimit">
-                            <input type="image" src="Used_art/Darkness.png" alt="Darkness" draggable="false" id="challenge3" aria-controls="challengeMultiline challengeTimeLimit">
+                            <input type="image" src="Used_art/Void.png" alt="Void" draggable="false" id="challenge1">
+                            <input type="image" src="Used_art/False%20vacuum.png" alt="Vacuum information" draggable="false" id="challenge2">
+                            <input type="image" src="Used_art/Darkness.png" alt="Darkness" draggable="false" id="challenge3">
                         </article>
                         <div>
                             <section>
                                 <h3 class="bigWord"><button type="button" id="challengeName" class="selectBtn" disabled>Missing</button><span id="challengeActive" class="greenText" style="display: none;">, active</span></h3>
-                                <div id="challengeMultiline"></div>
-                                <p id="challengeTimeLimit" class="blueText"><span>Time limit</span> is <span class="cyanText">1 eons</span></p>
+                                <button type="button" id="challengeEnterExit" class="hollowButton">Enter</button>
+                                <div>
+                                    <div id="challengeMultiline"></div>
+                                    <p id="challengeTimeLimit" class="blueText"><span>Time limit</span> is <span class="cyanText">1 eons</span></p>
+                                </div>
                             </section>
                             <article id="challengeRewards" aria-labelledby="voidRewardsHead stabilityRewardsHead darknessTier">
                                 <button type="button" id="voidRewardsHead" class="selectBtn darkvioletText bigWord" style="display: none;">Void rewards:</button>
                                 <div id="voidRewards" style="display: none;">
-                                    <button type="button" id="voidReward1" class="hollowButton stage1borderButton cyanText" aria-controls="challengeRewardsMultiline">Microworld</button>
-                                    <button type="button" id="voidReward2" class="hollowButton stage2borderButton blueText" aria-controls="challengeRewardsMultiline">Submerged</button>
-                                    <button type="button" id="voidReward3" class="hollowButton stage3borderButton grayText" aria-controls="challengeRewardsMultiline">Accretion</button>
-                                    <button type="button" id="voidReward4" class="hollowButton stage4borderButton orangeText" aria-controls="challengeRewardsMultiline">Interstellar</button>
-                                    <button type="button" id="voidReward5" class="hollowButton stage5borderButton darkorchidText" aria-controls="challengeRewardsMultiline">Intergalactic</button>
+                                    <button type="button" id="voidReward1" class="hollowButton stage1borderButton cyanText">Microworld</button>
+                                    <button type="button" id="voidReward2" class="hollowButton stage2borderButton blueText">Submerged</button>
+                                    <button type="button" id="voidReward3" class="hollowButton stage3borderButton grayText">Accretion</button>
+                                    <button type="button" id="voidReward4" class="hollowButton stage4borderButton orangeText">Interstellar</button>
+                                    <button type="button" id="voidReward5" class="hollowButton stage5borderButton darkorchidText">Intergalactic</button>
                                 </div>
                                 <button type="button" id="stabilityRewardsHead" class="selectBtn darkorchidText bigWord" style="display: none;">Completions rewards:</button>
                                 <div id="darknessTierMain" class="bigWord" style="display: none;">
-                                    <button type="button" id="darknessTierMinus" class="hollowButton">-</button>
+                                    <button type="button" id="darknessTierMinus" class="hollowButton" aria-label="Decrease Darkness tier">-</button>
                                     <h3 id="darknessTier" class="grayText">Tier: <span class="whiteText">1</span>/<span class="whiteText">1</span></h3>
-                                    <button type="button" id="darknessTierPlus" class="hollowButton">+</button>
+                                    <button type="button" id="darknessTierPlus" class="hollowButton" aria-label="Increase Darkness tier">+</button>
                                 </div>
-                                <div id="challengeRewardsMultiline" class="whiteText"></div>
+                                <div id="challengeRewardsMultiline" class="whiteText" aria-live="polite" aria-atomic="true"></div>
                             </article>
                         </div>
                     </div>
@@ -302,116 +305,116 @@
                 <section id="upgradeSubtabUpgrades" class="insideTab" aria-label="Current tab">
                     <div id="upgrades">
                         <h2 class="biggerWord">Upgrades</h2>
-                        <article aria-label="Upgrades">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade1" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade2" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade3" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade4" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade5" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade6" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade7" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade8" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade9" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade10" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade11" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade12" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade13" aria-controls="upgradeCost upgradeEffect">
-                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade14" aria-controls="upgradeCost upgradeEffect">
-                        </article>
+                        <section aria-label="Upgrades">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade1">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade2">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade3">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade4">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade5">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade6">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade7">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade8">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade9">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade10">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade11">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade12">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade13">
+                            <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" id="upgrade14">
+                        </section>
                     </div>
                     <div id="researches">
                         <h2 class="bigWord" aria-hidden="true">Researches</h2>
-                        <article id="stageResearches" aria-label="Stage Researches">
+                        <section id="stageResearches" aria-label="Stage Researches">
                             <img src="Used_art/Stage.png" alt="" class="stageBorderImage hasTitle" data-title="Stage Researches" loading="lazy" draggable="false">
                             <div class="researchesDiv stageAllBorderImage">
                                 <label id="research1" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research2" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research3" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research4" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research5" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research6" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research7" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research8" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="research9" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                             </div>
-                        </article>
-                        <article id="extraResearches" aria-label="Special Researches">
+                        </section>
+                        <section id="extraResearches" aria-label="Special Researches">
                             <img src="Used_art/Missing.png" alt="" class="hasTitle" data-title="Special Researches" loading="lazy" draggable="false">
                             <div class="researchesDiv">
                                 <label id="researchExtra1" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchExtra2" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchExtra3" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchExtra4" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchExtra5" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchExtra6" class="whiteText">
-                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Missing.png" alt="Missing" draggable="false">
                                     <span>Missing</span>
                                 </label>
                             </div>
-                        </article>
-                        <article id="autoResearches" aria-label="Automatization Researches">
+                        </section>
+                        <section id="autoResearches" aria-label="Automatization Researches">
                             <img src="Used_art/Automatization.png" alt="" class="hasTitle" data-title="Automatization Researches" loading="lazy" draggable="false">
                             <div class="researchesDiv stage3borderImage">
                                 <label id="ASR" class="whiteText stageAllBorderImage">
-                                    <input type="image" src="Used_art/Auto.png" alt="Auto Structures" draggable="false" class="stageBorderImage" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/Auto.png" alt="Auto Structures" draggable="false" class="stageBorderImage">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchAuto1" class="whiteText stage3borderImage">
-                                    <input type="image" src="Used_art/ResearchAuto1.png" alt="Upgrade automatization" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/ResearchAuto1.png" alt="Upgrade automatization" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchAuto2" class="whiteText stage4borderImage">
-                                    <input type="image" src="Used_art/ResearchAuto2.png" alt="Element automatization" draggable="false" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/ResearchAuto2.png" alt="Element automatization" draggable="false">
                                     <span>Missing</span>
                                 </label>
                                 <label id="researchAuto3" class="whiteText stageAllBorderImage">
-                                    <input type="image" src="Used_art/ResearchAuto3.png" alt="Reset automatization" draggable="false" class="stageBorderImage" aria-controls="upgradeCost upgradeEffect">
+                                    <input type="image" src="Used_art/ResearchAuto3.png" alt="Reset automatization" draggable="false" class="stageBorderImage">
                                     <span>Missing</span>
                                 </label>
                             </div>
-                        </article>
+                        </section>
                     </div>
                     <div class="descriptionTextMain">
                         <div id="researchToggles">
@@ -429,43 +432,43 @@
                 <section id="upgradeSubtabElements" class="insideTab" style="display: none;" aria-label="Current tab">
                     <h2 class="orangeText biggerWord">Elements</h2>
                     <article id="elementsGrid" aria-label="Elements">
-                        <input type="image" src="Used_art/Element0.png" alt="" draggable="false" id="element0" class="elementType1" aria-controls="elementCost elementEffect" aria-hidden="true" tabindex="-1">
-                        <input type="image" src="Used_art/Element1.png" alt="" draggable="false" id="element1" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element2.png" alt="" draggable="false" id="element2" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element3.png" alt="" draggable="false" id="element3" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element4.png" alt="" draggable="false" id="element4" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element5.png" alt="" draggable="false" id="element5" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element6.png" alt="" draggable="false" id="element6" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element7.png" alt="" draggable="false" id="element7" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element8.png" alt="" draggable="false" id="element8" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element9.png" alt="" draggable="false" id="element9" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element10.png" alt="" draggable="false" id="element10" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element11.png" alt="" draggable="false" id="element11" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element12.png" alt="" draggable="false" id="element12" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element13.png" alt="" draggable="false" id="element13" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element14.png" alt="" draggable="false" id="element14" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element15.png" alt="" draggable="false" id="element15" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element16.png" alt="" draggable="false" id="element16" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element17.png" alt="" draggable="false" id="element17" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element18.png" alt="" draggable="false" id="element18" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element19.png" alt="" draggable="false" id="element19" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element20.png" alt="" draggable="false" id="element20" class="elementType1" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element21.png" alt="" draggable="false" id="element21" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element22.png" alt="" draggable="false" id="element22" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element23.png" alt="" draggable="false" id="element23" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element24.png" alt="" draggable="false" id="element24" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element25.png" alt="" draggable="false" id="element25" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element26.png" alt="" draggable="false" id="element26" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element27.png" alt="" draggable="false" id="element27" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element28.png" alt="" draggable="false" id="element28" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element29.png" alt="" draggable="false" id="element29" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element30.png" alt="" draggable="false" id="element30" class="elementType3" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element31.png" alt="" draggable="false" id="element31" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element32.png" alt="" draggable="false" id="element32" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element33.png" alt="" draggable="false" id="element33" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element34.png" alt="" draggable="false" id="element34" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element35.png" alt="" draggable="false" id="element35" class="elementType2" aria-controls="elementCost elementEffect">
-                        <input type="image" src="Used_art/Element36.png" alt="" draggable="false" id="element36" class="elementType2" aria-controls="elementCost elementEffect">
+                        <input type="image" src="Used_art/Element0.png" alt="" draggable="false" id="element0" class="elementType1" aria-hidden="true" tabindex="-1">
+                        <input type="image" src="Used_art/Element1.png" alt="" draggable="false" id="element1" class="elementType1">
+                        <input type="image" src="Used_art/Element2.png" alt="" draggable="false" id="element2" class="elementType1">
+                        <input type="image" src="Used_art/Element3.png" alt="" draggable="false" id="element3" class="elementType1">
+                        <input type="image" src="Used_art/Element4.png" alt="" draggable="false" id="element4" class="elementType1">
+                        <input type="image" src="Used_art/Element5.png" alt="" draggable="false" id="element5" class="elementType2">
+                        <input type="image" src="Used_art/Element6.png" alt="" draggable="false" id="element6" class="elementType2">
+                        <input type="image" src="Used_art/Element7.png" alt="" draggable="false" id="element7" class="elementType2">
+                        <input type="image" src="Used_art/Element8.png" alt="" draggable="false" id="element8" class="elementType2">
+                        <input type="image" src="Used_art/Element9.png" alt="" draggable="false" id="element9" class="elementType2">
+                        <input type="image" src="Used_art/Element10.png" alt="" draggable="false" id="element10" class="elementType2">
+                        <input type="image" src="Used_art/Element11.png" alt="" draggable="false" id="element11" class="elementType1">
+                        <input type="image" src="Used_art/Element12.png" alt="" draggable="false" id="element12" class="elementType1">
+                        <input type="image" src="Used_art/Element13.png" alt="" draggable="false" id="element13" class="elementType2">
+                        <input type="image" src="Used_art/Element14.png" alt="" draggable="false" id="element14" class="elementType2">
+                        <input type="image" src="Used_art/Element15.png" alt="" draggable="false" id="element15" class="elementType2">
+                        <input type="image" src="Used_art/Element16.png" alt="" draggable="false" id="element16" class="elementType2">
+                        <input type="image" src="Used_art/Element17.png" alt="" draggable="false" id="element17" class="elementType2">
+                        <input type="image" src="Used_art/Element18.png" alt="" draggable="false" id="element18" class="elementType2">
+                        <input type="image" src="Used_art/Element19.png" alt="" draggable="false" id="element19" class="elementType1">
+                        <input type="image" src="Used_art/Element20.png" alt="" draggable="false" id="element20" class="elementType1">
+                        <input type="image" src="Used_art/Element21.png" alt="" draggable="false" id="element21" class="elementType3">
+                        <input type="image" src="Used_art/Element22.png" alt="" draggable="false" id="element22" class="elementType3">
+                        <input type="image" src="Used_art/Element23.png" alt="" draggable="false" id="element23" class="elementType3">
+                        <input type="image" src="Used_art/Element24.png" alt="" draggable="false" id="element24" class="elementType3">
+                        <input type="image" src="Used_art/Element25.png" alt="" draggable="false" id="element25" class="elementType3">
+                        <input type="image" src="Used_art/Element26.png" alt="" draggable="false" id="element26" class="elementType3">
+                        <input type="image" src="Used_art/Element27.png" alt="" draggable="false" id="element27" class="elementType3">
+                        <input type="image" src="Used_art/Element28.png" alt="" draggable="false" id="element28" class="elementType3">
+                        <input type="image" src="Used_art/Element29.png" alt="" draggable="false" id="element29" class="elementType3">
+                        <input type="image" src="Used_art/Element30.png" alt="" draggable="false" id="element30" class="elementType3">
+                        <input type="image" src="Used_art/Element31.png" alt="" draggable="false" id="element31" class="elementType2">
+                        <input type="image" src="Used_art/Element32.png" alt="" draggable="false" id="element32" class="elementType2">
+                        <input type="image" src="Used_art/Element33.png" alt="" draggable="false" id="element33" class="elementType2">
+                        <input type="image" src="Used_art/Element34.png" alt="" draggable="false" id="element34" class="elementType2">
+                        <input type="image" src="Used_art/Element35.png" alt="" draggable="false" id="element35" class="elementType2">
+                        <input type="image" src="Used_art/Element36.png" alt="" draggable="false" id="element36" class="elementType2">
                     </article>
                     <div class="descriptionText">
                         <h3>Element: <span id="elementText">Hover to see.</span></h3>
@@ -482,13 +485,13 @@
                         <p><span id="strangeRateType">Strange quarks</span> rate: <span id="strangeRate" class="whiteText">0 per eon</span><span id="strangePeak"> (Peak: <span class="whiteText">0 per eon</span> | At: <span id="strangePeakAt" class="whiteText">0 seconds</span>)</span></p>
                     </div>
                     <article id="strangeStructures" class="greenText" aria-label="Strange Structures">
-                        <section id="strange0" aria-haspopup="dialog" aria-controls="strange0EffectsMain">
-                            <h3>Strange quarks</h3>
+                        <section id="strange0">
+                            <h3 tabindex="0">Strange quarks</h3>
                             <div>
                                 <img src="Used_art/Strange%20Quarks.png" alt="" loading="lazy" draggable="false">
                                 <p id="strange0Cur">0</p>
                             </div>
-                            <div id="strange0EffectsMain" class="popUpMenu mainText" style="display: none;" role="dialog">
+                            <div id="strange0EffectsMain" class="popUpMenu mainText" style="display: none;">
                                 <h4 class="bigWord">Current effects:</h4>
                                 <ul class="whiteText">
                                     <li><span class="cyanText">Microworld</span> − improving its Structures<span id="strange0Effect1Level2">, <span class="newAntiName">Tritium</span> and reducing Goals requirement</span> by <span id="strange0Effect1Stat">1</span></li>
@@ -499,13 +502,13 @@
                                 </ul>
                             </div>
                         </section>
-                        <section id="strange1" aria-haspopup="dialog" aria-controls="strange1EffectsMain">
-                            <h3>Strangelets</h3>
+                        <section id="strange1">
+                            <h3 tabindex="0">Strangelets</h3>
                             <div>
                                 <img src="Used_art/Strangelets.png" alt="" loading="lazy" draggable="false">
                                 <p id="strange1Cur">0</p>
                             </div>
-                            <div id="strange1EffectsMain" class="popUpMenu mainText" style="display: none;" role="dialog">
+                            <div id="strange1EffectsMain" class="popUpMenu mainText" style="display: none;">
                                 <h4 class="bigWord">Current effects:</h4>
                                 <ul class="whiteText">
                                     <li>Producing <span id="strange1Effect1Stat0">0% of current Strange quarks rate</span><br>(<span id="strange1Effect1Stat1">Which is equal to 0 per eon</span>)</li>
@@ -518,237 +521,237 @@
                     <article id="strangenessResearch" aria-labelledby="strangenessHeader">
                         <section id="strangenessSection1" class="researchesDiv stage1borderImage" aria-label="Microworld">
                             <label id="strange1Stage1" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Particle+.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Particle+.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage1" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/ResearchQ3.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/ResearchQ3.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/ResearchQ4.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/ResearchQ4.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/ResearchQ5.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/ResearchQ5.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Discharge%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Discharge%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange6Stage1" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Auto%20S1.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Auto%20S1.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange7Stage1" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Boost%20Stage%201.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Boost%20Stage%201.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange8Stage1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Energy%20Preon.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Energy%20Preon.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange9Stage1" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Mass%20recycle.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Mass%20recycle.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange10Stage1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Energy%20recycle.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Energy%20recycle.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="strangenessSection2" class="researchesDiv stage2borderImage" style="display: none;" aria-label="Submerged">
                             <label id="strange1Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Water+.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Water+.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Puddle%20big.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Puddle%20big.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Spread.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Spread.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage2" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Clouds%20plus.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Clouds%20plus.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Vaporization%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Vaporization%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange6Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Auto%20S2.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Auto%20S2.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange7Stage2" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Boost%20Stage%202.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Boost%20Stage%202.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange8Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Better%20water.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Better%20water.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange9Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Spread%202.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Spread%202.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange10Stage2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Ocean%20world.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Ocean%20world.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="strangenessSection3" class="researchesDiv stage3borderImage" style="display: none;" aria-label="Accretion">
                             <label id="strange1Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/ResearchA1.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/ResearchA1.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Mass-.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Mass-.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Rank%20levels.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Rank%20levels.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage3" class="whiteText redBorderImage">
-                                <input type="image" src="Used_art/System%20red.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/System%20red.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Rank%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Rank%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange6Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Auto%20S3.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Auto%20S3.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange7Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Upgrades%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Upgrades%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange8Stage3" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Boost%20Stage%203.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Boost%20Stage%203.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange9Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Cosmic%20mass.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Cosmic%20mass.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange10Stage3" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Rank%20max.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Rank%20max.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="strangenessSection4" class="researchesDiv stage4borderImage" style="display: none;" aria-label="Interstellar">
                             <label id="strange1Stage4" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Brown%20dwarf%20hot.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Brown%20dwarf%20hot.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage4" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Brown%20dwarf-.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Brown%20dwarf-.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage4" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Brown%20dwarf%20time.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Brown%20dwarf%20time.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage4" class="whiteText redBorderImage">
-                                <input type="image" src="Used_art/Red%20giant+.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Red%20giant+.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage4" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Collapse%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Collapse%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange6Stage4" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Auto%20S4.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Auto%20S4.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange7Stage4" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Elements%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Elements%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange8Stage4" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Boost%20Stage%204.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Boost%20Stage%204.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange9Stage4" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Neutronium.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Neutronium.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange10Stage4" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Brown%20dwarf%20time%20hot.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Brown%20dwarf%20time%20hot.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="strangenessSection5" class="researchesDiv stage5borderImage" style="display: none;" aria-label="Intergalactic">
                             <label id="strange1Stage5" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Nebula+.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Nebula+.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage5" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Star%20cluster%20denser.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Star%20cluster%20denser.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage5" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage5" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Gravitational%20bound.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Gravitational%20bound.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage5" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Galaxy%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Galaxy%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange6Stage5" class="whiteText stage5borderImage">
-                                <input type="image" src="Used_art/Auto%20S5.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Auto%20S5.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange7Stage5" class="whiteText stageAllBorderImage">
-                                <input type="image" src="Used_art/Stage%20auto.png" alt="" draggable="false" class="stageBorderImage" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Stage%20auto.png" alt="" draggable="false" class="stageBorderImage">
                                 <span>Missing</span>
                             </label>
                             <label id="strange8Stage5" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Boost%20Stage%205.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Boost%20Stage%205.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange9Stage5" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strange%20growth.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Strange%20growth.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange10Stage5" class="whiteText brownBorderImage">
-                                <input type="image" src="Used_art/Merge%20auto.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Merge%20auto.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange11Stage5" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Galactic%20tide.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Galactic%20tide.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="strangenessSection6" class="researchesDiv stage6borderImage" style="display: none;" aria-label="Abyss">
                             <label id="strange1Stage6" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Time.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Time.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange2Stage6" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strangelets%20many.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Strangelets%20many.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange3Stage6" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strangeness%20+1.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Strangeness%20+1.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange4Stage6" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Stage%202.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Stage%202.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="strange5Stage6" class="whiteText redBorderImage">
-                                <input type="image" src="Used_art/Missing.png" alt="" draggable="false" aria-controls="strangenessCost strangenessEffect">
+                                <input type="image" src="Used_art/Missing.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
@@ -772,16 +775,16 @@
                         <p id="milestonesExtra" class="whiteText">Completing any tier will award 1 Strange quark</p>
                     </div>
                     <article id="milestones" aria-label="Milestones">
-                        <div id="milestone1Stage1Div" class="stage1borderImage stage1windowBackground"><input type="image" src="Used_art/Quarks.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone2Stage1Div" class="stage1borderImage stage1windowBackground"><input type="image" src="Used_art/Energy.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone1Stage2Div" class="stage2borderImage stage2windowBackground"><input type="image" src="Used_art/Drop.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone2Stage2Div" class="stage2borderImage stage2windowBackground"><input type="image" src="Used_art/Puddle.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone1Stage3Div" class="stage3borderImage stage3windowBackground"><input type="image" src="Used_art/Mass.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone2Stage3Div" class="stage3borderImage stage3windowBackground"><input type="image" src="Used_art/Natural%20satellite.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone1Stage4Div" class="stage4borderImage stage4windowBackground"><input type="image" src="Used_art/Elements.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone2Stage4Div" class="stage4borderImage stage4windowBackground"><input type="image" src="Used_art/Main_sequence%20mass.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone1Stage5Div" class="stage5borderImage stage5windowBackground"><input type="image" src="Used_art/Stars.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
-                        <div id="milestone2Stage5Div" class="stage5borderImage stage5windowBackground"><input type="image" src="Used_art/Galaxy.png" alt="" draggable="false" aria-controls="milestonesMultiline"></div>
+                        <div id="milestone1Stage1Div" class="stage1borderImage stage1windowBackground"><input type="image" src="Used_art/Quarks.png" alt="" draggable="false"></div>
+                        <div id="milestone2Stage1Div" class="stage1borderImage stage1windowBackground"><input type="image" src="Used_art/Energy.png" alt="" draggable="false"></div>
+                        <div id="milestone1Stage2Div" class="stage2borderImage stage2windowBackground"><input type="image" src="Used_art/Drop.png" alt="" draggable="false"></div>
+                        <div id="milestone2Stage2Div" class="stage2borderImage stage2windowBackground"><input type="image" src="Used_art/Puddle.png" alt="" draggable="false"></div>
+                        <div id="milestone1Stage3Div" class="stage3borderImage stage3windowBackground"><input type="image" src="Used_art/Mass.png" alt="" draggable="false"></div>
+                        <div id="milestone2Stage3Div" class="stage3borderImage stage3windowBackground"><input type="image" src="Used_art/Natural%20satellite.png" alt="" draggable="false"></div>
+                        <div id="milestone1Stage4Div" class="stage4borderImage stage4windowBackground"><input type="image" src="Used_art/Elements.png" alt="" draggable="false"></div>
+                        <div id="milestone2Stage4Div" class="stage4borderImage stage4windowBackground"><input type="image" src="Used_art/Main_sequence%20mass.png" alt="" draggable="false"></div>
+                        <div id="milestone1Stage5Div" class="stage5borderImage stage5windowBackground"><input type="image" src="Used_art/Stars.png" alt="" draggable="false"></div>
+                        <div id="milestone2Stage5Div" class="stage5borderImage stage5windowBackground"><input type="image" src="Used_art/Galaxy.png" alt="" draggable="false"></div>
                     </article>
                     <div class="descriptionText">
                         <h3 class="darkorchidText">Stage: <span id="milestonesStage"></span><span id="milestonesText" class="greenText">Hover to see.</span></h3>
@@ -840,69 +843,69 @@
                     <article id="inflation" aria-label="Inflations">
                         <section id="inflationTree1" class="researchesDiv" aria-label="Inflatons">
                             <label id="inflation1Tree1" class="whiteText stage1borderImage">
-                                <input type="image" src="Used_art/Time%20fast.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Time%20fast.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation2Tree1" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Time.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Time.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation3Tree1" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation4Tree1" class="whiteText stage5borderImage">
-                                <input type="image" src="Used_art/Instability.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Instability.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation5Tree1" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Milestones.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Milestones.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation6Tree1" class="whiteText stage5borderImage">
-                                <input type="image" src="Used_art/Stability.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Stability.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation7Tree1" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Offline.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Offline.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
                         <section id="inflationTree2" class="researchesDiv" aria-label="Cosmons">
                             <label id="inflation1Tree2" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/Time.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Time.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation2Tree2" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Strange%20Quarks%20many.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation3Tree2" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/More%20Cosmon.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/More%20Cosmon.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation4Tree2" class="whiteText greenBorderImage">
-                                <input type="image" src="Used_art/Strangelets%20many.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Strangelets%20many.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation5Tree2" class="whiteText stage4borderImage">
-                                <input type="image" src="Used_art/ResearchQ5.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/ResearchQ5.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation6Tree2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Vaporization%20improvement.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Vaporization%20improvement.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation7Tree2" class="whiteText stage3borderImage">
-                                <input type="image" src="Used_art/Rank%20improvement.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Rank%20improvement.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation8Tree2" class="whiteText stage6borderImage">
-                                <input type="image" src="Used_art/Collapse%20Researches.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Collapse%20Researches.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                             <label id="inflation9Tree2" class="whiteText stage2borderImage">
-                                <input type="image" src="Used_art/Drops%20recycle.png" alt="" draggable="false" aria-controls="inflationCost inflationEffect">
+                                <input type="image" src="Used_art/Drops%20recycle.png" alt="" draggable="false">
                                 <span>Missing</span>
                             </label>
                         </section>
@@ -1108,7 +1111,7 @@
                             <li><label>Allow text selection<button type="button" id="globalToggle2" class="specialToggle">OFF</button></label></li>
                             <li><label>Footer at the top<button type="button" id="globalToggle3" class="specialToggle">OFF</button></label></li>
                             <li id="elementsAsTab"><label>Elements as Tab<button type="button" id="globalToggle1" class="specialToggle">OFF</button></label></li>
-                            <li class="hasTitle" data-title="Default is 16px. Art doesn't scale"><label>Font size: <input type="number" id="customFontSize" step="any" min="12" max="24" value="16" tabindex="-1"> px</label></li>
+                            <li><label>Font size: <input type="number" id="customFontSize" class="hasTitle" data-title="Default is 16px. Art doesn't scale" step="any" min="12" max="24" value="16"> px</label></li>
                         </ul>
                     </section>
                     <div class="options">
@@ -1120,12 +1123,12 @@
                             <label id="autoRMain" class="whiteText">Stage Researches <span class="mainText">⟶</span><button type="button" id="toggleAuto6" class="toggleAuto">Auto OFF</button></label>
                             <label id="autoEMain" class="whiteText">Special Researches <span class="mainText">⟶</span><button type="button" id="toggleAuto7" class="toggleAuto">Auto OFF</button></label>
                         </article>
-                        <article id="themeArea" aria-hidden="true">
+                        <article id="themeArea">
                             <h3>Current theme</h3>
                             <div>
-                                <button type="button" id="currentTheme" class="mainText hollowButton" tabindex="-1">Default</button>
+                                <button type="button" id="currentTheme" class="mainText hollowButton" aria-label="Current theme: Default" aria-expanded="false">Default</button>
                                 <div>
-                                    <button type="button" id="switchTheme0" class="stageAllBorderButton hollowButton stageText" style="text-decoration: underline;">Default</button>
+                                    <button type="button" id="switchTheme0" class="stageAllBorderButton hollowButton stageText" style="text-decoration: underline;" aria-current="true">Default</button>
                                     <button type="button" id="switchTheme1" class="stage1borderButton hollowButton cyanText">Microworld</button>
                                     <button type="button" id="switchTheme2" class="stage2borderButton hollowButton blueText">Submerged</button>
                                     <button type="button" id="switchTheme3" class="stage3borderButton hollowButton grayText">Accretion</button>
@@ -1421,15 +1424,15 @@
                         <button type="button" class="stage6borderButton stage6Include darkvioletText" id="stageSwitch6">Abyss</button>
                     </nav>
                     <nav id="subtabs" style="visibility: hidden;" aria-label="Subtab list">
-                        <button type="button" id="stageSubtabBtnStructures" class="tabActive" style="display: none;">Structures</button>
+                        <button type="button" id="stageSubtabBtnStructures" class="tabActive" aria-current="true" style="display: none;">Structures</button>
                         <button type="button" id="stageSubtabBtnAdvanced"  style="display: none;">Advanced</button>
-                        <button type="button" id="upgradeSubtabBtnUpgrades" class="tabActive" style="display: none;">Upgrades</button>
+                        <button type="button" id="upgradeSubtabBtnUpgrades" class="tabActive" aria-current="true" style="display: none;">Upgrades</button>
                         <button type="button" id="upgradeSubtabBtnElements" style="display: none;">Elements</button>
-                        <button type="button" id="strangenessSubtabBtnMatter" class="tabActive" style="display: none;">Matter</button>
+                        <button type="button" id="strangenessSubtabBtnMatter" class="tabActive" aria-current="true" style="display: none;">Matter</button>
                         <button type="button" id="strangenessSubtabBtnMilestones" style="display: none;">Milestones</button>
-                        <button type="button" id="inflationSubtabBtnMatter" class="tabActive" style="display: none;">Matter</button>
+                        <button type="button" id="inflationSubtabBtnMatter" class="tabActive" aria-current="true" style="display: none;">Matter</button>
                         <button type="button" id="inflationSubtabBtnMilestones" style="display: none;">Milestones</button>
-                        <button type="button" id="settingsSubtabBtnSettings" class="tabActive" style="display: none;">Settings</button>
+                        <button type="button" id="settingsSubtabBtnSettings" class="tabActive" aria-current="true" style="display: none;">Settings</button>
                         <button type="button" id="settingsSubtabBtnStats" style="display: none;">Stats</button>
                         <button type="button" id="settingsSubtabBtnHistory" style="display: none;">History</button>
                     </nav>
@@ -1460,7 +1463,7 @@
                         </div>
                     </article>
                     <nav aria-label="Tab list">
-                        <button type="button" id="stageTabBtn" class="tabActive">Stage</button>
+                        <button type="button" id="stageTabBtn" class="tabActive" aria-current="true">Stage</button>
                         <button type="button" id="upgradeTabBtn">Upgrade</button>
                         <button type="button" id="strangenessTabBtn">Strangeness</button>
                         <button type="button" id="inflationTabBtn">Inflation</button>

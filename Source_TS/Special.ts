@@ -4,7 +4,7 @@ import { cloneArray, deepClone, getClass, getId, getQuery, globalSaveStart, paus
 import { global, player, prepareVacuum, updatePlayer } from './Player';
 import { assignResetInformation, setActiveStage, toggleChallengeType } from './Stage';
 import type { Quantum, globalSaveType, hotkeysList, numbersList } from './Types';
-import { format, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
+import { format, scheduleAriaCurrent, stageUpdate, switchTab, visualProgressUnlocks, visualUpdate } from './Update';
 
 export const globalSave: globalSaveType = {
     intervals: {
@@ -47,7 +47,7 @@ export const globalSave: globalSaveType = {
     theme: null,
     fontSize: 16,
     MDSettings: [false, false, false, false],
-    SRSettings: [false, false],
+    SRSettings: [true, false],
     developerMode: false,
     version: 1
 };
@@ -120,6 +120,7 @@ export const toggleSpecial = (number: number, type: 'global' | 'mobile' | 'reade
         toggleHTML.style.borderColor = '';
         toggleHTML.textContent = 'ON';
     }
+    toggleHTML.setAttribute('aria-pressed', `${toggles[number]}`);
 };
 
 export const specialHTML = { //Images here are from true vacuum for easier cache
@@ -398,15 +399,24 @@ export const preventImageUnload = () => {
 /** Not providing value for 'theme' will make it use one from globalSave and remove all checks */
 export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): void => {
     if (theme !== undefined) {
+        let oldThemeId: string | null = null;
         if (!firstLoad) {
             if (!checkTheme(theme)) { return; }
-            getId(`switchTheme${globalSave.theme ?? 0}`).style.textDecoration = '';
+            oldThemeId = `switchTheme${globalSave.theme ?? 0}`;
+            getId(oldThemeId).style.textDecoration = '';
 
             globalSave.theme = theme;
             saveGlobalSettings();
         }
-        getId(`switchTheme${theme ?? 0}`).style.textDecoration = 'underline';
-        getId('currentTheme').textContent = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
+        const newThemeId = `switchTheme${theme ?? 0}`;
+        getId(newThemeId).style.textDecoration = 'underline';
+        const themeName = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
+        const currentThemeButton = getId('currentTheme');
+        currentThemeButton.textContent = themeName;
+        //The button's own text is just the theme name (e.g. "Default"), which doesn't convey what
+        //focusing it does now that it's a real Tab stop - aria-label states the full purpose.
+        currentThemeButton.ariaLabel = `Current theme: ${themeName}`;
+        scheduleAriaCurrent('theme', oldThemeId, newThemeId);
     } else { theme = globalSave.theme; }
 
     const upgradeTypes = ['upgrade', 'element'];
@@ -1031,6 +1041,12 @@ export const enterQuantum = () => {
         const styleSheet = document.createElement('style');
         const main = document.createElement('div');
         main.id = 'quantum';
+        //The rest of the game's <main> is display:none for as long as this is up, so this becomes
+        //the entire visible/interactive page - marking it as a landmark with its own name gives a
+        //screen reader user the same "you're somewhere else now" signal a sighted player gets for
+        //free from the sudden black background.
+        main.setAttribute('role', 'region');
+        main.setAttribute('aria-label', 'Quantum minigame');
         main.innerHTML = '<input type="image" src="Used_art/False%20vacuum.png" alt="Exit" draggable="false" id="leaveQuantum" class="interactiveImage" style="opacity: 0; cursor: help;">';
         main.className = 'insideTab';
         styleSheet.textContent = `#leaveQuantum { width: 48px; height: 48px; transition: opacity ${continuation ? 6 : 30}s; }`;
@@ -1065,7 +1081,7 @@ export const enterQuantum = () => {
                     globalSave.theme = oldTheme;
 
                     const div = document.createElement('div');
-                    div.innerHTML = `<button type="button" id="quantize" style="opacity: 0; transition: opacity ${continuation ? 4 : 30}s;">Ready to Quantize</button>`;
+                    div.innerHTML = `<button type="button" id="quantize" aria-keyshortcuts="Q" style="opacity: 0; transition: opacity ${continuation ? 4 : 30}s;">Ready to Quantize</button>`;
                     div.id = 'quantizeMain';
                     styleSheet.textContent += ' #quantize { padding: 0 0.6em; }';
                     main.append(div);
@@ -1275,8 +1291,13 @@ export const enterQuantum = () => {
                                 }, { signal: control.signal });
                             }
                         }
-                        for (const type of data.sliderTypes) {
+                        for (let typeIndex = 0; typeIndex < data.sliderTypes.length; typeIndex++) {
+                            const type = data.sliderTypes[typeIndex];
                             const onClick = () => { data.active = type; };
+                            //The number-key shortcut (handled globally above) was never surfaced
+                            //anywhere in the UI - aria-keyshortcuts documents it for a screen
+                            //reader user without changing what's already visible to anyone else.
+                            getId(`${type}Main`).setAttribute('aria-keyshortcuts', `${typeIndex + 1}`);
                             if (PC) {
                                 getId(`${type}Main`).addEventListener('mousedown', onClick);
                             }
@@ -1295,6 +1316,17 @@ export const enterQuantum = () => {
                                     data.quantization--;
                                     if (player.progress.quantum as number > data.quantization) { player.progress.quantum = data.quantization; }
                                     if (data.quantization === -1) { finished = true; }
+                                    //Quantizing resets everything below and is the closest thing
+                                    //this minigame has to a prestige reset - it previously gave no
+                                    //screen-reader feedback at all, unlike every equivalent reset
+                                    //action in the main game. Only announced for a real user-
+                                    //initiated quantize (force === null), not the silent
+                                    //jump-to-a-past-level path used elsewhere in this function.
+                                    if (globalSave.SRSettings[0]) {
+                                        getId('SRMain').textContent = finished ?
+                                            'Quantized - Quantum theme unlocked' :
+                                            `Quantized, quantization now at ${data.quantization}`;
+                                    }
                                 } else { data.quantization = force; }
                                 data.foam = 0;
                                 data.particles = 0;
@@ -1326,6 +1358,12 @@ export const enterQuantum = () => {
                                 data.upgradesInfo.totalLevels++;
                                 data.foam -= cost;
                                 data.upgrades[i]++;
+                                //Matches the main game's leveled-purchase announcement wording
+                                //("Leveled X to N"/"...to max") - this minigame's own upgrades
+                                //previously gave no screen-reader feedback on purchase at all.
+                                if (globalSave.SRSettings[0]) {
+                                    getId('SRMain').textContent = `Leveled ${data.upgradesInfo.name[i]} to ${data.upgrades[i] >= max ? 'max' : data.upgrades[i]}`;
+                                }
                                 if (i === 4 || i === 10 || data.upgrades[i] >= max) { update2(); }
                             });
                         }
@@ -1391,8 +1429,14 @@ export const enterQuantum = () => {
                                 }
                                 getQuery(`#${type}Main > span:last-of-type`).textContent = format(base, { type: 'income' });
                                 const button = getQuery(`#${type}Main > span:nth-of-type(2)`);
-                                const next = `var(--${data.active === type ? 'green' : 'red'}-text)`;
+                                const isActive = data.active === type;
+                                const next = `var(--${isActive ? 'green' : 'red'}-text)`;
                                 if (button.style.color !== next) { button.style.color = next; }
+                                //The active/generating state was previously color-only (the check
+                                //above) - aria-pressed on the button itself gives screen reader
+                                //users the same information, same pattern as every other toggle in
+                                //the game.
+                                getId(`${type}Main`).ariaPressed = String(isActive);
                             }
                             for (let i = 0; i < data.upgradesInfo.cost.length; i++) {
                                 getQuery(`#upgradeQ${i + 1} > span:last-of-type`).textContent = `${format(calculate.upgradeCost(i))} Quantum foam`;
@@ -1526,9 +1570,24 @@ export const enterQuantum = () => {
     }, continuation ? 0 : 6_000); //Adds exit button
 };
 
+/**
+ * Mobile-only pagination for the Strangeness 'Matter' subtab: desktop shows every Stage's
+ * Strangeness section at once, but that doesn't fit a phone screen, so mobile shows one Stage at
+ * a time via strangenessPage1-6 (Main.ts). This only ever swapped which section was visible -
+ * the page buttons themselves never got any current-page indication, visual or otherwise, so a
+ * screen reader (or a sighted user, for that matter) had no way to tell which page was selected
+ * without checking which section happened to be showing. Brought in line with every other
+ * tab-like selector in the game (aria-current + the shared 'tabActive' highlight class, same
+ * SRTab announcement convention as switchTab()'s subtab case and selectChallenge()).
+ */
 export const MDStrangenessPage = (stageIndex: number) => {
-    getId(`strangenessSection${global.debug.MDStrangePage}`).style.display = 'none';
+    const oldIndex = global.debug.MDStrangePage;
+    getId(`strangenessSection${oldIndex}`).style.display = 'none';
+    getId(`strangenessPage${oldIndex}`).classList.remove('tabActive');
     getId(`strangenessSection${stageIndex}`).style.display = '';
+    getId(`strangenessPage${stageIndex}`).classList.add('tabActive');
+    scheduleAriaCurrent('strangenessPage', `strangenessPage${oldIndex}`, `strangenessPage${stageIndex}`);
+    if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now viewing ${global.stageInfo.word[stageIndex]}'s Strangeness, part of Matter subtab`; }
     global.debug.MDStrangePage = stageIndex;
 };
 

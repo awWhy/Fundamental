@@ -1,7 +1,7 @@
 import Overlimit from './Limit';
 import { assignInnerHTML, cloneArray, deepClone, getId, getQuery, playerStart, toggleConfirm, toggleSwap } from './Main';
 import { globalSave, specialHTML } from './Special';
-import { assignMaxLevel, assignMilestoneInformation, calculateEffects, assignBuildingsProduction, assignResetInformation, assignChallengeInformation, logAny, toggleChallengeType, prepareDarkness, assignUpgradeCost } from './Stage';
+import { assignMaxLevel, assignMilestoneInformation, calculateEffects, assignBuildingsProduction, assignResetInformation, assignChallengeInformation, logAny, toggleChallengeType, prepareDarkness, assignUpgradeCost, syncChallengeEnterExit } from './Stage';
 import type { globalType, playerType, vacuumStartType } from './Types';
 import { format, switchTab, updateCollapsePoints, visualProgressUnlocks } from './Update';
 
@@ -2067,6 +2067,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
         global.automatization.autoE[s] = [];
 
         getId(`stageSwitch${s}`).style.textDecoration = global.trueActive === s ? 'underline' : '';
+        getId(`stageSwitch${s}`).ariaCurrent = global.trueActive === s ? 'true' : null; //Immediate here: this is a bulk resync (load/import/reset), not a discrete click, so there's no adjacent focus/live-region announcement to race
         global.lastUpgrade[s][0] = null;
     }
     for (let i = 0; i < global.elementsInfo.firstCost.length; i++) { assignUpgradeCost(i, 4, 'elements'); }
@@ -2084,8 +2085,12 @@ export const updatePlayer = (load: playerType, decode = true): string => {
     global.lastStrangeness = [null, 0];
     global.lastMilestone = [null, 0];
     global.lastChallenge[0] = player.challenges.active !== null ? player.challenges.active : player.darkness.active ? 2 : 1;
+    for (let i = 0; i < global.challengesInfo.length; i++) { getId(`challenge${i + 1}`).ariaCurrent = global.lastChallenge[0] === i ? 'true' : null; }
+    syncChallengeEnterExit();
     global.sessionToggles[0] = player.toggles.supervoid;
     global.sessionToggles[2] = false;
+    getId('voidRewardsHead').ariaPressed = `${global.sessionToggles[0]}`;
+    getId('stabilityRewardsHead').ariaPressed = 'false';
     global.lastInflation = [null, 0];
 
     assignBuildingsProduction.strange1();
