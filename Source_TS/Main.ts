@@ -1470,6 +1470,16 @@ try { //Start everything
             scheduleChallengeRewards();
         };
         image.addEventListener('mouseenter', onRealHover(clickFunc));
+        if (MD) {
+            image.addEventListener('touchstart', clickFunc);
+            //Same TalkBack gap already fixed for every other hover-preview item (milestones,
+            //upgrades, etc.): a plain double-tap never reaches touchstart at all - TalkBack
+            //consumes it for exploration and only synthesizes a click, and only "double-tap and
+            //hold" passes a real touchstart through. Unlike upgrades, there's no purchase here to
+            //guard against (this just selects which tier's reward text to show), so click and
+            //touchstart can both call clickFunc directly with no announce-only distinction needed.
+            if (SR) { image.addEventListener('click', clickFunc); }
+        }
         if (PC || SR) {
             image.addEventListener('focus', () => {
                 if (!global.hotkeys.tab) { return; }
