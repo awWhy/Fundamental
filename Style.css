@@ -1338,8 +1338,8 @@ li .hollowButton {
     border-radius: 10px;
 }
 
-#themeArea > div:focus-within > div { display: flex; }
-#themeArea > div:focus-within > button { clip-path: circle(0); }
+#themeArea > div.open > div { display: flex; }
+#themeArea > div.open > button { clip-path: circle(0); }
 
 #historyMainDiv {
     display: flex;

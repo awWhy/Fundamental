@@ -2302,6 +2302,30 @@ try { //Start everything
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     } {
+        //The theme button list used to reveal purely via CSS :focus-within, which meant it could
+        //never be closed by activating currentTheme a second time - :focus-within stays true as
+        //long as currentTheme itself still has focus, which it does right after that activation.
+        //Tracking "open" as an explicit class instead (toggled here, not by CSS alone) lets a
+        //second Enter/Space/click on currentTheme close the list while focus stays right where the
+        //keyboard user left it, and lets aria-expanded actually reflect real state.
+        const trigger = getId('currentTheme');
+        const wrapper = getQuery('#themeArea > div');
+        const close = () => {
+            wrapper.classList.remove('open');
+            trigger.ariaExpanded = 'false';
+        };
+        trigger.addEventListener('click', () => {
+            const expanding = !wrapper.classList.contains('open');
+            wrapper.classList.toggle('open', expanding);
+            trigger.ariaExpanded = String(expanding);
+        });
+        //Mirrors what :focus-within used to give for free: once focus leaves the whole widget
+        //(clicking away, or tabbing past the last theme button), close it automatically. Picking a
+        //theme moves focus to that button, still inside wrapper, so the list correctly stays open.
+        wrapper.addEventListener('focusout', (event) => {
+            if (!wrapper.contains(event.relatedTarget as Node | null)) { close(); }
+        });
+    } {
         const input = getId('saveFileNameInput') as HTMLInputElement;
         input.addEventListener('focus', () => {
             const window = getId('saveFileNameLabel');
