@@ -341,7 +341,7 @@ export const resetVacuum = (level = 0) => {
         player.strange[0].current = 0;
     }
     if (universes >= 1) {
-        player.strange[0].current += Math.ceil(global.inflationInfo.trueUniverses ** 1.5);
+        player.strange[0].current += Math.ceil(Math.max(global.inflationInfo.trueUniverses, player.verses[0].highest) ** 1.5);
         if (vacuum) { player.strangeness[1][8] = 2; }
     }
     if (universes >= 3) {

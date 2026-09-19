@@ -28,12 +28,12 @@ export const checkTab = (tab: gameTab, subtab = null as null | gameSubtab): bool
 };
 
 export const checkBuilding = (index: number, stageIndex: number): boolean => {
-    if (index < 1 || global.buildingsInfo.maxActive[stageIndex] < index + 1) { return false; }
+    if (global.buildingsInfo.maxActive[stageIndex] < index + 1) { return false; }
 
     if (stageIndex === 1) {
-        return true;
+        return index >= 1;
     } else if (stageIndex === 2) {
-        return true;
+        return index >= 1;
     } else if (stageIndex === 3) {
         if (index === 1) { return (player.inflation.vacuum ? player.buildings[1][1].true : player.accretion.rank) !== 0; }
         if (index === 2) { return player.upgrades[3][2] === 1; }
@@ -308,4 +308,14 @@ export const milestoneCheck = (index: number, stageIndex: number): boolean => {
         (player.tree[0][4] < 1 && pointer.reward[index] < player.time.stage)
     ) { return false; }
     return pointer.need[index].lessOrEqual(pointer.progress[index]());
+};
+
+export const checkTheme = (theme: any): boolean => {
+    if (theme === 2) { return player.progress.main >= 3; }
+    if (theme === 3) { return player.progress.main >= 5; }
+    if (theme === 4) { return player.progress.main >= 7; }
+    if (theme === 5) { return player.progress.main >= 10; }
+    if (theme === 6) { return player.progress.main >= 18; }
+    if (theme === 'Quantum') { return player.progress.quantum === -1; }
+    return theme === null || theme === 1;
 };

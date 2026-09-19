@@ -1560,6 +1560,7 @@ export const visualProgressUnlocks = () => {
     getId('switchTheme4').style.display = highest >= 7 ? '' : 'none';
     getId('switchTheme5').style.display = highest >= 10 ? '' : 'none';
     getId('switchTheme6').style.display = highest >= 18 ? '' : 'none';
+    getId('switchThemeQuantum').style.display = highest >= 20 ? '' : 'none';
     getId('saveFileNameStage').style.display = highest >= 2 ? '' : 'none';
     getId('saveFileNameStrange').style.display = highest >= 17 || (!vacuum && highest >= 11) ? '' : 'none';
     getId('saveFileNameVacuum').style.display = highest >= 15 ? '' : 'none';
