@@ -410,7 +410,12 @@ export const setTheme = (theme?: globalSaveType['theme'], firstLoad = false): vo
         }
         const newThemeId = `switchTheme${theme ?? 0}`;
         getId(newThemeId).style.textDecoration = 'underline';
-        getId('currentTheme').textContent = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
+        const themeName = theme === null ? 'Default' : typeof theme === 'number' ? global.stageInfo.word[theme] : theme;
+        const currentThemeButton = getId('currentTheme');
+        currentThemeButton.textContent = themeName;
+        //The button's own text is just the theme name (e.g. "Default"), which doesn't convey what
+        //focusing it does now that it's a real Tab stop - aria-label states the full purpose.
+        currentThemeButton.ariaLabel = `Current theme: ${themeName}`;
         scheduleAriaCurrent('theme', oldThemeId, newThemeId);
     } else { theme = globalSave.theme; }
 
