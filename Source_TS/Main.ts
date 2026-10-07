@@ -1,6 +1,6 @@
 import { player, global, updatePlayer, prepareVacuum, fillMissingValues, vacuumStart } from './Player';
-import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards } from './Update';
-import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
+import { getUpgradeDescription, switchTab, numbersUpdate, visualUpdate, format, getChallengeDescription, stageUpdate, updateCollapsePoints, getChallengeRewards, scheduleAriaCurrent } from './Update';
+import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyStrangenessMax, buyUpgrades, buyVerse, calculateTreeCost, collapseResetUser, dischargeResetUser, endResetUser, enterExitChallengeUser, inflationRefund, mergeResetUser, nucleationResetUser, rankResetUser, setActiveStage, stageFullReset, stageResetUser, switchStage, syncChallengeEnterExit, syncCreateButton, timeUpdate, toggleChallengeType, vaporizationResetUser } from './Stage';
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness } from './Special';
 import { assignHotkeys, buyAll, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
@@ -409,6 +409,7 @@ export const toggleSwap = (number: number, type: 'buildings' | 'verses' | 'norma
         toggleHTML.style.borderColor = 'forestgreen';
         toggleHTML.textContent = `${extraText}ON`;
     }
+    toggleHTML.setAttribute('aria-pressed', `${toggles[number]}`);
 };
 
 export const toggleConfirm = (number: number, change = false) => {
@@ -424,6 +425,7 @@ export const toggleConfirm = (number: number, change = false) => {
         toggleHTML.style.color = '';
         toggleHTML.style.borderColor = '';
     }
+    toggleHTML.setAttribute('aria-pressed', toggles[number] === 'All' ? 'true' : toggles[number] === 'None' ? 'false' : 'mixed');
 };
 
 const repeatFunction = (repeat: () => any) => {
@@ -450,28 +452,221 @@ const showAndFix = (element: HTMLElement) => {
     }
 };
 
+/** The browser can synthesize a 'mouseenter' for whatever now sits under an unmoved cursor after a layout change (e.g. switching tabs), which would otherwise misreport as the user hovering that item. Wrap a hover callback with this to only let through hovers that follow a genuine, recent pointer movement. */
+let lastRealMouseMove = 0;
+document.addEventListener('mousemove', () => { lastRealMouseMove = Date.now(); }, { passive: true });
+const onRealHover = (callback: () => void) => () => {
+    if (Date.now() - lastRealMouseMove < 100) { callback(); }
+};
+
+/**
+ * Effect/Cost span ids and the cost line's actual visible label, per description-panel type -
+ * every type except milestones (handled separately below) follows this same "Effect: X {label}:
+ * Y" shape, just with different spans/wording. upgrades/researches/researchesExtra/
+ * researchesAuto/ASR all share the same upgradeEffect/upgradeCost spans (one panel, five types).
+ */
+const descriptionSRTextConfig: Partial<Record<Parameters<typeof getUpgradeDescription>[0], { effectId: string, costId: string, costLabel: string }>> = {
+    upgrades: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researches: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researchesExtra: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    researchesAuto: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    ASR: { effectId: 'upgradeEffect', costId: 'upgradeCost', costLabel: 'Next' },
+    elements: { effectId: 'elementEffect', costId: 'elementCost', costLabel: 'Unlock' },
+    strangeness: { effectId: 'strangenessEffect', costId: 'strangenessCost', costLabel: 'Need' },
+    inflation: { effectId: 'inflationEffect', costId: 'inflationCost', costLabel: 'Requirement' }
+};
+
+/**
+ * A screen reader can announce a live-region description update before the newly focused button's
+ * own name if both change in the same tick; delaying the write lets the name announcement land
+ * first. Rescheduled on every call so only the last settled item's description is ever committed.
+ *
+ * 150ms (the original empirical value from this mechanism's initial testing) was narrowed to
+ * 100ms after a real user reported an occasional collision: a fast keyboard user tabbing to the
+ * next item just as the previous item's debounce fired, so the previous item's stale
+ * effect/cost announcement overwrote the new item's own name announcement. There's no published
+ * minimum for this delay - the DOM-mutation-to-announcement pipeline (browser AX scheduling, OS
+ * accessibility API, screen reader speech queue) has no documented timing guarantee either way -
+ * so 100ms is itself empirical, confirmed against real NVDA/JAWS on the strangeness panel before
+ * applying it to every panel type here.
+ *
+ * Rather than the description panel itself being a live region (which ticks also write into,
+ * causing the tick-vs-focus announcement bug that took several failed attempts to properly track
+ * down), this reads back the plain text getUpgradeDescription() just wrote and pushes it once to a
+ * dedicated, tick-free live node (SRDescription) - mirroring how SRMain already announces one-shot
+ * events. numbersUpdate()'s tick-triggered calls never reach this function at all, so there's
+ * nothing for a tick to race. Confirmed against real NVDA on elements/strangeness/milestones
+ * before rolling out to the remaining six types this same way.
+ *
+ * The item's own name/stage is deliberately excluded from this text everywhere - the browser
+ * already announces it via the focused input's own alt attribute, so including it here would read
+ * it twice. Cost/Effect labels ("Effect: ", "Next: ", etc.) are added back explicitly for the
+ * descriptionSRTextConfig-driven types because they're plain sibling text next to the Effect/Cost
+ * spans in the DOM, not part of those spans' own textContent - reading the spans alone silently
+ * drops those words.
+ */
+let silenceNextDescriptionAnnounce = false;
+let silenceNextDescriptionAnnounceTimeout: number | undefined;
+/**
+ * One-shot flag (same shape as markChallengeRewardsSilent) - a purchase's own SRMain message
+ * already conveys the relevant info, so the next scheduled SRDescription write is skipped when
+ * the same gesture also triggered one (MD's touchstart, or PC's hover-to-buy toggle both call
+ * hoverFunc() and clickFunc() together). Confirmed necessary on real TalkBack: unlike NVDA/JAWS,
+ * where the assertive SRMain message appeared to naturally take priority, TalkBack was announcing
+ * both, with the polite SRDescription text landing before the assertive purchase message.
+ * Self-clears shortly after being set so a purchase with no accompanying hover (a plain desktop
+ * click, which never calls scheduleDescriptionUpdate at all) can't leave a stale flag around to
+ * wrongly silence some unrelated, much-later hover.
+ */
+export const markDescriptionSilentOnce = () => {
+    silenceNextDescriptionAnnounce = true;
+    clearTimeout(silenceNextDescriptionAnnounceTimeout);
+    silenceNextDescriptionAnnounceTimeout = setTimeout(() => { silenceNextDescriptionAnnounce = false; }, 200);
+};
+let descriptionUpdateTimeout: number | undefined;
+const scheduleDescriptionUpdate = (type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements' | 'strangeness' | 'milestones' | 'inflation' | 'strangeQuarks' | 'strangelets') => {
+    clearTimeout(descriptionUpdateTimeout);
+    descriptionUpdateTimeout = setTimeout(() => {
+        //strangeQuarks/strangelets have their own visible-text render path (visualUpdate() in
+        //Update.ts, already run synchronously by the caller before this was scheduled) rather
+        //than going through getUpgradeDescription, so skip it for those two.
+        if (type !== 'strangeQuarks' && type !== 'strangelets') {
+            //getUpgradeDescription still runs unconditionally - it updates the ordinary, visible
+            //Effect/Cost text that sighted players see, which should stay current regardless of
+            //whether the SR-only announcement below gets silenced.
+            getUpgradeDescription(type);
+        }
+        if (silenceNextDescriptionAnnounce) {
+            silenceNextDescriptionAnnounce = false;
+            clearTimeout(silenceNextDescriptionAnnounceTimeout);
+            return;
+        }
+        if (type === 'milestones') {
+            //milestonesMultiline is rebuilt as a block of multi-line HTML each render
+            //(Requirement/Time limit/Effect-or-Unlock <p>s, wording varies with vacuum/maxed
+            //state) rather than a fixed set of known spans - so reading the wrapper's own
+            //textContent picks up all its labels for free, in DOM order, without hardcoding label
+            //wording here that could drift from the HTML.
+            getId('SRDescription').textContent = getId('milestonesMultiline').textContent;
+        } else if (type === 'strangeQuarks' || type === 'strangelets') {
+            //Same reasoning as milestones above: strange{0,1}EffectsMain's <li>s are already
+            //full sentences, so read the wrapper directly instead of hardcoding labels here.
+            getId('SRDescription').textContent = getId(type === 'strangeQuarks' ? 'strange0EffectsMain' : 'strange1EffectsMain').textContent;
+        } else {
+            const config = descriptionSRTextConfig[type];
+            const effect = getId(config.effectId).textContent;
+            const cost = getId(config.costId).textContent;
+            getId('SRDescription').textContent = `Effect: ${effect} ${config.costLabel}: ${cost}`;
+        }
+    }, 100);
+};
+
+/** DOM id for an upgrade-family item - used to move aria-current onto whatever's currently selected */
+export const upgradeElementId = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR'): string => {
+    if (type === 'ASR') { return 'ASR'; }
+    if (type === 'researchesAuto') { return `researchAuto${index + 1}`; }
+    if (type === 'researchesExtra') { return `researchExtra${index + 1}`; }
+    if (type === 'researches') { return `research${index + 1}`; }
+    return `upgrade${index + 1}`;
+};
 const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements') => {
     if (type === 'elements') {
         global.lastElement = index;
     } else {
         if ((type === 'upgrades' || type === 'researches' || type === 'researchesExtra') && global[`${type}Info`][player.stage.active].maxActive <= index) { return; }
+        //Only mobile has a separate "select now, Create later" step (desktop clicks buy directly),
+        //so aria-current confirming which item is selected is only meaningful there.
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastUpgrade[player.stage.active];
+            const oldId = previous[0] !== null ? upgradeElementId(previous[0], previous[1]) : null;
+            scheduleAriaCurrent('lastUpgrade', oldId, upgradeElementId(index, type));
+        }
         global.lastUpgrade[player.stage.active] = [index, type];
+        syncCreateButton('upgrade');
     }
-    getUpgradeDescription(type);
+    scheduleDescriptionUpdate(type);
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflation') => {
     if (type === 'inflation') {
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastInflation;
+            const oldId = previous[0] !== null ? `inflation${previous[0] + 1}Tree${previous[1] + 1}` : null;
+            scheduleAriaCurrent('lastInflation', oldId, `inflation${index + 1}Tree${stageIndex + 1}`);
+        }
         global.lastInflation = [index, stageIndex];
+        syncCreateButton('inflation');
     } else if (type === 'strangeness') {
+        if (globalSave.MDSettings[0]) {
+            const previous = global.lastStrangeness;
+            const oldId = previous[0] !== null ? `strange${previous[0] + 1}Stage${previous[1]}` : null;
+            scheduleAriaCurrent('lastStrangeness', oldId, `strange${index + 1}Stage${stageIndex}`);
+        }
         global.lastStrangeness = [index, stageIndex];
+        syncCreateButton('strangeness');
     } else { global.lastMilestone = [index, stageIndex]; }
-    getUpgradeDescription(type);
+    scheduleDescriptionUpdate(type);
 };
-const hoverChallenge = (index: number) => {
+/**
+ * Delays the challenge description panel's refresh (name/effect/time-limit text and the
+ * Enter/Exit button) so it settles at the same ~100ms mark as scheduleAriaCurrent, rather than
+ * showing the newly-current tab's aria-current state a beat before its actual content catches
+ * up. challengeMultiline/challengeTimeLimit are plain content, not a live region (see the
+ * "Revert challenge description live region" commit - they contain live countdowns that made a
+ * live region re-fire every tick), so this delay is purely for visual consistency now, not an
+ * assistive-tech race mitigation.
+ */
+let challengeDescriptionTimeout: number | undefined;
+const scheduleChallengeDescription = () => {
+    clearTimeout(challengeDescriptionTimeout);
+    challengeDescriptionTimeout = setTimeout(() => {
+        getChallengeDescription();
+        syncChallengeEnterExit();
+    }, 100);
+};
+/** Same reasoning as scheduleAriaCurrent/scheduleChallengeDescription: delays the write so it doesn't land in the same instant as the focus/activation event on whichever reward button triggered it. */
+let challengeRewardsTimeout: number | undefined;
+const scheduleChallengeRewards = () => {
+    clearTimeout(challengeRewardsTimeout);
+    challengeRewardsTimeout = setTimeout(getChallengeRewards, 100);
+};
+/**
+ * Called by getChallengeRewards() itself whenever it renders silently (announce = false - see its
+ * own doc comment in Update.ts). Without this, a hover/focus that scheduled a genuine announcement
+ * just before a silent render's own strip-then-restore window opened would still fire inside that
+ * window - the write would land while aria-live is off and, since assignInnerHTML no-ops an
+ * identical later write, never get announced at all. Cancelling it here means that reward simply
+ * gets its content re-read on the next real interaction instead of being silently dropped.
+ */
+export const cancelPendingChallengeRewards = () => { clearTimeout(challengeRewardsTimeout); };
+/**
+ * Same idea as scheduleAriaCurrent, for a single button's own aria-pressed instead of an old/new
+ * pair. Keyed per id for the same reason scheduleAriaCurrent is keyed per group: voidRewardsHead
+ * and stabilityRewardsHead are independent buttons, so a single shared timeout would let clicking
+ * one cancel the other's still-pending aria-pressed write instead of just debouncing repeats of
+ * the same button.
+ */
+const ariaPressedTimeouts: Partial<Record<string, number>> = {};
+const scheduleAriaPressed = (id: string, value: boolean) => {
+    clearTimeout(ariaPressedTimeouts[id]);
+    ariaPressedTimeouts[id] = setTimeout(() => { getId(id).ariaPressed = value ? 'true' : 'false'; }, 100);
+};
+
+/**
+ * Switches which challenge (Void/Vacuum stability/Darkness) the Advanced subtab's shared
+ * description+rewards panel shows. This is a plain, click-only tab switch - like
+ * stageSubtabBtnStructures/stageSubtabBtnAdvanced - not a hover preview and not itself an
+ * enter/exit action; see the challenge1/2/3 click-listener setup below and
+ * syncChallengeEnterExit() in Stage.ts for why those two concerns were split apart.
+ */
+const selectChallenge = (index: number) => {
+    const oldIndex = global.lastChallenge[0];
     global.lastChallenge[0] = index;
-    getChallengeDescription();
-    getChallengeRewards();
+    scheduleAriaCurrent('challenge', `challenge${oldIndex + 1}`, `challenge${index + 1}`);
+    scheduleChallengeDescription();
+    getChallengeRewards(false); //Silent: only voidReward/voidRewardsHead focus should announce the reward block
     visualUpdate();
+    //Deliberately doesn't say "current" - see the SRTab/SRStage rewording commit for why that collides with aria-current's own announcement
+    if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Now viewing ${global.challengesInfo[index].name}, part of Advanced subtab`; }
 };
 /** Creates X automatization Research or switches Stage to from which that Research auto can be created if done from wrong Stage */
 const handleAutoResearchCreation = (index: number) => {
@@ -819,12 +1014,18 @@ try { //Start everything
         global.debug.MDStrangePage = 1;
 
         for (let i = 0; i <= 2; i++) {
+            const main = getId(`reset${i}Main`);
             const arrow = document.createElement('button');
             arrow.innerHTML = '<span class="downArrow"></span>';
             arrow.type = 'button';
-            getId(`reset${i}Main`).append(arrow);
-            arrow.addEventListener('click', () => getId(`reset${i}Main`).classList.toggle('open'));
-            arrow.addEventListener('blur', () => getId(`reset${i}Main`).classList.remove('open'));
+            arrow.setAttribute('aria-label', `${main.getAttribute('aria-label') ?? ''} description`);
+            arrow.setAttribute('aria-expanded', 'false');
+            main.append(arrow);
+            arrow.addEventListener('click', () => arrow.setAttribute('aria-expanded', String(main.classList.toggle('open'))));
+            arrow.addEventListener('blur', () => {
+                main.classList.remove('open');
+                arrow.setAttribute('aria-expanded', 'false');
+            });
         }
         specialHTML.styleSheet.textContent += ` #resets { row-gap: 1em; }
             #resets > section { position: relative; flex-direction: row; justify-content: center; width: unset; padding: unset; row-gap: unset; background-color: unset; border: unset; }
@@ -853,6 +1054,13 @@ try { //Start everything
         specialHTML.styleSheet.textContent += ` #strangenessPages { display: flex; justify-content: center; column-gap: 0.36em; }
             #strangenessPages button { width: 2.08em; height: calc(2.08em - 2px); border-top: none; border-radius: 0 0 4px 4px; }`;
         getId('strangenessResearch').append(pages);
+        //The visible '1'-'6' is a compact label only meant to fit the tiny pagination button, not
+        //an accessible name - each page maps 1:1 to a fixed Stage (global.stageInfo.word), so give
+        //it that Stage's actual name instead, same as stageSwitch's own buttons use for their name
+        for (let s = 1; s <= 6; s++) { getId(`strangenessPage${s}`).ariaLabel = global.stageInfo.word[s]; }
+        //Immediate here: this is init, not a discrete click, so there's no adjacent focus/live-region announcement to race (same reasoning as the stageSwitch/challenge initial sync)
+        getId('strangenessPage1').classList.add('tabActive');
+        getId('strangenessPage1').ariaCurrent = 'true';
         const createStrButton = document.createElement('button');
         createStrButton.className = 'hollowButton';
         createStrButton.textContent = 'Create';
@@ -888,12 +1096,16 @@ try { //Start everything
     if (SR) {
         const message = getId('SRMessage1');
         message.textContent = 'Screen reader support is enabled, disable it if its not required';
-        message.className = 'greenText';
+        //Deliberately left hidden (not reassigning className to 'greenText' as this used to) now
+        //that screen reader support defaults on: investigated whether defaulting it on has any
+        //meaningful visible/behavioral impact on sighted players, and this reveal - a green
+        //banner on the very first screen of a fresh save - was the only thing found. It's also
+        //aria-hidden regardless, so it was never meant for screen reader users either; showing
+        //it to sighted players who never asked about screen reader support isn't worth it.
         message.ariaHidden = 'true';
-        for (let i = 0; i < playerStart.strange.length; i++) { getId(`strange${i}`).tabIndex = 0; }
 
         const SRMainDiv = document.createElement('article');
-        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p>';
+        SRMainDiv.innerHTML = '<h5>Information for the Screen reader</h5><p id="SRTab" aria-live="polite"></p><p id="SRStage" aria-live="polite"></p><p id="SRMain" aria-live="assertive"></p><p id="SRDescription" aria-live="polite"></p>';
         SRMainDiv.className = 'reader';
         getId('fakeFooter').before(SRMainDiv);
 
@@ -1206,11 +1418,16 @@ try { //Start everything
     }
 
     getId('exitFooter').addEventListener('click', () => enterExitChallengeUser(null));
+    //challenge1/2/3 are plain view-selector tabs now (click/Enter/Space only, no hover-preview and no focus auto-switch) - see selectChallenge() above
     for (let i = 0; i < global.challengesInfo.length; i++) {
-        const image = getId(`challenge${i + 1}`);
-        if (!MD) { image.addEventListener('mouseenter', () => hoverChallenge(i)); }
-        image.addEventListener('click', () => { global.lastChallenge[0] === i ? enterExitChallengeUser(i) : hoverChallenge(i); });
+        getId(`challenge${i + 1}`).addEventListener('click', () => selectChallenge(i));
     }
+    //Dedicated Enter/Exit action, decoupled from which challenge is merely being viewed - see syncChallengeEnterExit() in Stage.ts
+    getId('challengeEnterExit').addEventListener('click', () => {
+        enterExitChallengeUser(global.lastChallenge[0]);
+        getChallengeDescription();
+        syncChallengeEnterExit();
+    });
     getId('challengeName').addEventListener('click', () => {
         if (global.lastChallenge[0] === 0) {
             toggleChallengeType(true);
@@ -1238,19 +1455,31 @@ try { //Start everything
     });
     getId('voidRewardsHead').addEventListener('click', () => {
         global.sessionToggles[0] = !global.sessionToggles[0];
-        getChallengeRewards();
+        scheduleAriaPressed('voidRewardsHead', global.sessionToggles[0]);
+        scheduleChallengeRewards();
     });
     getId('stabilityRewardsHead').addEventListener('click', () => {
         global.sessionToggles[2] = !global.sessionToggles[2];
-        getChallengeRewards();
+        scheduleAriaPressed('stabilityRewardsHead', global.sessionToggles[2]);
+        scheduleChallengeRewards();
     });
     for (let s = 1; s <= 5; s++) {
         const image = getId(`voidReward${s}`);
         const clickFunc = () => {
             global.lastChallenge[1] = s;
-            getChallengeRewards();
+            scheduleChallengeRewards();
         };
-        image.addEventListener('mouseenter', clickFunc);
+        image.addEventListener('mouseenter', onRealHover(clickFunc));
+        if (MD) {
+            image.addEventListener('touchstart', clickFunc);
+            //Same TalkBack gap already fixed for every other hover-preview item (milestones,
+            //upgrades, etc.): a plain double-tap never reaches touchstart at all - TalkBack
+            //consumes it for exploration and only synthesizes a click, and only "double-tap and
+            //hold" passes a real touchstart through. Unlike upgrades, there's no purchase here to
+            //guard against (this just selects which tier's reward text to show), so click and
+            //touchstart can both call clickFunc directly with no announce-only distinction needed.
+            if (SR) { image.addEventListener('click', clickFunc); }
+        }
         if (PC || SR) {
             image.addEventListener('focus', () => {
                 if (!global.hotkeys.tab) { return; }
@@ -1265,10 +1494,10 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'upgrades');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'upgrades');
         if (PC) {
-            image.addEventListener('mouseenter', () => {
+            image.addEventListener('mouseenter', onRealHover(() => {
                 hoverFunc();
                 if (player.toggles.hover[0]) { clickFunc(); }
-            });
+            }));
         }
         if (MD) {
             image.addEventListener('touchstart', () => {
@@ -1278,6 +1507,11 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            //TalkBack's plain double-tap never reaches touchstart (it's consumed for exploration/
+            //activation and only a real click is synthesized) - only "double-tap and hold" passes
+            //a real touchstart through. This lets a plain double-tap announce the item without
+            //buying it; buying still only happens via the existing hold gesture above.
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             image.addEventListener('click', clickFunc);
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
@@ -1296,7 +1530,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researches');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'researches');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1309,6 +1543,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1327,7 +1562,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researchesExtra');
         const clickFunc = () => buyUpgrades(i, player.stage.active, 'researchesExtra');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1340,6 +1575,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1358,7 +1594,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(i, 'researchesAuto');
         const clickFunc = () => handleAutoResearchCreation(i);
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { buyUpgrades(i, player.stage.active, 'researchesAuto'); }
             });
@@ -1371,6 +1607,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1388,7 +1625,7 @@ try { //Start everything
         const hoverFunc = () => hoverUpgrades(0, 'ASR');
         const clickFunc = () => buyUpgrades(0, player.stage.active, 'ASR');
         if (PC) {
-            label.addEventListener('mouseenter', hoverFunc);
+            label.addEventListener('mouseenter', onRealHover(hoverFunc));
             image.addEventListener('mouseenter', () => {
                 if (player.toggles.hover[0]) { clickFunc(); }
             });
@@ -1401,6 +1638,7 @@ try { //Start everything
                     repeatFunction(clickFunc);
                 }
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else {
             label.addEventListener('mousedown', () => repeatFunction(clickFunc));
             image.addEventListener('click', clickFunc);
@@ -1479,10 +1717,10 @@ try { //Start everything
         const clickFunc = () => buyUpgrades(i, 4, 'elements');
         const hoverFunc = () => hoverUpgrades(i, 'elements');
         if (PC) {
-            image.addEventListener('mouseenter', () => {
+            image.addEventListener('mouseenter', onRealHover(() => {
                 hoverFunc();
                 if (player.toggles.hover[0]) { clickFunc(); }
-            });
+            }));
             image.addEventListener('mousedown', () => repeatFunction(clickFunc));
         }
         if (MD) {
@@ -1491,6 +1729,7 @@ try { //Start everything
                 if (player.toggles.hover[0]) { clickFunc(); }
                 repeatFunction(clickFunc);
             });
+            if (SR) { image.addEventListener('click', hoverFunc); }
         } else { image.addEventListener('click', clickFunc); }
         if (PC || SR) {
             image.addEventListener('focus', () => {
@@ -1504,13 +1743,19 @@ try { //Start everything
     /* Strangeness tab */
     for (let i = 0; i < playerStart.strange.length; i++) {
         const button = getId(`strange${i}`);
+        //Focus lives on the heading, not the whole card - the popup div is a sibling of the
+        //heading, not a descendant of it, so focusing the heading doesn't also pull the (now
+        //visible) effects list into the same accessible-name/content read as the heading itself,
+        //which was causing NVDA/JAWS to read the effects text once as part of that focus and
+        //again from the debounced SRDescription announcement below.
+        const heading = getQuery(`#strange${i} > h3`);
         const open = (focus = false) => {
             if (player.progress.main < 15 && player.milestones[4][0] < 8) { return; }
             const window = getId(`strange${i}EffectsMain`);
             if (window.dataset.focus === 'true') { return; }
             if (focus) {
                 window.dataset.focus = 'true';
-                button.addEventListener('blur', () => {
+                heading.addEventListener('blur', () => {
                     window.style.display = 'none';
                     window.dataset.focus = '';
                 }, { once: true });
@@ -1523,9 +1768,15 @@ try { //Start everything
             window.style.display = '';
             numbersUpdate();
             visualUpdate();
+            scheduleDescriptionUpdate(i === 0 ? 'strangeQuarks' : 'strangelets');
         };
         button.addEventListener('mouseenter', () => open());
-        if (SR) { button.addEventListener('focus', () => open(true)); }
+        if (PC || SR) {
+            heading.addEventListener('focus', () => {
+                if (!global.hotkeys.tab) { return; }
+                open(true);
+            });
+        }
     }
     for (let s = 1; s < playerStart.strangeness.length; s++) {
         if (MD) { getId(`strangenessPage${s}`).addEventListener('click', () => MDStrangenessPage(s)); }
@@ -1536,7 +1787,7 @@ try { //Start everything
             const hoverFunc = () => hoverStrangeness(i, s, 'strangeness');
             const clickFunc = () => buyStrangenessMax(i, s, 'strangeness');
             if (PC) {
-                label.addEventListener('mouseenter', hoverFunc);
+                label.addEventListener('mouseenter', onRealHover(hoverFunc));
                 image.addEventListener('mouseenter', () => {
                     if (player.toggles.hover[1]) { clickFunc(); }
                 });
@@ -1549,6 +1800,7 @@ try { //Start everything
                         repeatFunction(clickFunc);
                     }
                 });
+                if (SR) { image.addEventListener('click', hoverFunc); }
             } else {
                 label.addEventListener('mousedown', () => repeatFunction(clickFunc));
                 image.addEventListener('click', clickFunc);
@@ -1588,8 +1840,11 @@ try { //Start everything
             const image = getQuery(`#milestone${i + 1}Stage${s}Div > input`) as HTMLInputElement;
             image.alt = global.milestonesInfo[s].name[i];
             const hoverFunc = () => hoverStrangeness(i, s, 'milestones');
-            if (PC) { image.addEventListener('mouseenter', hoverFunc); }
-            if (MD) { image.addEventListener('touchstart', hoverFunc); }
+            if (PC) { image.addEventListener('mouseenter', onRealHover(hoverFunc)); }
+            if (MD) {
+                image.addEventListener('touchstart', hoverFunc);
+                if (SR) { image.addEventListener('click', hoverFunc); }
+            }
             if (PC || SR) {
                 image.addEventListener('focus', () => {
                     if (!global.hotkeys.tab) { return; }
@@ -1608,7 +1863,7 @@ try { //Start everything
             const hoverFunc = () => hoverStrangeness(i, s, 'inflation');
             const clickFunc = () => buyStrangenessMax(i, s, 'inflation');
             if (PC) {
-                label.addEventListener('mouseenter', hoverFunc);
+                label.addEventListener('mouseenter', onRealHover(hoverFunc));
                 image.addEventListener('mouseenter', () => {
                     if (player.toggles.hover[2]) { clickFunc(); }
                 });
@@ -1621,6 +1876,7 @@ try { //Start everything
                         repeatFunction(clickFunc);
                     }
                 });
+                if (SR) { image.addEventListener('click', hoverFunc); }
             } else {
                 label.addEventListener('mousedown', () => repeatFunction(clickFunc));
                 image.addEventListener('click', clickFunc);
@@ -2056,6 +2312,30 @@ try { //Start everything
     for (let i = 1; i < global.stageInfo.word.length; i++) {
         getId(`switchTheme${i}`).addEventListener('click', () => setTheme(i));
     } {
+        //The theme button list used to reveal purely via CSS :focus-within, which meant it could
+        //never be closed by activating currentTheme a second time - :focus-within stays true as
+        //long as currentTheme itself still has focus, which it does right after that activation.
+        //Tracking "open" as an explicit class instead (toggled here, not by CSS alone) lets a
+        //second Enter/Space/click on currentTheme close the list while focus stays right where the
+        //keyboard user left it, and lets aria-expanded actually reflect real state.
+        const trigger = getId('currentTheme');
+        const wrapper = getQuery('#themeArea > div');
+        const close = () => {
+            wrapper.classList.remove('open');
+            trigger.ariaExpanded = 'false';
+        };
+        trigger.addEventListener('click', () => {
+            const expanding = !wrapper.classList.contains('open');
+            wrapper.classList.toggle('open', expanding);
+            trigger.ariaExpanded = String(expanding);
+        });
+        //Mirrors what :focus-within used to give for free: once focus leaves the whole widget
+        //(clicking away, or tabbing past the last theme button), close it automatically. Picking a
+        //theme moves focus to that button, still inside wrapper, so the list correctly stays open.
+        wrapper.addEventListener('focusout', (event) => {
+            if (!wrapper.contains(event.relatedTarget as Node | null)) { close(); }
+        });
+    } {
         const input = getId('saveFileNameInput') as HTMLInputElement;
         input.addEventListener('focus', () => {
             const window = getId('saveFileNameLabel');
@@ -2120,11 +2400,24 @@ try { //Start everything
     getId('SRToggle0').addEventListener('click', () => toggleSpecial(0, 'reader', true, true));
     getId('pauseButton').addEventListener('click', pauseGameUser);
     getId('reviewEvents').addEventListener('click', replayEvent);
-    getId('fullscreenButton').addEventListener('click', () => {
-        if (document.fullscreenElement === null) {
-            void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
-        } else { void document.exitFullscreen(); }
-    });
+    {
+        const button = getId('fullscreenButton');
+        const syncFullscreenButton = (announce: boolean) => {
+            const active = document.fullscreenElement !== null;
+            button.setAttribute('aria-pressed', `${active}`);
+            button.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
+            button.style.color = active ? 'var(--green-text)' : '';
+            button.style.borderColor = active ? 'forestgreen' : '';
+            if (announce && globalSave.SRSettings[0]) { getId('SRMain').textContent = active ? 'Entered fullscreen' : 'Exited fullscreen'; }
+        };
+        document.addEventListener('fullscreenchange', () => syncFullscreenButton(true));
+        syncFullscreenButton(false);
+        button.addEventListener('click', () => {
+            if (document.fullscreenElement === null) {
+                void document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+            } else { void document.exitFullscreen(); }
+        });
+    }
     {
         const button = getId('warpButton');
         button.addEventListener('click', offlineWarp);
@@ -2222,6 +2515,7 @@ try { //Start everything
             globalSave.theme = null;
         } else {
             getId('switchTheme0').style.textDecoration = '';
+            getId('switchTheme0').ariaCurrent = null;
             setTheme(globalSave.theme, true);
         }
     }

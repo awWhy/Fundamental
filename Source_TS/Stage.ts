@@ -1,11 +1,11 @@
 import { allowedToEnter, checkBuilding, checkUpgrade, checkVerse, milestoneCheck, stageResetType } from './Check';
 import Overlimit, { compareFunc } from './Limit';
-import { cloneArray, getId, loadoutsFinal, playerStart, simulateOffline } from './Main';
+import { cloneArray, getId, loadoutsFinal, markDescriptionSilentOnce, playerStart, simulateOffline } from './Main';
 import { effectsCache, global, player, prepareVacuum } from './Player';
 import { cloneBeforeReset, loadFromClone, reset, resetStage, resetVacuum } from './Reset';
 import { Confirm, Notify, enterQuantum, enterUltravoid, errorNotify, globalSave, specialHTML } from './Special';
 import type { calculateEffectsType } from './Types';
-import { format, numbersUpdate, stageUpdate, switchTab, visualUpdate } from './Update';
+import { format, markChallengeRewardsSilent, numbersUpdate, scheduleAriaCurrent, stageUpdate, switchTab, visualUpdate } from './Update';
 
 /** Normal game tick, everything calculated in milliseconds */
 export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
@@ -1014,7 +1014,7 @@ export const assignResetInformation = {
     }
 };
 
-export const buyBuilding = (index: number, stageIndex: number, howMany = player.toggles.shop.input, auto = false) => {
+export const buyBuilding = (index: number, stageIndex: number, howMany = player.toggles.shop.input, auto = false, bulkGroup?: string) => {
     if (!checkBuilding(index, stageIndex)) { return; }
     const building = player.buildings[stageIndex][index as 1];
 
@@ -1124,7 +1124,13 @@ export const buyBuilding = (index: number, stageIndex: number, howMany = player.
 
         if (!auto) {
             numbersUpdate();
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Made ${format(afford)} '${global.buildingsInfo.name[stageIndex][index]}'`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `building-${stageIndex}-${index}`, global.buildingsInfo.name[stageIndex][index], afford, false, false);
+                } else {
+                    getId('SRMain').textContent = `Made ${format(afford)} '${global.buildingsInfo.name[stageIndex][index]}'`;
+                }
+            }
         }
     } else if (stageIndex === 5 && index === 3) {
         global.mergeInfo.galaxies += afford;
@@ -1325,7 +1331,7 @@ const gainStrange = (get: 0 | 1, time: number) => {
     assignBuildingsProduction[`strange${get}`]();
 };
 
-export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false): boolean => {
+export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades' | 'researches' | 'researchesExtra' | 'researchesAuto' | 'ASR' | 'elements', auto = false, dryRun = false, bulkGroup?: string): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; } //Auto should had already checked
 
     let free = false;
@@ -1351,6 +1357,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         const pointer = global.upgradesInfo[stageIndex];
 
         if (player.upgrades[stageIndex][upgrade] === 1 || currency.lessThan(pointer.cost[upgrade])) { return false; }
+        if (dryRun) { return true; }
         player.upgrades[stageIndex][upgrade] = 1;
         if (!free) { currency.minus(pointer.cost[upgrade]); }
 
@@ -1364,7 +1371,14 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         } else if (stageIndex === 4 && upgrade === 1 && global.tabs.current === 'upgrade') { switchTab(); }
         if (!auto) {
             global.automatization.autoU[stageIndex] = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkOneOff(bulkGroup, `upgrades-${stageIndex}-${upgrade}`, pointer.name[upgrade]);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `New Upgrade '${pointer.name[upgrade]}', has been created`;
+                }
+            }
         }
     } else if (type === 'researches' || type === 'researchesExtra') {
         const pointer = global[`${type}Info`][stageIndex];
@@ -1374,6 +1388,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         if (tillMax <= 0) { return false; }
         let cost = pointer.cost[upgrade];
         if (currency.lessThan(cost)) { return false; }
+        if (dryRun) { return true; }
 
         let newLevels = 1;
         if (tillMax > 1 && (auto || (player.toggles.max[0] !== global.hotkeys.shift))) {
@@ -1458,7 +1473,14 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         assignUpgradeCost(upgrade, stageIndex, type);
         if (!auto) {
             global.automatization[type === 'researches' ? 'autoR' : 'autoE'][stageIndex] = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `${type}-${stageIndex}-${upgrade}`, pointer.name[upgrade], level[upgrade], level[upgrade] >= pointer.max[upgrade], true);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${pointer.name[upgrade]}' ${type === 'researches' ? 'Stage' : specialHTML.researchExtraDivHTML[player.stage.active]} Research`;
+                }
+            }
         }
     } else if (type === 'researchesAuto' || type === 'ASR') {
         if (type === 'ASR') { upgrade = stageIndex; }
@@ -1480,6 +1502,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
         }
         const cost = pointer.costRange[upgrade][Math.max(effective, 0)];
         if (currency.lessThan(cost)) { return false; }
+        if (dryRun) { return true; }
 
         level[upgrade]++;
         if (!free) { currency.minus(cost); }
@@ -1498,7 +1521,14 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                 }
             }
         }
-        if (!auto && globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`; }
+        if (!auto && globalSave.SRSettings[0]) {
+            if (bulkGroup !== undefined) {
+                recordBulkQuantity(bulkGroup, `${type}-${upgrade}`, type === 'ASR' ? pointer.name : pointer.name[upgrade], level[upgrade], level[upgrade] >= pointer.max[upgrade], true);
+            } else {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `Level increased ${level[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(level[upgrade])} for the '${type === 'ASR' ? pointer.name : pointer.name[upgrade]}' automatization Research`;
+            }
+        }
     } else if (type === 'elements') {
         let level = player.elements[upgrade];
 
@@ -1537,7 +1567,14 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
                 assignMaxLevel(5, 4, 'researches', true);
             }
         }
-        if (!auto && globalSave.SRSettings[0]) { getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`; }
+        if (!auto && globalSave.SRSettings[0]) {
+            if (bulkGroup !== undefined) {
+                recordBulkElement(bulkGroup, `elements-${upgrade}`, global.elementsInfo.name[upgrade], player.elements[upgrade] < 1);
+            } else {
+                markDescriptionSilentOnce();
+                getId('SRMain').textContent = `New Element '${global.elementsInfo.name[upgrade]}' ${player.elements[upgrade] >= 1 ? 'obtained' : 'awaiting activation'}`;
+            }
+        }
     }
 
     if (!free) {
@@ -1565,7 +1602,7 @@ export const buyUpgrades = (upgrade: number, stageIndex: number, type: 'upgrades
     return true;
 };
 
-export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false): boolean => {
+export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', auto = false, dryRun = false, bulkGroup?: string): boolean => {
     if (!auto && !checkUpgrade(upgrade, stageIndex, type)) { return false; }
 
     if (type === 'strangeness') {
@@ -1573,6 +1610,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         const strangeness = player.strangeness[stageIndex];
 
         if (strangeness[upgrade] >= pointer.max[upgrade] || player.strange[0].current < pointer.cost[upgrade]) { return false; }
+        if (dryRun) { return true; }
         strangeness[upgrade]++;
         player.strange[0].current -= pointer.cost[upgrade];
 
@@ -1743,7 +1781,14 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         if (player.verses[0].current < 13) { assignBuildingsProduction.strange0(); }
         if (!auto) {
             global.automatization.autoS = [];
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `strangeness-${stageIndex}-${upgrade}`, pointer.name[upgrade], strangeness[upgrade], strangeness[upgrade] >= pointer.max[upgrade], true);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${strangeness[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(strangeness[upgrade])} for the '${pointer.name[upgrade]}' ${global.stageInfo.word[stageIndex]} Strangeness`;
+                }
+            }
         }
     } else if (type === 'inflation') {
         const pointer = global.treeInfo[stageIndex];
@@ -1751,6 +1796,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         const currency = player.cosmon[stageIndex];
 
         if (tree[upgrade] >= pointer.max[upgrade] || currency.current < pointer.cost[upgrade]) { return false; }
+        if (dryRun) { return true; }
         tree[upgrade]++;
         currency.current -= pointer.cost[upgrade];
 
@@ -1810,7 +1856,14 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
         }
         assignUpgradeCost(upgrade, stageIndex, 'inflation');
         if (!auto) {
-            if (globalSave.SRSettings[0]) { getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`; }
+            if (globalSave.SRSettings[0]) {
+                if (bulkGroup !== undefined) {
+                    recordBulkQuantity(bulkGroup, `inflation-${stageIndex}-${upgrade}`, pointer.name[upgrade], tree[upgrade], tree[upgrade] >= pointer.max[upgrade], true);
+                } else {
+                    markDescriptionSilentOnce();
+                    getId('SRMain').textContent = `Level increased ${tree[upgrade] >= pointer.max[upgrade] ? 'and maxed at' : 'to'} ${format(tree[upgrade])} for the '${pointer.name[upgrade]}' Inflation`;
+                }
+            }
         }
     }
 
@@ -1819,9 +1872,9 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
 };
 
 /** User only, lazy way to remove extra checks from auto */
-export const buyStrangenessMax = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation') => {
+export const buyStrangenessMax = (upgrade: number, stageIndex: number, type: 'strangeness' | 'inflation', bulkGroup?: string) => {
     const max = player.toggles.max[type === 'strangeness' ? 1 : 2] !== global.hotkeys.shift;
-    while (buyStrangeness(upgrade, stageIndex, type) && max) { continue; }
+    while (buyStrangeness(upgrade, stageIndex, type, false, false, bulkGroup) && max) { continue; }
 };
 
 /** Returns true if refund successfull or nothing to refund */
@@ -2645,6 +2698,7 @@ export const switchStage = (stage: number, active = stage) => {
         if (player.stage.active === stage && global.trueActive !== stage) {
             global.trueActive = stage;
             getId(`stageSwitch${stage}`).style.textDecoration = 'underline';
+            getId(`stageSwitch${stage}`).ariaCurrent = 'true';
         }
         visualUpdate();
         numbersUpdate();
@@ -2657,7 +2711,8 @@ export const switchStage = (stage: number, active = stage) => {
 
 /** Doesn't check for Stage being unlocked, requires stageUpdate() call afterwards */
 export const setActiveStage = (stage: number, active = stage) => {
-    if (!global.offline.active) { getId(`stageSwitch${player.stage.active}`).style.textDecoration = ''; }
+    const oldStageBtnId = `stageSwitch${player.stage.active}`;
+    if (!global.offline.active) { getId(oldStageBtnId).style.textDecoration = ''; }
     player.stage.active = stage;
     global.trueActive = active;
     if (global.offline.active) {
@@ -2665,6 +2720,7 @@ export const setActiveStage = (stage: number, active = stage) => {
         return;
     }
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
+    scheduleAriaCurrent('stage', oldStageBtnId, `stageSwitch${stage}`);
 
     if (global.tabs.current === 'upgrade') {
         if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades'); }
@@ -3251,14 +3307,26 @@ export const toggleChallengeType = (change = false): boolean => {
     const info = global.challengesInfo[0];
     info.name = player.toggles.supervoid ? 'Supervoid' : 'Void';
     info.resetType = player.toggles.supervoid ? 'vacuum' : 'stage';
+    getId('voidSwitchFall').ariaPressed = `${player.toggles.supervoid}`;
+    if (global.lastChallenge[0] === 0) { getId('challengeName').ariaPressed = `${player.toggles.supervoid}`; }
     if (change) {
         assignChallengeInformation(0);
         if (reEnter) {
             enterExitChallengeUser(0);
             if (player.challenges.active !== 0) { Notify(`Failed to re-enter '${info.name}'`); }
         }
+        //Void and Supervoid have different reward sets, so the numbersUpdate() call right below
+        //would otherwise announce that change and bury the Notify above under a reward-block
+        //announcement - see markChallengeRewardsSilent's doc comment for why this is a one-shot
+        //flag consumed by that same call rather than a separate render here
+        if (global.lastChallenge[0] === 0) { markChallengeRewardsSilent(); }
         numbersUpdate();
         visualUpdate();
+        //Flipping Void<->Supervoid changes allowedToEnter(0)'s result, so the dedicated Enter/Exit
+        //button needs refreshing even when this didn't go through enterExitChallengeUser/
+        //challengeReset (those already call this themselves) - e.g. toggling while not currently
+        //inside challenge 0, whether via challengeName, voidSwitchFall, or the Shift+S hotkey
+        syncChallengeEnterExit();
     }
     return true;
 };
@@ -3414,6 +3482,252 @@ export const prepareDarkness = (enterExit = false as boolean | null, fullReset =
     }
 };
 
+/**
+ * Human-readable reason `index` can't be entered right now, or null if it currently can be.
+ * Deliberately does NOT duplicate allowedToEnter()'s conditions - it's called only after
+ * allowedToEnter() has already returned false, and only has to explain the branch that's
+ * actually reachable at that point in the UI (see the comments below for what's excluded, and
+ * why). If allowedToEnter() ever grows a new failure case, this needs a matching branch or it
+ * will fall through to the generic message.
+ */
+const challengeUnavailableReason = (index: number): string => {
+    if (index === 0) {
+        //allowedToEnter(0) also requires progress.main >= 17, but challenge1 itself stays
+        //hidden (Update.ts) until that same threshold, so by the time this button is reachable
+        //the only way to still fail is the Vacuum/Supervoid half of the condition
+        return 'False Vacuum';
+    }
+    if (index === 2) {
+        //Same reasoning as index 0: allowedToEnter(2)'s only practically-reachable failure once
+        //challenge3 is visible is the Strangeness requirement - phrasing matches the existing
+        //hint for this exact requirement elsewhere (Player.ts, Abyss automatization description)
+        return `Requires '${global.strangenessInfo[6].name[3]}' Strangeness`;
+    }
+    //index 1 (Vacuum stability) has no reachable failure case: allowedToEnter(1) and the
+    //panel's own unlock check are the same threshold (progress.main >= 22), so the panel is
+    //hidden entirely below it and always enterable once shown. This fallback exists only so a
+    //future change to either condition fails loud (a vague label) instead of silently wrong.
+    return 'not currently possible';
+};
+
+/**
+ * Keeps the dedicated Enter/Exit button (#challengeEnterExit) in sync with whether the
+ * challenge currently shown in the Advanced subtab's panel (global.lastChallenge[0]) is the
+ * one actually active, reading ground truth directly rather than tracking transitions.
+ *
+ * This button exists to separate two previously-conflated ideas:
+ *   - "which challenge is being VIEWED" (challenge1/2/3, now plain click-to-switch tabs, see
+ *     selectChallenge() in Main.ts and the aria-current wiring there)
+ *   - "is the VIEWED challenge actually ENTERED" (this button, aria-pressed + Enter/Exit text)
+ * Previously challenge1/2/3 did both jobs on the same element (hover/focus to preview, click
+ * again while already previewed to enter/exit), which is exactly the ambiguity a keyboard or
+ * screen reader user can't resolve without already knowing the convention. Splitting it into a
+ * view-selector (plain tab semantics) and a separate, always-explicit action button removes
+ * that ambiguity for every user, not just assistive-tech ones - see the tab-bar redesign commit
+ * for the fuller rationale.
+ *
+ * Also disables the button (with an "Unavailable: <reason>" label) when the viewed challenge
+ * isn't currently active AND allowedToEnter() says it can't be entered - previously clicking
+ * Enter in that state was a silent no-op with no feedback at all (true for both the old
+ * click-again-to-enter icon and this button, until now). Exiting is never gated this way:
+ * allowedToEnter() only governs entry, so an active challenge can always be exited.
+ *
+ * Called after any state-changing action (enterExitChallengeUser, challengeReset - which also
+ * covers the automatic time-limit exit) and whenever the viewed challenge changes
+ * (selectChallenge), so it can never drift out of sync with either dimension.
+ */
+export const syncChallengeEnterExit = () => {
+    const index = global.lastChallenge[0];
+    const isActive = index === 2 ? player.darkness.active : player.challenges.active === index;
+    const button = getId('challengeEnterExit') as HTMLButtonElement;
+    if (isActive) {
+        button.textContent = 'Exit';
+        button.disabled = false;
+    } else if (allowedToEnter(index)) {
+        button.textContent = 'Enter';
+        button.disabled = false;
+    } else {
+        button.textContent = `Unavailable: ${challengeUnavailableReason(index)}`;
+        button.disabled = true;
+    }
+    button.ariaPressed = isActive ? 'true' : 'false';
+};
+
+/**
+ * Mobile-only: the separate Create/Activate button (acts on whatever's currently selected via
+ * hoverUpgrades/hoverStrangeness, since mobile's tap-to-select-then-Create flow is a distinct
+ * step from purchasing, unlike desktop's direct click-to-buy) previously stayed enabled and
+ * silently did nothing when nothing was selected or the selected item couldn't be afforded.
+ * Mirrors syncChallengeEnterExit's existing "disable with a stated reason" pattern instead of
+ * adding a separate notification - the reason is already spoken the moment TalkBack reaches the
+ * button, no press needed to find out. dryRun reuses buyUpgrades/buyStrangeness's own real
+ * affordability check rather than duplicating it, so this can never drift out of sync with what
+ * an actual purchase attempt would do.
+ *
+ * Called whenever selection changes (hoverUpgrades/hoverStrangeness in Main.ts) and once per tick
+ * (numbersUpdate), so affordability updates as currency accumulates even without a new selection.
+ */
+type BulkQuantityEntry = { name: string, amount: number, maxed: boolean };
+type BulkSession = { quantities: Map<string, BulkQuantityEntry>, oneOffs: Map<string, string>, elements: Map<string, string>, elementsAwaiting: boolean, timeout: number | undefined };
+const bulkSessions: Partial<Record<string, BulkSession>> = {};
+const getBulkSession = (bulkGroup: string): BulkSession => {
+    let session = bulkSessions[bulkGroup];
+    if (session === undefined) {
+        session = { quantities: new Map(), oneOffs: new Map(), elements: new Map(), elementsAwaiting: false, timeout: undefined };
+        bulkSessions[bulkGroup] = session;
+    }
+    return session;
+};
+const joinList = (parts: string[]): string => {
+    if (parts.length <= 1) { return parts[0] ?? ''; }
+    return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+};
+const bulkFlushWording: Partial<Record<string, { quantityVerb: string, nothing: string, quantityStyle: 'level' | 'count' }>> = {
+    createAll: { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' },
+    strangenessAll: { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' },
+    buyAll: { quantityVerb: 'Made', nothing: 'Nothing to make', quantityStyle: 'count' }
+};
+const flushBulkSession = (bulkGroup: string) => {
+    const session = bulkSessions[bulkGroup];
+    if (session === undefined) { return; }
+    delete bulkSessions[bulkGroup];
+    if (!globalSave.SRSettings[0]) { return; }
+
+    const wording = bulkFlushWording[bulkGroup] ?? { quantityVerb: 'Leveled', nothing: 'Nothing to create', quantityStyle: 'level' as const };
+    //"level" items (researches and friends, strangeness, inflation) report the absolute level
+    //they ended up at - "name to N", or "name to max" once capped, matching how a single
+    //purchase's own message already phrases it ("Level increased to N"/"and maxed at N"). "count"
+    //items (buildings) have no level/cap concept, so they keep the amount-first phrasing instead.
+    const quantityParts = Array.from(session.quantities.values()).map(({ name, amount, maxed }) =>
+        wording.quantityStyle === 'level' ? `${name} to ${maxed ? 'max' : format(amount)}` : `${format(amount)} ${name}${maxed ? ' (maxed)' : ''}`);
+    const oneOffParts = Array.from(session.oneOffs.values());
+    const elementParts = Array.from(session.elements.values());
+
+    if (quantityParts.length === 0 && oneOffParts.length === 0 && elementParts.length === 0) {
+        //Nothing was actually bought this session, so there's no purchase-precedence reason to
+        //silence a pending, unrelated description announcement the way a real purchase does -
+        //see markDescriptionSilentOnce's own doc comment for the precedence case this exists for.
+        getId('SRMain').textContent = wording.nothing;
+        return;
+    }
+    markDescriptionSilentOnce();
+    const sentences: string[] = [];
+    if (quantityParts.length > 0) { sentences.push(`${wording.quantityVerb} ${joinList(quantityParts)}`); }
+    if (oneOffParts.length > 0) { sentences.push(`Created ${joinList(oneOffParts)}`); }
+    //Whether Elements land as obtained or awaiting activation depends on a single game-wide
+    //condition (Element automatization), never a per-element one - every Element touched in the
+    //same bulk purchase always ends up in the same state, so this is said once for the whole
+    //list rather than repeated on each item.
+    if (elementParts.length > 0) { sentences.push(`Obtained ${joinList(elementParts)}${session.elementsAwaiting ? ' (awaiting activation)' : ''}`); }
+    getId('SRMain').textContent = `${sentences.join('. ')}.`;
+};
+const scheduleBulkFlush = (bulkGroup: string) => {
+    const session = bulkSessions[bulkGroup];
+    if (session === undefined) { return; }
+    clearTimeout(session.timeout);
+    session.timeout = setTimeout(() => flushBulkSession(bulkGroup), 250);
+};
+/**
+ * Called once at the very start of each "all" action (buyAll/createAll/strangenessAll), before
+ * any purchase is attempted - ensures a session exists and a flush is scheduled even if this
+ * particular press ends up buying nothing at all (e.g. everything already maxed, or nothing
+ * currently affordable). Without this, a press/hold that never reaches a single successful
+ * purchase would never create a session at all, and "Nothing to create" would silently never
+ * fire - the same silent-no-op this whole feature exists to avoid.
+ */
+export const beginBulkPurchase = (bulkGroup: string) => {
+    getBulkSession(bulkGroup);
+    scheduleBulkFlush(bulkGroup);
+};
+/**
+ * "Create all"/"Make all" (Upgrades, Strangeness, Structures) loop through every purchasable item,
+ * and each individual purchase would otherwise write its own SRMain message - fine for a single
+ * item, but these buttons are also held-to-repeat at 20 times a second (repeatFunction, 50ms), so
+ * a naive per-item announcement turns into a flood while held. A purchase made with a bulkGroup
+ * (a name unique per "all" button) is recorded here instead of announced immediately; a single
+ * combined summary is spoken once activity actually settles, collapsing an entire press-and-hold
+ * into one announcement no matter how many individual purchases happened inside it - the same
+ * "debounce a noisy stream into one clean signal" idea already used for
+ * scheduleDescriptionUpdate/scheduleAriaCurrent, just applied to an announcement instead of a
+ * DOM write.
+ *
+ * Quantity items come in two shapes, and each bulk group is uniformly one or the other (buyAll
+ * only ever touches buildings, createAll/strangenessAll only ever touch leveled items - never
+ * mixed within one group), so the shape is a per-group setting (bulkFlushWording's
+ * quantityStyle), not tracked per item:
+ * - "count" (buildings): each call reports how many were bought *in that call*, not a running
+ *   total, so these are summed across every call in the burst - a single message like "Made X"
+ *   would only reflect whichever call happened to run last, not the true total gained across a
+ *   long, uneven hold (e.g. Structures ramping up then trickling down as currency use rebalances).
+ * - "level" (researches/researchesExtra/researchesAuto/ASR/strangeness/inflation): each call
+ *   already reports the item's new absolute level, so summing would be wrong (double-counts
+ *   levels the item already had before this burst) - the latest call's value is kept as-is
+ *   instead, taking whichever level the item settles at once activity stops.
+ * Whether an item is now maxed is re-checked at flush time from its final state, not tracked
+ * historically. An item that's never actually bought is never added to the map at all -
+ * deliberately no "bought 0" entries.
+ */
+const recordBulkQuantity = (bulkGroup: string, key: string, name: string, amount: number, maxed: boolean, absolute: boolean) => {
+    if (amount <= 0) { return; }
+    const session = getBulkSession(bulkGroup);
+    const existing = session.quantities.get(key);
+    if (existing !== undefined) {
+        existing.amount = absolute ? amount : existing.amount + amount;
+        existing.maxed = maxed;
+    } else {
+        session.quantities.set(key, { name, amount, maxed });
+    }
+    scheduleBulkFlush(bulkGroup);
+};
+const recordBulkOneOff = (bulkGroup: string, key: string, name: string) => {
+    getBulkSession(bulkGroup).oneOffs.set(key, name);
+    scheduleBulkFlush(bulkGroup);
+};
+const recordBulkElement = (bulkGroup: string, key: string, name: string, awaiting: boolean) => {
+    const session = getBulkSession(bulkGroup);
+    session.elements.set(key, name);
+    session.elementsAwaiting = awaiting;
+    scheduleBulkFlush(bulkGroup);
+};
+
+export const syncCreateButton = (kind: 'upgrade' | 'strangeness' | 'inflation') => {
+    if (!globalSave.MDSettings[0]) { return; }
+    let index: number | null;
+    let ready: boolean;
+    let buttonId: string;
+    let readyText: string;
+    if (kind === 'upgrade') {
+        const [selected, type] = global.lastUpgrade[player.stage.active];
+        index = selected;
+        ready = index !== null && buyUpgrades(index, player.stage.active, type, false, true);
+        buttonId = 'upgradeCreate';
+        readyText = 'Create';
+    } else if (kind === 'strangeness') {
+        const [selected, stageIndex] = global.lastStrangeness;
+        index = selected;
+        ready = index !== null && buyStrangeness(index, stageIndex, 'strangeness', false, true);
+        buttonId = 'strangenessCreate';
+        readyText = 'Create';
+    } else {
+        const [selected, stageIndex] = global.lastInflation;
+        index = selected;
+        ready = index !== null && buyStrangeness(index, stageIndex, 'inflation', false, true);
+        buttonId = 'inflationActivate';
+        readyText = 'Activate';
+    }
+    const button = getId(buttonId) as HTMLButtonElement;
+    if (index === null) {
+        button.textContent = 'Nothing selected';
+        button.disabled = true;
+    } else if (!ready) {
+        button.textContent = "Can't afford";
+        button.disabled = true;
+    } else {
+        button.textContent = readyText;
+        button.disabled = false;
+    }
+};
+
 /** Null means exit if possible, nothing if isn't. Entering same challenge will exit out of it */
 export const enterExitChallengeUser = (index: number | null) => {
     const old = index === 2 && player.darkness.active ? 2 : player.challenges.active;
@@ -3445,6 +3759,7 @@ export const enterExitChallengeUser = (index: number | null) => {
             Notify(`Entered the ${global.challengesInfo[index].name}`);
         }
     }
+    syncChallengeEnterExit();
 };
 const exitChallengeAuto = () => {
     const old = player.challenges.active;
@@ -3494,4 +3809,5 @@ const challengeReset = (next = null as number | null) => {
             }
         }
     }
+    syncChallengeEnterExit();
 };
