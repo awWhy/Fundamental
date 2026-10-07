@@ -1841,7 +1841,7 @@ export const buyStrangeness = (upgrade: number, stageIndex: number, type: 'stran
                 }
             }
         } else if (stageIndex === 1) {
-            assignMaxLevel(3, 1, 'inflation', !auto || upgrade !== 3);
+            assignMaxLevel(2, 1, 'inflation', !auto || upgrade !== 2);
 
             if (upgrade === 5) {
                 assignMaxLevel(0, 2, 'researchesExtra', true);
