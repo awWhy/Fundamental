@@ -794,6 +794,7 @@ input:-webkit-autofill { /* Chrome related pain */
     padding-left: calc(3px + 0.25em);
     padding-right: 0.25em;
     background-color: var(--background-color);
+    color: var(--white-text);
     margin-left: -3px;
     height: 32px;
     pointer-events: none;
