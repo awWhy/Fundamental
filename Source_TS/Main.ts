@@ -458,6 +458,10 @@ const hoverUpgrades = (index: number, type: 'upgrades' | 'researches' | 'researc
         global.lastUpgrade[player.stage.active] = [index, type];
     }
     getUpgradeDescription(type);
+    if (globalSave.SRSettings[0]) {
+        const htmlType = type === 'elements' ? 'element' : 'upgrade';
+        getId('SRMain').textContent = `${getId(`${htmlType}Text`).textContent}\n${getId(`${htmlType}Effect`).textContent}\n${getId(`${htmlType}Cost`).textContent}`;
+    }
 };
 const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness' | 'milestones' | 'inflation') => {
     if (type === 'inflation') {
@@ -466,6 +470,10 @@ const hoverStrangeness = (index: number, stageIndex: number, type: 'strangeness'
         global.lastStrangeness = [index, stageIndex];
     } else { global.lastMilestone = [index, stageIndex]; }
     getUpgradeDescription(type);
+    if (globalSave.SRSettings[0]) {
+        const htmlType = type === 'strangeness' ? 'strangeness' : type === 'milestones' ? 'milestones' : 'inflation';
+        getId('SRMain').textContent = `${type !== 'inflation' ? `${getId(`${htmlType}Stage`).textContent}\n` : ''}${getId(`${htmlType}Text`).textContent}\n${type === 'milestones' ? `${getId('milestonesMultiline').innerText}` : `${getId(`${htmlType}Effect`).textContent}\n${getId(`${htmlType}Cost`).textContent}`}`;
+    }
 };
 const hoverChallenge = (index: number) => {
     global.lastChallenge[0] = index;
@@ -1444,10 +1452,7 @@ try { //Start everything
     {
         const button = getId('element0') as HTMLInputElement;
         button.alt = global.elementsInfo.name[0];
-        const dblclickFunc = () => {
-            global.lastElement = 0;
-            getUpgradeDescription('elements');
-        };
+        const dblclickFunc = () => hoverUpgrades(0, 'elements');
         if (SR) {
             getId('element1').addEventListener('keydown', (event) => {
                 if (event.code !== 'Tab' || detectShift(event) !== true) { return; }
