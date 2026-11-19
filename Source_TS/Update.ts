@@ -221,7 +221,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
             if (active === 1) {
                 const dischargeInfo = global.dischargeInfo;
                 getId('reset0Button').textContent = dischargeInfo.energyTrue > player.discharge.energy ? 'Reset to regain spent Energy' : `Next goal is ${format(dischargeInfo.next, { padding: true })} Energy`;
-                getQuery('#tritiumEffect > span.last').textContent = format(effectsCache.tritium * speed, { padding: true });
+                getQuery('#tritiumEffect > span').textContent = format(effectsCache.tritium * speed, { padding: true });
                 getQuery('#dischargeEffect > span').textContent = format(dischargeInfo.base ** dischargeInfo.total, { padding: true });
                 getQuery('#energySpent > span').textContent = format(dischargeInfo.energyTrue - player.discharge.energy, { padding: 'exponent' });
                 if (vacuum) {
@@ -233,14 +233,14 @@ export const numbersUpdate = (ignoreOffline = false) => {
                 getId('reset0Button').textContent = `Reset for ${format(Math.max(global.vaporizationInfo.get, 0), { padding: true })} Clouds`;
                 getQuery('#cloudEffect > span').textContent = format(calculateEffects.clouds(), { padding: true });
                 if (vacuum) {
-                    getQuery('#molesProduction > span.last').textContent = format(effectsCache.tritium / 6.02214076e23 * speed, { padding: true });
+                    getQuery('#molesProduction > span').textContent = format(effectsCache.tritium / 6.02214076e23 * speed, { padding: true });
                 }
 
                 const rainNow = calculateEffects.S2Extra1(player.researchesExtra[2][1]);
                 const rainAfter = calculateEffects.S2Extra1(player.researchesExtra[2][1], true);
                 getQuery('#vaporizationBoostTotal > span').textContent = format((calculateEffects.clouds(true) / calculateEffects.clouds()) * (rainAfter / rainNow) * (calculateEffects.S2Extra2(rainAfter) / calculateEffects.S2Extra2(rainNow)), { padding: true });
             } else if (active === 3) {
-                let hoverBase = global.buildingsInfo.hoverText[3][4];
+                let hoverBase = buildingsInfo.hoverText[3][3];
                 if (player.strangeness[3][3] >= 1) { hoverBase += `\nCosmic dust, Planetesimals ^${format(vacuum ? 0.1 : 0.2)} (${format(effectsCache.S3Strange3, { padding: true })})`; }
                 getId('building4ProdDiv').dataset.title = hoverBase;
                 getQuery('#dustSoftcap > span').textContent = format(global.accretionInfo.dustSoft);
@@ -269,7 +269,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     for (let i = 0; i < 3; i++) {
                         getId(`special${i + 1}Cur`).textContent = format(player.collapse.stars[i], { padding: 'exponent' });
                         getId(`special${i + 1}Get`).textContent = format(collapseInfo.starCheck[i], { padding: 'exponent' });
-                        getQuery(`#star${i + 1}Effect > span.last`).textContent = format(effectsCache.star[i], { padding: true });
+                        getQuery(`#star${i + 1}Effect > span`).textContent = format(effectsCache.star[i], { padding: true });
                     }
                     if (player.strangeness[4][4] < 3) { getQuery('#collapseBoostTotal > span').textContent = format(total, { padding: true }); }
                     if (vacuum) {
@@ -305,12 +305,12 @@ export const numbersUpdate = (ignoreOffline = false) => {
                         const requirement = vacuum ? 0 : calculateEffects.mergeRequirement();
                         getId('reset0Button').textContent = player.buildings[5][3].true >= requirement && player.progress.main >= 15 ? `Change Vacuum state to ${!vacuum}` : `Requires ${format(requirement)} Galaxies`;
                     }
-                    const names = global.buildingsInfo.name[4];
-                    let hoverBase1 = `${global.buildingsInfo.hoverText[5][0]}:\n${names[1]}`;
+                    const names = buildingsInfo.name[4];
+                    let hoverBase1 = `${buildingsInfo.hoverText[5][0]}:\n${names[1]}`;
                     for (let i = 2; i < player.researches[5][0] + 2; i++) { hoverBase1 += `, ${names[i]}`; }
                     getId('building1ProdDiv').dataset.title = hoverBase1;
                     const max = vacuum ? 5 : 4;
-                    let hoverBase2 = `${global.buildingsInfo.hoverText[5][1]}:\n${names[max]}`;
+                    let hoverBase2 = `${buildingsInfo.hoverText[5][1]}:\n${names[max]}`;
                     for (let i = 1; i < player.researches[5][1] + 1; i++) { hoverBase2 += `, ${names[max - i]}`; }
                     getId('building2ProdDiv').dataset.title = hoverBase2;
                     getQuery('#elementsProductionS5 > span').textContent = format(new Overlimit(starProd[1]).allPlus(starProd[2], starProd[3], starProd[4], starProd[5]).multiply(speed), { padding: true });
@@ -379,7 +379,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
 
                 if (player.strangeness[6][3] >= 1) {
                     getId('reset0Button').textContent = `Reset for ${format(Math.max(assignResetInformation.newFluid(), 0), { padding: true })} ${global.april.dark} fluid`;
-                    getQuery('#darkEnergySpent > span.last').textContent = format(global.dischargeInfo.energyStage[6] - player.darkness.energy, { padding: 'exponent' });
+                    getQuery('#darkEnergySpent > span:not(.aprilLight)').textContent = format(global.dischargeInfo.energyStage[6] - player.darkness.energy, { padding: 'exponent' });
                     const darkPost = calculateEffects.darkFluid(true);
                     getQuery('#nucleationBoostTotal > span').textContent = format((darkPost / effectsCache.fluid) * (calculateEffects.effectiveDarkEnergy(darkPost) / calculateEffects.effectiveDarkEnergy()) ** (player.researchesExtra[6][3] / 40), { padding: true });
                 }
@@ -544,7 +544,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
             getId('endResetsType2').textContent = format(player.inflation.ends[1], { padding: 'exponent' });
             getId('endResetsType3').textContent = format(player.inflation.ends[2], { padding: 'exponent' });
             getQuery('#universesExtraStats > span').textContent = format(player.verses[0].highest, { padding: 'exponent' });
-            getQuery('#trueUniversesLow > span').textContent = player.inflation.ends[1] >= 1 ? format(player.verses[0].lowest[0]) : 'Infinity';
+            getQuery('#trueUniversesLow > span:not(.aprilLightness)').textContent = player.inflation.ends[1] >= 1 ? format(player.verses[0].lowest[0]) : 'Infinity';
 
             const exportReward = player.time.export;
             const claimPer = player.inflation.ends[0] >= 1 ? 1 : 2.5;
@@ -601,7 +601,7 @@ export const numbersUpdate = (ignoreOffline = false) => {
                             const star1 = calculateEffects.star[1](true) / effectsCache.star[1];
                             const star2 = calculateEffects.star[2](true) / effectsCache.star[2];
                             getQuery('#star1Stat > span').textContent = format(star0, { padding: true });
-                            getQuery('#star2Stat > span.last').textContent = format(star1, { padding: true });
+                            getQuery('#star2Stat > span').textContent = format(star1, { padding: true });
                             getQuery('#star3Stat > span').textContent = format(star2, { padding: true });
                             mass *= star0 * star1 * star2;
                         }
@@ -635,12 +635,12 @@ export const numbersUpdate = (ignoreOffline = false) => {
                     assignResetInformation.newFluid();
                     const post = calculateEffects.darkFluid(true);
                     const base = post / effectsCache.fluid;
-                    getQuery('#darkFluidStat > span.last').textContent = format(base, { padding: true });
+                    getQuery('#darkFluidStat > span:not(.aprilLight)').textContent = format(base, { padding: true });
                     const quint = (calculateEffects.effectiveDarkEnergy(post) / calculateEffects.effectiveDarkEnergy()) ** (player.researchesExtra[6][3] / 40);
                     getQuery('#quintessenceStat > span').textContent = format(quint, { padding: true });
                     getId('nucleationTotal').textContent = format(base * quint, { padding: true });
 
-                    getQuery('#effectiveDarkEnergyStat > span.last').textContent = format(calculateEffects.effectiveDarkEnergy(), { padding: true });
+                    getQuery('#effectiveDarkEnergyStat > span:not(.aprilLight)').textContent = format(calculateEffects.effectiveDarkEnergy(), { padding: true });
                     const energyType = global.dischargeInfo.energyType[6];
                     for (let i = 1; i < energyType.length; i++) {
                         getId(`energyGainStage6Build${i}Cur`).textContent = format(energyType[i] * buildings[i as 1].true, { padding: 'exponent' });

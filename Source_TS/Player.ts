@@ -2034,7 +2034,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
                     } else if (loadout[i] > 5) { loadout[i]--; }
                 }
             }
-            if (load.clone.milestones !== undefined) { load.clone.milestones = deepClone(playerStart.milestones); }
+            if (load.clone?.milestones !== undefined) { load.clone.milestones = deepClone(playerStart.milestones); }
             for (let s = 1; s < 6; s++) { load.milestones[s][2] = 0; }
             load.milestones[6] = [0];
             load.inflation.default = [];
@@ -2046,7 +2046,7 @@ export const updatePlayer = (load: playerType, decode = true): string => {
             load.challenges.supervoidMax[4] = supervoid[4];
             load.challenges.supervoidMax[5] = 0;
             supervoid[5] = 0;
-            load.inflation.falseDone = load.clone.inflation?.vacuum as boolean ?? load.inflation.vacuum;
+            load.inflation.falseDone = load.clone?.inflation?.vacuum as boolean ?? load.inflation.vacuum;
             load.cosmon[0].total = (2 + (load.verses[0].true[0] - 1) / 2) * load.verses[0].true[0] + supervoid[1] + supervoid[2] + supervoid[3] + supervoid[4] + supervoid[5] + load.challenges.stability;
             if (load.inflation.ends[0] < 1 && (load.verses[0].true[0] > 0 || load.inflation.falseDone)) { load.cosmon[0].total--; }
             if (load.inflation.falseDone) { load.cosmon[0].total++; }

@@ -1039,7 +1039,9 @@ export const enableLightness = (firstLoad = false) => {
     for (let i = 0; i < darknessInfo.rewardText.length; i++) {
         darknessInfo.rewardText[i] = darknessInfo.rewardText[i].replace(Dark, Light);
     }
-    (getId('challenge3') as HTMLInputElement).alt = darknessInfo.name;
+    const challengeImage = getId('challenge3') as HTMLInputElement;
+    challengeImage.src = `Used_art/${folder}Darkness.png`;
+    challengeImage.alt = darknessInfo.name;
     getQuery('#darknessTier > span').textContent = darknessInfo.name;
     global.strangenessInfo[6].name[3] = darknessInfo.name;
     (getId('strange4Stage6') as HTMLInputElement).alt = darknessInfo.name;
@@ -1765,7 +1767,7 @@ const playEvent = (event: number, replay = true) => {
     } else if (event === 12) {
         text = `${format(1000)} ${global.april.dark} energy allows to do a more advanced End reset ‒ 'Big Rip', this one increases rewards base by +1 per bonus Universe.\n(Doing it for the first time will also unlock new Inflation that helps with creation of new types of self-made Universes)`;
     } else if (event === 13) {
-        text = "Unlocked a new Verse ‒ 'Multiverse' and also another row of Inflations ‒ Tachyon. Creating Multiverse forces Big Crunch, but keeps bonus Universes.\n(Multiverses are not immune to End resets and do not produce anything inside Challenges)";
+        text = "Unlocked a new Verse ‒ 'Multiverse' and also another row of Inflations ‒ Tachyon. Creating Multiverse forces Big crunch, while keeping current non-self-made Universes.\n(Multiverses are not immune to End resets and do not produce anything inside Challenges)";
     }
     if (!replay) {
         text += "\n\n(Can be viewed again with 'Events' button in Settings tab)";

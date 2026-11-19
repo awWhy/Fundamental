@@ -2438,11 +2438,17 @@ export const endResetUser = async(multiverse = false) => {
     } else if (!endResetCheck() || player.progress.main < 20) { return; }
 
     if (player.toggles.confirm[6] !== 'None') {
+        const type = !multiverse && player.inflation.vacuum && player.darkness.energy >= 1000 ? 1 : 0;
         const array = [];
-        if (!multiverse && calculateVerseCost(1) <= global.versesInfo.types && player.darkness.energy < 1000) {
-            array.push('can do Big Crunch by creating Multiverse instead');
+        if (type === 0 && !multiverse) {
+            if (calculateVerseCost(1) <= global.versesInfo.types) {
+                array.push('can do Big Crunch by creating Multiverse instead');
+            }
+            if (player.strangeness[6][3] >= 1) {
+                array.push('can do Big Rip instead of Big Crunch');
+            }
         }
-        if (checkVerse(0) && calculateVerseCost(0) <= global.mergeInfo.score) {
+        if (checkVerse(0) && calculateVerseCost(0) <= global.mergeInfo.score && (type !== 1 || player.verses[0].lowest[0] > global.versesInfo.true)) {
             array.push('can create the Universe');
         }
         if (!player.inflation.falseDone) {

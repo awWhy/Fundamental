@@ -2054,20 +2054,23 @@ try { //Start everything
                 player.time.export[2] = 0;
                 if (value === 'multiverse') {
                     player.verses[0].current -= global.versesInfo.true;
+                    player.inflation.falseDone = false;
                     player.inflation.vacuum = false;
                     prepareVacuum(false);
                     resetVacuum(2);
-                } else {
-                    if (value === 'universe' && player.inflation.vacuum) {
-                        if (player.cosmon[0].total > 0) {
+                    return;
+                } else if (value === 'universe') {
+                    if (player.inflation.falseDone) {
+                        player.inflation.falseDone = false;
+                        if (player.progress.main >= 15) {
                             player.cosmon[0].current--;
                             player.cosmon[0].total--;
                         }
-                        player.inflation.vacuum = false;
-                        prepareVacuum(false);
                     }
-                    resetVacuum(1);
+                    player.inflation.vacuum = false;
+                    prepareVacuum(false);
                 }
+                resetVacuum(1);
             } else { return void Alert(`Input '${value}' doesn't match anything`); }
         } else if (lower.includes('dev refund')) {
             value = lower[10] === ' ' ? value.slice(11) :
