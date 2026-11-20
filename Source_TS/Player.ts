@@ -2082,9 +2082,13 @@ export const updatePlayer = (load: playerType, decode = true): string => {
     fillMissingValues(load.toggles.max, playerStart.toggles.max);
     fillMissingValues(load.toggles.auto, playerStart.toggles.auto);
 
-    if (load.time.export[0] < -43200_000) { load.time.export[0] = -43200_000; }
-    if (load.time.offline < -43200_000) { load.time.offline = -43200_000; }
-    if (load.time.excess < -300_000) { load.time.excess = -300_000; }
+    if (load.time.excess < 0) {
+        load.time.export[0] += load.time.excess;
+        load.time.offline += load.time.excess;
+        load.time.excess = 0;
+    }
+    if (load.time.export[0] < -86400_000) { load.time.export[0] = -86400_000; }
+    if (load.time.offline < -86400_000) { load.time.offline = -86400_000; }
     if (load.inflation.vacuum && load.stage.current < 4) {
         if (load.accretion.rank >= 6) {
             load.stage.current = 4;

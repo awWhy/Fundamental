@@ -4,7 +4,7 @@ import { assignBuildingsProduction, buyBuilding, buyStrangeness, buyUpgrades, bu
 import { Alert, Prompt, setTheme, changeFontSize, changeFormat, specialHTML, replayEvent, Confirm, preventImageUnload, Notify, MDStrangenessPage, globalSave, toggleSpecial, saveGlobalSettings, openHotkeys, openVersionInfo, errorNotify, enableApril, enableLightness, openGlobalStats, createGlobalStatsWindow } from './Special';
 import { assignHotkeys, buyAll, buyStrangenessMax, createAll, detectHotkey, detectShift, handleTouchHotkeys, hotkeys, offlineWarp, strangenessAll, toggleAll, toggleShift } from './Hotkeys';
 import { checkUpgrade, stageResetType } from './Check';
-import type { hotkeysList } from './Types';
+import type { gameSubtab, gameTab, hotkeysList } from './Types';
 import Overlimit from './Limit';
 import { resetVacuum } from './Reset';
 
@@ -78,6 +78,62 @@ export const assignInnerHTML = (id: HTMLElement | string, text: string): boolean
     return true;
 };
 
+/** Removes duplicates. Data being null (default) only deletes it, and empty string doesn't add equal sign */
+export const setURLData = (which: string, data = null as null | string) => {
+    try {
+        let href = location.href;
+        let index = href.indexOf('?');
+        let done = data === null;
+        if (index !== -1) {
+            index = href.indexOf(which, index + 1);
+            const testLength = which.length;
+            while (index !== -1) { //Honestly no idea what is 'smart' way to do it
+                const left = href[index - 1];
+                index += testLength;
+                const right = href[index];
+                if ((left !== '?' && left !== '&') || (right !== '=' && right !== '&' && right !== undefined)) {
+                    index = href.indexOf(which, index);
+                } else if (done) {
+                    const indexEnd = href.indexOf('&', index);
+                    index -= testLength + 1;
+                    href = `${href.slice(0, index)}${indexEnd !== -1 ? href.slice(indexEnd) : ''}`;
+                    index = href.indexOf(which, index + 1);
+                } else {
+                    done = true;
+                    if (right === '=' && data !== '') { index += 1; }
+                    const indexEnd = href.indexOf('&', index);
+                    href = `${href.slice(0, index)}${data !== '' ? `${right !== '=' ? '=' : ''}${data}` : ''}${indexEnd !== -1 ? href.slice(indexEnd) : ''}`;
+                    index = href.indexOf(which, index + (data as string).length + 1);
+                }
+            }
+            if (!done) {
+                const left = href[href.length - 1];
+                href += `${left !== '&' && left !== '?' ? '&' : ''}${which}${data !== '' ? `=${data}` : ''}`;
+            }
+        } else if (!done) { href += `?${which}${data !== '' ? `=${data}` : ''}`; }
+        history.replaceState(null, '', href);
+    } catch (error) { console.warn(`Error during URL data updating:\n${error}`); }
+};
+export const getURLData = (): Record<string, string> => {
+    const URLData: Record<string, string> = {};
+    try {
+        const href = location.href;
+        const index = href.indexOf('?');
+        if (index !== -1) {
+            const array = href.slice(index + 1).split('&');
+            for (let i = 0; i < array.length; i++) {
+                const index = array[i].indexOf('=');
+                if (index === -1) {
+                    URLData[array[i]] = '';
+                    continue;
+                }
+                URLData[array[i].slice(0, index)] = array[i].slice(index + 1);
+            }
+        }
+    } catch (error) { console.warn(`Error during URL data retrieving:\n${error}`); }
+    return URLData;
+};
+
 /** Returns offline time in milliseconds */
 const handleOfflineTime = (): number => {
     const timeNow = Date.now();
@@ -86,14 +142,19 @@ const handleOfflineTime = (): number => {
     player.time.export[0] += offlineTime;
     return offlineTime;
 };
-export const simulateOffline = async(offline: number, autoConfirm = globalSave.toggles[9]) => {
+export const simulateOffline = async(offline: number, autoConfirm = globalSave.toggles[9], forceReject = false) => {
     const info = global.offline;
     if (!info.active) { pauseGame(); }
-    offline += player.time.excess;
-    player.time.excess = 0;
+    const pointer = player.time;
+    offline += pointer.excess;
+    pointer.excess = 0;
+    if (pointer.offline < 0) {
+        offline += pointer.offline;
+        pointer.offline = 0;
+    }
 
-    let decline = false;
-    if (offline >= 20 && !autoConfirm) {
+    let decline = forceReject || offline < 20;
+    if (!autoConfirm && !decline) {
         decline = !await Confirm(`Accept and use ${format(Math.min(offline / 1000, 43200), { type: 'time', padding: false })} worth of Offline time?${player.challenges.supervoid[3] >= 4 ? ' Or reject it to store it instead.' : ''}\n(Includes time spent to click any of the buttons)`, 2) &&
             (globalSave.developerMode || player.challenges.supervoid[3] >= 4 || !await Confirm("Press 'Cancel' again to confirm losing Offline time, 'Confirm' to use it instead"));
         const extra = handleOfflineTime();
@@ -101,9 +162,8 @@ export const simulateOffline = async(offline: number, autoConfirm = globalSave.t
         offline += extra;
     }
     if (offline > 43200_000) { offline = 43200_000; }
-    if (decline || offline < 20) {
-        if (decline) { player.time.offline = Math.min(player.time.offline + offline, 43200_000); }
-        if (offline < 0) { player.time.excess = offline - 20; }
+    if (decline) {
+        pointer.offline = Math.min(pointer.offline + offline, 43200_000);
         pauseGame(false);
         timeUpdate(20, 20); //Just in case
         visualUpdate();
@@ -119,7 +179,7 @@ export const simulateOffline = async(offline: number, autoConfirm = globalSave.t
     const startStage = player.stage.active;
     info.stage[0] = null;
     info.stage[1] = null;
-    player.time.online += offline;
+    pointer.online += offline;
 
     const body = document.documentElement;
     const mainHTML = getId('offlineMain');
@@ -187,7 +247,7 @@ export const simulateOffline = async(offline: number, autoConfirm = globalSave.t
             remainsHTML.textContent = format(offline / 1000, { type: 'time' });
             percentageHTML.textContent = `${format(100 - offline / startValue * 100, { padding: true })}% done`;
         } else {
-            player.time.excess += offline;
+            pointer.excess += offline;
             end();
         }
     };
@@ -723,7 +783,10 @@ try { //Start everything
     if (global.april.natural || randomValue(1, 64) === 1) { enableLightness(true); }
 
     const body = document.documentElement;
+    history.scrollRestoration = 'manual';
+    const URLData: Record<string, string> = getURLData();
     const globalSettings = localStorage.getItem(specialHTML.localStorage.settings);
+    let settingsChanged = false;
     if (globalSettings !== null) {
         try {
             const parsed = JSON.parse(atob(globalSettings)) as typeof globalSave;
@@ -757,14 +820,35 @@ try { //Start everything
             fillMissingValues(globalSave.toggles, globalSaveStart.toggles, false);
             fillMissingValues(globalSave.MDSettings, globalSaveStart.MDSettings, false);
             fillMissingValues(globalSave.SRSettings, globalSaveStart.SRSettings, false);
-            if (oldVersion !== globalSave.version) { saveGlobalSettings(); }
-            if (globalSave.slot !== 0) { specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${globalSave.slot}`; }
+            if (oldVersion !== globalSave.version) { settingsChanged = true; }
         } catch (error) {
             Notify(`Failed to load global settings, default ones used instead\n${error}`);
             console.warn(`Global settings load error, ${error}`);
             Object.assign(globalSave, deepClone(globalSaveStart));
         }
     }
+    if (URLData.SR !== undefined) {
+        if (!globalSave.SRSettings[0]) {
+            globalSave.SRSettings[0] = true;
+            settingsChanged = true;
+        }
+        setURLData('SR');
+    }
+    if (URLData.MD !== undefined && !globalSave.MDSettings[0]) {
+        if (!globalSave.MDSettings[0]) {
+            globalSave.MDSettings[0] = true;
+            settingsChanged = true;
+        }
+        setURLData('MD');
+    }
+    if (URLData.slot !== undefined) {
+        const slotTest = Math.trunc(Number(URLData.slot));
+        if (globalSave.slot !== slotTest && slotTest >= 0 && slotTest <= 9) {
+            globalSave.slot = slotTest;
+            settingsChanged = true;
+        }
+    }
+    if (globalSave.slot !== 0) { specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${globalSave.slot}`; }
     createGlobalStatsWindow(true);
     (getId('decimalPoint') as HTMLInputElement).value = globalSave.format[0];
     (getId('thousandSeparator') as HTMLInputElement).value = globalSave.format[1];
@@ -800,10 +884,11 @@ try { //Start everything
             #footerMain > div > article { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6em; margin: 0; }
             #stageSelect { position: unset; margin: 0; max-width: unset; }
             #subtabs { flex-flow: column-reverse wrap; gap: 0.6em !important; align-self: end; margin: 0 auto 0 0 !important; max-height: 6.72em; width: 0; /* min-width: 7em; */ }
-            #footerMain button, #shortcuts button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; }
+            #footerMain button, #shortcuts button { width: min-content; min-width: 4em; height: 2em; border-radius: 10px; font-size: 0.92em; pointer-events: auto; }
             #subtabs button { width: 100%; min-width: 7em; }
+            #shortcuts button:hover { background-color: var(--footerButton-hover); }
             ${globalSave.toggles[10] ? '' : '#globalStats { bottom: 3.04em; right: calc(50vw - 6.325em); }'}
-            #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; }`;
+            #shortcuts { flex-direction: row-reverse; gap: 0.4em; justify-content: center; position: fixed; width: 100vw; max-width: unset; bottom: 0.6em; margin: 0; z-index: 6; pointer-events: none; }`;
         const fakeObserver = new ResizeObserver(() => {
             getId('fakeFooter').style.height = `${getId('shortcuts').offsetHeight + globalSave.fontSize * 1.2}px`;
         });
@@ -1997,13 +2082,15 @@ try { //Start everything
                 await Prompt(`Which save slot to load and change into from 0 to 9. Current slot is ${globalSave.slot} and following exist:\n${available.length === 0 ? 'None' : available.join(', ')}\n(Only loads slot if it exist, adding 'Delete' before selected slot will delete it)`);
             if (value === null || value === '') { return; }
             const slot = Math.trunc(Number(value[value.length - 1]));
-            if (isNaN(slot) || slot < 0 || slot > 9) { return Notify(`Selected slot (${slot}) is not a number from 0 to 9`); }
-            specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${slot !== 0 ? slot : ''}`;
-            if (value.toLowerCase().includes('delete')) { return localStorage.removeItem(specialHTML.localStorage.selected); }
-            globalSave.slot = slot;
-            saveGlobalSettings();
-            const save = localStorage.getItem(specialHTML.localStorage.selected);
-            if (save !== null) { return loadGame(save); }
+            if (slot >= 0 && slot <= 9) {
+                specialHTML.localStorage.selected = `${specialHTML.localStorage.main}${slot !== 0 ? slot : ''}`;
+                if (value.toLowerCase().includes('delete')) { return localStorage.removeItem(specialHTML.localStorage.selected); }
+                setURLData('slot', `${slot}`);
+                globalSave.slot = slot;
+                saveGlobalSettings();
+                const save = localStorage.getItem(specialHTML.localStorage.selected);
+                if (save !== null) { return loadGame(save); }
+            } else { return Notify(`Selected slot (${slot}) is not a number from 0 to 9`); }
         } else if (lower === 'delete' || lower === 'clear' || lower === 'global reset') {
             pauseGame();
             if (lower === 'delete') {
@@ -2300,7 +2387,23 @@ try { //Start everything
 
     /* Post */
     document.head.append(specialHTML.styleSheet);
-    stageUpdate(true, true);
+    if (URLData.tab !== undefined || URLData.subtab !== undefined) {
+        let tab = URLData.tab;
+        if (tab !== undefined) {
+            const numberTest = Number(tab);
+            tab = !isNaN(numberTest) ? global.tabs.list[numberTest - 1] : tab.toLowerCase();
+        } else { tab = 'stage'; }
+        let subtab = URLData.subtab;
+        if (subtab !== undefined) {
+            const pointer = global.tabs[tab as gameTab];
+            if (pointer !== undefined) {
+                const numberTest = Number(subtab);
+                subtab = !isNaN(numberTest) ? pointer.list[numberTest - 1] : `${subtab[0].toUpperCase()}${subtab.slice(1).toLowerCase()}`;
+            }
+        }
+        if (tab !== global.tabs.current) { switchTab(tab as gameTab); }
+        if (subtab !== undefined && tab === global.tabs.current && subtab !== global.tabs[tab].current) { switchTab(tab, subtab as gameSubtab); }
+    }
     if (globalSave.theme !== null) {
         if (getId(`switchTheme${globalSave.theme}`, true) === null) {
             globalSave.theme = null;
@@ -2309,11 +2412,12 @@ try { //Start everything
             setTheme(globalSave.theme, true);
         }
     }
+    stageUpdate(true, true);
     if (save !== null) {
         global.lastSave = handleOfflineTime();
         const offline = global.lastSave;
         const timeAtLoad = Date.now();
-        void simulateOffline(global.lastSave);
+        void simulateOffline(offline, globalSave.toggles[9], URLData.noOffline !== undefined);
 
         void (async() => {
             const result = await fetch('./last_build.txt', { cache: 'no-store' });
@@ -2330,6 +2434,8 @@ try { //Start everything
     getId('loading').remove();
     getQuery('main').style.display = '';
     document.title = `Fundamental ${playerStart.version}`;
+    setURLData('slot', `${globalSave.slot}`);
+    if (settingsChanged) { saveGlobalSettings(); }
     specialHTML.cache.idMap.clear();
     specialHTML.cache.queryMap.clear();
     specialHTML.cache.classMap.clear();

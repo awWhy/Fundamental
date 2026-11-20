@@ -347,7 +347,7 @@ const changeTab = (direction: 'left' | 'right') => {
             } else { index++; }
         } while (!checkTab(tabs[index]));
     }
-    switchTab(tabs[index]);
+    switchTab(tabs[index], null, true);
 };
 
 /** Through a hotkey */
@@ -370,7 +370,7 @@ export const changeSubtab = (direction: 'down' | 'up') => {
             } else { index++; }
         } while (!checkTab(tab, subtabs[index]));
     }
-    switchTab(tab, subtabs[index]);
+    switchTab(tab, subtabs[index], true);
 };
 
 const changeStage = (direction: 'left' | 'right') => {

@@ -950,13 +950,13 @@ export const Notify = (text: string) => {
 };
 
 /** Notify about error in the code with a cooldown of 20 seconds */
-export const errorNotify = (text: string) => {
+export const errorNotify = (text: string, identifier = text) => {
     const errorCooldowns = specialHTML.errorCooldowns;
-    if (errorCooldowns.has(text)) { return; }
+    if (errorCooldowns.has(identifier)) { return; }
 
     Notify(text);
-    errorCooldowns.add(text);
-    setTimeout(() => { errorCooldowns.delete(text); }, 2e4);
+    errorCooldowns.add(identifier);
+    setTimeout(() => { errorCooldowns.delete(identifier); }, 2e4);
 };
 
 export const changeFontSize = (initial = false) => {
@@ -1828,7 +1828,7 @@ export const openVersionInfo = () => {
     const mainHTML = buildBigWindow('versionHTML');
     if (mainHTML !== null) {
         mainHTML.innerHTML = `<h5><span class="bigWord">Last update:</span> <span id="versionLast" class="whiteText">${global.lastUpdate === 0 ? 'failed to fetch' : new Date(global.lastUpdate).toLocaleString()}</span> <button type="button" id="versionCheck" class="hollowButton">Check</button></h5>
-        <h6>v0.3.0</h6><p>-New content (Multiverse)\n- Rebalances in later parts of game\n- Improved global resources tracker\n- Added default loadout\n- Added save slots\n<a href="https://docs.google.com/document/d/1gCskWPNxLX08npSHQW8u86VvXNhXzNchCdJ9Pec8Rvk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
+        <h6>v0.3.0</h6><p>-New content (Multiverse)\n- Rebalances in later parts of game\n- Improved global resources tracker\n- Added default loadout\n- Added save slots\n\n- Added ability to insert data into URL\n<a href="https://docs.google.com/document/d/1gCskWPNxLX08npSHQW8u86VvXNhXzNchCdJ9Pec8Rvk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.8 | v0.2.9</h6><p>- Abyss full rebalance and End reset rework\n- Auto Stage now has different modes\n- Max export rewards is now 12 hours\n\n- Minor balancing and new content for Abyss\n<a href="https://docs.google.com/document/d/1HsAhoa31UsRFGK3BULeXMKHN9exUIIQ_UveKwj2EuMY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.7</h6><p>- Small speed up to Universes\n- Stage resets now save peak Strange quarks</p>
         <h6>v0.2.6</h6><p>- New content (End)\n- Mobile shorcuts are now available outside of related support\n- Ability to change number hotkeys and use numbers for other hotkeys\n- Create all Upgrades button\n- Improved hover text\n\n- Added hotkeys for toggling autos\n<a href="https://docs.google.com/document/d/1IvO79XV49t_3zm6s4YE-ItU-TahYDbZIWhVAPzqjBUM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>

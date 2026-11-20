@@ -3,15 +3,15 @@ import { changeSubtab } from './Hotkeys';
 import Overlimit from './Limit';
 import { assignInnerHTML, getClass, getId, getQuery, toggleSwap } from './Main';
 import { effectsCache, global, player } from './Player';
-import { MDStrangenessPage, Notify, checkProgress, globalSave, setTheme, specialHTML } from './Special';
+import { MDStrangenessPage, Notify, checkProgress, errorNotify, globalSave, setTheme, specialHTML } from './Special';
 import { calculateBuildingsCost, stageResetCheck, setActiveStage, calculateEffects, assignBuildingsProduction, assignResetInformation, calculateVerseCost, calculateTreeCost, calculateStrangenessCost } from './Stage';
 import type { gameSubtab, gameTab } from './Types';
 
-/** Tab being null will test current tab/subtab being unlocked and updates subtab list */
-export const switchTab = (tab = null as null | gameTab, subtab = null as null | gameSubtab): void => {
+/** Tab being null will test current tab/subtab being unlocked and updates subtab list. 'Force' forces tab load */
+export const switchTab = (tab = null as null | gameTab, subtab = null as null | gameSubtab, force = false): void => {
     const oldTab = global.tabs.current;
     if (tab === null) {
-        if (!checkTab(oldTab)) { return switchTab('stage'); }
+        if (!checkTab(oldTab)) { return switchTab('stage', null, true); }
 
         let subtabAmount = 0;
         for (const inside of global.tabs[oldTab].list) {
@@ -20,13 +20,14 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
             if (unlocked) {
                 subtabAmount++;
             } else if (global.tabs[oldTab].current === inside) {
-                switchTab(oldTab, global.tabs[oldTab].list[0]);
+                switchTab(oldTab, global.tabs[oldTab].list[0], true);
             }
         }
         getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         return;
     } else if (subtab === null) {
         if (oldTab === tab) { return changeSubtab('up'); }
+        if (!force && !checkTab(tab)) { return; }
         getId(`${oldTab}Tab`).style.display = 'none';
         getId(`${oldTab}TabBtn`).classList.remove('tabActive');
 
@@ -43,12 +44,13 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
                 getId(`${tab}SubtabBtn${inside}`).style.display = '';
                 subtabAmount++;
             } else if (global.tabs[tab].current === inside) {
-                switchTab(tab, global.tabs[tab].list[0]);
+                switchTab(tab, global.tabs[tab].list[0], true);
             }
         }
         getId('subtabs').style.visibility = subtabAmount > 1 ? '' : 'hidden';
         if (globalSave.SRSettings[0]) { getId('SRTab').textContent = `Current tab is ${tab}${subtabAmount > 1 ? ` and subtab is ${global.tabs[tab].current}` : ''}`; }
     } else {
+        if (!force && !checkTab(tab, subtab)) { return; }
         const oldSubtab = global.tabs[tab].current;
         getId(`${tab}Subtab${oldSubtab}`).style.display = 'none';
         getId(`${tab}SubtabBtn${oldSubtab}`).classList.remove('tabActive');
@@ -64,7 +66,7 @@ export const switchTab = (tab = null as null | gameTab, subtab = null as null | 
     if (tab === 'upgrade' ? global.tabs.upgrade.current === 'Elements' : tab === 'Elements') {
         if (active !== 4 && active !== 5) {
             if (tab === 'upgrade' && subtab === null) {
-                switchTab('upgrade', 'Upgrades');
+                switchTab('upgrade', 'Upgrades', true);
             } else {
                 setActiveStage(global.trueActive === 5 ? 5 : 4, global.trueActive);
                 stageUpdate();
@@ -415,7 +417,6 @@ export const numbersUpdate = (ignoreOffline = false) => {
             getQuery('#stageTime > span').textContent = format(player.stage.time, { type: 'time' });
             getQuery('#stageTimeReal > span').textContent = format(player.time.stage, { type: 'time' });
             getQuery('#globalSpeed > span').textContent = format(speed, { padding: true });
-            if (player.time.excess < 0) { getQuery('#gameDisabled > span').textContent = format(-player.time.excess / 1000, { type: 'time' }); }
         } else if (subtab === 'Advanced') {
             getChallengeDescription();
             getChallengeRewards();
@@ -676,6 +677,7 @@ export const visualUpdate = (ignoreOffline = false) => {
     const vacuum = player.inflation.vacuum;
     const highest = player.progress.main;
 
+    if (player.time.excess < -1_000) { errorNotify(`Negative time detected, game is auto paused for ${format(-player.time.excess / 1000, { type: 'time' })}\nCan reload game to move it into Offline storage instead`, 'Negative time detected'); }
     if (!globalSave.toggles[4]) {
         let anyUnlocked = false;
         for (let i = 0; i < globalSave.resources.length; i++) {
@@ -756,7 +758,6 @@ export const visualUpdate = (ignoreOffline = false) => {
             const ASR = player.ASR[active];
 
             getId('exportMaxed').style.display = !globalSave.developerMode && player.time.export[0] >= 43200_000 ? '' : 'none';
-            getId('gameDisabled').style.display = player.time.excess < 0 ? '' : 'none';
             let anyON = buildingsToggle[1];
             let anyOFF = false;
             for (let i = 1; i < global.buildingsInfo.maxActive[active]; i++) {

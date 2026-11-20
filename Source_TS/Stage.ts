@@ -22,7 +22,8 @@ export const timeUpdate = (tick: number, timeWarp: null | number = null) => {
         if (timeWarp < tick) {
             time.excess = timeWarp;
             return;
-        } else { time.excess = 0; } //Must be before potential warp
+        }
+        time.excess = 0; //Must be before potential warp
         if (timeWarp > tick * 600) { return void simulateOffline(timeWarp, globalSave.toggles[9] || (timeWarp < 600_000 && !globalSave.developerMode)); }
         time.online += timeWarp - timeWarp % 20;
         timeWarp -= tick;
@@ -2753,9 +2754,9 @@ export const setActiveStage = (stage: number, active = stage) => {
     getId(`stageSwitch${stage}`).style.textDecoration = 'underline' + (global.trueActive !== stage ? ' dashed' : '');
 
     if (global.tabs.current === 'upgrade') {
-        if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades'); }
+        if (global.tabs.upgrade.current === 'Elements' && stage !== 4 && stage !== 5) { switchTab('upgrade', 'Upgrades', true); }
     } else if (global.tabs.current === 'Elements') {
-        if (stage !== 4 && stage !== 5) { switchTab('upgrade'); }
+        if (stage !== 4 && stage !== 5) { switchTab('upgrade', null, true); }
     }
 };
 
