@@ -122,7 +122,7 @@ ${r}`):void de(r)},ls=t=>{if(n("closeBigWindow",!0)===null&&(n("bigWindow").inne
 - Added default loadout
 - Added save slots
 
-- Added abbility to insert data into URL
+- Added ability to insert data into URL
 <a href="https://docs.google.com/document/d/1gCskWPNxLX08npSHQW8u86VvXNhXzNchCdJ9Pec8Rvk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Full changelog</a></p>
         <h6>v0.2.8 | v0.2.9</h6><p>- Abyss full rebalance and End reset rework
 - Auto Stage now has different modes
