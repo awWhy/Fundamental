@@ -276,13 +276,12 @@
                     </section>
                     <article id="timeInfo" aria-label="Time information">
                         <p id="currentChallenge" class="redText">Currently inside the <span>Missing</span></p>
-                        <p id="gameDisabled" class="redText" style="display: none;">Game is disabled for <span class="greenText">0 seconds</span> due to time travel</p>
                         <p id="gamePaused" class="redText" style="display: none;">Game is paused, unpause it by pausing again</p>
                         <p id="exportMaxed" class="redText">Time for a reward from exporting save file is at max value</p>
                         <p id="stageTime" class="blueText">Stage time: <span class="cyanText">1 seconds</span><span id="stageTimeReal"> (Real: <span class="cyanText">0 seconds</span>)</span></p>
                         <p id="globalSpeed" class="blueText">Global speed multiplier: <span class="cyanText">1</span></p>
                     </article>
-                    <p id="SRMessage1" class="reader">It is recommended to enable support for Screen reader in Settings tab or by adding '&SR=T' into URl. Default hotkeys to navigate tabs are Arrows</p>
+                    <p id="SRMessage1" class="reader">It is recommended to enable support for Screen reader in Settings tab or by adding "&amp;SR" into URL. Default hotkeys to navigate tabs are Arrows</p>
                 </section>
                 <section id="stageSubtabAdvanced" class="insideTab" style="display: none;" aria-label="Current tab">
                     <div id="challengesMain">
@@ -1184,6 +1183,20 @@
                                     </div>
                                     <p class="whiteText center">'Data' will be replaced accordingly, example<br aria-hidden="true"><span class="cyanText">[date</span>D.M.Y<span class="cyanText">]</span> ⟶ <span class="cyanText">02.02.2000</span></p>
                                     <p class="redText bigWord center">Case sensitive</p>
+                                </div>
+                                <div id="URLDataInfo">
+                                    <button type="button" class="hollowButton" aria-haspopup="dialog" aria-controls="URLDataInfoMenu">URL</button>
+                                    <div id="URLDataInfoMenu" class="popUpMenu">
+                                        <h3 class="bigWord stageText">Extra data that can be appended into URL</h3>
+                                        <p>Done as <span class="stageText">&amp;[key]=[value]</span> or just <span class="stageText">&amp;[key]</span> if there is no value</p>
+                                        <p class="stageText">slot - <span class="whiteText">current save slot as</span> number <span class="whiteText">from 0 to 9</span></p>
+                                        <p class="stageText">tab - <span class="whiteText">tab to load as a</span> number <span class="whiteText">or exact</span> text</p>
+                                        <p class="stageText">subtab - <span class="whiteText">subtab to load as a</span> number <span class="whiteText">or exact</span> text</p>
+                                        <p class="blueText">noOffine - <span class="whiteText">auto reject Offline on page load</span></p>
+                                        <p class="stageText">MD - <span class="whiteText">enable Mobile Device support</span></p>
+                                        <p class="stageText">SR - <span class="whiteText">enable Screen Reader support</span></p>
+                                        <p class="redText">Keys are case sensitive, no square brackets</p>
+                                    </div>
                                 </div>
                             </li>
                             <li><label>Visual numbers update interval <input type="number" id="numbersInterval" min="40" max="200" step="1"> ms</label><button type="button" id="pauseButton" class="hollowButton hasTitle" data-title="Pauses game ticks and resets autosave interval">Pause</button></li>

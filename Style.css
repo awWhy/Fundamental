@@ -1325,6 +1325,10 @@ li .hollowButton {
     gap: 0.3em;
 }
 
+#URLDataInfo { display: inline-block; }
+#URLDataInfo > button { margin-left: 0.1em; }
+#URLDataInfo:not(:has(button:hover), :focus-within) > .popUpMenu { display: none; }
+
 #autoTogglesUpgrades {
     display: flex;
     flex-direction: column;
